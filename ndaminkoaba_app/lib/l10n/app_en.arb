@@ -1,0 +1,272 @@
+{
+  "@@locale": "en",
+
+  "appTitle": "NdaMinkoaba",
+  "appTagline": "Learn • Preserve • Transmit",
+  "poweredByNnanga": "Powered by Nnanga AI Tutor",
+  "commonSomethingWrong": "Something went wrong. Please try again.",
+  "commonRetry": "Retry",
+  "commonContinueWithGoogle": "Continue with Google",
+  "commonContinueWithFacebook": "Continue with Facebook",
+  "commonOrContinueWith": "or continue with",
+  "commonOAuthNotConfigured": "{provider} sign-in isn't set up yet.",
+  "@commonOAuthNotConfigured": {
+    "placeholders": { "provider": { "type": "String" } }
+  },
+
+  "languageSelectTitle": "Choose your language",
+  "languageSelectSubtitle": "Select the language you'd like to use in the app.",
+  "languageEnglishLabel": "English",
+  "languageFrenchLabel": "Français",
+
+  "loginWelcomeTitle": "Welcome Back 👋",
+  "loginSubtitle": "Continue your African language learning journey.",
+  "emailLabel": "Email",
+  "emailHint": "Enter your email",
+  "passwordLabel": "Password",
+  "passwordHint": "Enter your password",
+  "forgotPasswordLabel": "Forgot password?",
+  "comingSoonMessage": "Coming soon",
+  "loginButtonLabel": "Login",
+  "noAccountPrompt": "Don't have an account?",
+  "registerLinkLabel": "Register",
+  "loginEmptyFieldsError": "Please enter your email and password.",
+  "loginFailedError": "Login failed. Please check your credentials.",
+
+  "createAccountTitle": "Create Account",
+  "registerSubtitle": "Start your African language learning journey.",
+  "fullNameLabel": "Full Name",
+  "fullNameHint": "Enter your full name",
+  "confirmPasswordLabel": "Confirm Password",
+  "confirmPasswordHint": "Re-enter your password",
+  "registerButtonLabel": "Register",
+  "alreadyHaveAccountPrompt": "Already have an account?",
+  "loginLinkLabel": "Login",
+  "registerFillAllFieldsError": "Please fill in all fields.",
+  "passwordsDoNotMatchError": "Passwords do not match.",
+  "passwordTooWeakError": "Password must be at least 8 characters and include a letter and a number.",
+  "registerSuccessMessage": "Account created successfully. Please log in.",
+  "registerFailedError": "Registration failed. Please try again.",
+  "oauthSignInFailedError": "Sign-in failed. Please try again.",
+
+  "welcomeGreeting": "Welcome, {name}! 👋",
+  "@welcomeGreeting": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "welcomeMessage": "Welcome to NdaMinkoaba. Your journey to speak, preserve and pass on your language starts now.",
+  "welcomeTagline": "Our languages, our heritage, our identity",
+  "levelBeginner": "Beginner",
+  "levelIntermediate": "Intermediate",
+  "levelAdvanced": "Advanced",
+  "startLearningButton": "Start Learning",
+  "welcomeBackMessage": "Welcome back, {name}",
+  "@welcomeBackMessage": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+
+  "navHome": "Home",
+  "navCourses": "Courses",
+  "navMyLearning": "Learning",
+  "navAI": "AI",
+  "navProfile": "Profile",
+
+  "dashboardSubtitle": "Continue your Ewondo learning journey",
+  "dashboardFallbackName": "Learner",
+  "statLessons": "Lessons",
+  "statCertificates": "Certificates",
+  "statAvgScore": "Avg Score",
+  "quickActionsTitle": "Quick Actions",
+  "quickActionsSubtitle": "Choose what you want to do next",
+  "actionCourses": "Courses",
+  "actionVocabulary": "Vocabulary",
+  "actionNnanga": "Nnanga AI",
+  "actionCertificates": "Certificates",
+  "actionBible": "Bible",
+  "actionBooks": "Books",
+  "dailyWordTitle": "Daily Word",
+  "dailyWordSubtitle": "Learn one Ewondo word every day",
+  "dailyWordMeaning": "Peace / Calmness",
+  "dailyWordUsageHint": "Use it today in a simple greeting or conversation.",
+  "dailyVerseTitle": "Daily Verse",
+  "dailyVerseSubtitle": "A Bible verse in Ewondo, every day",
+  "dailyContentEmpty": "Nothing added yet — check back soon.",
+  "continueLearningTitle": "Continue Learning",
+  "resumeButton": "Resume",
+  "progressPercentLabel": "{percent}% complete",
+  "@progressPercentLabel": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+
+  "myLearningTitle": "My Learning",
+  "myLearningSubtitle": "Pick up where you left off",
+  "myLearningEmptyTitle": "Nothing in progress yet",
+  "myLearningEmptyMessage": "Start a course and it will show up here.",
+
+  "coursesTitle": "Courses",
+  "coursesSubtitle": "Choose your Ewondo learning path.",
+  "searchCoursesHint": "Search courses...",
+  "levelAllLabel": "All Levels",
+  "availableCoursesTitle": "Available Courses",
+  "availableCoursesSubtitle": "Start with the beginner course",
+  "noCoursesTitle": "No courses yet",
+  "noCoursesMessage": "No courses are available at this level yet.",
+  "lessonsCountLabel": "{count} lessons",
+  "@lessonsCountLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "levelLockedMessage": "Finish {level} to unlock this level.",
+  "@levelLockedMessage": {
+    "placeholders": { "level": { "type": "String" } }
+  },
+  "lessonLockedMessage": "Finish the previous lesson to unlock this one.",
+
+  "courseNotFoundTitle": "Course not found",
+  "courseNotFoundMessage": "This course could not be loaded. Please go back and try again.",
+  "yourProgressLabel": "Your Progress",
+  "progressCompletedSummary": "{percent}% completed ({done}/{total} lessons)",
+  "@progressCompletedSummary": {
+    "placeholders": {
+      "percent": { "type": "int" },
+      "done": { "type": "int" },
+      "total": { "type": "int" }
+    }
+  },
+  "viewCertificateButton": "View Certificate",
+  "claimCertificateButton": "Claim Your Certificate",
+  "notEligibleCertificateError": "Not eligible yet — finish every lesson and pass every quiz first.",
+  "modulesTitle": "Modules",
+  "modulesSubtitle": "Learn step by step",
+
+  "lessonNumberLabel": "Lesson {number}",
+  "@lessonNumberLabel": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "lessonNoContent": "No content available for this lesson yet.",
+  "illustratedWordsTitle": "Illustrated Words",
+  "summaryTitle": "Summary",
+  "noSummary": "No summary available.",
+  "takeQuizButton": "Take Quiz",
+  "nextLessonButton": "Next Lesson",
+  "finishLessonButton": "Finish Lesson",
+  "lessonCompletedMessage": "Lesson completed",
+  "lessonNotFoundTitle": "Lesson not found",
+  "lessonNotFoundMessage": "This lesson could not be loaded. Please go back and try again.",
+
+  "pleaseAnswerAllError": "Please answer every question.",
+  "quizSubmitError": "Could not submit quiz. Try again.",
+  "noQuizTitle": "No quiz yet",
+  "noQuizMessage": "No quiz is available for this lesson yet.",
+  "passMarkLabel": "Pass mark: {percent}%",
+  "@passMarkLabel": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "questionLabel": "Question {number}",
+  "@questionLabel": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "submitQuizButton": "Submit Quiz",
+  "youPassedTitle": "You passed!",
+  "notQuiteThereTitle": "Not quite there",
+  "scoreSummary": "Score: {score}% (pass mark {passMark}%)",
+  "@scoreSummary": {
+    "placeholders": {
+      "score": { "type": "int" },
+      "passMark": { "type": "int" }
+    }
+  },
+  "reviewTitle": "Review",
+  "tryAgainButton": "Try Again",
+  "continueButton": "Continue",
+
+  "vocabularyTitle": "Vocabulary",
+  "vocabularyHeroText": "Learn one new Ewondo word at a time",
+  "searchWordsHint": "Search Ewondo words...",
+  "levelAllShort": "All",
+  "noWordsFoundTitle": "No words found",
+  "noWordsFoundMessage": "Try a different search or level filter.",
+
+  "nnangaTitle": "Nnanga AI Tutor",
+  "nnangaGreeting": "Mbolo! I am **Nnanga**, your Ewondo AI tutor. Ask me about words, grammar, or culture from the NdaMinkoaba lessons.",
+  "nnangaErrorFallback": "Nnanga could not answer right now. Please try again.",
+  "nnangaInputHint": "Ask Nnanga anything...",
+  "nnangaGroundedBadge": "From official lessons",
+  "nnangaGeneralBadge": "General knowledge",
+
+  "myCertificatesTitle": "My Certificates",
+  "myCertificatesSubtitle": "Complete a course and pass its quizzes to earn a certificate.",
+  "noCertificatesTitle": "No certificates yet",
+  "noCertificatesMessage": "Finish all lessons and quizzes in a course to earn your first certificate.",
+  "booksTitle": "Books",
+  "booksSubtitle": "Read Ewondo books as PDF or EPUB, right in the app.",
+  "noBooksTitle": "No books yet",
+  "noBooksMessage": "Check back soon — new books will appear here.",
+  "bookLoadError": "Could not load this book. Please try again.",
+
+  "certificateNotFoundTitle": "Certificate not found",
+  "certificateNotFoundMessage": "This certificate could not be loaded. Please go back and try again.",
+  "certificateOfCompletion": "Certificate of Completion",
+  "certificateCodeLabel": "Certificate Code",
+  "issuedOnLabel": "Issued On",
+  "generatePdfButton": "Generate PDF",
+  "viewDownloadPdfButton": "View / Download PDF",
+  "generatePdfError": "Could not generate the PDF. Try again.",
+
+  "bibleTitle": "Holy Bible",
+  "bibleSubtitle": "Read Scripture in Ewondo, side by side with your language",
+  "bibleFourGospelsTitle": "The Four Gospels",
+  "bibleFourGospelsSubtitle": "The life and teachings of Jesus",
+  "bibleOtherBooksTitle": "Other Books",
+  "bibleComingSoonLabel": "Coming soon",
+  "bibleChaptersCountLabel": "{count} chapters",
+  "@bibleChaptersCountLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "bibleNoContentTitle": "No Bible content yet",
+  "bibleNoContentMessage": "Check back soon — new chapters are being added.",
+  "bibleSelectChapterTitle": "Select a Chapter",
+  "bibleChapterLabel": "Chapter {number}",
+  "@bibleChapterLabel": {
+    "placeholders": { "number": { "type": "int" } }
+  },
+  "bibleVerseCountLabel": "{count} verses",
+  "@bibleVerseCountLabel": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "biblePreviousChapter": "Previous",
+  "bibleNextChapter": "Next",
+  "bibleTranslationPending": "Translation not yet available",
+  "bibleChapterNotFoundTitle": "Chapter not found",
+  "bibleChapterNotFoundMessage": "This chapter could not be loaded. Please go back and try again.",
+
+  "profileTitle": "Profile",
+  "statCoursesEnrolled": "Courses Enrolled",
+  "editProfileTitle": "Edit Profile",
+  "newPasswordLabel": "New Password (optional)",
+  "newPasswordHint": "Leave blank to keep current password",
+  "saveChangesButton": "Save Changes",
+  "profileUpdatedMessage": "Profile updated",
+  "profileUpdateError": "Could not update profile.",
+  "logOutButton": "Log Out",
+  "switchLanguageTitle": "Switch Language",
+
+  "chooseLanguageTitle": "Choose a Language",
+  "chooseLanguageQuestion": "Which language would you like to learn?",
+  "chooseLanguageHint": "You can switch languages anytime from your profile.",
+  "chooseLanguageEmptyTitle": "No languages are available yet.",
+  "chooseLanguageOnlyCurrentMessage": "You're already learning the only language published so far.",
+
+  "continueLearningWelcomeBack": "Welcome back, {name}!",
+  "@continueLearningWelcomeBack": {
+    "placeholders": { "name": { "type": "String" } }
+  },
+  "continueLearningWelcomeBackNoName": "Welcome back!",
+  "continueLearningSubtitle": "What would you like to do today?",
+  "continueLearningContinueTitle": "Continue with {language}?",
+  "@continueLearningContinueTitle": {
+    "placeholders": { "language": { "type": "String" } }
+  },
+  "continueLearningContinueFallback": "Continue where you left off?",
+  "continueLearningContinueSubtitle": "Pick up your learning journey right where you left off.",
+  "continueLearningNewLanguageTitle": "Start a new language?",
+  "continueLearningNewLanguageSubtitle": "Explore another Cameroonian language from scratch."
+}

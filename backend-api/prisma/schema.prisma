@@ -1,0 +1,425 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  TEACHER
+  LEARNER
+}
+
+enum Level {
+  BEGINNER
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CourseStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum QuestionType {
+  MULTIPLE_CHOICE
+  TRUE_FALSE
+  FILL_BLANK
+}
+
+enum EnrollmentStatus {
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  fullName     String
+  email        String    @unique
+  passwordHash String?
+  googleId     String?   @unique
+  facebookId   String?   @unique
+  role         UserRole  @default(LEARNER)
+  phone        String?
+  profileImage String?
+  isActive     Boolean   @default(true)
+  lastLogin    DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  courses       Course[]         @relation("TeacherCourses")
+  progress      Progress[]
+  certificates  Certificate[]
+  quizAttempts  QuizAttempt[]
+  bookmarks     Bookmark[]
+  aiChats       AIConversation[]
+  notifications Notification[]
+  auditLogs     AuditLog[]
+  enrollments   Enrollment[]
+}
+
+model Language {
+  id        String   @id @default(uuid())
+  name      String
+  code      String   @unique
+  country   String?
+  flagUrl   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  courses        Course[]
+  vocabulary     Vocabulary[]
+  bibleVerses    BibleVerse[]
+  dailyWords     DailyWord[]
+  dailyVerses    DailyVerse[]
+  knowledgeTexts KnowledgeText[]
+  books          Book[]
+}
+
+model Course {
+  id                 String       @id @default(uuid())
+  title              String
+  description        String?
+  frenchTitle        String?
+  frenchDescription  String?
+  thumbnailUrl       String?
+  level          Level
+  status         CourseStatus @default(DRAFT)
+  estimatedHours Int?
+  languageId     String
+  teacherId      String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  language     Language       @relation(fields: [languageId], references: [id])
+  teacher      User?          @relation("TeacherCourses", fields: [teacherId], references: [id])
+  modules      CourseModule[]
+  certificates Certificate[]
+  enrollments  Enrollment[]
+}
+
+model CourseModule {
+  id                String   @id @default(uuid())
+  title             String
+  description       String?
+  frenchTitle       String?
+  frenchDescription String?
+  orderNumber       Int
+  courseId          String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  course  Course   @relation(fields: [courseId], references: [id])
+  lessons Lesson[]
+}
+
+model Lesson {
+  id             String   @id @default(uuid())
+  title          String
+  summary        String?
+  content        String
+  frenchTitle    String?
+  frenchSummary  String?
+  frenchContent  String?
+  audioUrl       String?
+  videoUrl       String?
+  orderNumber    Int
+  moduleId       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  module      CourseModule  @relation(fields: [moduleId], references: [id])
+  vocabulary  Vocabulary[]
+  quizzes     Quiz[]
+  progress    Progress[]
+  bookmarks   Bookmark[]
+  images      LessonImage[]
+}
+
+model LessonImage {
+  id          String   @id @default(uuid())
+  imageUrl    String
+  word        String
+  caption     String?
+  orderNumber Int      @default(1)
+  lessonId    String
+  createdAt   DateTime @default(now())
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+model KnowledgeText {
+  id          String   @id @default(uuid())
+  text        String
+  translation String?
+  languageId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+model BibleVerse {
+  id          String   @id @default(uuid())
+  book        String
+  chapter     Int
+  verse       Int
+  text        String
+  englishText String?
+  frenchText  String?
+  version     String   @default("ESV")
+  languageId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([book, chapter, verse, version, languageId], name: "book_chapter_verse_version_language")
+}
+
+/// Admin-curated pool of words shown one-per-day on the learner dashboard,
+/// scoped to a language. Which entry is "today's word" is computed
+/// deterministically from the date (day-of-year modulo pool size), not
+/// stored — so admins only ever manage the pool, never have to remember to
+/// update "today".
+model DailyWord {
+  id             String   @id @default(uuid())
+  word           String
+  englishMeaning String?
+  frenchMeaning  String?
+  usageHint      String?
+  languageId     String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+/// Same rotation model as [DailyWord], for the Bible verse shown below the
+/// daily word on the learner dashboard.
+model DailyVerse {
+  id          String   @id @default(uuid())
+  text        String
+  englishText String?
+  frenchText  String?
+  reference   String
+  languageId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+/// A book (PDF or EPUB) admins upload for learners to read in-app.
+model Book {
+  id          String   @id @default(uuid())
+  title       String
+  author      String?
+  description String?
+  coverUrl    String?
+  fileUrl     String
+  fileType    String
+  languageId  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+}
+
+model Category {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  vocabulary Vocabulary[]
+}
+
+model Vocabulary {
+  id                  String   @id @default(uuid())
+  word                String
+  frenchMeaning       String?
+  englishMeaning      String?
+  partOfSpeech        String?
+  exampleSentence     String?
+  exampleTranslation  String?
+  frenchExampleTranslation String?
+  difficulty          Level    @default(BEGINNER)
+  audioUrl            String?
+  imageUrl            String?
+  lessonId            String?
+  categoryId          String?
+  languageId          String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  lesson         Lesson?         @relation(fields: [lessonId], references: [id])
+  category       Category?       @relation(fields: [categoryId], references: [id])
+  language       Language        @relation(fields: [languageId], references: [id])
+  pronunciations Pronunciation[]
+}
+
+model Pronunciation {
+  id           String   @id @default(uuid())
+  vocabularyId String
+  audioUrl     String
+  speakerName  String?
+  dialect      String?
+  createdAt    DateTime @default(now())
+
+  vocabulary Vocabulary @relation(fields: [vocabularyId], references: [id])
+}
+
+model Quiz {
+  id                String   @id @default(uuid())
+  title             String
+  description       String?
+  frenchTitle       String?
+  frenchDescription String?
+  passingScore      Int      @default(80)
+  lessonId          String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  lesson    Lesson        @relation(fields: [lessonId], references: [id])
+  questions Question[]
+  attempts  QuizAttempt[]
+}
+
+model Question {
+  id                  String       @id @default(uuid())
+  questionText        String
+  frenchQuestionText  String?
+  type                QuestionType @default(MULTIPLE_CHOICE)
+  explanation         String?
+  frenchExplanation   String?
+  quizId              String
+  createdAt    DateTime     @default(now())
+
+  quiz    Quiz     @relation(fields: [quizId], references: [id])
+  choices Choice[]
+}
+
+model Choice {
+  id              String  @id @default(uuid())
+  choiceText      String
+  frenchChoiceText String?
+  isCorrect       Boolean @default(false)
+  questionId      String
+
+  question Question @relation(fields: [questionId], references: [id])
+}
+
+model QuizAttempt {
+  id          String   @id @default(uuid())
+  userId      String
+  quizId      String
+  score       Int
+  passed      Boolean
+  attemptedAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  quiz Quiz @relation(fields: [quizId], references: [id])
+}
+
+model Progress {
+  id          String    @id @default(uuid())
+  userId      String
+  lessonId    String
+  score       Int?
+  attempts    Int       @default(0)
+  completed   Boolean   @default(false)
+  completedAt DateTime?
+  updatedAt   DateTime  @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+}
+
+model Certificate {
+  id              String   @id @default(uuid())
+  certificateCode String   @unique
+  userId          String
+  courseId        String
+  issuedAt        DateTime @default(now())
+  pdfUrl          String?
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+}
+
+model Bookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  createdAt DateTime @default(now())
+
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId])
+}
+
+model AIConversation {
+  id        String   @id @default(uuid())
+  userId    String
+  prompt    String
+  response  String
+  tokens    Int?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Enrollment {
+  id          String           @id @default(uuid())
+  userId      String
+  courseId    String
+  status      EnrollmentStatus @default(ACTIVE)
+  progress    Int              @default(0)
+  startedAt   DateTime         @default(now())
+  completedAt DateTime?
+
+  user   User   @relation(fields: [userId], references: [id])
+  course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
+}
+
+model Setting {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String
+  entity    String?
+  entityId  String?
+  summary   String?
+  createdAt DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+}

@@ -1,0 +1,39 @@
+# --- Local dev tooling (not for public repo) ---
+.claude/
+
+# --- Secrets ---
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+admin_token.txt
+
+# --- Backend (NestJS) ---
+backend-api/node_modules/
+backend-api/dist/
+backend-api/build/
+backend-api/coverage/
+backend-api/generated/prisma/
+
+# --- Flutter app ---
+ndaminkoaba_app/.dart_tool/
+ndaminkoaba_app/.flutter-plugins-dependencies
+ndaminkoaba_app/.pub-cache/
+ndaminkoaba_app/.pub/
+ndaminkoaba_app/build/
+ndaminkoaba_app/android/.gradle/
+ndaminkoaba_app/android/app/debug/
+ndaminkoaba_app/android/app/profile/
+ndaminkoaba_app/android/app/release/
+ndaminkoaba_app/ios/Pods/
+ndaminkoaba_app/ios/Flutter/.last_build_id
+ndaminkoaba_app/*.iml
+
+# --- OS junk ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- IDE ---
+.idea/

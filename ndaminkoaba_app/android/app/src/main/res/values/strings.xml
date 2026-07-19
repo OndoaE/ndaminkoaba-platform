@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Facebook Login (see README "OAuth sign-in setup" and
+         AndroidManifest.xml). Fill these in once you've created a Facebook
+         App at developers.facebook.com — until then they're intentionally
+         empty and Facebook sign-in just fails gracefully on Android. -->
+    <string name="facebook_app_id"></string>
+    <string name="facebook_client_token"></string>
+    <string name="fb_login_protocol_scheme">fbYOUR_FACEBOOK_APP_ID</string>
+</resources>

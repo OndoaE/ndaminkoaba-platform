@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="A new Flutter project.">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="ndaminkoaba_app">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <!-- Google sign-in (see README "OAuth sign-in setup"). Replace with your
+       Web OAuth Client ID from Google Cloud Console — the app also passes
+       this explicitly in AuthService.loginWithGoogle(), so this tag is a
+       fallback for the underlying JS SDK, not the only place it's read. -->
+  <meta name="google-signin-client_id" content="1069029230986-btkpgu7smsf7c74k4mp7pp7prgju3mo7.apps.googleusercontent.com">
+
+  <title>ndaminkoaba_app</title>
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Required by syncfusion_flutter_pdfviewer's web implementation, which
+       calls into a global `pdfjsLib` via JS interop instead of bundling
+       PDF.js itself. Without this SfPdfViewer fails to open any document
+       on Flutter Web. Per the package README's PdfJs 4.0+ instructions. -->
+  <script type="module" async>
+    import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.9.155/pdf.min.mjs';
+    window.pdfjsLib = pdfjsLib;
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.9.155/pdf.worker.min.mjs';
+  </script>
+
+  <!-- Required by flutter_inappwebview_web (used by flutter_epub_viewer's
+       reader) to establish the window.flutter_inappwebview JS bridge that
+       its embedded iframe pages call back into. -->
+  <script src="assets/packages/flutter_inappwebview_web/assets/web/web_support.js" defer></script>
+</head>
+<body>
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

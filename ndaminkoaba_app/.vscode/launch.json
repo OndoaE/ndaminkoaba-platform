@@ -1,0 +1,20 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "ndaminkoaba_app (LAN backend)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart",
+      "args": [
+        "--dart-define=API_BASE_URL=http://192.168.100.152:3000/api"
+      ]
+    },
+    {
+      "name": "ndaminkoaba_app (localhost backend)",
+      "request": "launch",
+      "type": "dart",
+      "program": "lib/main.dart"
+    }
+  ]
+}
