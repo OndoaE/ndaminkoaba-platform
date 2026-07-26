@@ -54,6 +54,7 @@ class ManagedLesson {
   final String courseId;
   final String courseTitle;
   final bool hasQuiz;
+  final List<Map<String, dynamic>> conversation;
 
   const ManagedLesson({
     required this.id,
@@ -69,6 +70,7 @@ class ManagedLesson {
     required this.courseId,
     required this.courseTitle,
     required this.hasQuiz,
+    this.conversation = const [],
   });
 
   factory ManagedLesson.fromJson(Map<String, dynamic> json) {
@@ -88,6 +90,7 @@ class ManagedLesson {
       courseId: course?['id'] ?? '',
       courseTitle: course?['title'] ?? 'Unknown course',
       hasQuiz: ((json['quizzes'] ?? []) as List).isNotEmpty,
+      conversation: ((json['conversationJson'] ?? []) as List).cast<Map<String, dynamic>>(),
     );
   }
 }

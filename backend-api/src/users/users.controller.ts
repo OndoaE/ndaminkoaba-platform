@@ -1,6 +1,8 @@
 import {
+  BadRequestException,
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   Patch,
@@ -66,7 +68,33 @@ export class UsersController {
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
   @Audited('User')
-  adminUpdate(@Param('id') id: string, @Body() dto: AdminUpdateUserDto) {
+  adminUpdate(
+    @CurrentUser() currentUser: { userId: string },
+    @Param('id') id: string,
+    @Body() dto: AdminUpdateUserDto,
+  ) {
+    if (id === currentUser.userId) {
+      if (dto.isActive === false) {
+        throw new BadRequestException('You cannot deactivate your own account.');
+      }
+      if (dto.role && dto.role !== UserRole.ADMIN) {
+        throw new BadRequestException('You cannot change your own role.');
+      }
+    }
     return this.usersService.adminUpdate(id, dto);
+  }
+
+  @Delete(':id')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN)
+  @Audited('User')
+  remove(
+    @CurrentUser() currentUser: { userId: string },
+    @Param('id') id: string,
+  ) {
+    if (id === currentUser.userId) {
+      throw new BadRequestException('You cannot delete your own account.');
+    }
+    return this.usersService.remove(id);
   }
 }

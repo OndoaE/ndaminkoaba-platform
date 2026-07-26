@@ -1,16 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../core/locale/locale_provider.dart';
 import '../../../core/locale/localized_text.dart';
 import '../../../core/services/storage_service.dart';
+import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/widgets/badge_earned_dialog.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/gradient_hero_card.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
@@ -34,6 +37,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   final progressRepository = ProgressRepository();
 
   bool isLoading = true;
+  bool hasError = false;
   bool isSubmitting = false;
   Quiz? quiz;
   QuizAttemptResult? result;
@@ -46,7 +50,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   }
 
   Future<void> loadQuiz() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
     try {
       final fetched = await quizRepository.getQuizForLesson(widget.lessonId);
       if (!mounted) return;
@@ -56,7 +63,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() => isLoading = false);
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
     }
   }
 
@@ -97,6 +107,9 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
         result = attemptResult;
         isSubmitting = false;
       });
+      if (attemptResult.newlyEarnedBadges.isNotEmpty) {
+        await BadgeEarnedDialog.show(context, attemptResult.newlyEarnedBadges);
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() => isSubmitting = false);
@@ -131,6 +144,30 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               );
             }
 
+            if (hasError) {
+              return Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BouncyIconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+                    EmptyState(
+                      icon: Icons.wifi_off_outlined,
+                      iconColor: AppColors.error,
+                      title: l10n.commonSomethingWrong,
+                      action: PrimaryButton(
+                        label: l10n.commonRetry,
+                        onPressed: loadQuiz,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             final currentQuiz = quiz;
             if (currentQuiz == null) {
               return Padding(
@@ -138,7 +175,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
+                    BouncyIconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.arrow_back),
                     ),
@@ -167,7 +204,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
+                  BouncyIconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back),
                   ),
@@ -364,11 +401,23 @@ class _QuizResultView extends StatelessWidget {
             ),
             child: Column(
               children: [
-                Icon(
-                  result.passed ? Icons.check_circle : Icons.cancel,
-                  color: Colors.white,
-                  size: 48,
-                ),
+                if (result.passed)
+                  SizedBox(
+                    width: 80,
+                    height: 80,
+                    child: Lottie.asset(
+                      'assets/lottie/quiz_success.json',
+                      fit: BoxFit.contain,
+                      repeat: false,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                    ),
+                  )
+                else
+                  const Icon(Icons.cancel, color: Colors.white, size: 48),
                 const SizedBox(height: AppSpacing.md),
                 Text(
                   result.passed ? l10n.youPassedTitle : l10n.notQuiteThereTitle,

@@ -126,14 +126,14 @@ Also added: `POST /users` (admin-create with any role), `POST /notifications/bro
 
 ## What this fourth pass added
 
-**Google and Facebook sign-in**, alongside the existing email/password registration (which was already `@IsEmail`-validated — no server-side email-verification flow was added). Both providers use the same pattern: the Flutter client gets a token directly from Google/Facebook, hands it to the backend, which verifies it server-side and issues the platform's own JWT — identical to the email/password flow from there on (`isFirstLogin`, `/welcome` routing, etc. all just work).
+**Google sign-in**, alongside the existing email/password registration (which was already `@IsEmail`-validated — no server-side email-verification flow was added). The Flutter client gets an ID token directly from Google, hands it to the backend, which verifies it server-side and issues the platform's own JWT — identical to the email/password flow from there on (`isFirstLogin`, `/welcome` routing, etc. all just work).
 
-- **Backend**: `POST /auth/google` (verifies the ID token via `google-auth-library`'s `OAuth2Client.verifyIdToken`) and `POST /auth/facebook` (verifies the access token by calling the Graph API `/me` endpoint with an `appsecret_proof`, Facebook's anti-replay measure). `User.passwordHash` is now nullable and `User.googleId`/`User.facebookId` were added — `UsersService.findOrCreateOAuthUser` links a provider id onto an existing password account if the emails match, rather than creating a duplicate. Emails are lowercased/trimmed everywhere (`normalizeEmail` in `common/utils/helpers.ts`) so `Foo@x.com`/`foo@x.com` can never become two accounts.
-- **Frontend**: `google_sign_in` + `flutter_facebook_auth` power a `OrDivider` + two `OAuthButton`s on both the login and register screens, sharing the same post-auth navigation as the email/password path (`lib/features/auth/presentation/post_login.dart`).
+- **Backend**: `POST /auth/google` (verifies the ID token via `google-auth-library`'s `OAuth2Client.verifyIdToken`). `User.passwordHash` is now nullable and `User.googleId` was added — `UsersService.findOrCreateOAuthUser` links a provider id onto an existing password account if the emails match, rather than creating a duplicate. Emails are lowercased/trimmed everywhere (`normalizeEmail` in `common/utils/helpers.ts`) so `Foo@x.com`/`foo@x.com` can never become two accounts.
+- **Frontend**: `google_sign_in` powers an `OrDivider` + `GoogleSignInButton` on both the login and register screens, sharing the same post-auth navigation as the email/password path (`lib/features/auth/presentation/post_login.dart`).
 
 ### OAuth sign-in setup
 
-Both providers are disabled out of the box and fail gracefully (a "not configured yet" snackbar, not a crash) until you provide real credentials:
+Google sign-in is disabled out of the box and fails gracefully (a "not configured yet" snackbar, not a crash) until you provide real credentials:
 
 **Google** — console.cloud.google.com → configure the OAuth consent screen → create 3 OAuth Client IDs (Web, Android, iOS):
 - Web: add your dev/prod origins to Authorized JavaScript origins.
@@ -141,13 +141,6 @@ Both providers are disabled out of the box and fail gracefully (a "not configure
 - iOS: needs the bundle ID (`ios/Runner.xcodeproj/project.pbxproj`).
 - Put the **Web** Client ID in `ndaminkoaba_app/lib/config/app_config.dart` (`googleWebClientId`) and in `ndaminkoaba_app/web/index.html`'s `google-signin-client_id` meta tag. Put the **comma-separated list of all 3** Client IDs in `backend-api/.env`'s `GOOGLE_CLIENT_ID` (the backend accepts a token minted for any of them).
 - iOS also needs its Client ID's reversed form in `ios/Runner/Info.plist`'s `CFBundleURLTypes` (replace `REPLACE_WITH_REVERSED_CLIENT_ID`).
-
-**Facebook** — developers.facebook.com → Create App (Consumer) → add the Facebook Login product → Settings → Basic for the App ID/Secret:
-- Add your Web origin, and for Android your package name + key hash (`keytool -exportcert -alias androiddebugkey -keystore ~/.android/debug.keystore | openssl sha1 -binary | openssl base64`), for iOS your bundle ID, under Facebook Login → Settings.
-- Put the App ID/Secret in `backend-api/.env`'s `FACEBOOK_APP_ID`/`FACEBOOK_APP_SECRET`.
-- Android: `ndaminkoaba_app/android/app/src/main/res/values/strings.xml` (`facebook_app_id`, `facebook_client_token`, `fb_login_protocol_scheme`).
-- iOS: `ios/Runner/Info.plist` (`FacebookAppID`, `FacebookClientToken`, and the `fbYOUR_FACEBOOK_APP_ID` URL scheme).
-- Web: `ndaminkoaba_app/lib/config/app_config.dart`'s `facebookAppId` (the JS SDK is initialized lazily on first use, no `index.html` edit needed — `flutter_facebook_auth_web` injects its own script tag).
 
 ## Known limitations / next steps
 

@@ -17,6 +17,7 @@ import { Roles } from '../auth/decorators/roles/roles.decorator';
 import { Audited } from '../audit-log/decorators/audited.decorator';
 
 import { LessonsService } from './lessons.service';
+import { BulkStatusLessonDto } from './dto/bulk-status-lesson.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto/create-lesson.dto';
 import { QueryLessonDto } from './dto/query-lesson.dto/query-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto/update-lesson.dto';
@@ -28,6 +29,16 @@ export class LessonsController {
   @Get()
   findAll(@Query() query: QueryLessonDto) {
     return this.lessonsService.findAll(query);
+  }
+
+  // Declared before the generic ':id' route so 'bulk-status' isn't matched
+  // as a lesson id.
+  @Patch('bulk-status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Audited('Lesson')
+  bulkSetStatus(@Body() dto: BulkStatusLessonDto) {
+    return this.lessonsService.bulkSetStatus(dto);
   }
 
   @Get(':id')

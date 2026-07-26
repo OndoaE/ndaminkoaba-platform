@@ -3,9 +3,10 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CourseStatus, Prisma } from '@prisma/client';
+import { CourseStatus, LessonStatus, Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { BulkStatusCourseDto } from './dto/bulk-status-course.dto';
 import { CreateCourseDto } from './dto/create-course.dto/create-course.dto';
 import { QueryCourseDto } from './dto/query-course.dto/query-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto/update-course.dto';
@@ -98,6 +99,12 @@ export class CoursesService {
               role: true,
             },
           },
+          reviewer: {
+            select: {
+              id: true,
+              fullName: true,
+            },
+          },
           modules: {
             include: {
               lessons: true,
@@ -128,6 +135,12 @@ export class CoursesService {
             fullName: true,
             email: true,
             role: true,
+          },
+        },
+        reviewer: {
+          select: {
+            id: true,
+            fullName: true,
           },
         },
         modules: {
@@ -167,5 +180,80 @@ export class CoursesService {
     return this.prisma.course.delete({
       where: { id },
     });
+  }
+
+  // Silently skips ids that don't exist or don't match — a stale checkbox
+  // selection in the admin UI shouldn't fail the whole bulk action.
+  async bulkSetStatus(dto: BulkStatusCourseDto) {
+    const result = await this.prisma.course.updateMany({
+      where: { id: { in: dto.ids } },
+      data: { status: dto.status },
+    });
+
+    return { updated: result.count };
+  }
+
+  // Computed on demand, not stored — a course's readiness changes whenever
+  // any of its lessons change, so persisting a stale percentage would be
+  // more misleading than useful.
+  async getReadiness(courseId: string) {
+    const course = await this.prisma.course.findUnique({
+      where: { id: courseId },
+      include: {
+        modules: {
+          include: {
+            lessons: {
+              include: { quizzes: true },
+            },
+          },
+        },
+      },
+    });
+
+    if (!course) {
+      throw new NotFoundException('Course not found.');
+    }
+
+    const lessons = course.modules.flatMap((moduleItem) => moduleItem.lessons);
+    const lessonsTotalCount = lessons.length;
+    const lessonsReadyCount = lessons.filter(
+      (lesson) =>
+        lesson.status === LessonStatus.APPROVED ||
+        lesson.status === LessonStatus.PUBLISHED,
+    ).length;
+    const lessonsMissingAudioCount = lessons.filter(
+      (lesson) => !lesson.audioUrl,
+    ).length;
+    const assessmentComplete = lessons.some(
+      (lesson) => lesson.quizzes.length > 0,
+    );
+    const courseDetailsComplete = Boolean(
+      course.title && course.description && course.level && course.category,
+    );
+
+    const lessonsReadyRatio =
+      lessonsTotalCount > 0 ? lessonsReadyCount / lessonsTotalCount : 0;
+    const audioReadyRatio =
+      lessonsTotalCount > 0
+        ? (lessonsTotalCount - lessonsMissingAudioCount) / lessonsTotalCount
+        : 0;
+
+    const completionPercent = Math.round(
+      (((courseDetailsComplete ? 1 : 0) +
+        lessonsReadyRatio +
+        audioReadyRatio +
+        (assessmentComplete ? 1 : 0)) /
+        4) *
+        100,
+    );
+
+    return {
+      completionPercent,
+      courseDetailsComplete,
+      lessonsReadyCount,
+      lessonsTotalCount,
+      lessonsMissingAudioCount,
+      assessmentComplete,
+    };
   }
 }

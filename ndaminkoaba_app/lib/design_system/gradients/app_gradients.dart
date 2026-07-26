@@ -34,4 +34,20 @@ class AppGradients {
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
+
+  /// Certificate level themes — mirrors the per-level palette in the
+  /// backend's PDF template (`backend-api/src/certificates/pdf/pdf.service.ts`).
+  /// Beginner reuses [primary] (green); these two are certificate-specific
+  /// so they don't couple to unrelated features that happen to share a hue.
+  static const certificateIntermediate = LinearGradient(
+    colors: [Color(0xFF7A1F2B), Color(0xFFA83E4C)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
+
+  static const certificateAdvanced = LinearGradient(
+    colors: [Color(0xFF9C7A0A), Color(0xFFD4AF37)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 }

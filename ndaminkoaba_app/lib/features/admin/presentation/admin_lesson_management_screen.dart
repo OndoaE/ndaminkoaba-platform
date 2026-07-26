@@ -8,11 +8,49 @@ import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
+import '../../../design_system/widgets/lesson_content_preview.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/content_repository.dart';
 import '../domain/management_models.dart';
 import 'widgets/move_lesson_dialog.dart';
 import 'widgets/reorder_lesson_dialog.dart';
+
+/// The conversation editor uses one plain-text line per turn — "Speaker:
+/// Text || French text" — rather than a dynamic add/remove-row widget,
+/// since that's much faster for an admin to author/edit than a form with
+/// per-line buttons, and still round-trips cleanly to/from the
+/// `[{speaker, text, frenchText}]` JSON the lesson screen renders.
+String conversationToLines(List<Map<String, dynamic>> conversation) {
+  return conversation.map((line) {
+    final speaker = line['speaker'] ?? '';
+    final text = line['text'] ?? '';
+    final frenchText = line['frenchText'] as String?;
+    return (frenchText != null && frenchText.isNotEmpty)
+        ? '$speaker: $text || $frenchText'
+        : '$speaker: $text';
+  }).join('\n');
+}
+
+List<Map<String, dynamic>> linesToConversation(String lines) {
+  return lines
+      .split('\n')
+      .map((line) => line.trim())
+      .where((line) => line.isNotEmpty && line.contains(':'))
+      .map((line) {
+        final colonIndex = line.indexOf(':');
+        final speaker = line.substring(0, colonIndex).trim();
+        final rest = line.substring(colonIndex + 1).trim();
+        final parts = rest.split('||');
+        final text = parts[0].trim();
+        final frenchText = parts.length > 1 ? parts[1].trim() : null;
+        return {
+          'speaker': speaker,
+          'text': text,
+          if (frenchText != null && frenchText.isNotEmpty) 'frenchText': frenchText,
+        };
+      })
+      .toList();
+}
 
 class AdminLessonManagementScreen extends StatefulWidget {
   const AdminLessonManagementScreen({super.key, required this.languageId, this.languageName});
@@ -95,47 +133,73 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
     final frenchTitleController = TextEditingController(text: lesson.frenchTitle ?? '');
     final frenchSummaryController = TextEditingController(text: lesson.frenchSummary ?? '');
     final frenchContentController = TextEditingController(text: lesson.frenchContent ?? '');
+    final conversationController =
+        TextEditingController(text: conversationToLines(lesson.conversation));
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Edit "${lesson.title}"'),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
-              const SizedBox(height: AppSpacing.md),
-              TextField(controller: summaryController, decoration: const InputDecoration(labelText: 'Summary')),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: contentController,
-                maxLines: 5,
-                decoration: const InputDecoration(labelText: 'Content'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: frenchTitleController,
-                decoration: const InputDecoration(labelText: 'French Title (optional)'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: frenchSummaryController,
-                decoration: const InputDecoration(labelText: 'French Summary (optional)'),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: frenchContentController,
-                maxLines: 5,
-                decoration: const InputDecoration(labelText: 'French Content (optional)'),
-              ),
-            ],
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text('Edit "${lesson.title}"'),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+                const SizedBox(height: AppSpacing.md),
+                TextField(controller: summaryController, decoration: const InputDecoration(labelText: 'Summary')),
+                const SizedBox(height: AppSpacing.md),
+                const MarkdownHint(),
+                TextField(
+                  controller: contentController,
+                  maxLines: 5,
+                  decoration: const InputDecoration(labelText: 'Content'),
+                  onChanged: (_) => setDialogState(() {}),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                LessonContentPreview(text: contentController.text),
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: frenchTitleController,
+                  decoration: const InputDecoration(labelText: 'French Title (optional)'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                TextField(
+                  controller: frenchSummaryController,
+                  decoration: const InputDecoration(labelText: 'French Summary (optional)'),
+                ),
+                const SizedBox(height: AppSpacing.md),
+                const MarkdownHint(),
+                TextField(
+                  controller: frenchContentController,
+                  maxLines: 5,
+                  decoration: const InputDecoration(labelText: 'French Content (optional)'),
+                  onChanged: (_) => setDialogState(() {}),
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                LessonContentPreview(text: frenchContentController.text),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'In Conversation (optional) — one line per turn: "Speaker: Text || French text"',
+                  style: AppTypography.caption,
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                TextField(
+                  controller: conversationController,
+                  maxLines: 4,
+                  decoration: const InputDecoration(
+                    labelText: 'Conversation',
+                    hintText: 'Amina: Mbolo, wa nga zu na? || Bonjour, comment vas-tu ?',
+                  ),
+                ),
+              ],
+            ),
           ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
+          ],
         ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
-        ],
       ),
     );
     if (confirmed != true) return;
@@ -154,6 +218,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
         frenchTitle: frenchTitleController.text.trim(),
         frenchSummary: frenchSummaryController.text.trim(),
         frenchContent: frenchContentController.text.trim(),
+        conversationJson: linesToConversation(conversationController.text),
       );
       load();
       _showMessage('Lesson updated.');

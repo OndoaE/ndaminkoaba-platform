@@ -47,6 +47,7 @@ export class NotificationsController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Audited('Announcement')
   create(@Body() dto: CreateNotificationDto) {
     return this.notificationsService.create(dto);
   }

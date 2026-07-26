@@ -21,8 +21,44 @@ enum Level {
 
 enum CourseStatus {
   DRAFT
+  IN_REVIEW
   PUBLISHED
   ARCHIVED
+}
+
+enum CourseVisibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum CourseEnrollmentMode {
+  OPEN
+  INVITE_ONLY
+}
+
+enum LessonStatus {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+}
+
+enum LessonBlockType {
+  TEXT
+  VOCABULARY
+  IMAGE
+  AUDIO
+  VIDEO
+  DIALOGUE
+  PRONUNCIATION
+  EXERCISE
+  QUIZ
+  AI_ACTIVITY
+}
+
+enum LessonBlockStatus {
+  DRAFT
+  READY
 }
 
 enum QuestionType {
@@ -43,7 +79,6 @@ model User {
   email        String    @unique
   passwordHash String?
   googleId     String?   @unique
-  facebookId   String?   @unique
   role         UserRole  @default(LEARNER)
   phone        String?
   profileImage String?
@@ -51,6 +86,13 @@ model User {
   lastLogin    DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+
+  // Streak + daily-goal state, updated lazily whenever a PracticeSession is
+  // recorded (see StreaksService) rather than via a scheduled job.
+  currentStreak    Int       @default(0)
+  longestStreak    Int       @default(0)
+  lastStreakDate   DateTime?
+  dailyGoalMinutes Int       @default(10)
 
   courses       Course[]         @relation("TeacherCourses")
   progress      Progress[]
@@ -61,6 +103,18 @@ model User {
   notifications Notification[]
   auditLogs     AuditLog[]
   enrollments   Enrollment[]
+
+  practiceSessions      PracticeSession[]
+  vocabularyProgress    VocabularyProgress[]
+  pronunciationAttempts PronunciationAttempt[]
+  userBadges            UserBadge[]
+
+  // Admin content-workflow relations: a user can be assigned as the
+  // reviewer on courses/lessons (separate from "TeacherCourses", which is
+  // authorship) and can author review comments on lessons.
+  reviewedCourses Course[]        @relation("CourseReviewer")
+  reviewedLessons Lesson[]        @relation("LessonReviewer")
+  lessonComments  LessonComment[]
 }
 
 model Language {
@@ -83,25 +137,50 @@ model Language {
 }
 
 model Course {
-  id                 String       @id @default(uuid())
-  title              String
-  description        String?
-  frenchTitle        String?
-  frenchDescription  String?
-  thumbnailUrl       String?
-  level          Level
-  status         CourseStatus @default(DRAFT)
-  estimatedHours Int?
-  languageId     String
-  teacherId      String?
-  createdAt      DateTime     @default(now())
-  updatedAt      DateTime     @updatedAt
+  id                String       @id @default(uuid())
+  title             String
+  subtitle          String?
+  description       String?
+  frenchTitle       String?
+  frenchDescription String?
+  thumbnailUrl      String?
+  level             Level
+  status            CourseStatus @default(DRAFT)
+  estimatedHours    Int?
+  languageId        String
+  teacherId         String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
-  language     Language       @relation(fields: [languageId], references: [id])
-  teacher      User?          @relation("TeacherCourses", fields: [teacherId], references: [id])
-  modules      CourseModule[]
-  certificates Certificate[]
-  enrollments  Enrollment[]
+  // Wizard/Course-editor authoring fields — category/tags/learning
+  // objectives are admin-authored metadata; supportLanguageCodes lists
+  // which UI locales this course's French/English fields are meant to
+  // support (independent of the course's own target languageId).
+  category             String?
+  tags                 String[]             @default([])
+  learningObjectives   String[]             @default([])
+  supportLanguageCodes String[]             @default([])
+  visibility           CourseVisibility     @default(PUBLIC)
+  enrollmentMode       CourseEnrollmentMode @default(OPEN)
+  issueCertificate     Boolean              @default(true)
+  // When set and in the future, the course is treated as "Scheduled" in the
+  // admin UI even though status is already PUBLISHED — not a stored state.
+  publicationDate      DateTime?
+  reviewerId           String?
+  prerequisiteCourseId String?
+
+  language           Language       @relation(fields: [languageId], references: [id])
+  teacher            User?          @relation("TeacherCourses", fields: [teacherId], references: [id])
+  // Reviewer/prerequisite are soft, disclosed-optional relations — SetNull
+  // (a deliberate exception to this schema's usual RESTRICT-everywhere
+  // convention) so removing a reviewer user or deleting a prerequisite
+  // course never hard-blocks that unrelated deletion.
+  reviewer           User?          @relation("CourseReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  prerequisiteCourse Course?        @relation("CoursePrerequisite", fields: [prerequisiteCourseId], references: [id], onDelete: SetNull)
+  dependentCourses   Course[]       @relation("CoursePrerequisite")
+  modules            CourseModule[]
+  certificates       Certificate[]
+  enrollments        Enrollment[]
 }
 
 model CourseModule {
@@ -112,34 +191,59 @@ model CourseModule {
   frenchDescription String?
   orderNumber       Int
   courseId          String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
   course  Course   @relation(fields: [courseId], references: [id])
   lessons Lesson[]
 }
 
 model Lesson {
-  id             String   @id @default(uuid())
-  title          String
-  summary        String?
-  content        String
-  frenchTitle    String?
-  frenchSummary  String?
-  frenchContent  String?
-  audioUrl       String?
-  videoUrl       String?
-  orderNumber    Int
-  moduleId       String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id            String   @id @default(uuid())
+  title         String
+  summary       String?
+  content       String
+  frenchTitle   String?
+  frenchSummary String?
+  frenchContent String?
+  audioUrl      String?
+  videoUrl      String?
+  orderNumber   Int
+  moduleId      String
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  module      CourseModule  @relation(fields: [moduleId], references: [id])
-  vocabulary  Vocabulary[]
-  quizzes     Quiz[]
-  progress    Progress[]
-  bookmarks   Bookmark[]
-  images      LessonImage[]
+  // Mock two-speaker dialogue for the lesson screen's "In Conversation"
+  // block: array of {speaker, text, frenchText?}. Admin-authored, null until
+  // content is added — the screen renders that block empty until then.
+  conversationJson Json?
+
+  // Content-workflow + block-editor authoring fields. NOTE: prerequisiteLessonId
+  // /visibility/completionRule are stored and shown in the admin UI but are
+  // NOT enforced by any learner-side gating logic yet — a disclosed gap,
+  // not a bug, to be wired up in a future pass if needed.
+  status               LessonStatus @default(DRAFT)
+  generatedByAi        Boolean      @default(false)
+  reviewerId           String?
+  difficulty           Level?
+  lessonType           String?
+  prerequisiteLessonId String?
+  visibility           String?
+  completionRule       String?
+
+  module             CourseModule @relation(fields: [moduleId], references: [id])
+  reviewer           User?        @relation("LessonReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
+  prerequisiteLesson Lesson?      @relation("LessonPrerequisite", fields: [prerequisiteLessonId], references: [id], onDelete: SetNull)
+  dependentLessons   Lesson[]     @relation("LessonPrerequisite")
+
+  vocabulary            Vocabulary[]
+  quizzes               Quiz[]
+  progress              Progress[]
+  bookmarks             Bookmark[]
+  images                LessonImage[]
+  pronunciationAttempts PronunciationAttempt[]
+  comments              LessonComment[]
+  blocks                LessonBlock[]
 }
 
 model LessonImage {
@@ -152,6 +256,50 @@ model LessonImage {
   createdAt   DateTime @default(now())
 
   lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+}
+
+/// Review-thread comment on a lesson (author/reviewer collaboration in the
+/// Lesson Editor). Cascade-deletes with its lesson — an orphaned comment is
+/// meaningless, and RESTRICT-by-default here would block lesson deletion
+/// the moment any comment exists.
+model LessonComment {
+  id        String   @id @default(uuid())
+  lessonId  String
+  authorId  String
+  text      String
+  createdAt DateTime @default(now())
+
+  lesson Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  author User   @relation(fields: [authorId], references: [id])
+}
+
+/// Authoring-time content block for the block-based Lesson Editor. This is
+/// NOT the source of truth the learner app renders from — saving a lesson's
+/// blocks derives/writes into Lesson.content/frenchContent/conversationJson/
+/// audioUrl and upserts LessonImage rows (see LessonBlocksService), so the
+/// existing learner lesson screen keeps working unchanged. VOCABULARY/QUIZ
+/// blocks are order-only pointers into the Vocabulary/Quiz rows already tied
+/// to this lesson, not authoritative content of their own.
+model LessonBlock {
+  id                String            @id @default(uuid())
+  lessonId          String
+  orderNumber       Int
+  type              LessonBlockType
+  status            LessonBlockStatus @default(DRAFT)
+  titleLabel        String?
+  textContent       String?
+  frenchTextContent String?
+  vocabularyId      String?
+  mediaUrl          String?
+  dialogueJson      Json?
+  exerciseJson      Json?
+  quizId            String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  lesson     Lesson      @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  vocabulary Vocabulary? @relation(fields: [vocabularyId], references: [id])
+  quiz       Quiz?       @relation(fields: [quizId], references: [id])
 }
 
 model KnowledgeText {
@@ -226,6 +374,11 @@ model Book {
   fileUrl     String
   fileType    String
   languageId  String
+  // Plain text extracted server-side from the uploaded PDF/EPUB, so Nnanga
+  // can search and quote from the book's actual content — null until
+  // extraction runs (on create/update, or via POST /books/:id/reextract),
+  // and stays null if extraction fails (e.g. a scanned/image-only PDF).
+  content     String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -241,27 +394,35 @@ model Category {
 }
 
 model Vocabulary {
-  id                  String   @id @default(uuid())
-  word                String
-  frenchMeaning       String?
-  englishMeaning      String?
-  partOfSpeech        String?
-  exampleSentence     String?
-  exampleTranslation  String?
+  id                       String   @id @default(uuid())
+  word                     String
+  frenchMeaning            String?
+  englishMeaning           String?
+  partOfSpeech             String?
+  exampleSentence          String?
+  exampleTranslation       String?
   frenchExampleTranslation String?
-  difficulty          Level    @default(BEGINNER)
-  audioUrl            String?
-  imageUrl            String?
-  lessonId            String?
-  categoryId          String?
-  languageId          String
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  difficulty               Level    @default(BEGINNER)
+  audioUrl                 String?
+  imageUrl                 String?
+  lessonId                 String?
+  categoryId               String?
+  languageId               String
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+
+  // Phonetic display shown under the word on the lesson screen (e.g. IPA or
+  // a simplified respelling) — admin-authored, empty until content is added.
+  phoneticTranscription String?
 
   lesson         Lesson?         @relation(fields: [lessonId], references: [id])
   category       Category?       @relation(fields: [categoryId], references: [id])
   language       Language        @relation(fields: [languageId], references: [id])
   pronunciations Pronunciation[]
+
+  vocabularyProgress    VocabularyProgress[]
+  pronunciationAttempts PronunciationAttempt[]
+  lessonBlocks          LessonBlock[]
 }
 
 model Pronunciation {
@@ -283,34 +444,35 @@ model Quiz {
   frenchDescription String?
   passingScore      Int      @default(80)
   lessonId          String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  lesson    Lesson        @relation(fields: [lessonId], references: [id])
-  questions Question[]
-  attempts  QuizAttempt[]
+  lesson       Lesson        @relation(fields: [lessonId], references: [id])
+  questions    Question[]
+  attempts     QuizAttempt[]
+  lessonBlocks LessonBlock[]
 }
 
 model Question {
-  id                  String       @id @default(uuid())
-  questionText        String
-  frenchQuestionText  String?
-  type                QuestionType @default(MULTIPLE_CHOICE)
-  explanation         String?
-  frenchExplanation   String?
-  quizId              String
-  createdAt    DateTime     @default(now())
+  id                 String       @id @default(uuid())
+  questionText       String
+  frenchQuestionText String?
+  type               QuestionType @default(MULTIPLE_CHOICE)
+  explanation        String?
+  frenchExplanation  String?
+  quizId             String
+  createdAt          DateTime     @default(now())
 
   quiz    Quiz     @relation(fields: [quizId], references: [id])
   choices Choice[]
 }
 
 model Choice {
-  id              String  @id @default(uuid())
-  choiceText      String
+  id               String  @id @default(uuid())
+  choiceText       String
   frenchChoiceText String?
-  isCorrect       Boolean @default(false)
-  questionId      String
+  isCorrect        Boolean @default(false)
+  questionId       String
 
   question Question @relation(fields: [questionId], references: [id])
 }
@@ -353,6 +515,8 @@ model Certificate {
 
   user   User   @relation(fields: [userId], references: [id])
   course Course @relation(fields: [courseId], references: [id])
+
+  @@unique([userId, courseId])
 }
 
 model Bookmark {
@@ -374,6 +538,18 @@ model AIConversation {
   response  String
   tokens    Int?
   createdAt DateTime @default(now())
+
+  // Learner voice-message input, when the prompt was recorded rather than
+  // typed — audioTranscript is what was actually sent to the chat pipeline.
+  audioUrl        String?
+  audioTranscript String?
+
+  // Structured extras parsed from the assistant's JSON-mode reply — nullable
+  // since parsing can fall back to plain-text-only on a malformed response.
+  correction         String?
+  translation        String?
+  suggestedReplies   Json?
+  usedLocalKnowledge Boolean @default(false)
 
   user User @relation(fields: [userId], references: [id])
 }
@@ -422,4 +598,122 @@ model AuditLog {
   createdAt DateTime @default(now())
 
   user User? @relation(fields: [userId], references: [id])
+}
+
+enum PracticeActivityType {
+  LESSON
+  QUIZ
+  SMART_REVIEW
+  PRONUNCIATION
+  AI_CHAT
+}
+
+/// One row per discrete learner activity block (a lesson read, a Smart
+/// Review batch, a pronunciation-practice attempt, an AI chat turn, etc.),
+/// logged with a duration so daily-minutes and the weekly practice calendar
+/// can be computed by aggregation. Kept separate from AuditLog, which is a
+/// generic admin-action trail read by the admin History screen — mixing in
+/// high-frequency learner telemetry would pollute that view and doesn't
+/// share its retention/query shape.
+model PracticeSession {
+  id           String               @id @default(uuid())
+  userId       String
+  activityType PracticeActivityType
+  durationSec  Int
+  lessonId     String?
+  courseId     String?
+  createdAt    DateTime             @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+/// Per-learner, per-word SM-2 spaced-repetition state backing Smart Review.
+/// A row is upserted automatically the first time a learner completes a
+/// lesson, for every Vocabulary entry tied to that lesson.
+model VocabularyProgress {
+  id             String    @id @default(uuid())
+  userId         String
+  vocabularyId   String
+  easeFactor     Float     @default(2.5)
+  intervalDays   Int       @default(0)
+  repetitions    Int       @default(0)
+  nextReviewAt   DateTime  @default(now())
+  lastReviewedAt DateTime?
+  lastGrade      Int?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  user       User       @relation(fields: [userId], references: [id])
+  vocabulary Vocabulary @relation(fields: [vocabularyId], references: [id])
+
+  @@unique([userId, vocabularyId])
+  @@index([userId, nextReviewAt])
+}
+
+enum PronunciationAttemptStatus {
+  PENDING
+  SCORED
+  FAILED
+}
+
+model PronunciationAttempt {
+  id            String                     @id @default(uuid())
+  userId        String
+  vocabularyId  String?
+  lessonId      String?
+  targetText    String
+  audioUrl      String
+  transcript    String?
+  accuracyScore Int?
+  feedback      String?
+  status        PronunciationAttemptStatus @default(PENDING)
+  createdAt     DateTime                   @default(now())
+
+  user       User        @relation(fields: [userId], references: [id])
+  vocabulary Vocabulary? @relation(fields: [vocabularyId], references: [id])
+  lesson     Lesson?     @relation(fields: [lessonId], references: [id])
+
+  @@index([userId, createdAt])
+}
+
+enum BadgeCriteriaType {
+  STREAK_DAYS
+  SESSIONS_COMPLETED
+  LESSONS_COMPLETED
+  QUIZZES_PASSED
+  VOCAB_MASTERED
+  PRONUNCIATION_SESSIONS
+}
+
+/// Badge definitions are admin-content data (same pattern as DailyWord /
+/// DailyVerse) rather than hardcoded in application logic, so new badges
+/// don't need a code change — BadgesService evaluates criteriaType/
+/// criteriaValue generically against a learner's current stats.
+model Badge {
+  id                String            @id @default(uuid())
+  code              String            @unique
+  name              String
+  frenchName        String?
+  description       String
+  frenchDescription String?
+  iconUrl           String?
+  criteriaType      BadgeCriteriaType
+  criteriaValue     Int
+  createdAt         DateTime          @default(now())
+
+  userBadges UserBadge[]
+}
+
+model UserBadge {
+  id       String   @id @default(uuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  badge Badge @relation(fields: [badgeId], references: [id])
+
+  @@unique([userId, badgeId])
 }

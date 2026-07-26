@@ -3,18 +3,20 @@ import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../config/app_config.dart';
+import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
-import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/gradient_hero_card.dart';
+import '../../../design_system/widgets/level_stars.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/certificate_repository.dart';
 import '../domain/certificate.dart';
+import '../domain/certificate_theme.dart';
 
 String _levelLabel(AppLocalizations l10n, String level) {
   switch (level) {
@@ -44,6 +46,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
 
   Certificate? certificate;
   bool isLoading = true;
+  bool hasError = false;
   bool isGenerating = false;
 
   @override
@@ -53,7 +56,10 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
   }
 
   Future<void> load() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
     try {
       final certificates = await repository.getMyCertificates();
       final match = certificates
@@ -66,7 +72,10 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() => isLoading = false);
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
     }
   }
 
@@ -111,6 +120,30 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
               );
             }
 
+            if (hasError) {
+              return Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BouncyIconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+                    EmptyState(
+                      icon: Icons.wifi_off_outlined,
+                      iconColor: AppColors.error,
+                      title: l10n.commonSomethingWrong,
+                      action: PrimaryButton(
+                        label: l10n.commonRetry,
+                        onPressed: load,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             final cert = certificate;
             if (cert == null) {
               return Padding(
@@ -118,7 +151,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
+                    BouncyIconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.arrow_back),
                     ),
@@ -138,52 +171,59 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
+                  BouncyIconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back),
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  GradientHeroCard(
-                    gradient: AppGradients.gold,
-                    child: Column(
-                      children: [
-                        const Icon(
-                          Icons.workspace_premium,
-                          color: Colors.white,
-                          size: 64,
-                        ),
-                        const SizedBox(height: AppSpacing.md),
-                        Text(
-                          l10n.certificateOfCompletion,
-                          style: AppTypography.h2.copyWith(color: Colors.white),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: AppSpacing.sm),
-                        Text(
-                          cert.courseTitle,
-                          style: const TextStyle(color: Colors.white70),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: AppSpacing.lg),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: AppSpacing.md,
-                            vertical: AppSpacing.xs,
-                          ),
-                          decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Text(
-                            _levelLabel(l10n, cert.level),
-                            style: const TextStyle(
+                  Builder(
+                    builder: (context) {
+                      final theme = certificateThemeForLevel(cert.level);
+                      return GradientHeroCard(
+                        gradient: theme.gradient,
+                        child: Column(
+                          children: [
+                            const Icon(
+                              Icons.workspace_premium,
                               color: Colors.white,
-                              fontWeight: FontWeight.w700,
+                              size: 64,
                             ),
-                          ),
+                            const SizedBox(height: AppSpacing.md),
+                            Text(
+                              l10n.certificateOfCompletion,
+                              style: AppTypography.h2.copyWith(color: Colors.white),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              cert.courseTitle,
+                              style: const TextStyle(color: Colors.white70),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: AppSpacing.lg),
+                            LevelStars(count: theme.starCount, size: 24),
+                            const SizedBox(height: AppSpacing.sm),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.xs,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(100),
+                              ),
+                              child: Text(
+                                _levelLabel(l10n, cert.level),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   ),
                   const SizedBox(height: AppSpacing.xl),
                   PremiumCard(

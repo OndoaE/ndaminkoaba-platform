@@ -30,17 +30,8 @@ class AppConfig {
   static const googleWebClientId =
       "1069029230986-btkpgu7smsf7c74k4mp7pp7prgju3mo7.apps.googleusercontent.com";
 
-  /// Whether Google sign-in has been configured yet. `OAuthButton` uses this
-  /// to show a "not configured yet" message instead of calling an
+  /// Whether Google sign-in has been configured yet. `GoogleSignInButton`
+  /// uses this to show a "not configured yet" message instead of calling an
   /// uninitialized SDK.
   static bool get googleSignInConfigured => googleWebClientId.isNotEmpty;
-
-  /// Facebook App ID, only needed on Web/desktop where
-  /// `flutter_facebook_auth` must be initialized with it explicitly before
-  /// first use (`AuthService.loginWithFacebook`). Android/iOS read their own
-  /// copy from AndroidManifest.xml/Info.plist instead. Empty until you've
-  /// created a Facebook App (see README).
-  static const facebookAppId = "";
-
-  static bool get facebookWebSignInConfigured => facebookAppId.isNotEmpty;
 }

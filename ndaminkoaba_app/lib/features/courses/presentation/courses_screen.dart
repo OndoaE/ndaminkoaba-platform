@@ -9,8 +9,6 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/inputs/premium_textfield.dart';
-import '../../../design_system/navigation/app_bottom_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -23,9 +21,9 @@ import '../data/course_repository.dart';
 import '../domain/models/course.dart';
 import 'package:go_router/go_router.dart';
 
-const _levels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+const kCourseLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 
-Color _levelColor(String level) {
+Color levelColor(String level) {
   switch (level) {
     case 'BEGINNER':
       return AppColors.primary;
@@ -38,7 +36,7 @@ Color _levelColor(String level) {
   }
 }
 
-IconData _levelIcon(String level) {
+IconData levelIcon(String level) {
   switch (level) {
     case 'BEGINNER':
       return Icons.looks_one_outlined;
@@ -51,7 +49,7 @@ IconData _levelIcon(String level) {
   }
 }
 
-String _levelLabel(AppLocalizations l10n, String level) {
+String levelLabel(AppLocalizations l10n, String level) {
   switch (level) {
     case 'BEGINNER':
       return l10n.levelBeginner;
@@ -66,7 +64,7 @@ String _levelLabel(AppLocalizations l10n, String level) {
 
 /// The level a learner must finish before [level] unlocks, or null if
 /// [level] is already the first one (Beginner).
-String? _previousLevel(String level) {
+String? previousLevel(String level) {
   const order = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
   final index = order.indexOf(level);
   if (index <= 0) return null;
@@ -140,12 +138,12 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
 
   void _showLevelLocked(String level) {
     final l10n = AppLocalizations.of(context);
-    final previous = _previousLevel(level);
+    final previous = previousLevel(level);
     if (previous == null) return;
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text(l10n.levelLockedMessage(_levelLabel(l10n, previous))),
+        content: Text(l10n.levelLockedMessage(levelLabel(l10n, previous))),
         backgroundColor: AppColors.primary,
       ),
     );
@@ -158,9 +156,10 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      bottomNavigationBar: AppBottomNavigation(
-        currentIndex: 1,
-        onTap: (index) => handleTabTap(context, index),
+      appBar: AppBar(
+        backgroundColor: AppColors.background,
+        elevation: 0,
+        title: Text(l10n.coursesTitle, style: AppTypography.title),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -204,7 +203,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                 child: ListView(
                   scrollDirection: Axis.horizontal,
                   children: [
-                    _LevelChip(
+                    LevelChip(
                       label: l10n.levelAllLabel,
                       selected: selectedLevel == null,
                       onTap: () {
@@ -212,11 +211,11 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                         load();
                       },
                     ),
-                    ..._levels.map(
+                    ...kCourseLevels.map(
                       (level) => Padding(
                         padding: const EdgeInsets.only(left: AppSpacing.sm),
-                        child: _LevelChip(
-                          label: _levelLabel(l10n, level),
+                        child: LevelChip(
+                          label: levelLabel(l10n, level),
                           selected: selectedLevel == level,
                           onTap: () {
                             setState(() => selectedLevel = level);
@@ -252,7 +251,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                       onTap: locked
                           ? () => _showLevelLocked(course.level)
                           : () => context.push('/courses/${course.id}'),
-                      child: _CourseCard(
+                      child: CourseCard(
                         course: course,
                         locked: locked,
                         isFrench: isFrench,
@@ -268,8 +267,8 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
   }
 }
 
-class _LevelChip extends StatelessWidget {
-  const _LevelChip({
+class LevelChip extends StatelessWidget {
+  const LevelChip({
     required this.label,
     required this.selected,
     required this.onTap,
@@ -298,8 +297,8 @@ class _LevelChip extends StatelessWidget {
   }
 }
 
-class _CourseCard extends StatelessWidget {
-  const _CourseCard({
+class CourseCard extends StatelessWidget {
+  const CourseCard({
     required this.course,
     this.locked = false,
     required this.isFrench,
@@ -312,7 +311,7 @@ class _CourseCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final color = locked ? AppColors.textSecondary : _levelColor(course.level);
+    final color = locked ? AppColors.textSecondary : levelColor(course.level);
     final title = localizedText(course.title, course.frenchTitle, isFrench);
     final description = localizedText(
       course.description,
@@ -346,7 +345,7 @@ class _CourseCard extends StatelessWidget {
               ),
               alignment: Alignment.center,
               child: Icon(
-                locked ? Icons.lock_outline : _levelIcon(course.level),
+                locked ? Icons.lock_outline : levelIcon(course.level),
                 color: Colors.white,
               ),
             ),
@@ -372,7 +371,7 @@ class _CourseCard extends StatelessWidget {
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Text(
-                            _levelLabel(l10n, course.level),
+                            levelLabel(l10n, course.level),
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                             style: TextStyle(

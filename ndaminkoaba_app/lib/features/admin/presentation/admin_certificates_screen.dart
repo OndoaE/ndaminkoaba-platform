@@ -3,11 +3,12 @@ import 'package:intl/intl.dart';
 
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
-import '../../../design_system/navigation/app_admin_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/widgets/level_stars.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../features/certificates/domain/certificate_theme.dart';
 import '../data/admin_repository.dart';
 import '../domain/admin_models.dart';
 
@@ -48,95 +49,68 @@ class _AdminCertificatesScreenState extends State<AdminCertificatesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      bottomNavigationBar: AppAdminNavigation(
-        currentIndex: 3,
-        onTap: (index) => handleAdminTabTap(context, index),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Issued Certificates',
-                style: AppTypography.h1.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
-                    ? const ShimmerListLoader()
-                    : certificates.isEmpty
-                        ? Center(
+    return AdminShell(
+      activeNavKey: 'certificates',
+      title: 'Issued Certificates',
+      subtitle: '${certificates.length} total',
+      child: isLoading
+          ? const ShimmerListLoader()
+          : certificates.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.workspace_premium_outlined, size: 48, color: AppColors.textSecondary),
+                      const SizedBox(height: AppSpacing.md),
+                      Text('No certificates issued yet.', style: AppTypography.caption),
+                    ],
+                  ),
+                )
+              : ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: certificates.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+                  itemBuilder: (context, index) {
+                    final cert = certificates[index];
+                    final theme = certificateThemeForLevel(cert.level);
+                    return PremiumCard(
+                      child: Row(
+                        children: [
+                          Container(
+                            width: 46,
+                            height: 46,
+                            decoration: BoxDecoration(
+                              gradient: theme.gradient,
+                              shape: BoxShape.circle,
+                            ),
+                            alignment: Alignment.center,
+                            child: const Icon(Icons.workspace_premium, color: Colors.white),
+                          ),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
                             child: Column(
-                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(Icons.workspace_premium_outlined,
-                                    size: 48, color: AppColors.textSecondary),
-                                const SizedBox(height: AppSpacing.md),
+                                Row(
+                                  children: [
+                                    Expanded(child: Text(cert.learnerName, style: AppTypography.title)),
+                                    LevelStars(count: theme.starCount, size: 13),
+                                  ],
+                                ),
+                                Text(cert.courseTitle, style: AppTypography.caption),
                                 Text(
-                                  'No certificates issued yet.',
-                                  style: AppTypography.caption,
+                                  '${cert.certificateCode} • ${DateFormat.yMMMd().format(cert.issuedAt)}',
+                                  style: const TextStyle(fontSize: 11),
                                 ),
                               ],
                             ),
-                          )
-                        : ListView.separated(
-                            itemCount: certificates.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: AppSpacing.md),
-                            itemBuilder: (context, index) {
-                              final cert = certificates[index];
-                              return PremiumCard(
-                                child: Row(
-                                  children: [
-                                    Container(
-                                      width: 46,
-                                      height: 46,
-                                      decoration: const BoxDecoration(
-                                        gradient: LinearGradient(
-                                          colors: [AppColors.secondary, Color(0xFFE0BE5A)],
-                                          begin: Alignment.topLeft,
-                                          end: Alignment.bottomRight,
-                                        ),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      alignment: Alignment.center,
-                                      child: const Icon(Icons.workspace_premium, color: Colors.white),
-                                    ),
-                                    const SizedBox(width: AppSpacing.md),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(cert.learnerName,
-                                              style: AppTypography.title),
-                                          Text(cert.courseTitle,
-                                              style: AppTypography.caption),
-                                          Text(
-                                            '${cert.certificateCode} • '
-                                            '${DateFormat.yMMMd().format(cert.issuedAt)}',
-                                            style: const TextStyle(fontSize: 11),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            },
                           ),
-              ),
-            ],
-          ),
-        ),
-      ),
+                        ],
+                      ),
+                    );
+                  },
+                ),
     );
   }
 }

@@ -8,6 +8,7 @@ class KnowledgeWord {
   final String? frenchExampleTranslation;
   final String difficulty;
   final String? lessonId;
+  final String? phoneticTranscription;
 
   const KnowledgeWord({
     required this.id,
@@ -19,6 +20,7 @@ class KnowledgeWord {
     this.frenchExampleTranslation,
     required this.difficulty,
     this.lessonId,
+    this.phoneticTranscription,
   });
 
   factory KnowledgeWord.fromJson(Map<String, dynamic> json) {
@@ -32,6 +34,7 @@ class KnowledgeWord {
       frenchExampleTranslation: json['frenchExampleTranslation'],
       difficulty: (json['difficulty'] ?? '').toString(),
       lessonId: json['lessonId'],
+      phoneticTranscription: json['phoneticTranscription'],
     );
   }
 }

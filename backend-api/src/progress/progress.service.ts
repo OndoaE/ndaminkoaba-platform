@@ -4,17 +4,43 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { EnrollmentStatus, Prisma, UserRole } from '@prisma/client';
+import { EnrollmentStatus, PracticeActivityType, Prisma, UserRole } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { ICurrentUser } from '../common/interfaces/current-user.interface';
+import { StreaksService } from '../streaks/streaks.service';
+import { BadgesService } from '../badges/badges.service';
+import { VocabularyReviewService } from '../vocabulary-review/vocabulary-review.service';
 import { CreateProgressDto } from './dto/create-progress.dto/create-progress.dto';
 import { QueryProgressDto } from './dto/query-progress.dto/query-progress.dto';
 import { UpdateProgressDto } from './dto/update-progress.dto/update-progress.dto';
 
 @Injectable()
 export class ProgressService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly streaksService: StreaksService,
+    private readonly badgesService: BadgesService,
+    private readonly vocabularyReviewService: VocabularyReviewService,
+  ) {}
+
+  /// Runs the streak/Smart-Review-seeding/badge side effects that should
+  /// fire once per lesson a learner actually completes — shared by both
+  /// create() and update() since either can be the call that flips
+  /// `completed` to true.
+  private async onLessonCompleted(userId: string, lessonId: string) {
+    const lesson = await this.prisma.lesson.findUnique({
+      where: { id: lessonId },
+      include: { module: { select: { courseId: true } } },
+    });
+
+    await this.streaksService.recordActivity(userId, PracticeActivityType.LESSON, 300, {
+      lessonId,
+      courseId: lesson?.module.courseId,
+    });
+    await this.vocabularyReviewService.seedFromLesson(userId, lessonId);
+    return this.badgesService.evaluateAndAward(userId);
+  }
 
   private async updateEnrollmentProgress(userId: string, lessonId: string) {
     const lesson = await this.prisma.lesson.findUnique({
@@ -91,6 +117,11 @@ export class ProgressService {
       throw new BadRequestException('Invalid lessonId.');
     }
 
+    const existing = await this.prisma.progress.findUnique({
+      where: { userId_lessonId: { userId: dto.userId, lessonId: dto.lessonId } },
+    });
+    const wasCompleted = existing?.completed ?? false;
+
     const progress = await this.prisma.progress.upsert({
       where: {
         userId_lessonId: {
@@ -127,7 +158,12 @@ export class ProgressService {
 
     await this.updateEnrollmentProgress(dto.userId, dto.lessonId);
 
-    return progress;
+    let newlyEarnedBadges: Awaited<ReturnType<typeof this.badgesService.evaluateAndAward>> = [];
+    if (dto.completed && !wasCompleted) {
+      newlyEarnedBadges = await this.onLessonCompleted(dto.userId, dto.lessonId);
+    }
+
+    return { ...progress, newlyEarnedBadges };
   }
 
   async findAll(query: QueryProgressDto) {
@@ -194,6 +230,7 @@ export class ProgressService {
 
   async update(id: string, dto: UpdateProgressDto) {
     const existingProgress = await this.findOne(id);
+    const wasCompleted = existingProgress.completed;
 
     const progress = await this.prisma.progress.update({
       where: { id },
@@ -219,7 +256,12 @@ export class ProgressService {
       existingProgress.lessonId,
     );
 
-    return progress;
+    let newlyEarnedBadges: Awaited<ReturnType<typeof this.badgesService.evaluateAndAward>> = [];
+    if (dto.completed && !wasCompleted) {
+      newlyEarnedBadges = await this.onLessonCompleted(progress.userId, existingProgress.lessonId);
+    }
+
+    return { ...progress, newlyEarnedBadges };
   }
 
   private assertOwnerOrStaff(

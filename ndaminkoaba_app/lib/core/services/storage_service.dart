@@ -47,6 +47,17 @@ class StorageService {
     return await _storage.read(key: 'email');
   }
 
+  /// Cached so shell chrome (AdminShell, sidebar, learner header) can render
+  /// the real avatar without a network round-trip on every screen. Cleared
+  /// naturally by [logout]'s `deleteAll()` — no special-casing needed.
+  static Future<void> saveAvatarUrl(String url) async {
+    await _storage.write(key: 'avatar_url', value: url);
+  }
+
+  static Future<String?> getAvatarUrl() async {
+    return await _storage.read(key: 'avatar_url');
+  }
+
   static Future<void> logout() async {
     // The UI language is a device preference, and the learning language is
     // remembered so a returning learner is offered "continue with X" right

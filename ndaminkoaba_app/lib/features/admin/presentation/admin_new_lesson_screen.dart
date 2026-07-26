@@ -10,6 +10,7 @@ import '../../../design_system/inputs/premium_textfield.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
+import '../../../design_system/widgets/lesson_content_preview.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_content_models.dart';
 
@@ -174,10 +175,11 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
                             PremiumTextField(label: 'Summary', controller: summaryController),
                             const SizedBox(height: AppSpacing.lg),
                             Text('Content', style: AppTypography.caption),
-                            const SizedBox(height: AppSpacing.sm),
+                            const MarkdownHint(),
                             TextField(
                               controller: contentController,
                               maxLines: 6,
+                              onChanged: (_) => setState(() {}),
                               decoration: InputDecoration(
                                 hintText: 'The full lesson text learners will read...',
                                 filled: true,
@@ -188,6 +190,8 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: AppSpacing.sm),
+                            LessonContentPreview(text: contentController.text),
                             const SizedBox(height: AppSpacing.lg),
                             PremiumTextField(
                               label: 'French Title (optional)',
@@ -200,10 +204,11 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             Text('French Content (optional)', style: AppTypography.caption),
-                            const SizedBox(height: AppSpacing.sm),
+                            const MarkdownHint(),
                             TextField(
                               controller: frenchContentController,
                               maxLines: 6,
+                              onChanged: (_) => setState(() {}),
                               decoration: InputDecoration(
                                 hintText: 'The French translation of the lesson text...',
                                 filled: true,
@@ -214,6 +219,8 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
                                 ),
                               ),
                             ),
+                            const SizedBox(height: AppSpacing.sm),
+                            LessonContentPreview(text: frenchContentController.text),
                             const SizedBox(height: AppSpacing.xl),
                             PrimaryButton(
                               label: 'Create Lesson',

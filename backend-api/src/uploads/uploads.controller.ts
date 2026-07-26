@@ -128,4 +128,56 @@ export class UploadsController {
       url: `/uploads/books/${file.filename}`,
     };
   }
+
+  @Post('audio')
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        file: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(
+    FileInterceptor('file', {
+      storage: diskStorage({
+        destination: './uploads/audio',
+        filename: (_req, file, callback) => {
+          const uniqueName = `${randomUUID()}${extname(file.originalname)}`;
+          callback(null, uniqueName);
+        },
+      }),
+      fileFilter: (_req, file, callback) => {
+        if (!file.mimetype.match(/^audio\//)) {
+          return callback(
+            new BadRequestException('Only audio files are allowed'),
+            false,
+          );
+        }
+
+        callback(null, true);
+      },
+      limits: {
+        fileSize: 10 * 1024 * 1024,
+      },
+    }),
+  )
+  uploadAudio(@UploadedFile() file: Express.Multer.File) {
+    if (!file) {
+      throw new BadRequestException('No file uploaded');
+    }
+
+    return {
+      message: 'Audio uploaded successfully',
+      originalName: file.originalname,
+      filename: file.filename,
+      mimetype: file.mimetype,
+      size: file.size,
+      url: `/uploads/audio/${file.filename}`,
+    };
+  }
 }

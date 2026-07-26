@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards } from '@nestjs/common';
+import { Controller, Delete, Get, HttpCode, HttpStatus, Query, UseGuards } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
@@ -17,5 +17,15 @@ export class AuditLogController {
   @Get()
   findAll(@Query() query: QueryAuditLogDto) {
     return this.auditLogService.findAll(query);
+  }
+
+  // Deliberately not @Audited — auditing this action would immediately
+  // insert a new "DELETE" entry right after wiping the table, so the
+  // history would never actually appear empty.
+  @Delete()
+  @Roles(UserRole.ADMIN)
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeAll() {
+    return this.auditLogService.removeAll();
   }
 }

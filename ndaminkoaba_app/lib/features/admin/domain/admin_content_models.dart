@@ -5,12 +5,21 @@ class AdminLanguage {
   final String? country;
   final bool isActive;
 
+  // Only populated when the list was fetched with includeStats: true (see
+  // ContentRepository.getLanguages) — null otherwise.
+  final int? courseCount;
+  final int? learnerCount;
+  final int? avgProgress;
+
   const AdminLanguage({
     required this.id,
     required this.name,
     required this.code,
     this.country,
     required this.isActive,
+    this.courseCount,
+    this.learnerCount,
+    this.avgProgress,
   });
 
   factory AdminLanguage.fromJson(Map<String, dynamic> json) {
@@ -20,6 +29,9 @@ class AdminLanguage {
       code: json['code'] ?? '',
       country: json['country'],
       isActive: json['isActive'] ?? true,
+      courseCount: json['courseCount'],
+      learnerCount: json['learnerCount'],
+      avgProgress: json['avgProgress'],
     );
   }
 }
@@ -103,6 +115,7 @@ class AdminModule {
 class AdminCourseDetail {
   final String id;
   final String title;
+  final String subtitle;
   final String description;
   final String? frenchTitle;
   final String? frenchDescription;
@@ -110,11 +123,26 @@ class AdminCourseDetail {
   final String status;
   final int? estimatedHours;
   final String languageId;
+  final String category;
+  final List<String> tags;
+  final List<String> learningObjectives;
+  final List<String> supportLanguageCodes;
+  final String? thumbnailUrl;
+  final String visibility;
+  final String enrollmentMode;
+  final bool issueCertificate;
+  final DateTime? publicationDate;
+  final String? teacherId;
+  final String? teacherName;
+  final String? reviewerId;
+  final String? reviewerName;
+  final String? prerequisiteCourseId;
   final List<AdminModule> modules;
 
   const AdminCourseDetail({
     required this.id,
     required this.title,
+    this.subtitle = '',
     required this.description,
     this.frenchTitle,
     this.frenchDescription,
@@ -122,13 +150,31 @@ class AdminCourseDetail {
     required this.status,
     required this.estimatedHours,
     required this.languageId,
+    this.category = '',
+    this.tags = const [],
+    this.learningObjectives = const [],
+    this.supportLanguageCodes = const [],
+    this.thumbnailUrl,
+    this.visibility = 'PUBLIC',
+    this.enrollmentMode = 'OPEN',
+    this.issueCertificate = true,
+    this.publicationDate,
+    this.teacherId,
+    this.teacherName,
+    this.reviewerId,
+    this.reviewerName,
+    this.prerequisiteCourseId,
     required this.modules,
   });
 
   factory AdminCourseDetail.fromJson(Map<String, dynamic> json) {
+    final teacher = json['teacher'] as Map<String, dynamic>?;
+    final reviewer = json['reviewer'] as Map<String, dynamic>?;
+
     return AdminCourseDetail(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
+      subtitle: json['subtitle'] ?? '',
       description: json['description'] ?? '',
       frenchTitle: json['frenchTitle'],
       frenchDescription: json['frenchDescription'],
@@ -136,6 +182,23 @@ class AdminCourseDetail {
       status: (json['status'] ?? '').toString(),
       estimatedHours: json['estimatedHours'],
       languageId: json['languageId'] ?? '',
+      category: json['category'] ?? '',
+      tags: ((json['tags'] ?? []) as List).map((t) => t.toString()).toList(),
+      learningObjectives:
+          ((json['learningObjectives'] ?? []) as List).map((t) => t.toString()).toList(),
+      supportLanguageCodes:
+          ((json['supportLanguageCodes'] ?? []) as List).map((t) => t.toString()).toList(),
+      thumbnailUrl: json['thumbnailUrl'],
+      visibility: (json['visibility'] ?? 'PUBLIC').toString(),
+      enrollmentMode: (json['enrollmentMode'] ?? 'OPEN').toString(),
+      issueCertificate: json['issueCertificate'] ?? true,
+      publicationDate:
+          json['publicationDate'] == null ? null : DateTime.tryParse(json['publicationDate']),
+      teacherId: teacher?['id'],
+      teacherName: teacher?['fullName'],
+      reviewerId: reviewer?['id'],
+      reviewerName: reviewer?['fullName'],
+      prerequisiteCourseId: json['prerequisiteCourseId'],
       modules: ((json['modules'] ?? []) as List)
           .map((m) => AdminModule.fromJson(m as Map<String, dynamic>))
           .toList()

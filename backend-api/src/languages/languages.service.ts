@@ -29,7 +29,7 @@ export class LanguagesService {
   }
 
   async findAll(query: QueryLanguageDto) {
-    const { page = 1, limit = 10, search, isActive } = query;
+    const { page = 1, limit = 10, search, isActive, includeStats } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.LanguageWhereInput = {};
@@ -63,12 +63,38 @@ export class LanguagesService {
       this.prisma.language.count({ where }),
     ]);
 
+    const items = includeStats
+      ? await Promise.all(languages.map((language) => this.withStats(language)))
+      : languages;
+
     return {
-      items: languages,
+      items,
       total,
       page,
       limit,
       totalPages: Math.ceil(total / limit),
+    };
+  }
+
+  private async withStats<T extends { id: string }>(language: T) {
+    const [courseCount, learners, avgProgress] = await Promise.all([
+      this.prisma.course.count({ where: { languageId: language.id } }),
+      this.prisma.enrollment.findMany({
+        where: { course: { languageId: language.id } },
+        select: { userId: true },
+        distinct: ['userId'],
+      }),
+      this.prisma.enrollment.aggregate({
+        _avg: { progress: true },
+        where: { course: { languageId: language.id } },
+      }),
+    ]);
+
+    return {
+      ...language,
+      courseCount,
+      learnerCount: learners.length,
+      avgProgress: Math.round(avgProgress._avg.progress ?? 0),
     };
   }
 

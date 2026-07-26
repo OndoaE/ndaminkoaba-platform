@@ -17,6 +17,7 @@ import { Roles } from '../auth/decorators/roles/roles.decorator';
 import { Audited } from '../audit-log/decorators/audited.decorator';
 
 import { CoursesService } from './courses.service';
+import { BulkStatusCourseDto } from './dto/bulk-status-course.dto';
 import { CreateCourseDto } from './dto/create-course.dto/create-course.dto';
 import { QueryCourseDto } from './dto/query-course.dto/query-course.dto';
 import { UpdateCourseDto } from './dto/update-course.dto/update-course.dto';
@@ -28,6 +29,21 @@ export class CoursesController {
   @Get()
   findAll(@Query() query: QueryCourseDto) {
     return this.coursesService.findAll(query);
+  }
+
+  // Declared before the generic ':id' route so 'bulk-status' isn't matched
+  // as a course id.
+  @Patch('bulk-status')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Audited('Course')
+  bulkSetStatus(@Body() dto: BulkStatusCourseDto) {
+    return this.coursesService.bulkSetStatus(dto);
+  }
+
+  @Get(':id/readiness')
+  getReadiness(@Param('id') id: string) {
+    return this.coursesService.getReadiness(id);
   }
 
   @Get(':id')

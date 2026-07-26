@@ -3,15 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_error.dart';
+import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/google_sign_in_button.dart';
-import '../../../design_system/buttons/oauth_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
-import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
-import '../../../design_system/inputs/premium_textfield.dart';
+import '../../../design_system/inputs/underline_field.dart';
 import '../../../design_system/spacing/app_spacing.dart';
-import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/widgets/logo_header.dart';
+import '../../../design_system/widgets/auth_header.dart';
 import '../../../design_system/widgets/or_divider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/auth_service.dart';
@@ -31,8 +29,9 @@ class _LoginScreenState extends State<LoginScreen> {
   final authService = AuthService();
 
   bool obscurePassword = true;
+  bool rememberMe = false;
   bool isLoading = false;
-  OAuthProvider? oauthLoading;
+  bool googleLoading = false;
 
   @override
   void dispose() {
@@ -73,39 +72,6 @@ class _LoginScreenState extends State<LoginScreen> {
     } finally {
       if (mounted) {
         setState(() => isLoading = false);
-      }
-    }
-  }
-
-  // Facebook only — Google sign-in is fully handled by GoogleSignInButton,
-  // since its web flow can't be driven from an awaited Future the way this
-  // method drives Facebook's (see google_sign_in_button.dart).
-  Future<void> loginWithFacebook() async {
-    final l10n = AppLocalizations.of(context);
-    setState(() => oauthLoading = OAuthProvider.facebook);
-
-    try {
-      final result = await authService.loginWithFacebook();
-      await saveLoginSession(result);
-
-      if (!mounted) return;
-      await navigateAfterLogin(context, result, showMessage: showMessage);
-    } on OAuthCancelledException {
-      // Learner backed out of the picker — nothing to show.
-    } on OAuthNotConfiguredException catch (e) {
-      showMessage(l10n.commonOAuthNotConfigured(e.provider));
-    } on DioException catch (e) {
-      if (!mounted) return;
-      showMessage(
-        extractErrorMessage(e, fallback: l10n.oauthSignInFailedError),
-      );
-    } catch (e, stack) {
-      if (!mounted) return;
-      debugPrint('Facebook sign-in failed: $e\n$stack');
-      showMessage('${l10n.commonSomethingWrong} ($e)');
-    } finally {
-      if (mounted) {
-        setState(() => oauthLoading = null);
       }
     }
   }
@@ -155,130 +121,122 @@ class _LoginScreenState extends State<LoginScreen> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFEFEAD9), AppColors.background],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 430),
-                child: Column(
-                  children: [
-                    LogoHeader(
-                      title: l10n.appTitle,
-                      subtitle: l10n.appTagline,
-                      imagePath: 'assets/images/ndaminkoaba_logo.png',
-                      size: 150,
+      backgroundColor: AppColors.background,
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 430),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AuthHeader(title: l10n.appTitle, tagline: l10n.appTagline),
+                  const SizedBox(height: AppSpacing.lg),
+                  Text(
+                    l10n.loginButtonLabel,
+                    style: const TextStyle(
+                      color: AppColors.textPrimary,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 32,
                     ),
-                    const SizedBox(height: AppSpacing.xxl),
-                    PremiumCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l10n.loginWelcomeTitle, style: AppTypography.h2),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            l10n.loginSubtitle,
-                            style: AppTypography.caption,
-                          ),
-                          const SizedBox(height: AppSpacing.xl),
-                          PremiumTextField(
-                            label: l10n.emailLabel,
-                            hint: l10n.emailHint,
-                            controller: emailController,
-                            prefixIcon: Icons.email_outlined,
-                            keyboardType: TextInputType.emailAddress,
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          PremiumTextField(
-                            label: l10n.passwordLabel,
-                            hint: l10n.passwordHint,
-                            controller: passwordController,
-                            prefixIcon: Icons.lock_outline,
-                            obscureText: obscurePassword,
-                            suffixIcon: IconButton(
-                              icon: Icon(
-                                obscurePassword
-                                    ? Icons.visibility_off_outlined
-                                    : Icons.visibility_outlined,
-                              ),
-                              onPressed: () {
-                                setState(() {
-                                  obscurePassword = !obscurePassword;
-                                });
-                              },
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Align(
-                            alignment: Alignment.centerRight,
-                            child: TextButton(
-                              onPressed: () =>
-                                  showMessage(l10n.comingSoonMessage),
-                              child: Text(l10n.forgotPasswordLabel),
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          PrimaryButton(
-                            label: l10n.loginButtonLabel,
-                            isLoading: isLoading,
-                            onPressed: login,
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          const OrDivider(),
-                          const SizedBox(height: AppSpacing.lg),
-                          GoogleSignInButton(
-                            isLoading: oauthLoading == OAuthProvider.google,
-                            onLoadingChanged: (loading) => setState(
-                              () => oauthLoading =
-                                  loading ? OAuthProvider.google : null,
-                            ),
-                            onIdToken: handleGoogleIdToken,
-                            onCancelled: () {},
-                            onError: handleGoogleError,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          OAuthButton(
-                            provider: OAuthProvider.facebook,
-                            isLoading: oauthLoading == OAuthProvider.facebook,
-                            onPressed: loginWithFacebook,
-                          ),
-                          const SizedBox(height: AppSpacing.lg),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  l10n.noAccountPrompt,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              TextButton(
-                                onPressed: () => context.push('/register'),
-                                child: Text(l10n.registerLinkLabel),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    Text(
-                      l10n.poweredByNnanga,
-                      style: const TextStyle(
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  UnderlineField(
+                    icon: Icons.email_outlined,
+                    hint: l10n.emailLabel,
+                    controller: emailController,
+                    keyboardType: TextInputType.emailAddress,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  UnderlineField(
+                    icon: Icons.lock_outline,
+                    hint: l10n.passwordLabel,
+                    controller: passwordController,
+                    obscureText: obscurePassword,
+                    suffixIcon: BouncyIconButton(
+                      icon: Icon(
+                        obscurePassword
+                            ? Icons.visibility_off_outlined
+                            : Icons.visibility_outlined,
                         color: AppColors.textSecondary,
-                        fontSize: 13,
                       ),
+                      onPressed: () {
+                        setState(() {
+                          obscurePassword = !obscurePassword;
+                        });
+                      },
                     ),
-                  ],
-                ),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Row(
+                    children: [
+                      SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: Checkbox(
+                          value: rememberMe,
+                          onChanged: (value) => setState(() => rememberMe = value ?? false),
+                          side: const BorderSide(color: AppColors.secondary),
+                          activeColor: AppColors.secondary,
+                          visualDensity: VisualDensity.compact,
+                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Text(l10n.rememberMeLabel, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+                      const Spacer(),
+                      TextButton(
+                        style: TextButton.styleFrom(
+                          padding: EdgeInsets.zero,
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        ),
+                        onPressed: () => showMessage(l10n.comingSoonMessage),
+                        child: Text(
+                          l10n.forgotPasswordLabel,
+                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  PrimaryButton(
+                    label: l10n.loginButtonLabel.toUpperCase(),
+                    isLoading: isLoading,
+                    onPressed: login,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  const OrDivider(showLines: false),
+                  const SizedBox(height: AppSpacing.lg),
+                  GoogleSignInButton(
+                    isLoading: googleLoading,
+                    onLoadingChanged: (loading) => setState(
+                      () => googleLoading = loading,
+                    ),
+                    onIdToken: handleGoogleIdToken,
+                    onCancelled: () {},
+                    onError: handleGoogleError,
+                  ),
+                  const SizedBox(height: AppSpacing.lg),
+                  Center(
+                    child: Wrap(
+                      alignment: WrapAlignment.center,
+                      children: [
+                        Text(l10n.noAccountPrompt, style: const TextStyle(color: AppColors.textSecondary)),
+                        const SizedBox(width: 4),
+                        GestureDetector(
+                          onTap: () => context.push('/register'),
+                          child: Text(
+                            l10n.registerLinkLabel,
+                            style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w700),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                ],
               ),
             ),
           ),

@@ -6,6 +6,7 @@ import {
 import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
+import { BulkStatusLessonDto } from './dto/bulk-status-lesson.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto/create-lesson.dto';
 import { QueryLessonDto } from './dto/query-lesson.dto/query-lesson.dto';
 import { UpdateLessonDto } from './dto/update-lesson.dto/update-lesson.dto';
@@ -95,6 +96,7 @@ export class LessonsService {
         module: { include: { course: true } },
         vocabulary: true,
         quizzes: true,
+        reviewer: { select: { id: true, fullName: true } },
       },
     });
 
@@ -123,5 +125,16 @@ export class LessonsService {
     return this.prisma.lesson.delete({
       where: { id },
     });
+  }
+
+  // Silently skips ids that don't exist — a stale checkbox selection in the
+  // admin UI shouldn't fail the whole bulk action.
+  async bulkSetStatus(dto: BulkStatusLessonDto) {
+    const result = await this.prisma.lesson.updateMany({
+      where: { id: { in: dto.ids } },
+      data: { status: dto.status },
+    });
+
+    return { updated: result.count };
   }
 }

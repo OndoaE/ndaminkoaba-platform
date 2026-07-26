@@ -12,7 +12,7 @@ import { AdminCreateUserDto } from './dto/admin-create-user.dto/admin-create-use
 import { QueryUserDto } from './dto/query-user.dto/query-user.dto';
 import { normalizeEmail } from '../common/utils/helpers';
 
-type OAuthProvider = 'google' | 'facebook';
+type OAuthProvider = 'google';
 
 const SAFE_USER_SELECT = {
   id: true,
@@ -20,6 +20,8 @@ const SAFE_USER_SELECT = {
   email: true,
   role: true,
   isActive: true,
+  profileImage: true,
+  lastLogin: true,
   createdAt: true,
   updatedAt: true,
 } as const;
@@ -64,12 +66,12 @@ export class UsersService {
   }
 
   /**
-   * Shared by `POST /auth/google` and `POST /auth/facebook`. Looks up by the
-   * provider's own id first (fast path for repeat OAuth logins), then falls
-   * back to email so a learner who already has a password account doesn't
-   * end up with a second, disconnected account just because they tried the
-   * OAuth button once — the provider id gets linked onto their existing
-   * account instead. Only creates a brand-new user if neither matches.
+   * Used by `POST /auth/google`. Looks up by the provider's own id first
+   * (fast path for repeat OAuth logins), then falls back to email so a
+   * learner who already has a password account doesn't end up with a
+   * second, disconnected account just because they tried the OAuth button
+   * once — the provider id gets linked onto their existing account instead.
+   * Only creates a brand-new user if neither matches.
    */
   async findOrCreateOAuthUser(params: {
     provider: OAuthProvider;
@@ -78,16 +80,10 @@ export class UsersService {
     fullName: string;
   }) {
     const email = normalizeEmail(params.email);
-    const providerData: { googleId: string } | { facebookId: string } =
-      params.provider === 'google'
-        ? { googleId: params.providerId }
-        : { facebookId: params.providerId };
+    const providerData: { googleId: string } = { googleId: params.providerId };
 
     const existingByProvider = await this.prisma.user.findUnique({
-      where:
-        params.provider === 'google'
-          ? { googleId: params.providerId }
-          : { facebookId: params.providerId },
+      where: { googleId: params.providerId },
     });
 
     if (existingByProvider) {
@@ -123,7 +119,7 @@ export class UsersService {
   }
 
   async updateSelf(id: string, dto: UpdateUserDto) {
-    const data: { fullName?: string; passwordHash?: string } = {};
+    const data: { fullName?: string; passwordHash?: string; profileImage?: string } = {};
 
     if (dto.fullName) {
       data.fullName = dto.fullName;
@@ -131,6 +127,10 @@ export class UsersService {
 
     if (dto.password) {
       data.passwordHash = await bcrypt.hash(dto.password, 10);
+    }
+
+    if (dto.profileImage) {
+      data.profileImage = dto.profileImage;
     }
 
     await this.findSafeById(id);
@@ -201,5 +201,15 @@ export class UsersService {
       },
       select: SAFE_USER_SELECT,
     });
+  }
+
+  async remove(id: string) {
+    await this.findSafeById(id);
+
+    // No onDelete override on User's relations (schema-wide RESTRICT
+    // convention), so this throws a P2003 for any user with existing
+    // courses/progress/etc. — the global HttpExceptionFilter turns that
+    // into a friendly 409 rather than a bare 500.
+    await this.prisma.user.delete({ where: { id } });
   }
 }

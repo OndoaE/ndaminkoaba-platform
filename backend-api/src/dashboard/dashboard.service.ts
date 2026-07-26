@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { LessonStatus, UserRole } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -33,7 +34,14 @@ export class DashboardService {
       totalQuizAttempts,
       usersByRole,
       coursesByLevel,
+      coursesByStatus,
+      vocabularyWithAudioCount,
+      completedLessonsCount,
+      avgEnrollmentProgress,
       recentCertificates,
+      learnerActivity,
+      aiReviewCount,
+      enrollmentsForLevelBreakdown,
     ] = await Promise.all([
       // Users is a platform-wide count regardless of language scope — an
       // account isn't owned by any one language.
@@ -51,6 +59,17 @@ export class DashboardService {
       this.prisma.quizAttempt.count(),
       this.prisma.user.groupBy({ by: ['role'], _count: true }),
       this.prisma.course.groupBy({ by: ['level'], _count: true, where: courseWhere }),
+      this.prisma.course.groupBy({ by: ['status'], _count: true, where: courseWhere }),
+      this.prisma.vocabulary.count({
+        where: { ...vocabularyWhere, audioUrl: { not: null } },
+      }),
+      this.prisma.progress.count({
+        where: { lesson: lessonWhere, completed: true },
+      }),
+      this.prisma.enrollment.aggregate({
+        _avg: { progress: true },
+        where: languageId ? { course: { languageId } } : {},
+      }),
       this.prisma.certificate.findMany({
         where: certificateWhere,
         take: 5,
@@ -60,7 +79,33 @@ export class DashboardService {
           course: { select: { title: true } },
         },
       }),
+      this.getLearnerActivitySeries(),
+      this.prisma.lesson.count({
+        where: { ...lessonWhere, generatedByAi: true, status: LessonStatus.IN_REVIEW },
+      }),
+      // Prisma's groupBy can't group by a joined field (course.level), so
+      // this fetches the raw rows and reduces per-level averages in JS —
+      // fine at this scale (admin dashboard, not a hot path).
+      this.prisma.enrollment.findMany({
+        where: languageId ? { course: { languageId } } : {},
+        select: { progress: true, course: { select: { level: true } } },
+      }),
     ]);
+
+    const levelTotals = new Map<string, { sum: number; count: number }>();
+    for (const enrollment of enrollmentsForLevelBreakdown) {
+      const level = enrollment.course.level;
+      const entry = levelTotals.get(level) ?? { sum: 0, count: 0 };
+      entry.sum += enrollment.progress;
+      entry.count += 1;
+      levelTotals.set(level, entry);
+    }
+    const courseCompletionByLevel = Object.fromEntries(
+      Array.from(levelTotals.entries()).map(([level, { sum, count }]) => [
+        level,
+        Math.round(sum / count),
+      ]),
+    );
 
     return {
       users: totalUsers,
@@ -75,18 +120,78 @@ export class DashboardService {
       bookmarks: totalBookmarks,
       lessonProgress: totalProgress,
       quizAttempts: totalQuizAttempts,
+      lessonsCompleted: completedLessonsCount,
+      avgCourseCompletion: Math.round(avgEnrollmentProgress._avg.progress ?? 0),
+      vocabularyWithAudioPercent:
+        totalVocabulary > 0
+          ? Math.round((vocabularyWithAudioCount / totalVocabulary) * 100)
+          : 0,
       usersByRole: Object.fromEntries(
         usersByRole.map((row) => [row.role, row._count]),
       ),
       coursesByLevel: Object.fromEntries(
         coursesByLevel.map((row) => [row.level, row._count]),
       ),
+      coursesByStatus: Object.fromEntries(
+        coursesByStatus.map((row) => [row.status, row._count]),
+      ),
       recentCertificates: recentCertificates.map((cert) => ({
         learnerName: cert.user.fullName,
         courseTitle: cert.course.title,
         issuedAt: cert.issuedAt,
       })),
+      // Platform-wide regardless of languageId, same rationale as the users
+      // count above — a learner's daily activity isn't owned by one language.
+      learnerActivity,
+      aiReviewCount,
+      courseCompletionByLevel,
     };
+  }
+
+  // Last 7 days of {date, newLearners, activeLearners} for the admin
+  // dashboards' "Learner Activity" chart. Small, sequential per-day queries
+  // rather than a single grouped query — this endpoint isn't a hot path, and
+  // the straightforward version is easier to read/verify than a raw SQL
+  // date-bucketing query.
+  private async getLearnerActivitySeries() {
+    const days = 7;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    const series: {
+      date: string;
+      newLearners: number;
+      activeLearners: number;
+    }[] = [];
+
+    for (let i = days - 1; i >= 0; i--) {
+      const dayStart = new Date(today);
+      dayStart.setDate(dayStart.getDate() - i);
+      const dayEnd = new Date(dayStart);
+      dayEnd.setDate(dayEnd.getDate() + 1);
+
+      const [newLearners, activeSessions] = await Promise.all([
+        this.prisma.user.count({
+          where: {
+            role: UserRole.LEARNER,
+            createdAt: { gte: dayStart, lt: dayEnd },
+          },
+        }),
+        this.prisma.practiceSession.findMany({
+          where: { createdAt: { gte: dayStart, lt: dayEnd } },
+          select: { userId: true },
+          distinct: ['userId'],
+        }),
+      ]);
+
+      series.push({
+        date: dayStart.toISOString().slice(0, 10),
+        newLearners,
+        activeLearners: activeSessions.length,
+      });
+    }
+
+    return series;
   }
 
   async getLearnerDashboard(userId: string) {

@@ -45,10 +45,11 @@ class ContentRepository {
         .map((item) => ManagedQuiz.fromJson(item as Map<String, dynamic>))
         .toList();
   }
-  Future<List<AdminLanguage>> getLanguages({bool? isActive}) async {
+  Future<List<AdminLanguage>> getLanguages({bool? isActive, bool includeStats = false}) async {
     final response = await ApiClient.dio.get('/languages', queryParameters: {
       'limit': 100,
       if (isActive != null) 'isActive': isActive,
+      if (includeStats) 'includeStats': true,
     });
     final data = response.data as Map<String, dynamic>;
     final items = data['data']?['items'] ?? data['items'] ?? [];
@@ -101,15 +102,28 @@ class ContentRepository {
 
   Future<String> createCourse({
     required String title,
+    String? subtitle,
     required String description,
     String? frenchTitle,
     String? frenchDescription,
     required String level,
     required String languageId,
     int? estimatedHours,
+    String? category,
+    List<String>? tags,
+    List<String>? learningObjectives,
+    List<String>? supportLanguageCodes,
+    String? thumbnailUrl,
+    String? visibility,
+    String? enrollmentMode,
+    bool? issueCertificate,
+    String? teacherId,
+    String? reviewerId,
+    String? prerequisiteCourseId,
   }) async {
     final response = await ApiClient.dio.post('/courses', data: {
       'title': title,
+      if (subtitle != null && subtitle.isNotEmpty) 'subtitle': subtitle,
       'description': description,
       if (frenchTitle != null && frenchTitle.isNotEmpty) 'frenchTitle': frenchTitle,
       if (frenchDescription != null && frenchDescription.isNotEmpty)
@@ -117,6 +131,18 @@ class ContentRepository {
       'level': level,
       'languageId': languageId,
       if (estimatedHours != null) 'estimatedHours': estimatedHours,
+      if (category != null && category.isNotEmpty) 'category': category,
+      if (tags != null) 'tags': tags,
+      if (learningObjectives != null) 'learningObjectives': learningObjectives,
+      if (supportLanguageCodes != null) 'supportLanguageCodes': supportLanguageCodes,
+      if (thumbnailUrl != null && thumbnailUrl.isNotEmpty) 'thumbnailUrl': thumbnailUrl,
+      if (visibility != null) 'visibility': visibility,
+      if (enrollmentMode != null) 'enrollmentMode': enrollmentMode,
+      if (issueCertificate != null) 'issueCertificate': issueCertificate,
+      if (teacherId != null && teacherId.isNotEmpty) 'teacherId': teacherId,
+      if (reviewerId != null && reviewerId.isNotEmpty) 'reviewerId': reviewerId,
+      if (prerequisiteCourseId != null && prerequisiteCourseId.isNotEmpty)
+        'prerequisiteCourseId': prerequisiteCourseId,
     });
     final data = response.data as Map<String, dynamic>;
     return ((data['data'] ?? data) as Map<String, dynamic>)['id'] as String;
@@ -125,20 +151,63 @@ class ContentRepository {
   Future<void> updateCourse(
     String id, {
     String? title,
+    String? subtitle,
     String? description,
     String? frenchTitle,
     String? frenchDescription,
     String? level,
     int? estimatedHours,
+    String? reviewerId,
+    String? category,
+    List<String>? tags,
+    List<String>? learningObjectives,
+    List<String>? supportLanguageCodes,
+    String? thumbnailUrl,
+    String? visibility,
+    String? enrollmentMode,
+    bool? issueCertificate,
+    String? teacherId,
+    String? prerequisiteCourseId,
+    String? status,
+    String? publicationDate,
   }) async {
     await ApiClient.dio.patch('/courses/$id', data: {
       if (title != null) 'title': title,
+      if (subtitle != null) 'subtitle': subtitle,
       if (description != null) 'description': description,
       if (frenchTitle != null) 'frenchTitle': frenchTitle,
       if (frenchDescription != null) 'frenchDescription': frenchDescription,
       if (level != null) 'level': level,
       if (estimatedHours != null) 'estimatedHours': estimatedHours,
+      if (reviewerId != null) 'reviewerId': reviewerId,
+      if (category != null) 'category': category,
+      if (tags != null) 'tags': tags,
+      if (learningObjectives != null) 'learningObjectives': learningObjectives,
+      if (supportLanguageCodes != null) 'supportLanguageCodes': supportLanguageCodes,
+      if (thumbnailUrl != null) 'thumbnailUrl': thumbnailUrl,
+      if (visibility != null) 'visibility': visibility,
+      if (enrollmentMode != null) 'enrollmentMode': enrollmentMode,
+      if (issueCertificate != null) 'issueCertificate': issueCertificate,
+      if (teacherId != null) 'teacherId': teacherId,
+      if (prerequisiteCourseId != null) 'prerequisiteCourseId': prerequisiteCourseId,
+      if (status != null) 'status': status,
+      if (publicationDate != null) 'publicationDate': publicationDate,
     });
+  }
+
+  Future<({int completionPercent, bool courseDetailsComplete, int lessonsReadyCount, int lessonsTotalCount, int lessonsMissingAudioCount, bool assessmentComplete})>
+      getCourseReadiness(String courseId) async {
+    final response = await ApiClient.dio.get('/courses/$courseId/readiness');
+    final data = response.data as Map<String, dynamic>;
+    final body = (data['data'] ?? data) as Map<String, dynamic>;
+    return (
+      completionPercent: (body['completionPercent'] ?? 0) as int,
+      courseDetailsComplete: body['courseDetailsComplete'] == true,
+      lessonsReadyCount: (body['lessonsReadyCount'] ?? 0) as int,
+      lessonsTotalCount: (body['lessonsTotalCount'] ?? 0) as int,
+      lessonsMissingAudioCount: (body['lessonsMissingAudioCount'] ?? 0) as int,
+      assessmentComplete: body['assessmentComplete'] == true,
+    );
   }
 
   Future<void> deleteCourse(String id) async {
@@ -221,6 +290,9 @@ class ContentRepository {
     String? frenchContent,
     String? moduleId,
     int? orderNumber,
+    List<Map<String, dynamic>>? conversationJson,
+    String? status,
+    String? reviewerId,
   }) async {
     await ApiClient.dio.patch('/lessons/$id', data: {
       if (title != null) 'title': title,
@@ -231,6 +303,9 @@ class ContentRepository {
       if (frenchContent != null) 'frenchContent': frenchContent,
       if (moduleId != null) 'moduleId': moduleId,
       if (orderNumber != null) 'orderNumber': orderNumber,
+      if (conversationJson != null) 'conversationJson': conversationJson,
+      if (status != null) 'status': status,
+      if (reviewerId != null) 'reviewerId': reviewerId,
     });
   }
 
@@ -401,6 +476,18 @@ class ContentRepository {
       'file': MultipartFile.fromBytes(bytes, filename: filename),
     });
     final response = await ApiClient.dio.post('/uploads/image', data: formData);
+    final data = response.data as Map<String, dynamic>;
+    return ((data['data'] ?? data) as Map<String, dynamic>)['url'] as String;
+  }
+
+  /// Uploads raw audio bytes to the generic uploads endpoint and returns the
+  /// relative URL (e.g. `/uploads/audio/xxx.mp3`) — used by the AUDIO block
+  /// in the Lesson Editor.
+  Future<String> uploadAudio(Uint8List bytes, String filename) async {
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    final response = await ApiClient.dio.post('/uploads/audio', data: formData);
     final data = response.data as Map<String, dynamic>;
     return ((data['data'] ?? data) as Map<String, dynamic>)['url'] as String;
   }

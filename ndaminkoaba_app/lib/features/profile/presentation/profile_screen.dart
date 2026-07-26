@@ -1,6 +1,12 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 
+import '../../../config/app_config.dart';
+import '../../../core/network/api_error.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
@@ -12,12 +18,17 @@ import '../../../design_system/navigation/tab_navigation.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/widgets/app_header.dart';
 import '../../../design_system/widgets/gradient_hero_card.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../badges/data/badges_repository.dart';
+import '../../badges/domain/badge_entry.dart';
 import '../../courses/data/enrollment_repository.dart';
 import '../../dashboard/data/dashboard_repository.dart';
 import '../../dashboard/domain/dashboard_stats.dart';
+import '../../streaks/data/streaks_repository.dart';
+import '../../streaks/domain/streak_stats.dart';
 import '../data/profile_repository.dart';
 import '../domain/user_profile.dart';
 
@@ -32,6 +43,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   final repository = ProfileRepository();
   final enrollmentRepository = EnrollmentRepository();
   final dashboardRepository = DashboardRepository();
+  final streaksRepository = StreaksRepository();
+  final badgesRepository = BadgesRepository();
   final fullNameController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -39,8 +52,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
   bool isLoading = true;
   bool isSaving = false;
   bool isEditing = false;
+  bool isUploadingAvatar = false;
   int coursesEnrolled = 0;
   int certificatesEarned = 0;
+  int longestStreak = 0;
+  int badgesEarned = 0;
 
   @override
   void initState() {
@@ -68,12 +84,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
       final results = await Future.wait([
         enrollmentRepository.getMyEnrollments(me.id),
         dashboardRepository.getLearnerDashboard(me.id),
+        streaksRepository.getMe(),
+        badgesRepository.getBadges(),
       ]);
 
       if (!mounted) return;
       setState(() {
         coursesEnrolled = (results[0] as List).length;
         certificatesEarned = (results[1] as DashboardStats).certificates;
+        longestStreak = (results[2] as StreakStats).longestStreak;
+        badgesEarned = (results[3] as List<BadgeEntry>).where((b) => b.earned).length;
         isLoading = false;
       });
     } catch (_) {
@@ -111,6 +131,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  Future<void> pickAndUploadAvatar() async {
+    final l10n = AppLocalizations.of(context);
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 800);
+    if (picked == null) return;
+    if (!mounted) return;
+    final Uint8List bytes = await picked.readAsBytes();
+    setState(() => isUploadingAvatar = true);
+    try {
+      final url = await repository.uploadAvatar(bytes, picked.name);
+      final updated = await repository.updateMe(profileImage: url);
+      await StorageService.saveAvatarUrl(url);
+      if (!mounted) return;
+      setState(() {
+        profile = updated;
+        isUploadingAvatar = false;
+      });
+    } on DioException catch (e) {
+      if (!mounted) return;
+      setState(() => isUploadingAvatar = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(extractErrorMessage(e, fallback: l10n.couldNotUploadPhotoError))),
+      );
+    }
+  }
+
   Future<void> logout() async {
     await StorageService.logout();
     if (!mounted) return;
@@ -138,40 +183,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      l10n.profileTitle,
-                      style: AppTypography.h1.copyWith(
-                        color: AppColors.primary,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
+                    AppHeader(title: l10n.profileTitle, showAvatar: false),
                     const SizedBox(height: AppSpacing.xl),
                     GradientHeroCard(
                       gradient: AppGradients.primary,
                       child: Column(
                         children: [
-                          Container(
-                            width: 64,
-                            height: 64,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.18),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.4),
-                                width: 1.5,
+                          Stack(
+                            clipBehavior: Clip.none,
+                            children: [
+                              Container(
+                                width: 64,
+                                height: 64,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.18),
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: Colors.white.withValues(alpha: 0.4),
+                                    width: 1.5,
+                                  ),
+                                  image: (profile?.profileImage?.isNotEmpty ?? false)
+                                      ? DecorationImage(
+                                          image: NetworkImage(AppConfig.resolveUrl(profile!.profileImage!)),
+                                          fit: BoxFit.cover,
+                                        )
+                                      : null,
+                                ),
+                                alignment: Alignment.center,
+                                child: (profile?.profileImage?.isNotEmpty ?? false)
+                                    ? null
+                                    : Text(
+                                        (profile?.fullName.isNotEmpty ?? false)
+                                            ? profile!.fullName[0].toUpperCase()
+                                            : '?',
+                                        style: const TextStyle(
+                                          fontSize: 24,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                      ),
                               ),
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              (profile?.fullName.isNotEmpty ?? false)
-                                  ? profile!.fullName[0].toUpperCase()
-                                  : '?',
-                              style: const TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
+                              Positioned(
+                                right: -2,
+                                bottom: -2,
+                                child: InkWell(
+                                  borderRadius: AppRadius.circle,
+                                  onTap: isUploadingAvatar ? null : pickAndUploadAvatar,
+                                  child: Container(
+                                    width: 24,
+                                    height: 24,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.secondary,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(color: Colors.white, width: 2),
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: isUploadingAvatar
+                                        ? const SizedBox(
+                                            width: 10,
+                                            height: 10,
+                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                          )
+                                        : Tooltip(
+                                            message: l10n.uploadPhotoTooltip,
+                                            child: const Icon(Icons.camera_alt, size: 12, color: Colors.white),
+                                          ),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                           const SizedBox(height: AppSpacing.md),
                           Text(
@@ -223,6 +303,26 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           child: _StatColumn(
                             value: '$certificatesEarned',
                             label: l10n.statCertificates,
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 32,
+                          child: VerticalDivider(color: AppColors.divider),
+                        ),
+                        Expanded(
+                          child: _StatColumn(
+                            value: '$longestStreak',
+                            label: 'Best Streak',
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 32,
+                          child: VerticalDivider(color: AppColors.divider),
+                        ),
+                        Expanded(
+                          child: _StatColumn(
+                            value: '$badgesEarned',
+                            label: 'Badges',
                           ),
                         ),
                       ],

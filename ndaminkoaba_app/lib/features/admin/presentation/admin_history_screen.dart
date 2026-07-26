@@ -1,5 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
+import '../../../core/network/api_error.dart';
+import '../../../core/services/storage_service.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
@@ -46,10 +49,14 @@ class _AdminHistoryScreenState extends State<AdminHistoryScreen> {
   bool isLoading = true;
   bool isLoadingMore = false;
   String? error;
+  bool isAdmin = false;
 
   @override
   void initState() {
     super.initState();
+    StorageService.getRole().then((role) {
+      if (mounted) setState(() => isAdmin = role == 'ADMIN');
+    });
     load();
   }
 
@@ -95,11 +102,57 @@ class _AdminHistoryScreenState extends State<AdminHistoryScreen> {
     load();
   }
 
+  Future<void> emptyHistory() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Empty History'),
+        content: const Text(
+          'Permanently delete every entry in the audit history? This cannot be undone.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Empty History'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    if (!mounted) return;
+    try {
+      await repository.clearAuditLogs();
+      if (!mounted) return;
+      setState(() {
+        selectedEntity = null;
+      });
+      await load();
+    } on DioException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not empty history.'))),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'History', colors: [Color(0xFF2F3E9E), Color(0xFF4B5FBD)]),
+      appBar: GradientAppBar(
+        title: 'History',
+        colors: const [Color(0xFF2F3E9E), Color(0xFF4B5FBD)],
+        actions: [
+          if (isAdmin)
+            IconButton(
+              onPressed: entries.isEmpty ? null : emptyHistory,
+              icon: const Icon(Icons.delete_sweep_outlined),
+              tooltip: 'Empty History',
+            ),
+        ],
+      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),

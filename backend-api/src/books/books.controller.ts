@@ -58,4 +58,18 @@ export class BooksController {
   remove(@Param('id') id: string) {
     return this.booksService.remove(id);
   }
+
+  @Post(':id/reextract')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  reextract(@Param('id') id: string) {
+    return this.booksService.reextract(id);
+  }
+
+  @Post('backfill-content')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  backfillContent() {
+    return this.booksService.backfillContent();
+  }
 }

@@ -14,9 +14,33 @@ interface DetectedPassage {
   verseEnd?: number;
 }
 
+// Phrasings that ask for a specific target-language translation, in English
+// and French. Detecting these lets the AI layer treat "we have zero real
+// matches for this" as a hard stop rather than a soft hint — small models
+// reliably invent a plausible-looking word rather than admit ignorance when
+// they're merely asked to be careful, so ungrounded translation requests
+// need a different, translation-forbidding task framing entirely (see
+// AiService.generateTutorResponse), not just a stronger warning.
+const TRANSLATION_INTENT_PATTERNS = [
+  /how\s+(do|would|can|might)\s+(you|i|we)\s+say\b/i,
+  /how\s+to\s+say\b/i,
+  /what('?s|\s+is)\s+the\s+word\s+for\b/i,
+  /\btranslate\b/i,
+  /\btranslation\s+of\b/i,
+  /comment\s+(dit-on|dire|dis-tu|dis-je)\b/i,
+  /comment\s+(peut-on|peux-tu|puis-je)\s+dire\b/i,
+  /\btraduis\b/i,
+  /\btraduction\s+de\b/i,
+  /quel\s+est\s+le\s+mot\s+pour\b/i,
+];
+
 @Injectable()
 export class KnowledgeService {
   constructor(private readonly prisma: PrismaService) {}
+
+  private detectsTranslationIntent(prompt: string): boolean {
+    return TRANSLATION_INTENT_PATTERNS.some((pattern) => pattern.test(prompt));
+  }
 
   // Mirrors the alias list the Flutter learner app uses to recognize Gospel
   // books saved under different free-text spellings (admins upload USFM
@@ -45,7 +69,18 @@ export class KnowledgeService {
       .trim();
   }
 
-  private extractKeywords(prompt: string): string[] {
+  // The target language's own name (and generic platform/domain words) show
+  // up in almost every learner question and in almost every lesson/course
+  // title ("Discover the Ewondo Language", "Welcome to NdaMinkoaba") —
+  // without excluding them, a question about literally anything scores a
+  // false "strong match" against unrelated content just because both happen
+  // to mention "Ewondo", which was tricking the AI into treating an
+  // unrelated lesson as grounding and then inventing the actual answer.
+  private extractKeywords(prompt: string, languageName?: string): string[] {
+    const dynamicStopWords = languageName
+      ? languageName.toLowerCase().split(/\s+/)
+      : [];
+
     return this.cleanPrompt(prompt)
       .toLowerCase()
       .split(' ')
@@ -56,12 +91,16 @@ export class KnowledgeService {
             // English
             'explain', 'teacher', 'like', 'what', 'does', 'mean', 'means',
             'please', 'tell', 'about', 'word', 'the', 'and', 'for', 'you',
-            'how', 'can', 'are', 'this', 'that', 'with',
+            'how', 'can', 'are', 'this', 'that', 'with', 'language',
+            'languages', 'learn', 'learning', 'speak', 'translate',
+            'translation', 'say', 'ndaminkoaba', 'nnanga', 'platform',
             // French
             'expliquer', 'professeur', 'comme', 'quoi', 'que', 'veut',
             'dire', 'signifie', 'sil', 'vous', 'plait', 'dis', 'moi',
             'sur', 'mot', 'les', 'des', 'une', 'pour', 'avec', 'comment',
-            'peux', 'peut',
+            'peux', 'peut', 'langue', 'langues', 'apprendre', 'parler',
+            'traduire', 'traduction',
+            ...dynamicStopWords,
           ].includes(word),
       );
   }
@@ -189,6 +228,33 @@ export class KnowledgeService {
     return score;
   }
 
+  /// Pulls short windows of text around each keyword hit inside a book's
+  /// (potentially very long) extracted content, instead of the AI service
+  /// ever seeing the whole book — keeps the LLM context small while still
+  /// letting Nnanga quote real passages.
+  private extractExcerpts(content: string, keywords: string[], maxExcerpts = 2, radius = 300): string[] {
+    const lower = content.toLowerCase();
+    const excerpts: string[] = [];
+    const usedRanges: Array<[number, number]> = [];
+
+    for (const keyword of keywords) {
+      if (excerpts.length >= maxExcerpts) break;
+      const index = lower.indexOf(keyword.toLowerCase());
+      if (index === -1) continue;
+
+      const start = Math.max(0, index - radius);
+      const end = Math.min(content.length, index + keyword.length + radius);
+      if (usedRanges.some(([s, e]) => start < e && end > s)) continue;
+
+      usedRanges.push([start, end]);
+      const prefix = start > 0 ? '…' : '';
+      const suffix = end < content.length ? '…' : '';
+      excerpts.push(`${prefix}${content.slice(start, end).trim()}${suffix}`);
+    }
+
+    return excerpts;
+  }
+
   private rankAndTake<T>(
     pool: T[],
     scorer: (row: T) => number,
@@ -205,9 +271,9 @@ export class KnowledgeService {
     };
   }
 
-  async search(prompt: string, languageId?: string) {
+  async search(prompt: string, languageId?: string, languageName?: string) {
     const cleanedPrompt = this.cleanPrompt(prompt);
-    const keywords = this.extractKeywords(prompt);
+    const keywords = this.extractKeywords(prompt, languageName);
     const insensitive = Prisma.QueryMode.insensitive;
     const terms = [cleanedPrompt, ...keywords].filter((t) => t.length > 2);
 
@@ -303,6 +369,14 @@ export class KnowledgeService {
               { title: { contains: keyword, mode: insensitive } },
               { summary: { contains: keyword, mode: insensitive } },
               { content: { contains: keyword, mode: insensitive } },
+              // Without these, a French-phrased question's keywords never
+              // appear in the English/Ewondo title/summary/content, so
+              // lessons silently never matched for French speakers — they'd
+              // get grounded answers in English but not in French for the
+              // exact same underlying lesson.
+              { frenchTitle: { contains: keyword, mode: insensitive } },
+              { frenchSummary: { contains: keyword, mode: insensitive } },
+              { frenchContent: { contains: keyword, mode: insensitive } },
             ]),
           },
           take: 100,
@@ -319,6 +393,9 @@ export class KnowledgeService {
           { value: l.title, weight: 3 },
           { value: l.summary, weight: 2 },
           { value: l.content, weight: 1 },
+          { value: l.frenchTitle, weight: 3 },
+          { value: l.frenchSummary, weight: 2 },
+          { value: l.frenchContent, weight: 1 },
         ],
         cleanedPrompt,
         keywords,
@@ -333,6 +410,8 @@ export class KnowledgeService {
             OR: keywords.flatMap((keyword) => [
               { title: { contains: keyword, mode: insensitive } },
               { description: { contains: keyword, mode: insensitive } },
+              { frenchTitle: { contains: keyword, mode: insensitive } },
+              { frenchDescription: { contains: keyword, mode: insensitive } },
             ]),
           },
           take: 30,
@@ -343,12 +422,110 @@ export class KnowledgeService {
     const { ranked: courses } = this.rankAndTake(
       coursesPool,
       (c) => this.scoreMatch(
-        [{ value: c.title, weight: 2 }, { value: c.description, weight: 1 }],
+        [
+          { value: c.title, weight: 2 },
+          { value: c.description, weight: 1 },
+          { value: c.frenchTitle, weight: 2 },
+          { value: c.frenchDescription, weight: 1 },
+        ],
         cleanedPrompt,
         keywords,
       ),
       3,
     );
+
+    const booksPool = terms.length
+      ? await this.prisma.book.findMany({
+          where: {
+            languageId,
+            OR: [
+              ...terms.flatMap((term) => [
+                { title: { contains: term, mode: insensitive } },
+                { author: { contains: term, mode: insensitive } },
+                { description: { contains: term, mode: insensitive } },
+              ]),
+              ...keywords.map((keyword) => ({
+                content: { contains: keyword, mode: insensitive },
+              })),
+            ],
+          },
+          take: 30,
+        })
+      : [];
+
+    const { ranked: books, topScore: booksTopScore } = this.rankAndTake(
+      booksPool,
+      (b) => this.scoreMatch(
+        [
+          { value: b.title, weight: 3 },
+          { value: b.author, weight: 1 },
+          { value: b.description, weight: 2 },
+          // A content hit is real signal (the book actually discusses this),
+          // but weighted low relative to title/description so one incidental
+          // word inside a huge book doesn't outrank a title match.
+          { value: b.content, weight: 1 },
+        ],
+        cleanedPrompt,
+        keywords,
+      ),
+      3,
+    );
+
+    const booksWithExcerpts = books.map((book) => ({
+      ...book,
+      excerpts: book.content ? this.extractExcerpts(book.content, keywords) : [],
+    }));
+
+    // The whole real vocabulary is small enough to hand to the model in
+    // full every time (a few hundred words at most, one line each) — this
+    // is what makes vocabulary un-inventable: instead of hoping fuzzy
+    // keyword search happens to surface the right word, the AI can always
+    // see the complete, exhaustive list and simply won't find a word that
+    // isn't there, rather than confidently fabricating one.
+    const fullVocabulary = languageId
+      ? await this.prisma.vocabulary.findMany({
+          where: { languageId },
+          orderBy: { word: 'asc' },
+          select: { word: true, englishMeaning: true, frenchMeaning: true },
+          take: 500,
+        })
+      : [];
+
+    // True only when we can PROVE no real translation exists anywhere in
+    // the platform's content. Deliberately checks only vocabulary/texts/a
+    // resolved full-passage request — categories that are actual word- or
+    // phrase-level translation pairs. Loosely-matched `verses` are excluded
+    // on purpose: a Bible verse that happens to mention "love" thematically
+    // (e.g. "God so loved the world...") is not a translation of "I love
+    // you" and must not be treated as grounding — that gap is exactly what
+    // let the model fall through to inventing a word the first time this
+    // was tested. Same reasoning excludes lessons/courses/books.
+    const isUngroundedTranslationRequest =
+      this.detectsTranslationIntent(prompt) &&
+      !biblePassage &&
+      vocabulary.length === 0 &&
+      texts.length === 0;
+
+    // When we're about to tell the model "don't translate, suggest
+    // alternatives instead", the alternatives themselves must be real —
+    // letting the model freely pick which words to mention invites it to
+    // invent plausible-looking ones under the guise of a "suggestion"
+    // rather than a "translation" (observed in testing). Pre-selecting
+    // real rows here and handing them to the model verbatim removes that
+    // loophole entirely: the model's only job becomes writing prose around
+    // words it did not choose and cannot alter.
+    let suggestedVocabulary: typeof fullVocabulary = [];
+    if (isUngroundedTranslationRequest && fullVocabulary.length > 0) {
+      const looselyRelated = fullVocabulary.filter((v) =>
+        keywords.some(
+          (k) =>
+            v.englishMeaning?.toLowerCase().includes(k) ||
+            v.frenchMeaning?.toLowerCase().includes(k),
+        ),
+      );
+      const pool = looselyRelated.length > 0 ? looselyRelated : fullVocabulary;
+      suggestedVocabulary = pool.slice(0, 3);
+    }
 
     return {
       prompt,
@@ -360,26 +537,34 @@ export class KnowledgeService {
       verses,
       lessons,
       courses,
+      books: booksWithExcerpts,
+      fullVocabulary,
+      isUngroundedTranslationRequest,
+      suggestedVocabulary,
       hasResults:
         biblePassage != null ||
         vocabulary.length > 0 ||
         texts.length > 0 ||
         verses.length > 0 ||
         lessons.length > 0 ||
-        courses.length > 0,
+        courses.length > 0 ||
+        books.length > 0,
       // A "5" score means some row matched the full cleaned phrase, not just
       // a loose keyword — that's the bar for "confidently grounded".
       hasExactVocabularyMatch: vocabularyTopScore >= 5,
-      // Highest relevance score across every category — used to decide
-      // whether this question was genuinely answered from platform content
-      // (a single incidental keyword hit, e.g. the word "lesson" appearing
-      // in the question itself, shouldn't count as "grounded"). A resolved
-      // Bible passage request is as confident a match as it gets.
+      // Highest relevance score across every content category (courses are
+      // deliberately excluded — a course titled "Ewondo Beginner Course"
+      // would otherwise match the keyword "ewondo" on virtually every
+      // question). Used to decide whether the AI may speak confidently;
+      // stripping the language's own name out of the keyword list above is
+      // what actually stops incidental "Ewondo" mentions in lesson content
+      // from falsely inflating this.
       maxScore: Math.max(
         vocabularyTopScore,
         textsTopScore,
         versesTopScore,
         lessonsTopScore,
+        booksTopScore,
         biblePassage ? 100 : 0,
       ),
     };
@@ -414,7 +599,7 @@ v${verse.verse} — ${languageName}: ${verse.text}
     }
 
     if (results.vocabulary.length > 0) {
-      context += `VOCABULARY FOUND:\n`;
+      context += `VOCABULARY FOUND (closely matches this question):\n`;
 
       for (const word of results.vocabulary) {
         context += `
@@ -426,6 +611,15 @@ v${verse.verse} — ${languageName}: ${verse.text}
   Difficulty: ${word.difficulty}
 `;
       }
+      context += '\n';
+    }
+
+    if (results.fullVocabulary.length > 0) {
+      context += `FULL VOCABULARY LIST — every single ${languageName} word currently in NdaMinkoaba, complete and exhaustive (word = English / French):\n`;
+      for (const word of results.fullVocabulary) {
+        context += `${word.word} = ${word.englishMeaning ?? '?'} / ${word.frenchMeaning ?? '?'}\n`;
+      }
+      context += `(If the word or phrase the learner needs is not in this list and not quoted anywhere else in this context, it simply is not in the platform yet — see the CRITICAL ACCURACY RULE.)\n\n`;
     }
 
     if (results.texts.length > 0) {
@@ -457,10 +651,34 @@ v${verse.verse} — ${languageName}: ${verse.text}
 
       for (const lesson of results.lessons) {
         context += `
-- Lesson title: ${lesson.title}
+- Lesson title: ${lesson.title}${lesson.frenchTitle ? ` (French: ${lesson.frenchTitle})` : ''}
   Summary: ${lesson.summary ?? 'Not provided'}
-  Content: ${lesson.content}
-`;
+  Content: ${lesson.content}`;
+
+        if (lesson.frenchContent) {
+          context += `\n  French summary: ${lesson.frenchSummary ?? 'Not provided'}\n  French content: ${lesson.frenchContent}`;
+        }
+        context += '\n';
+      }
+    }
+
+    if (results.books.length > 0) {
+      context += `\nBOOKS FOUND:\n`;
+
+      for (const book of results.books) {
+        context += `
+- Book title: ${book.title}${book.author ? ` by ${book.author}` : ''}
+  Description: ${book.description ?? 'Not provided'}`;
+
+        if (book.excerpts.length > 0) {
+          context += `\n  Relevant excerpt(s):`;
+          for (const excerpt of book.excerpts) {
+            context += `\n    "${excerpt}"`;
+          }
+        } else if (!book.content) {
+          context += `\n  (Full text not yet indexed for this book — you may only mention its title/description.)`;
+        }
+        context += '\n';
       }
     }
 
@@ -469,8 +687,8 @@ v${verse.verse} — ${languageName}: ${verse.text}
 
       for (const course of results.courses) {
         context += `
-- Course title: ${course.title}
-  Description: ${course.description ?? 'Not provided'}
+- Course title: ${course.title}${course.frenchTitle ? ` (French: ${course.frenchTitle})` : ''}
+  Description: ${course.description ?? 'Not provided'}${course.frenchDescription ? `\n  French description: ${course.frenchDescription}` : ''}
   Level: ${course.level}
 `;
       }
@@ -481,6 +699,11 @@ v${verse.verse} — ${languageName}: ${verse.text}
     }
 
     context += `
+
+CRITICAL ACCURACY RULE (absolute, overrides everything else):
+- You may ONLY state a specific ${languageName} word, phrase, or sentence if it appears verbatim, exact spelling, somewhere above (FULL VOCABULARY LIST, VOCABULARY FOUND, TEXTS FOUND, a BIBLE VERSE/PASSAGE, or a book excerpt).
+- If the learner asks you to translate something, or asks "how do you say X in ${languageName}", and that word/phrase does NOT appear above (check the FULL VOCABULARY LIST — it is exhaustive), say plainly that it is not yet in NdaMinkoaba's content. Do NOT guess, reconstruct, or invent a plausible-looking ${languageName} word — even one that "seems right" from patterns you know. A wrong invented word actively misteaches the learner, which is worse than admitting you don't have it yet.
+- You may still freely explain grammar patterns, pronunciation rules, culture, history, and general language-learning advice from your own knowledge — the restriction is only on stating specific ${languageName} vocabulary/phrases that aren't grounded in the context above.
 
 TUTORING RULES:
 - Treat everything above as the source of truth for NdaMinkoaba's own content. If a vocabulary item, verse, or lesson is found, never invent a different meaning or contradict it.

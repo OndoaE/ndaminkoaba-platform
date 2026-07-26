@@ -1,3 +1,19 @@
+class ConversationLine {
+  final String speaker;
+  final String text;
+  final String? frenchText;
+
+  const ConversationLine({required this.speaker, required this.text, this.frenchText});
+
+  factory ConversationLine.fromJson(Map<String, dynamic> json) {
+    return ConversationLine(
+      speaker: json['speaker'] ?? '',
+      text: json['text'] ?? '',
+      frenchText: json['frenchText'],
+    );
+  }
+}
+
 class Lesson {
   final String id;
   final String moduleId;
@@ -10,6 +26,7 @@ class Lesson {
   final String audioUrl;
   final String videoUrl;
   final int orderNumber;
+  final List<ConversationLine> conversation;
 
   const Lesson({
     required this.id,
@@ -23,9 +40,12 @@ class Lesson {
     required this.audioUrl,
     required this.videoUrl,
     required this.orderNumber,
+    this.conversation = const [],
   });
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
+    final conversationJson = json['conversationJson'] as List<dynamic>?;
+
     return Lesson(
       id: json['id'] ?? '',
       moduleId: json['moduleId'] ?? '',
@@ -38,6 +58,10 @@ class Lesson {
       audioUrl: json['audioUrl'] ?? '',
       videoUrl: json['videoUrl'] ?? '',
       orderNumber: (json['orderNumber'] as num?)?.toInt() ?? 0,
+      conversation: conversationJson
+              ?.map((e) => ConversationLine.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          const [],
     );
   }
 }

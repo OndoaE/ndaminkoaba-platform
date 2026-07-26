@@ -1,3 +1,5 @@
+import '../../badges/domain/badge_entry.dart';
+
 class QuizChoice {
   final String id;
   final String choiceText;
@@ -107,11 +109,13 @@ class QuizAttemptResult {
   final int score;
   final bool passed;
   final List<QuestionResult> results;
+  final List<BadgeEntry> newlyEarnedBadges;
 
   const QuizAttemptResult({
     required this.score,
     required this.passed,
     required this.results,
+    this.newlyEarnedBadges = const [],
   });
 
   factory QuizAttemptResult.fromJson(Map<String, dynamic> json) {
@@ -120,6 +124,9 @@ class QuizAttemptResult {
       passed: json['passed'] == true,
       results: ((json['results'] ?? []) as List)
           .map((item) => QuestionResult.fromJson(item as Map<String, dynamic>))
+          .toList(),
+      newlyEarnedBadges: ((json['newlyEarnedBadges'] ?? []) as List)
+          .map((e) => BadgeEntry.fromJson({...e as Map<String, dynamic>, 'earned': true, 'progress': 0}))
           .toList(),
     );
   }

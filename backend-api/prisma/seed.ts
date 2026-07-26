@@ -66,7 +66,7 @@ const COURSES: CourseSeed[] = [
     lessonTitle: 'Saying Hello',
     lessonSummary: 'Basic greetings used every day.',
     lessonContent:
-      'Mbolo means "hello". Use it any time of day to greet one or more people.',
+      '**Mbolo** means "hello". Use it any time of day to greet one or more people.',
     vocabWord: 'Mbolo',
     vocabFrench: 'Bonjour',
     vocabEnglish: 'Hello',
@@ -88,7 +88,7 @@ const COURSES: CourseSeed[] = [
     lessonTitle: 'How Are You?',
     lessonSummary: 'Asking about someone\'s wellbeing and responding.',
     lessonContent:
-      'O ne mbeng? means "How are you?". A common reply is Ma ne mbeng, "I am fine."',
+      '**O ne mbeng?** means "How are you?". A common reply is **Ma ne mbeng**, "I am fine."',
     vocabWord: 'O ne mbeng?',
     vocabFrench: 'Comment vas-tu ?',
     vocabEnglish: 'How are you?',
@@ -110,7 +110,7 @@ const COURSES: CourseSeed[] = [
     lessonTitle: 'A Classic Proverb',
     lessonSummary: 'Meaning and usage of a well-known Ewondo proverb.',
     lessonContent:
-      'Nkukuma a ne si abui a ne si is a traditional Ewondo proverb about patience and wisdom passed down through generations.',
+      '**Nkukuma a ne si abui a ne si** is a traditional Ewondo proverb about patience and wisdom passed down through generations.',
     vocabWord: 'Nkukuma',
     vocabFrench: 'Sagesse',
     vocabEnglish: 'Wisdom',
@@ -263,6 +263,95 @@ async function main() {
     update: {},
     create: { userId: learner.id, courseId: beginnerCourse.id },
   });
+
+  const BADGES: {
+    code: string;
+    name: string;
+    frenchName: string;
+    description: string;
+    frenchDescription: string;
+    criteriaType: 'STREAK_DAYS' | 'SESSIONS_COMPLETED' | 'LESSONS_COMPLETED' | 'QUIZZES_PASSED' | 'VOCAB_MASTERED' | 'PRONUNCIATION_SESSIONS';
+    criteriaValue: number;
+  }[] = [
+    {
+      code: 'FIRST_STEPS',
+      name: 'First Steps',
+      frenchName: 'Premiers Pas',
+      description: 'Complete your first practice session.',
+      frenchDescription: 'Terminez votre première session de pratique.',
+      criteriaType: 'SESSIONS_COMPLETED',
+      criteriaValue: 1,
+    },
+    {
+      code: 'CONSISTENT_LEARNER',
+      name: 'Consistent Learner',
+      frenchName: 'Apprenant Assidu',
+      description: 'Reach a 7-day practice streak.',
+      frenchDescription: 'Atteignez une série de 7 jours de pratique.',
+      criteriaType: 'STREAK_DAYS',
+      criteriaValue: 7,
+    },
+    {
+      code: 'DEDICATED_LEARNER',
+      name: 'Dedicated Learner',
+      frenchName: 'Apprenant Dévoué',
+      description: 'Reach a 30-day practice streak.',
+      frenchDescription: 'Atteignez une série de 30 jours de pratique.',
+      criteriaType: 'STREAK_DAYS',
+      criteriaValue: 30,
+    },
+    {
+      code: 'LESSON_MILESTONE_10',
+      name: 'Ten Lessons In',
+      frenchName: 'Dix Leçons Faites',
+      description: 'Complete 10 lessons.',
+      frenchDescription: 'Terminez 10 leçons.',
+      criteriaType: 'LESSONS_COMPLETED',
+      criteriaValue: 10,
+    },
+    {
+      code: 'QUIZ_ACE',
+      name: 'Quiz Ace',
+      frenchName: 'As du Quiz',
+      description: 'Pass 5 quizzes.',
+      frenchDescription: 'Réussissez 5 quiz.',
+      criteriaType: 'QUIZZES_PASSED',
+      criteriaValue: 5,
+    },
+    {
+      code: 'WORD_MASTER',
+      name: 'Word Master',
+      frenchName: 'Maître des Mots',
+      description: 'Master 20 vocabulary words through Smart Review.',
+      frenchDescription: 'Maîtrisez 20 mots de vocabulaire grâce à la révision intelligente.',
+      criteriaType: 'VOCAB_MASTERED',
+      criteriaValue: 20,
+    },
+    {
+      code: 'CONFIDENT_SPEAKER',
+      name: 'Confident Speaker',
+      frenchName: 'Orateur Confiant',
+      description: 'Complete 10 pronunciation practice sessions.',
+      frenchDescription: 'Terminez 10 sessions de pratique de prononciation.',
+      criteriaType: 'PRONUNCIATION_SESSIONS',
+      criteriaValue: 10,
+    },
+  ];
+
+  for (const badge of BADGES) {
+    await prisma.badge.upsert({
+      where: { code: badge.code },
+      update: {
+        name: badge.name,
+        frenchName: badge.frenchName,
+        description: badge.description,
+        frenchDescription: badge.frenchDescription,
+        criteriaType: badge.criteriaType,
+        criteriaValue: badge.criteriaValue,
+      },
+      create: badge,
+    });
+  }
 
   console.log('Seed complete:', {
     users: [admin.email, teacher.email, learner.email],

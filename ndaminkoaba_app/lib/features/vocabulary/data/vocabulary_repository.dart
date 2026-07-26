@@ -6,6 +6,7 @@ class VocabularyRepository {
     String? difficulty,
     String? search,
     String? languageId,
+    String? lessonId,
   }) async {
     final response = await ApiClient.dio.get(
       '/vocabulary',
@@ -14,6 +15,7 @@ class VocabularyRepository {
         if (difficulty != null) 'difficulty': difficulty,
         if (search != null && search.isNotEmpty) 'search': search,
         if (languageId != null) 'languageId': languageId,
+        if (lessonId != null) 'lessonId': lessonId,
       },
     );
 

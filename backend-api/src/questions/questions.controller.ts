@@ -14,6 +14,7 @@ import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../auth/decorators/roles/roles.decorator';
+import { Audited } from '../audit-log/decorators/audited.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { ICurrentUser } from '../common/interfaces/current-user.interface';
 import { redactQuestionAnswers } from '../common/utils/helpers';
@@ -54,6 +55,7 @@ export class QuestionsController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Audited('Question')
   create(@Body() dto: CreateQuestionDto) {
     return this.questionsService.create(dto);
   }
@@ -61,6 +63,7 @@ export class QuestionsController {
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Audited('Question')
   update(@Param('id') id: string, @Body() dto: UpdateQuestionDto) {
     return this.questionsService.update(id, dto);
   }
@@ -68,6 +71,7 @@ export class QuestionsController {
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Audited('Question')
   remove(@Param('id') id: string) {
     return this.questionsService.remove(id);
   }

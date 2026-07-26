@@ -14,6 +14,7 @@ import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
 import { Roles } from '../auth/decorators/roles/roles.decorator';
+import { Audited } from '../audit-log/decorators/audited.decorator';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
 import type { ICurrentUser } from '../common/interfaces/current-user.interface';
 import { redactChoiceAnswer, redactChoiceAnswers } from '../common/utils/helpers';
@@ -52,6 +53,7 @@ export class ChoicesController {
   @Post()
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Audited('Choice')
   create(@Body() dto: CreateChoiceDto) {
     return this.choicesService.create(dto);
   }
@@ -59,6 +61,7 @@ export class ChoicesController {
   @Patch(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER)
+  @Audited('Choice')
   update(@Param('id') id: string, @Body() dto: UpdateChoiceDto) {
     return this.choicesService.update(id, dto);
   }
@@ -66,6 +69,7 @@ export class ChoicesController {
   @Delete(':id')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN)
+  @Audited('Choice')
   remove(@Param('id') id: string) {
     return this.choicesService.remove(id);
   }

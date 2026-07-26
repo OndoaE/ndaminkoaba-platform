@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 
 import '../../../config/app_config.dart';
 import '../../../core/language/learning_language_provider.dart';
+import '../../../design_system/buttons/bouncy_icon_button.dart';
+import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/radius/app_radius.dart';
@@ -27,78 +29,109 @@ class BooksScreen extends ConsumerStatefulWidget {
 class _BooksScreenState extends ConsumerState<BooksScreen> {
   final repository = BookRepository();
 
-  late Future<List<Book>> booksFuture;
+  bool isLoading = true;
+  bool hasError = false;
+  List<Book> books = [];
 
   @override
   void initState() {
     super.initState();
-    booksFuture = repository.getBooks(languageId: ref.read(currentLearningLanguageProvider));
+    load();
+  }
+
+  Future<void> load() async {
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
+    try {
+      final result = await repository.getBooks(
+        languageId: ref.read(currentLearningLanguageProvider),
+      );
+      if (!mounted) return;
+      setState(() {
+        books = result;
+        isLoading = false;
+      });
+    } catch (_) {
+      if (!mounted) return;
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: FutureBuilder<List<Book>>(
-          future: booksFuture,
-          builder: (context, snapshot) {
-            if (!snapshot.hasData) {
-              return const Padding(
+        child: isLoading
+            ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
                 child: ShimmerListLoader(itemCount: 4, itemHeight: 96),
-              );
-            }
-
-            final books = snapshot.data!;
-            final l10n = AppLocalizations.of(context);
-
-            return SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back),
+              )
+            : hasError
+            ? Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: EmptyState(
+                  icon: Icons.wifi_off_outlined,
+                  iconColor: AppColors.error,
+                  title: l10n.commonSomethingWrong,
+                  action: PrimaryButton(
+                    label: l10n.commonRetry,
+                    onPressed: load,
                   ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.booksTitle,
-                    style: AppTypography.h1.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w800,
+                ),
+              )
+            : SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BouncyIconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.booksSubtitle,
-                    style: AppTypography.caption,
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  if (books.isEmpty)
-                    EmptyState(
-                      icon: Icons.menu_book_outlined,
-                      iconColor: _bookAccent,
-                      title: l10n.noBooksTitle,
-                      message: l10n.noBooksMessage,
-                    )
-                  else
-                    ...books.map(
-                      (book) => Padding(
-                        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(24),
-                          onTap: () => context.push('/books/${book.id}'),
-                          child: _BookCard(book: book),
-                        ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      l10n.booksTitle,
+                      style: AppTypography.h1.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                ],
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      l10n.booksSubtitle,
+                      style: AppTypography.caption,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    if (books.isEmpty)
+                      EmptyState(
+                        icon: Icons.menu_book_outlined,
+                        iconColor: _bookAccent,
+                        title: l10n.noBooksTitle,
+                        message: l10n.noBooksMessage,
+                        lottieAsset: 'assets/lottie/books_stack.json',
+                      )
+                    else
+                      ...books.map(
+                        (book) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: () => context.push('/books/${book.id}'),
+                            child: _BookCard(book: book),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
               ),
-            );
-          },
-        ),
       ),
     );
   }

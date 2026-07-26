@@ -24,6 +24,7 @@ class KnowledgeRepository {
     String? exampleTranslation,
     String? frenchExampleTranslation,
     required String difficulty,
+    String? phoneticTranscription,
   }) async {
     await ApiClient.dio.post('/vocabulary', data: {
       'word': word,
@@ -35,6 +36,8 @@ class KnowledgeRepository {
         'exampleTranslation': exampleTranslation,
       if (frenchExampleTranslation != null && frenchExampleTranslation.isNotEmpty)
         'frenchExampleTranslation': frenchExampleTranslation,
+      if (phoneticTranscription != null && phoneticTranscription.isNotEmpty)
+        'phoneticTranscription': phoneticTranscription,
       'difficulty': difficulty,
     });
   }
@@ -48,6 +51,7 @@ class KnowledgeRepository {
     String? exampleTranslation,
     String? frenchExampleTranslation,
     required String difficulty,
+    String? phoneticTranscription,
   }) async {
     await ApiClient.dio.patch('/vocabulary/$id', data: {
       'word': word,
@@ -56,6 +60,7 @@ class KnowledgeRepository {
       'exampleSentence': exampleSentence ?? '',
       'exampleTranslation': exampleTranslation ?? '',
       'frenchExampleTranslation': frenchExampleTranslation ?? '',
+      'phoneticTranscription': phoneticTranscription ?? '',
       'difficulty': difficulty,
     });
   }

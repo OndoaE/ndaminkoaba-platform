@@ -1,10 +1,12 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/network/api_error.dart';
+import '../../../core/services/storage_service.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
-import '../../../design_system/navigation/app_admin_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
@@ -24,10 +26,14 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 
   bool isLoading = true;
   List<AdminUser> users = [];
+  String? currentUserId;
 
   @override
   void initState() {
     super.initState();
+    StorageService.getUserId().then((id) {
+      if (mounted) setState(() => currentUserId = id);
+    });
     load();
   }
 
@@ -58,6 +64,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     try {
       await repository.setUserActive(user.id, !user.isActive);
       load();
+    } on DioException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not update user.'))),
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -70,6 +81,11 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     try {
       await repository.setUserRole(user.id, role);
       load();
+    } on DioException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not update role.'))),
+      );
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(
@@ -78,70 +94,89 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     }
   }
 
+  Future<void> deleteUser(AdminUser user) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Delete User'),
+        content: Text(
+          'Permanently delete ${user.fullName}? This cannot be undone. Users with existing courses, progress, or other linked records cannot be deleted — deactivate them instead.',
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          FilledButton(
+            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text('Delete'),
+          ),
+        ],
+      ),
+    );
+    if (confirmed != true) return;
+    if (!mounted) return;
+    try {
+      await repository.deleteUser(user.id);
+      load();
+    } on DioException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not delete user.'))),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      bottomNavigationBar: AppAdminNavigation(
-        currentIndex: 1,
-        onTap: (index) => handleAdminTabTap(context, index),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: AppColors.primary,
-        icon: const Icon(Icons.person_add, color: Colors.white),
-        label: const Text('New User', style: TextStyle(color: Colors.white)),
-        onPressed: () async {
-          await context.push('/admin/users/new');
-          load();
-        },
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Users',
-                style: AppTypography.h1.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: searchController,
-                onSubmitted: (_) => load(),
-                decoration: InputDecoration(
-                  hintText: 'Search by name or email...',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
-                    ? const ShimmerListLoader()
-                    : ListView.separated(
-                        padding: const EdgeInsets.only(bottom: 80),
-                        itemCount: users.length,
-                        separatorBuilder: (_, __) =>
-                            const SizedBox(height: AppSpacing.md),
-                        itemBuilder: (context, index) => _UserRow(
-                          user: users[index],
-                          onToggleActive: toggleActive,
-                          onSetRole: setRole,
-                        ),
-                      ),
-              ),
-            ],
-          ),
+    return AdminShell(
+      activeNavKey: 'users',
+      title: 'Users',
+      subtitle: '${users.length} total',
+      actions: [
+        FilledButton.icon(
+          onPressed: () async {
+            await context.push('/admin/users/new');
+            load();
+          },
+          style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+          icon: const Icon(Icons.person_add, size: 18),
+          label: const Text('New User'),
         ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: searchController,
+            onSubmitted: (_) => load(),
+            decoration: InputDecoration(
+              hintText: 'Search by name or email...',
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: AppColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          if (isLoading)
+            const ShimmerListLoader()
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: users.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
+              itemBuilder: (context, index) => _UserRow(
+                user: users[index],
+                isSelf: users[index].id == currentUserId,
+                onToggleActive: toggleActive,
+                onSetRole: setRole,
+                onDelete: deleteUser,
+              ),
+            ),
+        ],
       ),
     );
   }
@@ -150,13 +185,17 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
 class _UserRow extends StatelessWidget {
   const _UserRow({
     required this.user,
+    required this.isSelf,
     required this.onToggleActive,
     required this.onSetRole,
+    required this.onDelete,
   });
 
   final AdminUser user;
+  final bool isSelf;
   final void Function(AdminUser) onToggleActive;
   final void Function(AdminUser, String) onSetRole;
+  final void Function(AdminUser) onDelete;
 
   Color _roleColor() {
     switch (user.role) {
@@ -250,24 +289,42 @@ class _UserRow extends StatelessWidget {
             onSelected: (value) {
               if (value == 'toggle') {
                 onToggleActive(user);
+              } else if (value == 'delete') {
+                onDelete(user);
               } else {
                 onSetRole(user, value);
               }
             },
             itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'toggle',
-                child: Text(user.isActive ? 'Deactivate' : 'Activate'),
-              ),
-              if (user.role != 'ADMIN')
+              if (!isSelf)
+                PopupMenuItem(
+                  value: 'toggle',
+                  child: Text(user.isActive ? 'Deactivate' : 'Activate'),
+                ),
+              if (!isSelf && user.role != 'ADMIN')
                 const PopupMenuItem(
                   value: 'ADMIN',
                   child: Text('Make Administrator'),
                 ),
-              if (user.role != 'LEARNER')
+              if (!isSelf && user.role != 'TEACHER')
+                const PopupMenuItem(
+                  value: 'TEACHER',
+                  child: Text('Make Teacher'),
+                ),
+              if (!isSelf && user.role != 'LEARNER')
                 const PopupMenuItem(
                   value: 'LEARNER',
                   child: Text('Make Learner'),
+                ),
+              if (!isSelf)
+                PopupMenuItem(
+                  value: 'delete',
+                  child: Text('Delete', style: TextStyle(color: AppColors.error)),
+                ),
+              if (isSelf)
+                const PopupMenuItem(
+                  enabled: false,
+                  child: Text('This is your account'),
                 ),
             ],
           ),

@@ -1,5 +1,13 @@
-import { CourseStatus, Level } from '@prisma/client';
 import {
+  CourseEnrollmentMode,
+  CourseStatus,
+  CourseVisibility,
+  Level,
+} from '@prisma/client';
+import {
+  IsArray,
+  IsBoolean,
+  IsDateString,
   IsEnum,
   IsInt,
   IsOptional,
@@ -13,6 +21,10 @@ export class CreateCourseDto {
   @IsString()
   @MinLength(3)
   title: string;
+
+  @IsOptional()
+  @IsString()
+  subtitle?: string;
 
   @IsOptional()
   @IsString()
@@ -48,4 +60,47 @@ export class CreateCourseDto {
   @IsOptional()
   @IsUUID()
   teacherId?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  tags?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  learningObjectives?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  supportLanguageCodes?: string[];
+
+  @IsOptional()
+  @IsEnum(CourseVisibility)
+  visibility?: CourseVisibility;
+
+  @IsOptional()
+  @IsEnum(CourseEnrollmentMode)
+  enrollmentMode?: CourseEnrollmentMode;
+
+  @IsOptional()
+  @IsBoolean()
+  issueCertificate?: boolean;
+
+  @IsOptional()
+  @IsDateString()
+  publicationDate?: string;
+
+  @IsOptional()
+  @IsUUID()
+  reviewerId?: string;
+
+  @IsOptional()
+  @IsUUID()
+  prerequisiteCourseId?: string;
 }

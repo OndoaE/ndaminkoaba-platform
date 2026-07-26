@@ -6,19 +6,22 @@ import '../features/admin/presentation/admin_book_management_screen.dart';
 import '../features/admin/presentation/admin_certificates_screen.dart';
 import '../features/admin/presentation/admin_content_hub_screen.dart';
 import '../features/admin/presentation/admin_daily_management_screen.dart';
-import '../features/admin/presentation/admin_course_editor_screen.dart';
 import '../features/admin/presentation/admin_course_management_screen.dart';
+import '../features/admin/presentation/admin_course_wizard_screen.dart';
 import '../features/admin/presentation/admin_create_user_screen.dart';
 import '../features/admin/presentation/admin_global_dashboard_screen.dart';
 import '../features/admin/presentation/admin_history_screen.dart';
 import '../features/admin/presentation/admin_knowledge_screen.dart';
 import '../features/admin/presentation/admin_language_dashboard_screen.dart';
 import '../features/admin/presentation/admin_language_management_screen.dart';
+import '../features/admin/presentation/admin_lesson_editor_screen.dart';
 import '../features/admin/presentation/admin_lesson_images_screen.dart';
 import '../features/admin/presentation/admin_lesson_management_screen.dart';
 import '../features/admin/presentation/admin_module_management_screen.dart';
 import '../features/admin/presentation/admin_new_lesson_screen.dart';
 import '../features/admin/presentation/admin_new_quiz_screen.dart';
+import '../features/admin/presentation/admin_notifications_screen.dart';
+import '../features/admin/presentation/admin_profile_screen.dart';
 import '../features/admin/presentation/admin_quiz_builder_screen.dart';
 import '../features/admin/presentation/admin_quiz_management_screen.dart';
 import '../features/admin/presentation/admin_users_screen.dart';
@@ -39,9 +42,11 @@ import '../features/certificates/presentation/certificates_screen.dart';
 import '../features/courses/presentation/courses_screen.dart';
 import '../features/courses/presentation/course_detail_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
+import '../features/learning/presentation/learn_hub_screen.dart';
 import '../features/learning/presentation/my_learning_screen.dart';
 import '../features/lessons/presentation/lesson_screen.dart';
 import '../features/nnanga/presentation/nnanga_screen.dart';
+import '../features/practice/presentation/practice_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
 import '../features/quiz/presentation/quiz_screen.dart';
 import '../features/splash/presentation/splash_screen.dart';
@@ -119,6 +124,14 @@ final appRouter = GoRouter(
       builder: (context, state) => const MyLearningScreen(),
     ),
     GoRoute(
+      path: '/learn',
+      builder: (context, state) => const LearnHubScreen(),
+    ),
+    GoRoute(
+      path: '/practice',
+      builder: (context, state) => const PracticeScreen(),
+    ),
+    GoRoute(
       path: '/vocabulary',
       builder: (context, state) => const VocabularyScreen(),
     ),
@@ -185,6 +198,14 @@ final appRouter = GoRouter(
       builder: (context, state) => const AdminCreateUserScreen(),
     ),
     GoRoute(
+      path: '/admin/notifications',
+      builder: (context, state) => const AdminNotificationsScreen(),
+    ),
+    GoRoute(
+      path: '/admin/profile',
+      builder: (context, state) => const AdminProfileScreen(),
+    ),
+    GoRoute(
       path: '/admin/certificates',
       builder: (context, state) => const AdminCertificatesScreen(),
     ),
@@ -218,6 +239,17 @@ final appRouter = GoRouter(
         );
       },
     ),
+    GoRoute(
+      path: '/admin/lessons/:lessonId/edit',
+      builder: (context, state) {
+        final lessonId = state.pathParameters['lessonId']!;
+        final lessonTitle = state.extra as String?;
+        return AdminLessonEditorScreen(
+          lessonId: lessonId,
+          lessonTitle: lessonTitle,
+        );
+      },
+    ),
 
     // Administrator — scoped to a single language
     GoRoute(
@@ -241,7 +273,7 @@ final appRouter = GoRouter(
       builder: (context, state) {
         final languageId = state.pathParameters['languageId']!;
         final languageName = state.extra as String?;
-        return AdminCourseEditorScreen(languageId: languageId, languageName: languageName);
+        return AdminCourseWizardScreen(languageId: languageId, languageName: languageName);
       },
     ),
     GoRoute(
@@ -250,7 +282,7 @@ final appRouter = GoRouter(
         final languageId = state.pathParameters['languageId']!;
         final id = state.pathParameters['id']!;
         final languageName = state.extra as String?;
-        return AdminCourseEditorScreen(courseId: id, languageId: languageId, languageName: languageName);
+        return AdminCourseWizardScreen(courseId: id, languageId: languageId, languageName: languageName);
       },
     ),
     GoRoute(

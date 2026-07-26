@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../core/locale/locale_provider.dart';
 import '../../../core/locale/localized_text.dart';
 import '../../../core/services/storage_service.dart';
+import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
@@ -50,6 +52,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   final certificateRepository = CertificateRepository();
 
   bool isLoading = true;
+  bool hasError = false;
   bool isClaiming = false;
   CourseDetail? course;
   Set<String> completedLessonIds = {};
@@ -63,7 +66,10 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   }
 
   Future<void> load() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
 
     try {
       final id = await StorageService.getUserId();
@@ -96,7 +102,10 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() => isLoading = false);
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
     }
   }
 
@@ -118,6 +127,8 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
         isClaiming = false;
       });
 
+      await _showCertificateEarnedCelebration();
+      if (!mounted) return;
       context.push('/certificates/${certificate.id}');
     } catch (_) {
       if (!mounted) return;
@@ -130,6 +141,58 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
         ),
       );
     }
+  }
+
+  Future<void> _showCertificateEarnedCelebration() {
+    final l10n = AppLocalizations.of(context);
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogContext) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: PremiumCard(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(
+                width: 140,
+                height: 140,
+                child: Lottie.asset(
+                  'assets/lottie/quiz_success.json',
+                  fit: BoxFit.contain,
+                  repeat: false,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.workspace_premium,
+                    color: AppColors.secondary,
+                    size: 96,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              Text(
+                l10n.certificateEarnedTitle,
+                style: AppTypography.h2.copyWith(color: AppColors.primary),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.sm),
+              Text(
+                l10n.certificateEarnedMessage,
+                style: AppTypography.caption,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: AppSpacing.xl),
+              SizedBox(
+                width: double.infinity,
+                child: PrimaryButton(
+                  label: l10n.certificateEarnedButton,
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -150,6 +213,30 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
               );
             }
 
+            if (hasError) {
+              return Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BouncyIconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back),
+                    ),
+                    EmptyState(
+                      icon: Icons.wifi_off_outlined,
+                      iconColor: AppColors.error,
+                      title: l10n.commonSomethingWrong,
+                      action: PrimaryButton(
+                        label: l10n.commonRetry,
+                        onPressed: load,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }
+
             final currentCourse = course;
             if (currentCourse == null) {
               return Padding(
@@ -157,7 +244,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    IconButton(
+                    BouncyIconButton(
                       onPressed: () => Navigator.pop(context),
                       icon: const Icon(Icons.arrow_back),
                     ),
@@ -215,7 +302,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  IconButton(
+                  BouncyIconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back),
                   ),

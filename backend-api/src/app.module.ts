@@ -35,6 +35,14 @@ import { DailyModule } from './daily/daily.module';
 import { AiModule } from './ai/ai.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { BooksModule } from './books/books.module';
+import { StreaksModule } from './streaks/streaks.module';
+import { PracticeModule } from './practice/practice.module';
+import { BadgesModule } from './badges/badges.module';
+import { VocabularyReviewModule } from './vocabulary-review/vocabulary-review.module';
+import { PronunciationAttemptsModule } from './pronunciation-attempts/pronunciation-attempts.module';
+import { LessonCommentsModule } from './lesson-comments/lesson-comments.module';
+import { LessonBlocksModule } from './lesson-blocks/lesson-blocks.module';
+import { ContentWorkflowModule } from './content-workflow/content-workflow.module';
 
 @Module({
   imports: [
@@ -73,6 +81,14 @@ import { BooksModule } from './books/books.module';
     AiModule,
     AuditLogModule,
     BooksModule,
+    StreaksModule,
+    PracticeModule,
+    BadgesModule,
+    VocabularyReviewModule,
+    PronunciationAttemptsModule,
+    LessonCommentsModule,
+    LessonBlocksModule,
+    ContentWorkflowModule,
   ],
   controllers: [AppController],
   providers: [AppService],

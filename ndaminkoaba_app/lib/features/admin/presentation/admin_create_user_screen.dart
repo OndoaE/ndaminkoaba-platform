@@ -11,7 +11,7 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../data/admin_repository.dart';
 
-const _roles = ['LEARNER', 'ADMIN'];
+const _roles = ['LEARNER', 'TEACHER', 'ADMIN'];
 
 class AdminCreateUserScreen extends StatefulWidget {
   const AdminCreateUserScreen({super.key});

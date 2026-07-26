@@ -134,12 +134,6 @@ abstract class AppLocalizations {
   /// **'Continue with Google'**
   String get commonContinueWithGoogle;
 
-  /// No description provided for @commonContinueWithFacebook.
-  ///
-  /// In en, this message translates to:
-  /// **'Continue with Facebook'**
-  String get commonContinueWithFacebook;
-
   /// No description provided for @commonOrContinueWith.
   ///
   /// In en, this message translates to:
@@ -151,6 +145,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{provider} sign-in isn\'t set up yet.'**
   String commonOAuthNotConfigured(String provider);
+
+  /// No description provided for @commonCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get commonCancel;
+
+  /// No description provided for @commonSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get commonSave;
+
+  /// No description provided for @commonAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get commonAdd;
+
+  /// No description provided for @commonDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get commonDelete;
+
+  /// No description provided for @commonEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get commonEdit;
+
+  /// No description provided for @commonClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get commonClose;
+
+  /// No description provided for @commonNone.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get commonNone;
+
+  /// No description provided for @commonUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Unassigned'**
+  String get commonUnassigned;
+
+  /// No description provided for @commonOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'optional'**
+  String get commonOptional;
 
   /// No description provided for @languageSelectTitle.
   ///
@@ -218,6 +266,12 @@ abstract class AppLocalizations {
   /// **'Forgot password?'**
   String get forgotPasswordLabel;
 
+  /// No description provided for @rememberMeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remember me'**
+  String get rememberMeLabel;
+
   /// No description provided for @comingSoonMessage.
   ///
   /// In en, this message translates to:
@@ -239,7 +293,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerLinkLabel.
   ///
   /// In en, this message translates to:
-  /// **'Register'**
+  /// **'Sign Up'**
   String get registerLinkLabel;
 
   /// No description provided for @loginEmptyFieldsError.
@@ -257,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @createAccountTitle.
   ///
   /// In en, this message translates to:
-  /// **'Create Account'**
+  /// **'Create an account'**
   String get createAccountTitle;
 
   /// No description provided for @registerSubtitle.
@@ -293,7 +347,7 @@ abstract class AppLocalizations {
   /// No description provided for @registerButtonLabel.
   ///
   /// In en, this message translates to:
-  /// **'Register'**
+  /// **'Sign Up'**
   String get registerButtonLabel;
 
   /// No description provided for @alreadyHaveAccountPrompt.
@@ -410,10 +464,22 @@ abstract class AppLocalizations {
   /// **'Learning'**
   String get navMyLearning;
 
+  /// No description provided for @navLearn.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn'**
+  String get navLearn;
+
+  /// No description provided for @navPractice.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get navPractice;
+
   /// No description provided for @navAI.
   ///
   /// In en, this message translates to:
-  /// **'AI'**
+  /// **'AI Tutor'**
   String get navAI;
 
   /// No description provided for @navProfile.
@@ -692,6 +758,24 @@ abstract class AppLocalizations {
   /// **'Not eligible yet — finish every lesson and pass every quiz first.'**
   String get notEligibleCertificateError;
 
+  /// No description provided for @certificateEarnedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificate earned!'**
+  String get certificateEarnedTitle;
+
+  /// No description provided for @certificateEarnedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ve completed every lesson and quiz. Well done!'**
+  String get certificateEarnedMessage;
+
+  /// No description provided for @certificateEarnedButton.
+  ///
+  /// In en, this message translates to:
+  /// **'View my certificate'**
+  String get certificateEarnedButton;
+
   /// No description provided for @modulesTitle.
   ///
   /// In en, this message translates to:
@@ -751,6 +835,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Finish Lesson'**
   String get finishLessonButton;
+
+  /// No description provided for @previousLessonButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Previous'**
+  String get previousLessonButton;
 
   /// No description provided for @lessonCompletedMessage.
   ///
@@ -1184,6 +1274,18 @@ abstract class AppLocalizations {
   /// **'Switch Language'**
   String get switchLanguageTitle;
 
+  /// No description provided for @uploadPhotoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload photo'**
+  String get uploadPhotoTooltip;
+
+  /// No description provided for @couldNotUploadPhotoError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload photo.'**
+  String get couldNotUploadPhotoError;
+
   /// No description provided for @chooseLanguageTitle.
   ///
   /// In en, this message translates to:
@@ -1213,6 +1315,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'You\'re already learning the only language published so far.'**
   String get chooseLanguageOnlyCurrentMessage;
+
+  /// No description provided for @chooseLanguageLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t load languages. Check your connection to the server and try again.'**
+  String get chooseLanguageLoadError;
 
   /// No description provided for @continueLearningWelcomeBack.
   ///
@@ -1261,6 +1369,1878 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Explore another Cameroonian language from scratch.'**
   String get continueLearningNewLanguageSubtitle;
+
+  /// No description provided for @adminNeedsWiderScreen.
+  ///
+  /// In en, this message translates to:
+  /// **'The admin dashboard needs a wider screen.'**
+  String get adminNeedsWiderScreen;
+
+  /// No description provided for @adminResizeBrowserMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Please resize your browser window or use a desktop device.'**
+  String get adminResizeBrowserMessage;
+
+  /// No description provided for @adminNavOverview.
+  ///
+  /// In en, this message translates to:
+  /// **'Overview'**
+  String get adminNavOverview;
+
+  /// No description provided for @adminNavLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get adminNavLanguages;
+
+  /// No description provided for @adminNavUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get adminNavUsers;
+
+  /// No description provided for @adminNavCertificates.
+  ///
+  /// In en, this message translates to:
+  /// **'Certificates'**
+  String get adminNavCertificates;
+
+  /// No description provided for @adminNavReportsActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports & Activity'**
+  String get adminNavReportsActivity;
+
+  /// No description provided for @adminNavDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get adminNavDashboard;
+
+  /// No description provided for @adminNavLearners.
+  ///
+  /// In en, this message translates to:
+  /// **'Learners'**
+  String get adminNavLearners;
+
+  /// No description provided for @adminNavCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Courses'**
+  String get adminNavCourses;
+
+  /// No description provided for @adminNavLessonsContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons & Content'**
+  String get adminNavLessonsContent;
+
+  /// No description provided for @adminNavVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get adminNavVocabulary;
+
+  /// No description provided for @adminNavAssessments.
+  ///
+  /// In en, this message translates to:
+  /// **'Assessments'**
+  String get adminNavAssessments;
+
+  /// No description provided for @adminNavAiTutor.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Tutor'**
+  String get adminNavAiTutor;
+
+  /// No description provided for @adminNavReports.
+  ///
+  /// In en, this message translates to:
+  /// **'Reports'**
+  String get adminNavReports;
+
+  /// No description provided for @adminLanguageActiveSuffix.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · Active'**
+  String adminLanguageActiveSuffix(String name);
+
+  /// No description provided for @adminBackToAllLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to All Languages'**
+  String get adminBackToAllLanguages;
+
+  /// No description provided for @adminRoleFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get adminRoleFallback;
+
+  /// No description provided for @adminSuperAdminFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Super Admin'**
+  String get adminSuperAdminFallback;
+
+  /// No description provided for @adminLanguageFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get adminLanguageFallback;
+
+  /// No description provided for @adminDashboardOverviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard Overview'**
+  String get adminDashboardOverviewTitle;
+
+  /// No description provided for @adminDashboardOverviewSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Here\'s what\'s happening across the platform today.'**
+  String get adminDashboardOverviewSubtitle;
+
+  /// No description provided for @adminStatActiveLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Languages'**
+  String get adminStatActiveLanguages;
+
+  /// No description provided for @adminStatTotalLearners.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Learners'**
+  String get adminStatTotalLearners;
+
+  /// No description provided for @adminStatPublishedCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Published Courses'**
+  String get adminStatPublishedCourses;
+
+  /// No description provided for @adminStatLessonsCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons Completed'**
+  String get adminStatLessonsCompleted;
+
+  /// No description provided for @adminLanguageManagementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Language Management'**
+  String get adminLanguageManagementTitle;
+
+  /// No description provided for @adminAddLanguageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Language'**
+  String get adminAddLanguageButton;
+
+  /// No description provided for @adminViewAllLanguages.
+  ///
+  /// In en, this message translates to:
+  /// **'View All Languages'**
+  String get adminViewAllLanguages;
+
+  /// No description provided for @adminColLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get adminColLanguage;
+
+  /// No description provided for @adminColCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get adminColCode;
+
+  /// No description provided for @adminColLearners.
+  ///
+  /// In en, this message translates to:
+  /// **'Learners'**
+  String get adminColLearners;
+
+  /// No description provided for @adminColCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Courses'**
+  String get adminColCourses;
+
+  /// No description provided for @adminColProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'Progress'**
+  String get adminColProgress;
+
+  /// No description provided for @adminColStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get adminColStatus;
+
+  /// No description provided for @adminColActions.
+  ///
+  /// In en, this message translates to:
+  /// **'Actions'**
+  String get adminColActions;
+
+  /// No description provided for @adminOpenDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Open Dashboard'**
+  String get adminOpenDashboard;
+
+  /// No description provided for @adminStatusActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminStatusActive;
+
+  /// No description provided for @adminStatusDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get adminStatusDraft;
+
+  /// No description provided for @adminAddLanguageNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (e.g. Bassa)'**
+  String get adminAddLanguageNameHint;
+
+  /// No description provided for @adminAddLanguageCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Code (e.g. bas)'**
+  String get adminAddLanguageCodeHint;
+
+  /// No description provided for @adminAddLanguageCountryHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Country (optional)'**
+  String get adminAddLanguageCountryHint;
+
+  /// No description provided for @adminLanguageAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language added. It starts inactive — publish it once its content is ready.'**
+  String get adminLanguageAddedMessage;
+
+  /// No description provided for @adminCouldNotAddLanguage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add language.'**
+  String get adminCouldNotAddLanguage;
+
+  /// No description provided for @adminCourseCompletionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Course Completion'**
+  String get adminCourseCompletionTitle;
+
+  /// No description provided for @adminLevelBeginner.
+  ///
+  /// In en, this message translates to:
+  /// **'Beginner'**
+  String get adminLevelBeginner;
+
+  /// No description provided for @adminLevelIntermediate.
+  ///
+  /// In en, this message translates to:
+  /// **'Intermediate'**
+  String get adminLevelIntermediate;
+
+  /// No description provided for @adminLevelAdvanced.
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get adminLevelAdvanced;
+
+  /// No description provided for @adminQuickActionsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get adminQuickActionsTitle;
+
+  /// No description provided for @adminQuickActionCreateCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Course'**
+  String get adminQuickActionCreateCourse;
+
+  /// No description provided for @adminQuickActionAddUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Add User'**
+  String get adminQuickActionAddUser;
+
+  /// No description provided for @adminQuickActionUploadContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Content'**
+  String get adminQuickActionUploadContent;
+
+  /// No description provided for @adminRecentActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Activity'**
+  String get adminRecentActivityTitle;
+
+  /// No description provided for @adminNoRecentActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'No recent activity.'**
+  String get adminNoRecentActivity;
+
+  /// No description provided for @adminViewAllActivity.
+  ///
+  /// In en, this message translates to:
+  /// **'View All Activity'**
+  String get adminViewAllActivity;
+
+  /// No description provided for @adminLearnerActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learner Activity'**
+  String get adminLearnerActivityTitle;
+
+  /// No description provided for @adminLegendNewLearners.
+  ///
+  /// In en, this message translates to:
+  /// **'New Learners'**
+  String get adminLegendNewLearners;
+
+  /// No description provided for @adminLegendActiveLearners.
+  ///
+  /// In en, this message translates to:
+  /// **'Active Learners'**
+  String get adminLegendActiveLearners;
+
+  /// No description provided for @adminNoActivityData.
+  ///
+  /// In en, this message translates to:
+  /// **'No activity data yet.'**
+  String get adminNoActivityData;
+
+  /// No description provided for @adminAiContentReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Content Review'**
+  String get adminAiContentReviewTitle;
+
+  /// No description provided for @adminAiReviewCountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} AI-generated lesson drafts are waiting for review'**
+  String adminAiReviewCountMessage(int count);
+
+  /// No description provided for @adminReviewContentButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Content'**
+  String get adminReviewContentButton;
+
+  /// No description provided for @adminSystemNoticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'System Notice'**
+  String get adminSystemNoticeTitle;
+
+  /// No description provided for @adminAllSystemsOperational.
+  ///
+  /// In en, this message translates to:
+  /// **'All systems operational'**
+  String get adminAllSystemsOperational;
+
+  /// No description provided for @adminLastUpdatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last updated: {date}'**
+  String adminLastUpdatedLabel(String date);
+
+  /// No description provided for @adminAuditVerbCreated.
+  ///
+  /// In en, this message translates to:
+  /// **'created a'**
+  String get adminAuditVerbCreated;
+
+  /// No description provided for @adminAuditVerbUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'updated a'**
+  String get adminAuditVerbUpdated;
+
+  /// No description provided for @adminAuditVerbDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'deleted a'**
+  String get adminAuditVerbDeleted;
+
+  /// No description provided for @adminAuditActivityLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{actor} {verb} {entity}'**
+  String adminAuditActivityLine(String actor, String verb, String entity);
+
+  /// No description provided for @adminLanguageDashboardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{language} Dashboard'**
+  String adminLanguageDashboardTitle(String language);
+
+  /// No description provided for @adminLanguageDashboardSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content and learner activity for {language}.'**
+  String adminLanguageDashboardSubtitle(String language);
+
+  /// No description provided for @adminNewCourseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'New Course'**
+  String get adminNewCourseButton;
+
+  /// No description provided for @adminStatLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get adminStatLessons;
+
+  /// No description provided for @adminCourseManagementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Course Management'**
+  String get adminCourseManagementTitle;
+
+  /// No description provided for @adminViewAllCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'View All Courses'**
+  String get adminViewAllCourses;
+
+  /// No description provided for @adminColCourseSingle.
+  ///
+  /// In en, this message translates to:
+  /// **'Course'**
+  String get adminColCourseSingle;
+
+  /// No description provided for @adminColLevel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get adminColLevel;
+
+  /// No description provided for @adminContentWorkflowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Workflow'**
+  String get adminContentWorkflowTitle;
+
+  /// No description provided for @adminWorkflowDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get adminWorkflowDraft;
+
+  /// No description provided for @adminWorkflowInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'In Review'**
+  String get adminWorkflowInReview;
+
+  /// No description provided for @adminWorkflowApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Approved'**
+  String get adminWorkflowApproved;
+
+  /// No description provided for @adminWorkflowPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get adminWorkflowPublished;
+
+  /// No description provided for @adminContentQualityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Quality'**
+  String get adminContentQualityTitle;
+
+  /// No description provided for @adminQuickActionNewLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'New Lesson'**
+  String get adminQuickActionNewLesson;
+
+  /// No description provided for @adminQuickActionNewQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'New Quiz'**
+  String get adminQuickActionNewQuiz;
+
+  /// No description provided for @adminQuickActionTrainAi.
+  ///
+  /// In en, this message translates to:
+  /// **'Train the AI'**
+  String get adminQuickActionTrainAi;
+
+  /// No description provided for @adminRecentCertificatesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Certificates'**
+  String get adminRecentCertificatesTitle;
+
+  /// No description provided for @adminNoCertificatesYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No certificates issued yet.'**
+  String get adminNoCertificatesYet;
+
+  /// No description provided for @adminCertificateCompletedLine.
+  ///
+  /// In en, this message translates to:
+  /// **'{learner} completed {course}'**
+  String adminCertificateCompletedLine(String learner, String course);
+
+  /// No description provided for @adminNnangaAiReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nnanga AI Review'**
+  String get adminNnangaAiReviewTitle;
+
+  /// No description provided for @adminNnangaReviewCountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} AI-generated {language} lesson drafts are waiting for review'**
+  String adminNnangaReviewCountMessage(int count, String language);
+
+  /// No description provided for @adminTabAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminTabAll;
+
+  /// No description provided for @adminUpdatedCountMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} course(s) updated.'**
+  String adminUpdatedCountMessage(int count);
+
+  /// No description provided for @adminCouldNotUpdateCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update courses.'**
+  String get adminCouldNotUpdateCourses;
+
+  /// No description provided for @adminAssignReviewerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign Reviewer'**
+  String get adminAssignReviewerTitle;
+
+  /// No description provided for @adminAssignReviewerPrompt.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign a reviewer to {count} selected course(s).'**
+  String adminAssignReviewerPrompt(int count);
+
+  /// No description provided for @adminNoReviewersAvailable.
+  ///
+  /// In en, this message translates to:
+  /// **'No teachers or admins available.'**
+  String get adminNoReviewersAvailable;
+
+  /// No description provided for @adminReviewerAssignedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer assigned.'**
+  String get adminReviewerAssignedMessage;
+
+  /// No description provided for @adminCouldNotAssignReviewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not assign reviewer.'**
+  String get adminCouldNotAssignReviewer;
+
+  /// No description provided for @adminCourseManagementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage every course in {language}.'**
+  String adminCourseManagementSubtitle(String language);
+
+  /// No description provided for @adminStatTotalCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Courses'**
+  String get adminStatTotalCourses;
+
+  /// No description provided for @adminStatDrafts.
+  ///
+  /// In en, this message translates to:
+  /// **'Drafts'**
+  String get adminStatDrafts;
+
+  /// No description provided for @adminSearchCoursesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search courses...'**
+  String get adminSearchCoursesHint;
+
+  /// No description provided for @adminAllLevelsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'All Levels'**
+  String get adminAllLevelsLabel;
+
+  /// No description provided for @adminBulkPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish'**
+  String get adminBulkPublish;
+
+  /// No description provided for @adminBulkMoveToDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to Draft'**
+  String get adminBulkMoveToDraft;
+
+  /// No description provided for @adminBulkArchive.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive'**
+  String get adminBulkArchive;
+
+  /// No description provided for @adminColLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get adminColLessons;
+
+  /// No description provided for @adminColReviewer.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer'**
+  String get adminColReviewer;
+
+  /// No description provided for @adminPublishingPipelineTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing Pipeline'**
+  String get adminPublishingPipelineTitle;
+
+  /// No description provided for @adminContentHealthTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Health'**
+  String get adminContentHealthTitle;
+
+  /// No description provided for @adminRecentCourseActivityTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Course Activity'**
+  String get adminRecentCourseActivityTitle;
+
+  /// No description provided for @adminWorkflowArchived.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived'**
+  String get adminWorkflowArchived;
+
+  /// No description provided for @adminHealthLessonsPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons published'**
+  String get adminHealthLessonsPublished;
+
+  /// No description provided for @adminHealthLessonsApproved.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons approved'**
+  String get adminHealthLessonsApproved;
+
+  /// No description provided for @adminHealthLessonsInReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons in review'**
+  String get adminHealthLessonsInReview;
+
+  /// No description provided for @adminHealthLessonsInDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons in draft'**
+  String get adminHealthLessonsInDraft;
+
+  /// No description provided for @adminWizardStepDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Course Details'**
+  String get adminWizardStepDetails;
+
+  /// No description provided for @adminWizardStepCurriculum.
+  ///
+  /// In en, this message translates to:
+  /// **'Curriculum'**
+  String get adminWizardStepCurriculum;
+
+  /// No description provided for @adminWizardStepResources.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Resources'**
+  String get adminWizardStepResources;
+
+  /// No description provided for @adminWizardStepAssessment.
+  ///
+  /// In en, this message translates to:
+  /// **'Assessment'**
+  String get adminWizardStepAssessment;
+
+  /// No description provided for @adminWizardStepReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & Publish'**
+  String get adminWizardStepReview;
+
+  /// No description provided for @adminTitleMinLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'Title must be at least 3 characters.'**
+  String get adminTitleMinLengthError;
+
+  /// No description provided for @adminCourseCreatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Course created. Continue building it out below.'**
+  String get adminCourseCreatedMessage;
+
+  /// No description provided for @adminCouldNotSaveCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save course.'**
+  String get adminCouldNotSaveCourse;
+
+  /// No description provided for @adminLearningResourcesSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning resources saved.'**
+  String get adminLearningResourcesSavedMessage;
+
+  /// No description provided for @adminCouldNotSaveGeneric.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save.'**
+  String get adminCouldNotSaveGeneric;
+
+  /// No description provided for @adminCoverUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover updated.'**
+  String get adminCoverUpdatedMessage;
+
+  /// No description provided for @adminCouldNotUploadCover.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload cover.'**
+  String get adminCouldNotUploadCover;
+
+  /// No description provided for @adminArchiveCourseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive Course'**
+  String get adminArchiveCourseTitle;
+
+  /// No description provided for @adminArchiveCourseConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Archived courses are hidden from learners but not deleted. Continue?'**
+  String get adminArchiveCourseConfirm;
+
+  /// No description provided for @adminCourseArchivedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Course archived.'**
+  String get adminCourseArchivedMessage;
+
+  /// No description provided for @adminCouldNotArchiveCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not archive course.'**
+  String get adminCouldNotArchiveCourse;
+
+  /// No description provided for @adminCoursePublishedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Course published.'**
+  String get adminCoursePublishedMessage;
+
+  /// No description provided for @adminCouldNotPublishCourse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not publish course.'**
+  String get adminCouldNotPublishCourse;
+
+  /// No description provided for @adminModuleLessonsFirstError.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this module\'s lessons first.'**
+  String get adminModuleLessonsFirstError;
+
+  /// No description provided for @adminCouldNotAddModule.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add module.'**
+  String get adminCouldNotAddModule;
+
+  /// No description provided for @adminCouldNotUpdateModule.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update module.'**
+  String get adminCouldNotUpdateModule;
+
+  /// No description provided for @adminCouldNotDeleteModule.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete module.'**
+  String get adminCouldNotDeleteModule;
+
+  /// No description provided for @adminLessonContentMinLengthError.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson content must be at least 10 characters.'**
+  String get adminLessonContentMinLengthError;
+
+  /// No description provided for @adminCouldNotAddLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add lesson.'**
+  String get adminCouldNotAddLesson;
+
+  /// No description provided for @adminCouldNotUpdateLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update lesson.'**
+  String get adminCouldNotUpdateLesson;
+
+  /// No description provided for @adminCouldNotDeleteLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete lesson.'**
+  String get adminCouldNotDeleteLesson;
+
+  /// No description provided for @adminCouldNotMoveLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not move lesson.'**
+  String get adminCouldNotMoveLesson;
+
+  /// No description provided for @adminCouldNotReorderLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reorder lesson.'**
+  String get adminCouldNotReorderLesson;
+
+  /// No description provided for @adminAddModuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Module'**
+  String get adminAddModuleTitle;
+
+  /// No description provided for @adminRenameModuleTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename Module'**
+  String get adminRenameModuleTitle;
+
+  /// No description provided for @adminAddLessonToTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Lesson to \"{module}\"'**
+  String adminAddLessonToTitle(String module);
+
+  /// No description provided for @adminEditLessonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit \"{lesson}\"'**
+  String adminEditLessonTitle(String lesson);
+
+  /// No description provided for @adminFieldTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get adminFieldTitle;
+
+  /// No description provided for @adminFieldDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get adminFieldDescription;
+
+  /// No description provided for @adminFieldFrenchTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'French Title'**
+  String get adminFieldFrenchTitle;
+
+  /// No description provided for @adminFieldFrenchDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'French Description'**
+  String get adminFieldFrenchDescription;
+
+  /// No description provided for @adminFieldSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get adminFieldSummary;
+
+  /// No description provided for @adminFieldContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get adminFieldContent;
+
+  /// No description provided for @adminFieldFrenchSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'French Summary'**
+  String get adminFieldFrenchSummary;
+
+  /// No description provided for @adminFieldFrenchContent.
+  ///
+  /// In en, this message translates to:
+  /// **'French Content'**
+  String get adminFieldFrenchContent;
+
+  /// No description provided for @adminCreateCourseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Course'**
+  String get adminCreateCourseTitle;
+
+  /// No description provided for @adminEditCourseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Course'**
+  String get adminEditCourseTitle;
+
+  /// No description provided for @adminBuildNewCourseSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build a new course for {language}.'**
+  String adminBuildNewCourseSubtitle(String language);
+
+  /// No description provided for @adminThisLanguageFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'This language'**
+  String get adminThisLanguageFallback;
+
+  /// No description provided for @adminBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get adminBackButton;
+
+  /// No description provided for @adminSavingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving...'**
+  String get adminSavingLabel;
+
+  /// No description provided for @adminCreateAndContinueButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create & Continue'**
+  String get adminCreateAndContinueButton;
+
+  /// No description provided for @adminNextButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get adminNextButton;
+
+  /// No description provided for @adminCourseCoverTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Course Cover'**
+  String get adminCourseCoverTitle;
+
+  /// No description provided for @adminUploadCoverButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Cover'**
+  String get adminUploadCoverButton;
+
+  /// No description provided for @adminUploadingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading...'**
+  String get adminUploadingLabel;
+
+  /// No description provided for @adminGenerateWithAiTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'AI cover generation is not available yet.'**
+  String get adminGenerateWithAiTooltip;
+
+  /// No description provided for @adminGenerateWithAiButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate with AI'**
+  String get adminGenerateWithAiButton;
+
+  /// No description provided for @adminPublishingSettingsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing Settings'**
+  String get adminPublishingSettingsTitle;
+
+  /// No description provided for @adminVisibilityLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Visibility'**
+  String get adminVisibilityLabel;
+
+  /// No description provided for @adminVisibilityPublic.
+  ///
+  /// In en, this message translates to:
+  /// **'Public'**
+  String get adminVisibilityPublic;
+
+  /// No description provided for @adminVisibilityPrivate.
+  ///
+  /// In en, this message translates to:
+  /// **'Private'**
+  String get adminVisibilityPrivate;
+
+  /// No description provided for @adminEnrollmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Enrollment'**
+  String get adminEnrollmentLabel;
+
+  /// No description provided for @adminEnrollmentOpen.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get adminEnrollmentOpen;
+
+  /// No description provided for @adminEnrollmentInviteOnly.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite Only'**
+  String get adminEnrollmentInviteOnly;
+
+  /// No description provided for @adminIssueCertificateLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Issue Certificate'**
+  String get adminIssueCertificateLabel;
+
+  /// No description provided for @adminCourseTeamTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Course Team'**
+  String get adminCourseTeamTitle;
+
+  /// No description provided for @adminInstructorLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructor'**
+  String get adminInstructorLabel;
+
+  /// No description provided for @adminContentReadinessTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Readiness'**
+  String get adminContentReadinessTitle;
+
+  /// No description provided for @adminReadyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready'**
+  String get adminReadyLabel;
+
+  /// No description provided for @adminDangerZoneTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Danger Zone'**
+  String get adminDangerZoneTitle;
+
+  /// No description provided for @adminArchiveCourseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Archive Course'**
+  String get adminArchiveCourseButton;
+
+  /// No description provided for @adminSubtitleOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtitle (optional)'**
+  String get adminSubtitleOptionalLabel;
+
+  /// No description provided for @adminFrenchTitleOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Title (optional)'**
+  String get adminFrenchTitleOptionalLabel;
+
+  /// No description provided for @adminCategoryOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category (optional)'**
+  String get adminCategoryOptionalLabel;
+
+  /// No description provided for @adminFrenchDescriptionOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Description (optional)'**
+  String get adminFrenchDescriptionOptionalLabel;
+
+  /// No description provided for @adminEstimatedHoursLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated Hours'**
+  String get adminEstimatedHoursLabel;
+
+  /// No description provided for @adminTagsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Tags'**
+  String get adminTagsLabel;
+
+  /// No description provided for @adminAddTagHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a tag and press enter'**
+  String get adminAddTagHint;
+
+  /// No description provided for @adminLearningObjectivesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Objectives'**
+  String get adminLearningObjectivesLabel;
+
+  /// No description provided for @adminAddObjectiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an objective and press enter'**
+  String get adminAddObjectiveHint;
+
+  /// No description provided for @adminModulesLessonsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Modules & Lessons'**
+  String get adminModulesLessonsTitle;
+
+  /// No description provided for @adminNoModulesYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No modules yet. Add one to start adding lessons.'**
+  String get adminNoModulesYetMessage;
+
+  /// No description provided for @adminLessonsCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} lessons'**
+  String adminLessonsCountLabel(int count);
+
+  /// No description provided for @adminRenameModuleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Rename module'**
+  String get adminRenameModuleTooltip;
+
+  /// No description provided for @adminDeleteModuleTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete module'**
+  String get adminDeleteModuleTooltip;
+
+  /// No description provided for @adminMenuBlockEditor.
+  ///
+  /// In en, this message translates to:
+  /// **'Block Editor'**
+  String get adminMenuBlockEditor;
+
+  /// No description provided for @adminMenuMoveToAnotherModule.
+  ///
+  /// In en, this message translates to:
+  /// **'Move to another module'**
+  String get adminMenuMoveToAnotherModule;
+
+  /// No description provided for @adminMenuChangePosition.
+  ///
+  /// In en, this message translates to:
+  /// **'Change position'**
+  String get adminMenuChangePosition;
+
+  /// No description provided for @adminMenuManageImages.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage images'**
+  String get adminMenuManageImages;
+
+  /// No description provided for @adminMenuManageQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage quiz'**
+  String get adminMenuManageQuiz;
+
+  /// No description provided for @adminAddLessonButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Lesson'**
+  String get adminAddLessonButton;
+
+  /// No description provided for @adminSupportLanguageCodesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Support Language Codes'**
+  String get adminSupportLanguageCodesLabel;
+
+  /// No description provided for @adminSupportLanguageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. fr, en — press enter'**
+  String get adminSupportLanguageHint;
+
+  /// No description provided for @adminPrerequisiteCourseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Prerequisite Course'**
+  String get adminPrerequisiteCourseLabel;
+
+  /// No description provided for @adminManageQuizFromBuilderMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage each lesson\'s quiz from the existing Quiz Builder.'**
+  String get adminManageQuizFromBuilderMessage;
+
+  /// No description provided for @adminAddLessonsFirstMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add lessons in the Curriculum step first.'**
+  String get adminAddLessonsFirstMessage;
+
+  /// No description provided for @adminManageQuizButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Quiz'**
+  String get adminManageQuizButton;
+
+  /// No description provided for @adminModulesCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} modules'**
+  String adminModulesCountLabel(int count);
+
+  /// No description provided for @adminHoursSuffixLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{hours}h'**
+  String adminHoursSuffixLabel(int hours);
+
+  /// No description provided for @adminReadinessChecklistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Readiness Checklist'**
+  String get adminReadinessChecklistTitle;
+
+  /// No description provided for @adminChecklistCourseDetailsComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Course details complete'**
+  String get adminChecklistCourseDetailsComplete;
+
+  /// No description provided for @adminChecklistLessonsReady.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons ready ({ready}/{total})'**
+  String adminChecklistLessonsReady(int ready, int total);
+
+  /// No description provided for @adminChecklistAssessmentPresent.
+  ///
+  /// In en, this message translates to:
+  /// **'Assessment present'**
+  String get adminChecklistAssessmentPresent;
+
+  /// No description provided for @adminChecklistAudioMissing.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio missing on {count} lesson(s)'**
+  String adminChecklistAudioMissing(int count);
+
+  /// No description provided for @adminSetPublicationDateButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Set publication date'**
+  String get adminSetPublicationDateButton;
+
+  /// No description provided for @adminPublishCourseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Course'**
+  String get adminPublishCourseButton;
+
+  /// No description provided for @adminBlockTypeText.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get adminBlockTypeText;
+
+  /// No description provided for @adminBlockTypeDialogue.
+  ///
+  /// In en, this message translates to:
+  /// **'Dialogue'**
+  String get adminBlockTypeDialogue;
+
+  /// No description provided for @adminBlockTypeAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio'**
+  String get adminBlockTypeAudio;
+
+  /// No description provided for @adminBlockTypeImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image'**
+  String get adminBlockTypeImage;
+
+  /// No description provided for @adminBlockTypeVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get adminBlockTypeVocabulary;
+
+  /// No description provided for @adminBlockTypeQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz'**
+  String get adminBlockTypeQuiz;
+
+  /// No description provided for @adminBlockTypePronunciation.
+  ///
+  /// In en, this message translates to:
+  /// **'Pronunciation'**
+  String get adminBlockTypePronunciation;
+
+  /// No description provided for @adminBlockTypeExercise.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise'**
+  String get adminBlockTypeExercise;
+
+  /// No description provided for @adminBlockTypeVideo.
+  ///
+  /// In en, this message translates to:
+  /// **'Video'**
+  String get adminBlockTypeVideo;
+
+  /// No description provided for @adminAiActionGenerateExamples.
+  ///
+  /// In en, this message translates to:
+  /// **'Generate Examples'**
+  String get adminAiActionGenerateExamples;
+
+  /// No description provided for @adminAiActionCreateQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Quiz'**
+  String get adminAiActionCreateQuiz;
+
+  /// No description provided for @adminAiActionSimplifyContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Simplify Content'**
+  String get adminAiActionSimplifyContent;
+
+  /// No description provided for @adminAiActionCheckTranslations.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Translations'**
+  String get adminAiActionCheckTranslations;
+
+  /// No description provided for @adminCouldNotAddBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add block.'**
+  String get adminCouldNotAddBlock;
+
+  /// No description provided for @adminRemoveBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Block'**
+  String get adminRemoveBlockTitle;
+
+  /// No description provided for @adminRemoveBlockConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this block from the lesson?'**
+  String get adminRemoveBlockConfirm;
+
+  /// No description provided for @adminRemoveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get adminRemoveButton;
+
+  /// No description provided for @adminCouldNotRemoveBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not remove block.'**
+  String get adminCouldNotRemoveBlock;
+
+  /// No description provided for @adminCouldNotReorderBlocks.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reorder blocks.'**
+  String get adminCouldNotReorderBlocks;
+
+  /// No description provided for @adminSubmittedForReviewMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Submitted for review.'**
+  String get adminSubmittedForReviewMessage;
+
+  /// No description provided for @adminCouldNotSubmitForReview.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not submit for review.'**
+  String get adminCouldNotSubmitForReview;
+
+  /// No description provided for @adminCouldNotPostComment.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not post comment.'**
+  String get adminCouldNotPostComment;
+
+  /// No description provided for @adminNnangaNoRespondError.
+  ///
+  /// In en, this message translates to:
+  /// **'Nnanga could not respond.'**
+  String get adminNnangaNoRespondError;
+
+  /// No description provided for @adminNnangaSuggestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Nnanga suggestion'**
+  String get adminNnangaSuggestionLabel;
+
+  /// No description provided for @adminAddedAsTextBlockMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Added as a new Text block.'**
+  String get adminAddedAsTextBlockMessage;
+
+  /// No description provided for @adminCouldNotApplySuggestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not apply suggestion.'**
+  String get adminCouldNotApplySuggestion;
+
+  /// No description provided for @adminDraftQuestionsAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft questions added to the quiz.'**
+  String get adminDraftQuestionsAddedMessage;
+
+  /// No description provided for @adminCouldNotApplyQuizDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not apply quiz draft.'**
+  String get adminCouldNotApplyQuizDraft;
+
+  /// No description provided for @adminLessonEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Editor'**
+  String get adminLessonEditorTitle;
+
+  /// No description provided for @adminSubmitForReviewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit for Review'**
+  String get adminSubmitForReviewButton;
+
+  /// No description provided for @adminAddBlockTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Block'**
+  String get adminAddBlockTitle;
+
+  /// No description provided for @adminNoBlocksYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No blocks yet. Add one from the palette on the left to start authoring this lesson.'**
+  String get adminNoBlocksYetMessage;
+
+  /// No description provided for @adminMoveUpTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Move up'**
+  String get adminMoveUpTooltip;
+
+  /// No description provided for @adminMoveDownTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Move down'**
+  String get adminMoveDownTooltip;
+
+  /// No description provided for @adminRemoveBlockTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove block'**
+  String get adminRemoveBlockTooltip;
+
+  /// No description provided for @adminSaveBlockButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Block'**
+  String get adminSaveBlockButton;
+
+  /// No description provided for @adminEyebrowLabelOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Eyebrow label (optional)'**
+  String get adminEyebrowLabelOptional;
+
+  /// No description provided for @adminFrenchContentOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French content (optional)'**
+  String get adminFrenchContentOptionalLabel;
+
+  /// No description provided for @adminSpeakerLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Speaker'**
+  String get adminSpeakerLabel;
+
+  /// No description provided for @adminLineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get adminLineLabel;
+
+  /// No description provided for @adminFrenchLineOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French line (optional)'**
+  String get adminFrenchLineOptionalLabel;
+
+  /// No description provided for @adminAddTurnButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Turn'**
+  String get adminAddTurnButton;
+
+  /// No description provided for @adminAudioUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio URL'**
+  String get adminAudioUrlLabel;
+
+  /// No description provided for @adminUploadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get adminUploadButton;
+
+  /// No description provided for @adminVideoUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Video URL'**
+  String get adminVideoUrlLabel;
+
+  /// No description provided for @adminVideoNotVisibleNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Video is saved but not yet shown to learners — no player exists on the lesson screen yet.'**
+  String get adminVideoNotVisibleNotice;
+
+  /// No description provided for @adminWordLabelField.
+  ///
+  /// In en, this message translates to:
+  /// **'Word / label'**
+  String get adminWordLabelField;
+
+  /// No description provided for @adminImageUrlLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Image URL'**
+  String get adminImageUrlLabel;
+
+  /// No description provided for @adminCaptionOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Caption (optional)'**
+  String get adminCaptionOptionalLabel;
+
+  /// No description provided for @adminSelectWordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a word'**
+  String get adminSelectWordHint;
+
+  /// No description provided for @adminInstructionsOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Instructions (optional)'**
+  String get adminInstructionsOptionalLabel;
+
+  /// No description provided for @adminNoQuizYetNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'No quiz exists for this lesson yet. Create one from the Assessment step, then save this block again.'**
+  String get adminNoQuizYetNotice;
+
+  /// No description provided for @adminLinkedToQuizMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Linked to this lesson\'s quiz.'**
+  String get adminLinkedToQuizMessage;
+
+  /// No description provided for @adminExerciseNotVisibleNotice.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise blocks are saved but not yet rendered to learners — no interactive-exercise widget exists yet.'**
+  String get adminExerciseNotVisibleNotice;
+
+  /// No description provided for @adminExerciseDataJsonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise data (JSON)'**
+  String get adminExerciseDataJsonLabel;
+
+  /// No description provided for @adminExerciseInvalidJsonError.
+  ///
+  /// In en, this message translates to:
+  /// **'Exercise content must be valid JSON.'**
+  String get adminExerciseInvalidJsonError;
+
+  /// No description provided for @adminCouldNotSaveBlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save block.'**
+  String get adminCouldNotSaveBlock;
+
+  /// No description provided for @adminCouldNotUploadImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload image.'**
+  String get adminCouldNotUploadImage;
+
+  /// No description provided for @adminCouldNotUploadAudio.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload audio.'**
+  String get adminCouldNotUploadAudio;
+
+  /// No description provided for @adminNnangaAssistantTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Nnanga AI Assistant'**
+  String get adminNnangaAssistantTitle;
+
+  /// No description provided for @adminNnangaInstructionHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional instruction for Nnanga...'**
+  String get adminNnangaInstructionHint;
+
+  /// No description provided for @adminThinkingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Thinking...'**
+  String get adminThinkingLabel;
+
+  /// No description provided for @adminAskNnangaButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask Nnanga'**
+  String get adminAskNnangaButton;
+
+  /// No description provided for @adminAddDraftQuestionsButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Draft Questions to Quiz'**
+  String get adminAddDraftQuestionsButton;
+
+  /// No description provided for @adminApplyAsTextBlockButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply as New Text Block'**
+  String get adminApplyAsTextBlockButton;
+
+  /// No description provided for @adminContentChecklistTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Checklist'**
+  String get adminContentChecklistTitle;
+
+  /// No description provided for @adminChecklistTextContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Text content'**
+  String get adminChecklistTextContent;
+
+  /// No description provided for @adminChecklistFrenchTranslation.
+  ///
+  /// In en, this message translates to:
+  /// **'French translation'**
+  String get adminChecklistFrenchTranslation;
+
+  /// No description provided for @adminChecklistQuizLinked.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz linked'**
+  String get adminChecklistQuizLinked;
+
+  /// No description provided for @adminReviewCollaborationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review & Collaboration'**
+  String get adminReviewCollaborationTitle;
+
+  /// No description provided for @adminCommentsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get adminCommentsLabel;
+
+  /// No description provided for @adminNoCommentsYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No comments yet.'**
+  String get adminNoCommentsYetMessage;
+
+  /// No description provided for @adminAddCommentHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a comment...'**
+  String get adminAddCommentHint;
+
+  /// No description provided for @commonNoResults.
+  ///
+  /// In en, this message translates to:
+  /// **'No results.'**
+  String get commonNoResults;
+
+  /// No description provided for @adminOverallLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Overall'**
+  String get adminOverallLabel;
+
+  /// No description provided for @adminNavNotifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get adminNavNotifications;
+
+  /// No description provided for @adminNotificationsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications'**
+  String get adminNotificationsTitle;
+
+  /// No description provided for @adminNotificationsSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Send a broadcast to every learner or notify one person directly.'**
+  String get adminNotificationsSubtitle;
+
+  /// No description provided for @adminBroadcastCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast to All Learners'**
+  String get adminBroadcastCardTitle;
+
+  /// No description provided for @adminBroadcastCardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This message is sent immediately to every active learner account.'**
+  String get adminBroadcastCardDescription;
+
+  /// No description provided for @adminNotifyUserCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Notify a Specific User'**
+  String get adminNotifyUserCardTitle;
+
+  /// No description provided for @adminNotifyUserCardDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a user below, then send them a direct notification.'**
+  String get adminNotifyUserCardDescription;
+
+  /// No description provided for @adminSearchUserHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or email...'**
+  String get adminSearchUserHint;
+
+  /// No description provided for @adminNoUserSelectedHint.
+  ///
+  /// In en, this message translates to:
+  /// **'No user selected yet.'**
+  String get adminNoUserSelectedHint;
+
+  /// No description provided for @adminNotifyRecipientLine.
+  ///
+  /// In en, this message translates to:
+  /// **'To: {name} ({email})'**
+  String adminNotifyRecipientLine(String name, String email);
+
+  /// No description provided for @adminNotificationTitleHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get adminNotificationTitleHint;
+
+  /// No description provided for @adminNotificationMessageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Message'**
+  String get adminNotificationMessageHint;
+
+  /// No description provided for @adminSendBroadcastButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Broadcast'**
+  String get adminSendBroadcastButton;
+
+  /// No description provided for @adminSendNotificationButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Send Notification'**
+  String get adminSendNotificationButton;
+
+  /// No description provided for @adminBroadcastSentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Broadcast sent to all learners.'**
+  String get adminBroadcastSentMessage;
+
+  /// No description provided for @adminCouldNotSendBroadcast.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send broadcast.'**
+  String get adminCouldNotSendBroadcast;
+
+  /// No description provided for @adminNotificationSentMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Notification sent.'**
+  String get adminNotificationSentMessage;
+
+  /// No description provided for @adminCouldNotSendNotification.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not send notification.'**
+  String get adminCouldNotSendNotification;
 }
 
 class _AppLocalizationsDelegate

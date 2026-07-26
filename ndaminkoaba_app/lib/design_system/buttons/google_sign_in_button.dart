@@ -132,14 +132,12 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
   Widget build(BuildContext context) {
     if (!AppConfig.googleSignInConfigured) {
       return OAuthButton(
-        provider: OAuthProvider.google,
         onPressed: () => widget.onError(OAuthNotConfiguredException('Google')),
       );
     }
 
     if (!kIsWeb) {
       return OAuthButton(
-        provider: OAuthProvider.google,
         isLoading: widget.isLoading,
         onPressed: _handleNativePress,
       );
@@ -147,7 +145,6 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
 
     if (!_webReady || widget.isLoading) {
       return OAuthButton(
-        provider: OAuthProvider.google,
         isLoading: true,
         onPressed: null,
       );

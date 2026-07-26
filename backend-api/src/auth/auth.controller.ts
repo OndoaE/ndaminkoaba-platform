@@ -4,7 +4,6 @@ import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
-import { FacebookLoginDto } from './dto/facebook-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
 import { UserRole } from '@prisma/client';
 import { Roles } from './decorators/roles/roles.decorator';
@@ -34,11 +33,6 @@ export class AuthController {
   @Post('google')
   loginWithGoogle(@Body() dto: GoogleLoginDto) {
     return this.authService.loginWithGoogle(dto);
-  }
-
-  @Post('facebook')
-  loginWithFacebook(@Body() dto: FacebookLoginDto) {
-    return this.authService.loginWithFacebook(dto);
   }
 
   @Get('profile')

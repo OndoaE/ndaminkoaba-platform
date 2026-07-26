@@ -7,8 +7,10 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../design_system/buttons/primary_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/language_repository.dart';
 import '../domain/language.dart';
@@ -35,6 +37,7 @@ class _LearningLanguageSelectionScreenState
   final repository = LanguageRepository();
   bool isLoading = true;
   bool isSaving = false;
+  bool hasError = false;
   List<Language> languages = [];
   bool _onlyLanguageIsCurrent = false;
 
@@ -45,7 +48,10 @@ class _LearningLanguageSelectionScreenState
   }
 
   Future<void> load() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
     try {
       final result = await repository.getLanguages(isActive: true);
       final currentLanguageId = ref.read(currentLearningLanguageProvider);
@@ -60,8 +66,15 @@ class _LearningLanguageSelectionScreenState
         isLoading = false;
       });
     } catch (_) {
+      // A failed network call (unreachable backend, wrong API_BASE_URL,
+      // etc.) must not look identical to "the admin genuinely hasn't
+      // published any languages yet" — those need very different learner
+      // reactions, so the two states are tracked separately.
       if (!mounted) return;
-      setState(() => isLoading = false);
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
     }
   }
 
@@ -83,6 +96,19 @@ class _LearningLanguageSelectionScreenState
             ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
                 child: ShimmerListLoader(itemCount: 4, itemHeight: 88),
+              )
+            : hasError
+            ? Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: EmptyState(
+                  icon: Icons.wifi_off_outlined,
+                  iconColor: AppColors.error,
+                  title: l10n.chooseLanguageLoadError,
+                  action: PrimaryButton(
+                    label: l10n.commonRetry,
+                    onPressed: load,
+                  ),
+                ),
               )
             : Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),

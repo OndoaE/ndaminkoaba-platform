@@ -6,6 +6,8 @@ class VocabularyWord {
   final String? exampleSentence;
   final String difficulty;
   final String? categoryName;
+  final String? phoneticTranscription;
+  final String? audioUrl;
 
   const VocabularyWord({
     required this.id,
@@ -15,6 +17,8 @@ class VocabularyWord {
     this.exampleSentence,
     required this.difficulty,
     this.categoryName,
+    this.phoneticTranscription,
+    this.audioUrl,
   });
 
   factory VocabularyWord.fromJson(Map<String, dynamic> json) {
@@ -28,6 +32,8 @@ class VocabularyWord {
       exampleSentence: json['exampleSentence'],
       difficulty: (json['difficulty'] ?? '').toString(),
       categoryName: category?['name'],
+      phoneticTranscription: json['phoneticTranscription'],
+      audioUrl: json['audioUrl'],
     );
   }
 }

@@ -43,4 +43,35 @@ class AppTypography {
     fontSize: 13,
     color: AppColors.textSecondary,
   );
+
+  /// Reading typeface for lesson content prose — a serif (Lora) rather than
+  /// the Poppins used everywhere else, so a paragraph of lesson explanation
+  /// reads like a book rather than reusing a UI heading style. Paired with
+  /// [lessonBodyStrong] for markdown-authored Ewondo words within the text.
+  static final lessonBody = GoogleFonts.lora(
+    fontSize: 17,
+    height: 1.6,
+    color: AppColors.textPrimary,
+  );
+
+  /// Same family/size as [lessonBody], bolded and tinted brand-green — the
+  /// style markdown's `**word**` emphasis renders as, so an Ewondo word
+  /// stands out as unmistakably bold *and* on-brand, not just heavier black
+  /// text.
+  static final lessonBodyStrong = GoogleFonts.lora(
+    fontSize: 17,
+    height: 1.6,
+    fontWeight: FontWeight.w700,
+    color: AppColors.primary,
+  );
+
+  /// Tabular-figure numerals for anything digits line up against — the
+  /// daily-minutes ring's "6/10", pronunciation accuracy percentages, badge
+  /// progress counts — so the digits don't jitter in width as they change.
+  static final numeric = GoogleFonts.poppins(
+    fontSize: 22,
+    fontWeight: FontWeight.w700,
+    color: AppColors.textPrimary,
+    fontFeatures: const [FontFeature.tabularFigures()],
+  );
 }

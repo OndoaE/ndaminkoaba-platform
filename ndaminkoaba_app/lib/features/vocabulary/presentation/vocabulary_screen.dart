@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/language/learning_language_provider.dart';
+import '../../../design_system/buttons/bouncy_icon_button.dart';
+import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
@@ -43,6 +45,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
 
   String? selectedLevel;
   bool isLoading = true;
+  bool hasError = false;
   List<VocabularyWord> words = [];
 
   @override
@@ -58,7 +61,10 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
   }
 
   Future<void> load() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
     try {
       final result = await repository.getVocabulary(
         difficulty: selectedLevel,
@@ -72,7 +78,10 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() => isLoading = false);
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
     }
   }
 
@@ -90,7 +99,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
             children: [
               Row(
                 children: [
-                  IconButton(
+                  BouncyIconButton(
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back),
                   ),
@@ -176,6 +185,16 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
               Expanded(
                 child: isLoading
                     ? const ShimmerListLoader(itemCount: 5, itemHeight: 92)
+                    : hasError
+                    ? EmptyState(
+                        icon: Icons.wifi_off_outlined,
+                        iconColor: AppColors.error,
+                        title: l10n.commonSomethingWrong,
+                        action: PrimaryButton(
+                          label: l10n.commonRetry,
+                          onPressed: load,
+                        ),
+                      )
                     : words.isEmpty
                     ? EmptyState(
                         icon: Icons.translate,

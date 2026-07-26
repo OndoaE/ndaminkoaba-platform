@@ -28,15 +28,39 @@ class AppLocalizationsFr extends AppLocalizations {
   String get commonContinueWithGoogle => 'Continuer avec Google';
 
   @override
-  String get commonContinueWithFacebook => 'Continuer avec Facebook';
-
-  @override
   String get commonOrContinueWith => 'ou continuer avec';
 
   @override
   String commonOAuthNotConfigured(String provider) {
     return 'La connexion $provider n\'est pas encore configurée.';
   }
+
+  @override
+  String get commonCancel => 'Annuler';
+
+  @override
+  String get commonSave => 'Enregistrer';
+
+  @override
+  String get commonAdd => 'Ajouter';
+
+  @override
+  String get commonDelete => 'Supprimer';
+
+  @override
+  String get commonEdit => 'Modifier';
+
+  @override
+  String get commonClose => 'Fermer';
+
+  @override
+  String get commonNone => 'Aucun';
+
+  @override
+  String get commonUnassigned => 'Non assigné';
+
+  @override
+  String get commonOptional => 'optionnel';
 
   @override
   String get languageSelectTitle => 'Choisissez votre langue';
@@ -72,6 +96,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get forgotPasswordLabel => 'Mot de passe oublié ?';
+
+  @override
+  String get rememberMeLabel => 'Se souvenir de moi';
 
   @override
   String get comingSoonMessage => 'Bientôt disponible';
@@ -183,7 +210,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navMyLearning => 'Progrès';
 
   @override
-  String get navAI => 'IA';
+  String get navLearn => 'Apprendre';
+
+  @override
+  String get navPractice => 'Pratique';
+
+  @override
+  String get navAI => 'Tuteur IA';
 
   @override
   String get navProfile => 'Profil';
@@ -341,6 +374,16 @@ class AppLocalizationsFr extends AppLocalizations {
       'Pas encore éligible — terminez chaque leçon et réussissez chaque quiz d\'abord.';
 
   @override
+  String get certificateEarnedTitle => 'Certificat obtenu !';
+
+  @override
+  String get certificateEarnedMessage =>
+      'Vous avez terminé toutes les leçons et tous les quiz. Bravo !';
+
+  @override
+  String get certificateEarnedButton => 'Voir mon certificat';
+
+  @override
   String get modulesTitle => 'Modules';
 
   @override
@@ -372,6 +415,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get finishLessonButton => 'Terminer la leçon';
+
+  @override
+  String get previousLessonButton => 'Précédent';
 
   @override
   String get lessonCompletedMessage => 'Leçon terminée';
@@ -618,6 +664,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get switchLanguageTitle => 'Changer de langue';
 
   @override
+  String get uploadPhotoTooltip => 'Téléverser une photo';
+
+  @override
+  String get couldNotUploadPhotoError => 'Impossible de téléverser la photo.';
+
+  @override
   String get chooseLanguageTitle => 'Choisir une langue';
 
   @override
@@ -635,6 +687,10 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get chooseLanguageOnlyCurrentMessage =>
       'Vous apprenez déjà la seule langue publiée pour le moment.';
+
+  @override
+  String get chooseLanguageLoadError =>
+      'Impossible de charger les langues. Vérifiez votre connexion au serveur et réessayez.';
 
   @override
   String continueLearningWelcomeBack(String name) {
@@ -668,4 +724,1027 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get continueLearningNewLanguageSubtitle =>
       'Découvrez une autre langue camerounaise depuis le début.';
+
+  @override
+  String get adminNeedsWiderScreen =>
+      'Le tableau de bord administrateur nécessite un écran plus large.';
+
+  @override
+  String get adminResizeBrowserMessage =>
+      'Veuillez redimensionner votre fenêtre ou utiliser un ordinateur de bureau.';
+
+  @override
+  String get adminNavOverview => 'Vue d\'ensemble';
+
+  @override
+  String get adminNavLanguages => 'Langues';
+
+  @override
+  String get adminNavUsers => 'Utilisateurs';
+
+  @override
+  String get adminNavCertificates => 'Certificats';
+
+  @override
+  String get adminNavReportsActivity => 'Rapports et activité';
+
+  @override
+  String get adminNavDashboard => 'Tableau de bord';
+
+  @override
+  String get adminNavLearners => 'Apprenants';
+
+  @override
+  String get adminNavCourses => 'Cours';
+
+  @override
+  String get adminNavLessonsContent => 'Leçons et contenu';
+
+  @override
+  String get adminNavVocabulary => 'Vocabulaire';
+
+  @override
+  String get adminNavAssessments => 'Évaluations';
+
+  @override
+  String get adminNavAiTutor => 'Tuteur IA';
+
+  @override
+  String get adminNavReports => 'Rapports';
+
+  @override
+  String adminLanguageActiveSuffix(String name) {
+    return '$name · Actif';
+  }
+
+  @override
+  String get adminBackToAllLanguages => 'Retour à toutes les langues';
+
+  @override
+  String get adminRoleFallback => 'Administrateur';
+
+  @override
+  String get adminSuperAdminFallback => 'Super administrateur';
+
+  @override
+  String get adminLanguageFallback => 'Langue';
+
+  @override
+  String get adminDashboardOverviewTitle => 'Vue d\'ensemble';
+
+  @override
+  String get adminDashboardOverviewSubtitle =>
+      'Voici ce qui se passe sur la plateforme aujourd\'hui.';
+
+  @override
+  String get adminStatActiveLanguages => 'Langues actives';
+
+  @override
+  String get adminStatTotalLearners => 'Total des apprenants';
+
+  @override
+  String get adminStatPublishedCourses => 'Cours publiés';
+
+  @override
+  String get adminStatLessonsCompleted => 'Leçons terminées';
+
+  @override
+  String get adminLanguageManagementTitle => 'Gestion des langues';
+
+  @override
+  String get adminAddLanguageButton => 'Ajouter une langue';
+
+  @override
+  String get adminViewAllLanguages => 'Voir toutes les langues';
+
+  @override
+  String get adminColLanguage => 'Langue';
+
+  @override
+  String get adminColCode => 'Code';
+
+  @override
+  String get adminColLearners => 'Apprenants';
+
+  @override
+  String get adminColCourses => 'Cours';
+
+  @override
+  String get adminColProgress => 'Progression';
+
+  @override
+  String get adminColStatus => 'Statut';
+
+  @override
+  String get adminColActions => 'Actions';
+
+  @override
+  String get adminOpenDashboard => 'Ouvrir le tableau de bord';
+
+  @override
+  String get adminStatusActive => 'Actif';
+
+  @override
+  String get adminStatusDraft => 'Brouillon';
+
+  @override
+  String get adminAddLanguageNameHint => 'Nom (ex. Bassa)';
+
+  @override
+  String get adminAddLanguageCodeHint => 'Code (ex. bas)';
+
+  @override
+  String get adminAddLanguageCountryHint => 'Pays (optionnel)';
+
+  @override
+  String get adminLanguageAddedMessage =>
+      'Langue ajoutée. Elle démarre inactive — publiez-la une fois son contenu prêt.';
+
+  @override
+  String get adminCouldNotAddLanguage => 'Impossible d\'ajouter la langue.';
+
+  @override
+  String get adminCourseCompletionTitle => 'Achèvement des cours';
+
+  @override
+  String get adminLevelBeginner => 'Débutant';
+
+  @override
+  String get adminLevelIntermediate => 'Intermédiaire';
+
+  @override
+  String get adminLevelAdvanced => 'Avancé';
+
+  @override
+  String get adminQuickActionsTitle => 'Actions rapides';
+
+  @override
+  String get adminQuickActionCreateCourse => 'Créer un cours';
+
+  @override
+  String get adminQuickActionAddUser => 'Ajouter un utilisateur';
+
+  @override
+  String get adminQuickActionUploadContent => 'Téléverser du contenu';
+
+  @override
+  String get adminRecentActivityTitle => 'Activité récente';
+
+  @override
+  String get adminNoRecentActivity => 'Aucune activité récente.';
+
+  @override
+  String get adminViewAllActivity => 'Voir toute l\'activité';
+
+  @override
+  String get adminLearnerActivityTitle => 'Activité des apprenants';
+
+  @override
+  String get adminLegendNewLearners => 'Nouveaux apprenants';
+
+  @override
+  String get adminLegendActiveLearners => 'Apprenants actifs';
+
+  @override
+  String get adminNoActivityData => 'Aucune donnée d\'activité pour le moment.';
+
+  @override
+  String get adminAiContentReviewTitle => 'Révision de contenu IA';
+
+  @override
+  String adminAiReviewCountMessage(int count) {
+    return '$count brouillons de leçon générés par IA sont en attente de révision';
+  }
+
+  @override
+  String get adminReviewContentButton => 'Réviser le contenu';
+
+  @override
+  String get adminSystemNoticeTitle => 'Avis système';
+
+  @override
+  String get adminAllSystemsOperational =>
+      'Tous les systèmes sont opérationnels';
+
+  @override
+  String adminLastUpdatedLabel(String date) {
+    return 'Dernière mise à jour : $date';
+  }
+
+  @override
+  String get adminAuditVerbCreated => 'a créé';
+
+  @override
+  String get adminAuditVerbUpdated => 'a modifié';
+
+  @override
+  String get adminAuditVerbDeleted => 'a supprimé';
+
+  @override
+  String adminAuditActivityLine(String actor, String verb, String entity) {
+    return '$actor $verb $entity';
+  }
+
+  @override
+  String adminLanguageDashboardTitle(String language) {
+    return 'Tableau de bord $language';
+  }
+
+  @override
+  String adminLanguageDashboardSubtitle(String language) {
+    return 'Contenu et activité des apprenants pour $language.';
+  }
+
+  @override
+  String get adminNewCourseButton => 'Nouveau cours';
+
+  @override
+  String get adminStatLessons => 'Leçons';
+
+  @override
+  String get adminCourseManagementTitle => 'Gestion des cours';
+
+  @override
+  String get adminViewAllCourses => 'Voir tous les cours';
+
+  @override
+  String get adminColCourseSingle => 'Cours';
+
+  @override
+  String get adminColLevel => 'Niveau';
+
+  @override
+  String get adminContentWorkflowTitle => 'Flux de contenu';
+
+  @override
+  String get adminWorkflowDraft => 'Brouillon';
+
+  @override
+  String get adminWorkflowInReview => 'En révision';
+
+  @override
+  String get adminWorkflowApproved => 'Approuvé';
+
+  @override
+  String get adminWorkflowPublished => 'Publié';
+
+  @override
+  String get adminContentQualityTitle => 'Qualité du contenu';
+
+  @override
+  String get adminQuickActionNewLesson => 'Nouvelle leçon';
+
+  @override
+  String get adminQuickActionNewQuiz => 'Nouveau quiz';
+
+  @override
+  String get adminQuickActionTrainAi => 'Entraîner l\'IA';
+
+  @override
+  String get adminRecentCertificatesTitle => 'Certificats récents';
+
+  @override
+  String get adminNoCertificatesYet =>
+      'Aucun certificat délivré pour le moment.';
+
+  @override
+  String adminCertificateCompletedLine(String learner, String course) {
+    return '$learner a terminé $course';
+  }
+
+  @override
+  String get adminNnangaAiReviewTitle => 'Révision IA Nnanga';
+
+  @override
+  String adminNnangaReviewCountMessage(int count, String language) {
+    return '$count brouillons de leçon $language générés par IA sont en attente de révision';
+  }
+
+  @override
+  String get adminTabAll => 'Tous';
+
+  @override
+  String adminUpdatedCountMessage(int count) {
+    return '$count cours mis à jour.';
+  }
+
+  @override
+  String get adminCouldNotUpdateCourses =>
+      'Impossible de mettre à jour les cours.';
+
+  @override
+  String get adminAssignReviewerTitle => 'Assigner un réviseur';
+
+  @override
+  String adminAssignReviewerPrompt(int count) {
+    return 'Assigner un réviseur à $count cours sélectionné(s).';
+  }
+
+  @override
+  String get adminNoReviewersAvailable =>
+      'Aucun enseignant ou administrateur disponible.';
+
+  @override
+  String get adminReviewerAssignedMessage => 'Réviseur assigné.';
+
+  @override
+  String get adminCouldNotAssignReviewer =>
+      'Impossible d\'assigner le réviseur.';
+
+  @override
+  String adminCourseManagementSubtitle(String language) {
+    return 'Gérez tous les cours de $language.';
+  }
+
+  @override
+  String get adminStatTotalCourses => 'Total des cours';
+
+  @override
+  String get adminStatDrafts => 'Brouillons';
+
+  @override
+  String get adminSearchCoursesHint => 'Rechercher des cours...';
+
+  @override
+  String get adminAllLevelsLabel => 'Tous les niveaux';
+
+  @override
+  String get adminBulkPublish => 'Publier';
+
+  @override
+  String get adminBulkMoveToDraft => 'Mettre en brouillon';
+
+  @override
+  String get adminBulkArchive => 'Archiver';
+
+  @override
+  String get adminColLessons => 'Leçons';
+
+  @override
+  String get adminColReviewer => 'Réviseur';
+
+  @override
+  String get adminPublishingPipelineTitle => 'Pipeline de publication';
+
+  @override
+  String get adminContentHealthTitle => 'Santé du contenu';
+
+  @override
+  String get adminRecentCourseActivityTitle => 'Activité récente des cours';
+
+  @override
+  String get adminWorkflowArchived => 'Archivé';
+
+  @override
+  String get adminHealthLessonsPublished => 'Leçons publiées';
+
+  @override
+  String get adminHealthLessonsApproved => 'Leçons approuvées';
+
+  @override
+  String get adminHealthLessonsInReview => 'Leçons en révision';
+
+  @override
+  String get adminHealthLessonsInDraft => 'Leçons en brouillon';
+
+  @override
+  String get adminWizardStepDetails => 'Détails du cours';
+
+  @override
+  String get adminWizardStepCurriculum => 'Programme';
+
+  @override
+  String get adminWizardStepResources => 'Ressources pédagogiques';
+
+  @override
+  String get adminWizardStepAssessment => 'Évaluation';
+
+  @override
+  String get adminWizardStepReview => 'Révision et publication';
+
+  @override
+  String get adminTitleMinLengthError =>
+      'Le titre doit comporter au moins 3 caractères.';
+
+  @override
+  String get adminCourseCreatedMessage =>
+      'Cours créé. Continuez à le développer ci-dessous.';
+
+  @override
+  String get adminCouldNotSaveCourse => 'Impossible d\'enregistrer le cours.';
+
+  @override
+  String get adminLearningResourcesSavedMessage =>
+      'Ressources pédagogiques enregistrées.';
+
+  @override
+  String get adminCouldNotSaveGeneric => 'Impossible d\'enregistrer.';
+
+  @override
+  String get adminCoverUpdatedMessage => 'Couverture mise à jour.';
+
+  @override
+  String get adminCouldNotUploadCover =>
+      'Impossible de téléverser la couverture.';
+
+  @override
+  String get adminArchiveCourseTitle => 'Archiver le cours';
+
+  @override
+  String get adminArchiveCourseConfirm =>
+      'Les cours archivés sont masqués aux apprenants mais pas supprimés. Continuer ?';
+
+  @override
+  String get adminCourseArchivedMessage => 'Cours archivé.';
+
+  @override
+  String get adminCouldNotArchiveCourse => 'Impossible d\'archiver le cours.';
+
+  @override
+  String get adminCoursePublishedMessage => 'Cours publié.';
+
+  @override
+  String get adminCouldNotPublishCourse => 'Impossible de publier le cours.';
+
+  @override
+  String get adminModuleLessonsFirstError =>
+      'Supprimez d\'abord les leçons de ce module.';
+
+  @override
+  String get adminCouldNotAddModule => 'Impossible d\'ajouter le module.';
+
+  @override
+  String get adminCouldNotUpdateModule =>
+      'Impossible de mettre à jour le module.';
+
+  @override
+  String get adminCouldNotDeleteModule => 'Impossible de supprimer le module.';
+
+  @override
+  String get adminLessonContentMinLengthError =>
+      'Le contenu de la leçon doit comporter au moins 10 caractères.';
+
+  @override
+  String get adminCouldNotAddLesson => 'Impossible d\'ajouter la leçon.';
+
+  @override
+  String get adminCouldNotUpdateLesson =>
+      'Impossible de mettre à jour la leçon.';
+
+  @override
+  String get adminCouldNotDeleteLesson => 'Impossible de supprimer la leçon.';
+
+  @override
+  String get adminCouldNotMoveLesson => 'Impossible de déplacer la leçon.';
+
+  @override
+  String get adminCouldNotReorderLesson =>
+      'Impossible de réorganiser la leçon.';
+
+  @override
+  String get adminAddModuleTitle => 'Ajouter un module';
+
+  @override
+  String get adminRenameModuleTitle => 'Renommer le module';
+
+  @override
+  String adminAddLessonToTitle(String module) {
+    return 'Ajouter une leçon à « $module »';
+  }
+
+  @override
+  String adminEditLessonTitle(String lesson) {
+    return 'Modifier « $lesson »';
+  }
+
+  @override
+  String get adminFieldTitle => 'Titre';
+
+  @override
+  String get adminFieldDescription => 'Description';
+
+  @override
+  String get adminFieldFrenchTitle => 'Titre français';
+
+  @override
+  String get adminFieldFrenchDescription => 'Description française';
+
+  @override
+  String get adminFieldSummary => 'Résumé';
+
+  @override
+  String get adminFieldContent => 'Contenu';
+
+  @override
+  String get adminFieldFrenchSummary => 'Résumé français';
+
+  @override
+  String get adminFieldFrenchContent => 'Contenu français';
+
+  @override
+  String get adminCreateCourseTitle => 'Créer un cours';
+
+  @override
+  String get adminEditCourseTitle => 'Modifier le cours';
+
+  @override
+  String adminBuildNewCourseSubtitle(String language) {
+    return 'Créez un nouveau cours pour $language.';
+  }
+
+  @override
+  String get adminThisLanguageFallback => 'Cette langue';
+
+  @override
+  String get adminBackButton => 'Retour';
+
+  @override
+  String get adminSavingLabel => 'Enregistrement...';
+
+  @override
+  String get adminCreateAndContinueButton => 'Créer et continuer';
+
+  @override
+  String get adminNextButton => 'Suivant';
+
+  @override
+  String get adminCourseCoverTitle => 'Couverture du cours';
+
+  @override
+  String get adminUploadCoverButton => 'Téléverser la couverture';
+
+  @override
+  String get adminUploadingLabel => 'Téléversement...';
+
+  @override
+  String get adminGenerateWithAiTooltip =>
+      'La génération de couverture par IA n\'est pas encore disponible.';
+
+  @override
+  String get adminGenerateWithAiButton => 'Générer avec l\'IA';
+
+  @override
+  String get adminPublishingSettingsTitle => 'Paramètres de publication';
+
+  @override
+  String get adminVisibilityLabel => 'Visibilité';
+
+  @override
+  String get adminVisibilityPublic => 'Public';
+
+  @override
+  String get adminVisibilityPrivate => 'Privé';
+
+  @override
+  String get adminEnrollmentLabel => 'Inscription';
+
+  @override
+  String get adminEnrollmentOpen => 'Ouverte';
+
+  @override
+  String get adminEnrollmentInviteOnly => 'Sur invitation';
+
+  @override
+  String get adminIssueCertificateLabel => 'Délivrer un certificat';
+
+  @override
+  String get adminCourseTeamTitle => 'Équipe du cours';
+
+  @override
+  String get adminInstructorLabel => 'Instructeur';
+
+  @override
+  String get adminContentReadinessTitle => 'Préparation du contenu';
+
+  @override
+  String get adminReadyLabel => 'Prêt';
+
+  @override
+  String get adminDangerZoneTitle => 'Zone de danger';
+
+  @override
+  String get adminArchiveCourseButton => 'Archiver le cours';
+
+  @override
+  String get adminSubtitleOptionalLabel => 'Sous-titre (optionnel)';
+
+  @override
+  String get adminFrenchTitleOptionalLabel => 'Titre français (optionnel)';
+
+  @override
+  String get adminCategoryOptionalLabel => 'Catégorie (optionnelle)';
+
+  @override
+  String get adminFrenchDescriptionOptionalLabel =>
+      'Description française (optionnelle)';
+
+  @override
+  String get adminEstimatedHoursLabel => 'Heures estimées';
+
+  @override
+  String get adminTagsLabel => 'Étiquettes';
+
+  @override
+  String get adminAddTagHint => 'Ajoutez une étiquette et appuyez sur Entrée';
+
+  @override
+  String get adminLearningObjectivesLabel => 'Objectifs pédagogiques';
+
+  @override
+  String get adminAddObjectiveHint =>
+      'Ajoutez un objectif et appuyez sur Entrée';
+
+  @override
+  String get adminModulesLessonsTitle => 'Modules et leçons';
+
+  @override
+  String get adminNoModulesYetMessage =>
+      'Aucun module pour le moment. Ajoutez-en un pour commencer à ajouter des leçons.';
+
+  @override
+  String adminLessonsCountLabel(int count) {
+    return '$count leçons';
+  }
+
+  @override
+  String get adminRenameModuleTooltip => 'Renommer le module';
+
+  @override
+  String get adminDeleteModuleTooltip => 'Supprimer le module';
+
+  @override
+  String get adminMenuBlockEditor => 'Éditeur de blocs';
+
+  @override
+  String get adminMenuMoveToAnotherModule => 'Déplacer vers un autre module';
+
+  @override
+  String get adminMenuChangePosition => 'Changer la position';
+
+  @override
+  String get adminMenuManageImages => 'Gérer les images';
+
+  @override
+  String get adminMenuManageQuiz => 'Gérer le quiz';
+
+  @override
+  String get adminAddLessonButton => 'Ajouter une leçon';
+
+  @override
+  String get adminSupportLanguageCodesLabel => 'Codes de langue de support';
+
+  @override
+  String get adminSupportLanguageHint => 'ex. fr, en — appuyez sur Entrée';
+
+  @override
+  String get adminPrerequisiteCourseLabel => 'Cours prérequis';
+
+  @override
+  String get adminManageQuizFromBuilderMessage =>
+      'Gérez le quiz de chaque leçon depuis l\'éditeur de quiz existant.';
+
+  @override
+  String get adminAddLessonsFirstMessage =>
+      'Ajoutez d\'abord des leçons dans l\'étape Programme.';
+
+  @override
+  String get adminManageQuizButton => 'Gérer le quiz';
+
+  @override
+  String adminModulesCountLabel(int count) {
+    return '$count modules';
+  }
+
+  @override
+  String adminHoursSuffixLabel(int hours) {
+    return '$hours h';
+  }
+
+  @override
+  String get adminReadinessChecklistTitle => 'Liste de préparation';
+
+  @override
+  String get adminChecklistCourseDetailsComplete => 'Détails du cours complets';
+
+  @override
+  String adminChecklistLessonsReady(int ready, int total) {
+    return 'Leçons prêtes ($ready/$total)';
+  }
+
+  @override
+  String get adminChecklistAssessmentPresent => 'Évaluation présente';
+
+  @override
+  String adminChecklistAudioMissing(int count) {
+    return 'Audio manquant sur $count leçon(s)';
+  }
+
+  @override
+  String get adminSetPublicationDateButton => 'Définir la date de publication';
+
+  @override
+  String get adminPublishCourseButton => 'Publier le cours';
+
+  @override
+  String get adminBlockTypeText => 'Texte';
+
+  @override
+  String get adminBlockTypeDialogue => 'Dialogue';
+
+  @override
+  String get adminBlockTypeAudio => 'Audio';
+
+  @override
+  String get adminBlockTypeImage => 'Image';
+
+  @override
+  String get adminBlockTypeVocabulary => 'Vocabulaire';
+
+  @override
+  String get adminBlockTypeQuiz => 'Quiz';
+
+  @override
+  String get adminBlockTypePronunciation => 'Prononciation';
+
+  @override
+  String get adminBlockTypeExercise => 'Exercice';
+
+  @override
+  String get adminBlockTypeVideo => 'Vidéo';
+
+  @override
+  String get adminAiActionGenerateExamples => 'Générer des exemples';
+
+  @override
+  String get adminAiActionCreateQuiz => 'Créer un quiz';
+
+  @override
+  String get adminAiActionSimplifyContent => 'Simplifier le contenu';
+
+  @override
+  String get adminAiActionCheckTranslations => 'Vérifier les traductions';
+
+  @override
+  String get adminCouldNotAddBlock => 'Impossible d\'ajouter le bloc.';
+
+  @override
+  String get adminRemoveBlockTitle => 'Supprimer le bloc';
+
+  @override
+  String get adminRemoveBlockConfirm => 'Supprimer ce bloc de la leçon ?';
+
+  @override
+  String get adminRemoveButton => 'Supprimer';
+
+  @override
+  String get adminCouldNotRemoveBlock => 'Impossible de supprimer le bloc.';
+
+  @override
+  String get adminCouldNotReorderBlocks =>
+      'Impossible de réorganiser les blocs.';
+
+  @override
+  String get adminSubmittedForReviewMessage => 'Soumis pour révision.';
+
+  @override
+  String get adminCouldNotSubmitForReview =>
+      'Impossible de soumettre pour révision.';
+
+  @override
+  String get adminCouldNotPostComment =>
+      'Impossible de publier le commentaire.';
+
+  @override
+  String get adminNnangaNoRespondError => 'Nnanga n\'a pas pu répondre.';
+
+  @override
+  String get adminNnangaSuggestionLabel => 'Suggestion de Nnanga';
+
+  @override
+  String get adminAddedAsTextBlockMessage =>
+      'Ajouté comme nouveau bloc de texte.';
+
+  @override
+  String get adminCouldNotApplySuggestion =>
+      'Impossible d\'appliquer la suggestion.';
+
+  @override
+  String get adminDraftQuestionsAddedMessage =>
+      'Questions provisoires ajoutées au quiz.';
+
+  @override
+  String get adminCouldNotApplyQuizDraft =>
+      'Impossible d\'appliquer le brouillon de quiz.';
+
+  @override
+  String get adminLessonEditorTitle => 'Éditeur de leçon';
+
+  @override
+  String get adminSubmitForReviewButton => 'Soumettre pour révision';
+
+  @override
+  String get adminAddBlockTitle => 'Ajouter un bloc';
+
+  @override
+  String get adminNoBlocksYetMessage =>
+      'Aucun bloc pour le moment. Ajoutez-en un depuis la palette à gauche pour commencer à créer cette leçon.';
+
+  @override
+  String get adminMoveUpTooltip => 'Monter';
+
+  @override
+  String get adminMoveDownTooltip => 'Descendre';
+
+  @override
+  String get adminRemoveBlockTooltip => 'Supprimer le bloc';
+
+  @override
+  String get adminSaveBlockButton => 'Enregistrer le bloc';
+
+  @override
+  String get adminEyebrowLabelOptional => 'Étiquette d\'en-tête (optionnelle)';
+
+  @override
+  String get adminFrenchContentOptionalLabel => 'Contenu français (optionnel)';
+
+  @override
+  String get adminSpeakerLabel => 'Intervenant';
+
+  @override
+  String get adminLineLabel => 'Ligne';
+
+  @override
+  String get adminFrenchLineOptionalLabel => 'Ligne française (optionnelle)';
+
+  @override
+  String get adminAddTurnButton => 'Ajouter un tour';
+
+  @override
+  String get adminAudioUrlLabel => 'URL audio';
+
+  @override
+  String get adminUploadButton => 'Téléverser';
+
+  @override
+  String get adminVideoUrlLabel => 'URL vidéo';
+
+  @override
+  String get adminVideoNotVisibleNotice =>
+      'La vidéo est enregistrée mais pas encore visible par les apprenants — aucun lecteur n\'existe encore sur l\'écran de leçon.';
+
+  @override
+  String get adminWordLabelField => 'Mot / étiquette';
+
+  @override
+  String get adminImageUrlLabel => 'URL de l\'image';
+
+  @override
+  String get adminCaptionOptionalLabel => 'Légende (optionnelle)';
+
+  @override
+  String get adminSelectWordHint => 'Sélectionnez un mot';
+
+  @override
+  String get adminInstructionsOptionalLabel => 'Instructions (optionnelles)';
+
+  @override
+  String get adminNoQuizYetNotice =>
+      'Aucun quiz n\'existe encore pour cette leçon. Créez-en un depuis l\'étape Évaluation, puis enregistrez à nouveau ce bloc.';
+
+  @override
+  String get adminLinkedToQuizMessage => 'Lié au quiz de cette leçon.';
+
+  @override
+  String get adminExerciseNotVisibleNotice =>
+      'Les blocs d\'exercice sont enregistrés mais pas encore affichés aux apprenants — aucun widget d\'exercice interactif n\'existe encore.';
+
+  @override
+  String get adminExerciseDataJsonLabel => 'Données de l\'exercice (JSON)';
+
+  @override
+  String get adminExerciseInvalidJsonError =>
+      'Le contenu de l\'exercice doit être un JSON valide.';
+
+  @override
+  String get adminCouldNotSaveBlock => 'Impossible d\'enregistrer le bloc.';
+
+  @override
+  String get adminCouldNotUploadImage => 'Impossible de téléverser l\'image.';
+
+  @override
+  String get adminCouldNotUploadAudio => 'Impossible de téléverser l\'audio.';
+
+  @override
+  String get adminNnangaAssistantTitle => 'Assistant IA Nnanga';
+
+  @override
+  String get adminNnangaInstructionHint =>
+      'Instruction facultative pour Nnanga...';
+
+  @override
+  String get adminThinkingLabel => 'Réflexion en cours...';
+
+  @override
+  String get adminAskNnangaButton => 'Demander à Nnanga';
+
+  @override
+  String get adminAddDraftQuestionsButton =>
+      'Ajouter les questions provisoires au quiz';
+
+  @override
+  String get adminApplyAsTextBlockButton =>
+      'Appliquer comme nouveau bloc de texte';
+
+  @override
+  String get adminContentChecklistTitle => 'Liste de contrôle du contenu';
+
+  @override
+  String get adminChecklistTextContent => 'Contenu texte';
+
+  @override
+  String get adminChecklistFrenchTranslation => 'Traduction française';
+
+  @override
+  String get adminChecklistQuizLinked => 'Quiz lié';
+
+  @override
+  String get adminReviewCollaborationTitle => 'Révision et collaboration';
+
+  @override
+  String get adminCommentsLabel => 'Commentaires';
+
+  @override
+  String get adminNoCommentsYetMessage => 'Aucun commentaire pour le moment.';
+
+  @override
+  String get adminAddCommentHint => 'Ajouter un commentaire...';
+
+  @override
+  String get commonNoResults => 'Aucun résultat.';
+
+  @override
+  String get adminOverallLabel => 'Global';
+
+  @override
+  String get adminNavNotifications => 'Notifications';
+
+  @override
+  String get adminNotificationsTitle => 'Notifications';
+
+  @override
+  String get adminNotificationsSubtitle =>
+      'Envoyez un message à tous les apprenants ou notifiez une personne directement.';
+
+  @override
+  String get adminBroadcastCardTitle => 'Diffuser à tous les apprenants';
+
+  @override
+  String get adminBroadcastCardDescription =>
+      'Ce message est envoyé immédiatement à tous les comptes apprenants actifs.';
+
+  @override
+  String get adminNotifyUserCardTitle => 'Notifier un utilisateur';
+
+  @override
+  String get adminNotifyUserCardDescription =>
+      'Recherchez un utilisateur ci-dessous, puis envoyez-lui une notification directe.';
+
+  @override
+  String get adminSearchUserHint => 'Rechercher par nom ou e-mail...';
+
+  @override
+  String get adminNoUserSelectedHint =>
+      'Aucun utilisateur sélectionné pour le moment.';
+
+  @override
+  String adminNotifyRecipientLine(String name, String email) {
+    return 'À : $name ($email)';
+  }
+
+  @override
+  String get adminNotificationTitleHint => 'Titre';
+
+  @override
+  String get adminNotificationMessageHint => 'Message';
+
+  @override
+  String get adminSendBroadcastButton => 'Envoyer la diffusion';
+
+  @override
+  String get adminSendNotificationButton => 'Envoyer la notification';
+
+  @override
+  String get adminBroadcastSentMessage =>
+      'Diffusion envoyée à tous les apprenants.';
+
+  @override
+  String get adminCouldNotSendBroadcast =>
+      'Impossible d\'envoyer la diffusion.';
+
+  @override
+  String get adminNotificationSentMessage => 'Notification envoyée.';
+
+  @override
+  String get adminCouldNotSendNotification =>
+      'Impossible d\'envoyer la notification.';
 }

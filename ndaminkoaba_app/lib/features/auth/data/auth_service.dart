@@ -1,5 +1,4 @@
 import 'package:flutter/foundation.dart' show kIsWeb;
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../../config/app_config.dart';
@@ -7,15 +6,15 @@ import '../domain/models/login_response.dart';
 import '../../../core/network/api_client.dart';
 
 /// Thrown when a learner taps an OAuth button before you've finished the
-/// Google Cloud / Facebook Developer setup described in the README.
+/// Google Cloud setup described in the README.
 class OAuthNotConfiguredException implements Exception {
   OAuthNotConfiguredException(this.provider);
   final String provider;
 }
 
-/// Thrown when the learner backs out of the native Google/Facebook picker —
-/// this is a normal outcome, not an error, and callers should just return to
-/// the form silently instead of showing a snackbar.
+/// Thrown when the learner backs out of the native Google picker — this is a
+/// normal outcome, not an error, and callers should just return to the form
+/// silently instead of showing a snackbar.
 class OAuthCancelledException implements Exception {}
 
 class AuthService {
@@ -25,7 +24,6 @@ class AuthService {
   // which the plugin documents as "undefined behavior". Static keeps the
   // guard correct regardless of how many AuthService instances exist.
   static bool _googleInitialized = false;
-  bool _facebookWebInitialized = false;
 
   /// `google_sign_in`'s `initialize()` takes two different-purpose IDs, and
   /// each platform plugin only honors one of them:
@@ -108,48 +106,6 @@ class AuthService {
     final response = await ApiClient.dio.post(
       '/auth/google',
       data: {"idToken": idToken},
-    );
-
-    return LoginResponse.fromJson(response.data);
-  }
-
-  Future<LoginResponse> loginWithFacebook() async {
-    // Only Web/desktop need an explicit JS SDK init call with the App ID;
-    // Android/iOS read their own copy from AndroidManifest.xml/Info.plist.
-    if (kIsWeb) {
-      if (!AppConfig.facebookWebSignInConfigured) {
-        throw OAuthNotConfiguredException('Facebook');
-      }
-      if (!_facebookWebInitialized) {
-        await FacebookAuth.instance.webAndDesktopInitialize(
-          appId: AppConfig.facebookAppId,
-          cookie: true,
-          xfbml: true,
-          version: "v19.0",
-        );
-        _facebookWebInitialized = true;
-      }
-    }
-
-    final result = await FacebookAuth.instance.login(
-      // The backend verifies the token against the Graph API, which needs a
-      // classic access token — the default `limited` tracking only returns
-      // an OIDC-style token the Graph API `/me` endpoint can't use.
-      loginTracking: LoginTracking.enabled,
-    );
-
-    if (result.status == LoginStatus.cancelled) {
-      throw OAuthCancelledException();
-    }
-
-    final accessToken = result.accessToken;
-    if (result.status != LoginStatus.success || accessToken == null) {
-      throw OAuthNotConfiguredException('Facebook');
-    }
-
-    final response = await ApiClient.dio.post(
-      '/auth/facebook',
-      data: {"accessToken": accessToken.tokenString},
     );
 
     return LoginResponse.fromJson(response.data);

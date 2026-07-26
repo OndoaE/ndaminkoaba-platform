@@ -19,4 +19,12 @@ class AppColors {
   static const divider = Color(0xFFE5E5E5);
 
   static const ai = Color(0xFF4A6CF7);
+
+  // Learner relaunch tokens — streaks, progress rings, badges, and the
+  // decorative wave shapes on the new cream/gold Home dashboard.
+  static const streakFlame = Color(0xFFFF6B35);
+  static const progressRingTrack = Color(0xFFEFE7D3);
+  static const cardAlt = Color(0xFFF3ECD9);
+  static const badgeLocked = Color(0xFFD8D0BC);
+  static const badgeEarned = Color(0xFFC9A227);
 }

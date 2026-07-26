@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/colors/app_colors.dart';
@@ -92,7 +93,15 @@ class WelcomeScreen extends StatelessWidget {
                       ),
                     ),
                   ),
-                  const SizedBox(height: AppSpacing.lg),
+                  const SizedBox(height: AppSpacing.md),
+                  Row(
+                    children: [
+                      _WelcomeMascot(asset: 'assets/lottie/welcome_tiger.json'),
+                      const SizedBox(width: AppSpacing.sm),
+                      _WelcomeMascot(asset: 'assets/lottie/welcome_student.json'),
+                    ],
+                  ),
+                  const SizedBox(height: AppSpacing.md),
                   Text(
                     l10n.welcomeGreeting(firstName),
                     style: AppTypography.display.copyWith(
@@ -146,6 +155,32 @@ class WelcomeScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A small circle of white behind each mascot so the character reads
+/// clearly against the busy hero photo, whatever its own colors are.
+class _WelcomeMascot extends StatelessWidget {
+  const _WelcomeMascot({required this.asset});
+
+  final String asset;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 60,
+      height: 60,
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.9),
+        shape: BoxShape.circle,
+      ),
+      padding: const EdgeInsets.all(6),
+      child: Lottie.asset(
+        asset,
+        fit: BoxFit.contain,
+        errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
       ),
     );
   }

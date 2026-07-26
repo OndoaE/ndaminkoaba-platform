@@ -5,12 +5,10 @@ import 'package:go_router/go_router.dart';
 import '../../../core/network/api_error.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/navigation/app_admin_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
 import '../../../design_system/widgets/empty_state.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_content_models.dart';
@@ -154,36 +152,34 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'Languages', colors: _languageAccent),
-      bottomNavigationBar: AppAdminNavigation(
-        currentIndex: 2,
-        onTap: (index) => handleAdminTabTap(context, index),
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: _openAddDialog,
-        backgroundColor: _languageAccent[0],
-        icon: const Icon(Icons.add),
-        label: const Text('Add Language'),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: isLoading
-              ? const ShimmerListLoader(itemCount: 5, itemHeight: 76)
-              : error != null
-                  ? EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
-                  : languages.isEmpty
-                      ? const EmptyState(
-                          icon: Icons.language_outlined,
-                          title: 'No languages yet',
-                          message: 'Tap "Add Language" to create the first one.',
-                        )
-                      : ListView.separated(
-                          itemCount: languages.length,
-                          separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                          itemBuilder: (context, index) {
+    return AdminShell(
+      activeNavKey: 'languages',
+      title: 'Languages',
+      subtitle: '${languages.length} total',
+      actions: [
+        FilledButton.icon(
+          onPressed: _openAddDialog,
+          style: FilledButton.styleFrom(backgroundColor: _languageAccent[0]),
+          icon: const Icon(Icons.add, size: 18),
+          label: const Text('Add Language'),
+        ),
+      ],
+      child: isLoading
+          ? const ShimmerListLoader(itemCount: 5, itemHeight: 76)
+          : error != null
+              ? EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
+              : languages.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.language_outlined,
+                      title: 'No languages yet',
+                      message: 'Tap "Add Language" to create the first one.',
+                    )
+                  : ListView.separated(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: languages.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                      itemBuilder: (context, index) {
                             final language = languages[index];
                             return InkWell(
                               borderRadius: BorderRadius.circular(20),
@@ -247,8 +243,6 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
                             );
                           },
                         ),
-        ),
-      ),
     );
   }
 }

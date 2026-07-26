@@ -5,6 +5,31 @@ import * as path from 'path';
 
 import { CertificateTemplate } from '../template/certificate.template';
 
+const GOLD = '#C9A227';
+const GOLD_DEEP = '#8A6F18';
+
+interface LevelTheme {
+  /** Deep accent used for borders, headings, badge fill. */
+  accent: string;
+  /** Light background wash (top of gradient). */
+  tint: string;
+  /** Slightly deeper wash (bottom of gradient). */
+  tintDeep: string;
+  stars: number;
+}
+
+// Beginner=green/1 star, Intermediate=red/2 stars, Advanced=yellow/3 stars —
+// stars are always drawn in gold regardless of theme (see drawStar).
+const LEVEL_THEMES: Record<string, LevelTheme> = {
+  BEGINNER: { accent: '#145A32', tint: '#F1F8F3', tintDeep: '#DCEEE1', stars: 1 },
+  INTERMEDIATE: { accent: '#7A1F2B', tint: '#FBEFF0', tintDeep: '#F3D9DC', stars: 2 },
+  ADVANCED: { accent: '#9C7A0A', tint: '#FDF6E0', tintDeep: '#F6E7B4', stars: 3 },
+};
+
+function themeFor(level: string): LevelTheme {
+  return LEVEL_THEMES[(level ?? '').toUpperCase()] ?? LEVEL_THEMES.BEGINNER;
+}
+
 @Injectable()
 export class PdfService {
   async generateCertificatePdf(template: CertificateTemplate): Promise<string> {
@@ -37,54 +62,72 @@ export class PdfService {
 
     const width = doc.page.width;
     const height = doc.page.height;
+    const theme = themeFor(template.level);
 
-    // Background
-    doc.rect(0, 0, width, height).fill('#f8f3e6');
+    // Background wash — subtle top-to-bottom gradient in the level's color.
+    const backgroundGradient = doc.linearGradient(0, 0, 0, height);
+    backgroundGradient.stop(0, theme.tint).stop(1, theme.tintDeep);
+    doc.rect(0, 0, width, height).fill(backgroundGradient as unknown as string);
 
-    // Outer border
+    // Triple frame: gold hairline, thick accent border, gold inner border.
     doc
-      .lineWidth(8)
-      .strokeColor('#0b3d2e')
-      .rect(25, 25, width - 50, height - 50)
+      .lineWidth(1.2)
+      .strokeColor(GOLD)
+      .roundedRect(15, 15, width - 30, height - 30, 14)
       .stroke();
 
-    // Inner gold border
     doc
-      .lineWidth(3)
-      .strokeColor('#c9a227')
-      .rect(45, 45, width - 90, height - 90)
+      .lineWidth(9)
+      .strokeColor(theme.accent)
+      .roundedRect(28, 28, width - 56, height - 56, 10)
       .stroke();
 
-    // Header
+    doc
+      .lineWidth(2.5)
+      .strokeColor(GOLD)
+      .roundedRect(48, 48, width - 96, height - 96, 6)
+      .stroke();
+
+    // Corner ornaments, just inside the frame.
+    const ornamentInset = 70;
+    this.drawCornerOrnament(doc, ornamentInset, ornamentInset, 14, GOLD, theme.accent);
+    this.drawCornerOrnament(doc, width - ornamentInset, ornamentInset, 14, GOLD, theme.accent);
+    this.drawCornerOrnament(doc, ornamentInset, height - ornamentInset, 14, GOLD, theme.accent);
+    this.drawCornerOrnament(doc, width - ornamentInset, height - ornamentInset, 14, GOLD, theme.accent);
+
+    // Brand header — always the deep brand green, independent of level theme.
     doc
       .fillColor('#0b3d2e')
       .fontSize(34)
       .font('Times-Bold')
-      .text('NdaMinkoaba', 0, 65, { align: 'center' });
+      .text('NdaMinkoaba', 0, 62, { align: 'center' });
 
     doc
       .fontSize(13)
-      .fillColor('#8a6f18')
-      .text('Learn • Preserve • Transmit', 0, 105, { align: 'center' });
+      .fillColor(GOLD_DEEP)
+      .font('Times-Italic')
+      .text('Learn • Preserve • Transmit', 0, 102, { align: 'center' });
 
     doc
       .fontSize(30)
-      .fillColor('#0b3d2e')
+      .fillColor(theme.accent)
       .font('Times-Bold')
-      .text('CERTIFICATE OF COMPLETION', 0, 145, { align: 'center' });
+      .text('CERTIFICATE OF COMPLETION', 0, 142, { align: 'center' });
+
+    this.drawDividerOrnament(doc, width / 2, 182, GOLD);
 
     doc
       .fontSize(15)
       .fillColor('#333333')
       .font('Times-Roman')
-      .text('This certifies that', 0, 205, { align: 'center' });
+      .text('This certifies that', 0, 200, { align: 'center' });
 
     // Learner name
     doc
       .fontSize(42)
       .fillColor('#b28b16')
       .font('Times-BoldItalic')
-      .text(template.learnerName.toUpperCase(), 0, 235, {
+      .text(template.learnerName.toUpperCase(), 0, 230, {
         align: 'center',
       });
 
@@ -93,32 +136,54 @@ export class PdfService {
       .fillColor('#333333')
       .font('Times-Roman')
       .text(
-        'has successfully demonstrated foundational proficiency through the completion of',
+        'has successfully demonstrated proficiency through the completion of',
         0,
-        300,
+        296,
         { align: 'center' },
       );
 
     // Course
     doc
       .fontSize(26)
-      .fillColor('#0b3d2e')
+      .fillColor(theme.accent)
       .font('Times-Bold')
-      .text(template.courseName.toUpperCase(), 0, 335, { align: 'center' });
+      .text(template.courseName.toUpperCase(), 0, 331, { align: 'center' });
 
-    // Level badge
+    // Level badge + gold star rating, side by side and centered.
+    const badgeWidth = 150;
+    const badgeHeight = 36;
+    const starsPillWidth = 130;
+    const gap = 10;
+    const groupWidth = badgeWidth + gap + starsPillWidth;
+    const groupX = width / 2 - groupWidth / 2;
+    const badgeY = 382;
+
     doc
-      .roundedRect(width / 2 - 80, 380, 160, 35, 8)
-      .fillAndStroke('#0b3d2e', '#c9a227');
+      .roundedRect(groupX, badgeY, badgeWidth, badgeHeight, 8)
+      .fillAndStroke(theme.accent, GOLD);
 
     doc
       .fontSize(14)
       .fillColor('#ffffff')
       .font('Helvetica-Bold')
-      .text(template.level.toUpperCase(), width / 2 - 80, 391, {
-        width: 160,
+      .text(template.level.toUpperCase(), groupX, badgeY + 11, {
+        width: badgeWidth,
         align: 'center',
       });
+
+    const starsPillX = groupX + badgeWidth + gap;
+    doc
+      .roundedRect(starsPillX, badgeY, starsPillWidth, badgeHeight, 8)
+      .fillAndStroke('#fffdf5', GOLD);
+
+    const starRadius = 9;
+    const starSpacing = 30;
+    const starSpan = (theme.stars - 1) * starSpacing;
+    const firstStarX = starsPillX + starsPillWidth / 2 - starSpan / 2;
+    const starY = badgeY + badgeHeight / 2;
+    for (let i = 0; i < theme.stars; i++) {
+      this.drawStar(doc, firstStarX + i * starSpacing, starY, starRadius, GOLD);
+    }
 
     // Details
     doc
@@ -131,10 +196,20 @@ export class PdfService {
 
     doc.text(`Issued by: ${template.organization}`, 90, 515);
 
+    // Ceremonial seal, centered between the two signature blocks.
+    this.drawSeal(doc, width / 2, height - 148, theme.accent);
+
     // QR Code
     if (template.qrCode) {
       const qrBase64 = template.qrCode.replace(/^data:image\/png;base64,/, '');
       const qrBuffer = Buffer.from(qrBase64, 'base64');
+
+      doc
+        .lineWidth(1.5)
+        .strokeColor(theme.accent)
+        .roundedRect(width - 186, height - 191, 107, 107, 6)
+        .stroke();
+
       doc.image(qrBuffer, width - 180, height - 185, {
         width: 95,
         height: 95,
@@ -142,7 +217,8 @@ export class PdfService {
 
       doc
         .fontSize(9)
-        .fillColor('#333333')
+        .fillColor(theme.accent)
+        .font('Helvetica-Bold')
         .text('Scan to verify', width - 185, height - 85, {
           width: 105,
           align: 'center',
@@ -160,6 +236,7 @@ export class PdfService {
     doc
       .fontSize(11)
       .fillColor('#333333')
+      .font('Helvetica')
       .text(template.instructorName, 240, height - 95, {
         width: 150,
         align: 'center',
@@ -209,5 +286,105 @@ export class PdfService {
     });
 
     return `/uploads/certificates/${year}/${month}/${fileName}`;
+  }
+
+  /** Classic 5-point star, always filled gold regardless of the certificate theme. */
+  private drawStar(
+    doc: PDFKit.PDFDocument,
+    cx: number,
+    cy: number,
+    radius: number,
+    color: string,
+  ) {
+    const points = 5;
+    const innerRadius = radius * 0.42;
+    const step = Math.PI / points;
+    let rotation = -Math.PI / 2;
+
+    doc.moveTo(cx + radius * Math.cos(rotation), cy + radius * Math.sin(rotation));
+    for (let i = 0; i < points; i++) {
+      rotation += step;
+      doc.lineTo(
+        cx + innerRadius * Math.cos(rotation),
+        cy + innerRadius * Math.sin(rotation),
+      );
+      rotation += step;
+      doc.lineTo(cx + radius * Math.cos(rotation), cy + radius * Math.sin(rotation));
+    }
+    doc.closePath().fill(color);
+  }
+
+  /** Small nested-diamond flourish used at each of the four frame corners. */
+  private drawCornerOrnament(
+    doc: PDFKit.PDFDocument,
+    cx: number,
+    cy: number,
+    size: number,
+    outerColor: string,
+    innerColor: string,
+  ) {
+    doc
+      .moveTo(cx, cy - size)
+      .lineTo(cx + size, cy)
+      .lineTo(cx, cy + size)
+      .lineTo(cx - size, cy)
+      .closePath()
+      .fill(outerColor);
+
+    const inner = size * 0.5;
+    doc
+      .moveTo(cx, cy - inner)
+      .lineTo(cx + inner, cy)
+      .lineTo(cx, cy + inner)
+      .lineTo(cx - inner, cy)
+      .closePath()
+      .fill(innerColor);
+  }
+
+  /** Thin gold rule with a small centered diamond, under the main title. */
+  private drawDividerOrnament(
+    doc: PDFKit.PDFDocument,
+    cx: number,
+    y: number,
+    color: string,
+  ) {
+    const halfWidth = 140;
+    doc
+      .moveTo(cx - halfWidth, y)
+      .lineTo(cx - 10, y)
+      .strokeColor(color)
+      .lineWidth(1)
+      .stroke();
+    doc
+      .moveTo(cx + 10, y)
+      .lineTo(cx + halfWidth, y)
+      .stroke();
+
+    doc
+      .moveTo(cx, y - 5)
+      .lineTo(cx + 5, y)
+      .lineTo(cx, y + 5)
+      .lineTo(cx - 5, y)
+      .closePath()
+      .fill(color);
+  }
+
+  /** Ceremonial wax-seal motif: accent ring, gold ring, single gold star. */
+  private drawSeal(
+    doc: PDFKit.PDFDocument,
+    cx: number,
+    cy: number,
+    accent: string,
+  ) {
+    doc.circle(cx, cy, 26).fill(accent);
+    doc.circle(cx, cy, 26).lineWidth(2).strokeColor(GOLD).stroke();
+    doc.circle(cx, cy, 19).lineWidth(1).strokeColor(GOLD).stroke();
+    this.drawStar(doc, cx, cy, 11, GOLD);
+
+    doc
+      .fontSize(7)
+      .fillColor(accent)
+      .font('Helvetica-Bold')
+      .text('CERTIFIED', cx - 40, cy + 32, { width: 80, align: 'center' });
   }
 }

@@ -4,11 +4,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, UserRole } from '@prisma/client';
+import { PracticeActivityType, Prisma, UserRole } from '@prisma/client';
+import { extname, join } from 'path';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { KnowledgeService } from '../knowledge/knowledge.service';
 import { AiService } from '../ai/ai.service';
+import { StreaksService } from '../streaks/streaks.service';
 import { ICurrentUser } from '../common/interfaces/current-user.interface';
 
 import { CreateNnangaChatDto } from './dto/create-nnanga-chat.dto/create-nnanga-chat.dto';
@@ -20,6 +22,7 @@ export class NnangaService {
     private readonly prisma: PrismaService,
     private readonly knowledgeService: KnowledgeService,
     private readonly aiService: AiService,
+    private readonly streaksService: StreaksService,
   ) {}
 
   async chat(dto: CreateNnangaChatDto & { userId: string }) {
@@ -74,7 +77,27 @@ export class NnangaService {
       languageName = language.name;
     }
 
-    const results = await this.knowledgeService.search(dto.prompt, dto.languageId);
+    // A voice message is transcribed into the same `prompt` text the rest
+    // of the pipeline expects — Nnanga doesn't need a separate audio code
+    // path beyond this point. If transcription fails, fall back to asking
+    // the learner to try again rather than silently running the pipeline
+    // on empty text.
+    let audioTranscript: string | null = null;
+    let prompt = dto.prompt;
+    if (dto.audioUrl) {
+      const absolutePath = join(process.cwd(), dto.audioUrl.replace(/^\/+/, ''));
+      const format = extname(dto.audioUrl).replace('.', '').toLowerCase() || 'webm';
+      audioTranscript = await this.aiService.transcribeAudio(absolutePath, format);
+
+      if (!audioTranscript) {
+        throw new BadRequestException(
+          "Couldn't transcribe that voice message — please try again or type your message.",
+        );
+      }
+      prompt = audioTranscript;
+    }
+
+    const results = await this.knowledgeService.search(prompt, dto.languageId, languageName);
     const context = this.knowledgeService.buildTeachingContext(results, languageName);
     const usedLocalKnowledge = this.knowledgeService.hasStrongLocalKnowledge(results);
 
@@ -94,20 +117,29 @@ export class NnangaService {
         { role: 'assistant' as const, content: turn.response },
       ]);
 
-    const response = await this.aiService.generateTutorResponse(
-      dto.prompt,
+    const structured = await this.aiService.generateStructuredTutorResponse(
+      prompt,
       context,
       history,
       usedLocalKnowledge,
       languageName,
+      results.biblePassage != null,
+      results.isUngroundedTranslationRequest,
+      results.suggestedVocabulary,
     );
 
     const conversation = await this.prisma.aIConversation.create({
       data: {
         userId: dto.userId,
-        prompt: dto.prompt,
-        response,
+        prompt,
+        response: structured.response,
         tokens: 0,
+        audioUrl: dto.audioUrl,
+        audioTranscript,
+        correction: structured.correction,
+        translation: structured.translation,
+        suggestedReplies: structured.suggestedReplies,
+        usedLocalKnowledge,
       },
       include: {
         user: {
@@ -121,12 +153,12 @@ export class NnangaService {
       },
     });
 
-    // Not persisted — purely a signal for the admin "train the AI" console to
-    // tell whether this question was actually answered from local content or
-    // fell back to the generic message, so knowledge gaps are easy to spot.
+    await this.streaksService.recordActivity(dto.userId, PracticeActivityType.AI_CHAT, 60, {
+      lessonId: dto.lessonId,
+    });
+
     return {
       ...conversation,
-      usedLocalKnowledge,
       matchedKeywords: results.keywords,
     };
   }

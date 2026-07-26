@@ -26,12 +26,11 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-	<!-- Google / Facebook sign-in (see README "OAuth sign-in setup"). The
+	<!-- Google sign-in (see README "OAuth sign-in setup"). The
 	     REVERSED_CLIENT_ID comes from your iOS OAuth Client in Google Cloud
-	     Console (it's the Client ID with the dot-separated parts reversed);
-	     fbYOUR_FACEBOOK_APP_ID must match FacebookAppID below exactly. Left
-	     as placeholders, the SDKs simply fail to open their sign-in sheet and
-	     the app's OAuthNotConfiguredException path handles it gracefully. -->
+	     Console (it's the Client ID with the dot-separated parts reversed).
+	     Left as a placeholder, the SDK simply fails to open its sign-in sheet
+	     and the app's OAuthNotConfiguredException path handles it gracefully. -->
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
@@ -40,24 +39,6 @@
 				<string>com.googleusercontent.apps.1069029230986-3r5g9dfi6o1jngo65e17sltc359gfrt3</string>
 			</array>
 		</dict>
-		<dict>
-			<key>CFBundleURLSchemes</key>
-			<array>
-				<string>fbREPLACE_WITH_FACEBOOK_APP_ID</string>
-			</array>
-		</dict>
-	</array>
-	<key>FacebookAppID</key>
-	<string>REPLACE_WITH_FACEBOOK_APP_ID</string>
-	<key>FacebookClientToken</key>
-	<string>REPLACE_WITH_FACEBOOK_CLIENT_TOKEN</string>
-	<key>FacebookDisplayName</key>
-	<string>NdaMinkoaba</string>
-	<key>LSApplicationQueriesSchemes</key>
-	<array>
-		<string>fbapi</string>
-		<string>fbauth2</string>
-		<string>fb-messenger-share-api</string>
 	</array>
 	<key>UIApplicationSceneManifest</key>
 	<dict>

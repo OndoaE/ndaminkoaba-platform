@@ -46,6 +46,10 @@ export class CreateVocabularyDto {
   imageUrl?: string;
 
   @IsOptional()
+  @IsString()
+  phoneticTranscription?: string;
+
+  @IsOptional()
   @IsUUID()
   lessonId?: string;
 

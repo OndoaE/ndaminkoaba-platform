@@ -4,16 +4,22 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { Prisma, UserRole } from '@prisma/client';
+import { PracticeActivityType, Prisma, UserRole } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 import { ICurrentUser } from '../common/interfaces/current-user.interface';
+import { StreaksService } from '../streaks/streaks.service';
+import { BadgesService } from '../badges/badges.service';
 import { CreateQuizAttemptDto } from './dto/create-quiz-attempt.dto/create-quiz-attempt.dto';
 import { QueryQuizAttemptDto } from './dto/query-quiz-attempt.dto/query-quiz-attempt.dto';
 
 @Injectable()
 export class QuizAttemptsService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly streaksService: StreaksService,
+    private readonly badgesService: BadgesService,
+  ) {}
 
   async create(dto: CreateQuizAttemptDto) {
     const user = await this.prisma.user.findUnique({
@@ -82,7 +88,12 @@ export class QuizAttemptsService {
       },
     });
 
-    return { ...attempt, results };
+    await this.streaksService.recordActivity(dto.userId, PracticeActivityType.QUIZ, 180);
+    const newlyEarnedBadges = passed
+      ? await this.badgesService.evaluateAndAward(dto.userId)
+      : [];
+
+    return { ...attempt, results, newlyEarnedBadges };
   }
 
   async findAll(query: QueryQuizAttemptDto) {

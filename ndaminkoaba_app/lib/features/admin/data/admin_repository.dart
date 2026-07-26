@@ -46,8 +46,20 @@ class AdminRepository {
     await ApiClient.dio.patch('/users/$userId', data: {'isActive': isActive});
   }
 
+  Future<void> deleteUser(String userId) async {
+    await ApiClient.dio.delete('/users/$userId');
+  }
+
   Future<void> broadcastAnnouncement(String title, String message) async {
     await ApiClient.dio.post('/notifications/broadcast', data: {
+      'title': title,
+      'message': message,
+    });
+  }
+
+  Future<void> notifyUser(String userId, String title, String message) async {
+    await ApiClient.dio.post('/notifications', data: {
+      'userId': userId,
       'title': title,
       'message': message,
     });
@@ -57,7 +69,12 @@ class AdminRepository {
     await ApiClient.dio.patch('/users/$userId', data: {'role': role});
   }
 
-  Future<List<AdminCourse>> getCourses({String? status, String? level, String? languageId}) async {
+  Future<List<AdminCourse>> getCourses({
+    String? status,
+    String? level,
+    String? languageId,
+    String? search,
+  }) async {
     final response = await ApiClient.dio.get(
       '/courses',
       queryParameters: {
@@ -65,6 +82,7 @@ class AdminRepository {
         if (status != null) 'status': status,
         if (level != null) 'level': level,
         if (languageId != null) 'languageId': languageId,
+        if (search != null && search.isNotEmpty) 'search': search,
       },
     );
 
@@ -78,6 +96,10 @@ class AdminRepository {
 
   Future<void> setCourseStatus(String courseId, String status) async {
     await ApiClient.dio.patch('/courses/$courseId', data: {'status': status});
+  }
+
+  Future<void> bulkSetCourseStatus(List<String> ids, String status) async {
+    await ApiClient.dio.patch('/courses/bulk-status', data: {'ids': ids, 'status': status});
   }
 
   Future<List<AdminCertificate>> getCertificates() async {
@@ -114,6 +136,28 @@ class AdminRepository {
       items: items.map((item) => AuditLogEntry.fromJson(item as Map<String, dynamic>)).toList(),
       page: (body['page'] ?? 1) as int,
       totalPages: (body['totalPages'] ?? 1) as int,
+    );
+  }
+
+  Future<void> clearAuditLogs() async {
+    await ApiClient.dio.delete('/audit-logs');
+  }
+
+  /// Lesson counts by workflow status, optionally scoped to one language —
+  /// backs the per-language dashboard's "Content Workflow" panel.
+  Future<({int draft, int inReview, int approved, int published})> getContentWorkflow({
+    String? languageId,
+  }) async {
+    final response = await ApiClient.dio.get('/admin/content-workflow', queryParameters: {
+      if (languageId != null) 'languageId': languageId,
+    });
+    final data = (response.data as Map<String, dynamic>);
+    final body = (data['data'] ?? data) as Map<String, dynamic>;
+    return (
+      draft: (body['draft'] ?? 0) as int,
+      inReview: (body['inReview'] ?? 0) as int,
+      approved: (body['approved'] ?? 0) as int,
+      published: (body['published'] ?? 0) as int,
     );
   }
 }

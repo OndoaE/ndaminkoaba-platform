@@ -10,6 +10,7 @@ import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
@@ -32,6 +33,7 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
   final repository = BibleRepository();
 
   bool isLoading = true;
+  bool hasError = false;
   List<BibleChapterInfo> chapters = [];
 
   @override
@@ -41,7 +43,10 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
   }
 
   Future<void> load() async {
-    setState(() => isLoading = true);
+    setState(() {
+      isLoading = true;
+      hasError = false;
+    });
     try {
       final result = await repository.getChapters(
         languageId: ref.read(currentLearningLanguageProvider),
@@ -53,7 +58,10 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
       });
     } catch (_) {
       if (!mounted) return;
-      setState(() => isLoading = false);
+      setState(() {
+        hasError = true;
+        isLoading = false;
+      });
     }
   }
 
@@ -97,7 +105,20 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
                 padding: EdgeInsets.all(AppSpacing.xl),
                 child: ShimmerListLoader(itemCount: 4, itemHeight: 100),
               )
-            : chapters.isEmpty
+            : hasError
+                ? Padding(
+                    padding: const EdgeInsets.all(AppSpacing.xl),
+                    child: EmptyState(
+                      icon: Icons.wifi_off_outlined,
+                      iconColor: AppColors.error,
+                      title: l10n.commonSomethingWrong,
+                      action: PrimaryButton(
+                        label: l10n.commonRetry,
+                        onPressed: load,
+                      ),
+                    ),
+                  )
+                : chapters.isEmpty
                 ? Padding(
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: EmptyState(
@@ -105,6 +126,7 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
                       iconColor: const Color(0xFF8B3A3A),
                       title: l10n.bibleNoContentTitle,
                       message: l10n.bibleNoContentMessage,
+                      lottieAsset: 'assets/lottie/bible_open.json',
                     ),
                   )
                 : ListView(

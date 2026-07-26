@@ -131,6 +131,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         exampleTranslation: result.exampleTranslation,
         frenchExampleTranslation: result.frenchExampleTranslation,
         difficulty: result.difficulty,
+        phoneticTranscription: result.phoneticTranscription,
       );
       load();
       _showMessage('Knowledge entry added.');
@@ -156,6 +157,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         exampleTranslation: result.exampleTranslation,
         frenchExampleTranslation: result.frenchExampleTranslation,
         difficulty: result.difficulty,
+        phoneticTranscription: result.phoneticTranscription,
       );
       load();
       _showMessage('Knowledge entry updated.');
@@ -457,6 +459,7 @@ class VocabFormResult {
     this.exampleTranslation,
     this.frenchExampleTranslation,
     required this.difficulty,
+    this.phoneticTranscription,
   });
 
   final String word;
@@ -466,6 +469,7 @@ class VocabFormResult {
   final String? exampleTranslation;
   final String? frenchExampleTranslation;
   final String difficulty;
+  final String? phoneticTranscription;
 }
 
 class VocabFormDialog extends StatefulWidget {
@@ -487,6 +491,8 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
       TextEditingController(text: widget.initial?.exampleTranslation ?? '');
   late final frenchTranslationController =
       TextEditingController(text: widget.initial?.frenchExampleTranslation ?? '');
+  late final phoneticController =
+      TextEditingController(text: widget.initial?.phoneticTranscription ?? '');
   late String difficulty = widget.initial?.difficulty.isNotEmpty == true
       ? widget.initial!.difficulty
       : 'BEGINNER';
@@ -499,6 +505,7 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
     exampleController.dispose();
     translationController.dispose();
     frenchTranslationController.dispose();
+    phoneticController.dispose();
     super.dispose();
   }
 
@@ -554,6 +561,26 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
+              Text(
+                'Phonetic transcription (optional)',
+                style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+              ),
+              const SizedBox(height: AppSpacing.xs),
+              TextField(
+                controller: phoneticController,
+                decoration: InputDecoration(
+                  isDense: true,
+                  filled: true,
+                  fillColor: AppColors.surface,
+                  hintText: 'e.g. mbɔ́lɔ́ — shown under the word on the lesson screen',
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+              ),
+              const SizedBox(height: AppSpacing.md),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -602,6 +629,7 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
                 exampleTranslation: translationController.text.trim(),
                 frenchExampleTranslation: frenchTranslationController.text.trim(),
                 difficulty: difficulty,
+                phoneticTranscription: phoneticController.text.trim(),
               ),
             );
           },

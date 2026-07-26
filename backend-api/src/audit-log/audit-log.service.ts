@@ -61,4 +61,8 @@ export class AuditLogService {
 
     return { items, total, page, limit, totalPages: Math.ceil(total / limit) };
   }
+
+  async removeAll() {
+    await this.prisma.auditLog.deleteMany({});
+  }
 }
