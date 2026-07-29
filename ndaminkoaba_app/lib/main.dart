@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/language/learning_language_provider.dart';
@@ -10,6 +12,14 @@ import 'routes/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // On web, the browser's own right-click/selection context menu is enabled
+  // by default and takes priority over Flutter's — which silently swallows
+  // every custom `contextMenuBuilder` (e.g. the markdown formatting toolbar)
+  // until this is called. No-op on non-web platforms.
+  if (kIsWeb) {
+    await BrowserContextMenu.disableContextMenu();
+  }
 
   // Read the saved language before the first frame so there's no flash of
   // the wrong locale — a fresh install (no saved value) stays on the

@@ -12,6 +12,7 @@ import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
+import '../../../design_system/markdown/nda_markdown_extensions.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -459,6 +460,9 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                             ? MarkdownBody(
                                 data: lessonContent,
                                 styleSheet: MarkdownStyleSheet(p: AppTypography.lessonBody, strong: AppTypography.lessonBodyStrong),
+                                inlineSyntaxes: ndaMarkdownInlineSyntaxes,
+                                builders: ndaMarkdownBuilders,
+                                onTapLink: ndaMarkdownOnTapLink,
                               )
                             : Text(l10n.lessonNoContent, style: AppTypography.lessonBody),
                       ],

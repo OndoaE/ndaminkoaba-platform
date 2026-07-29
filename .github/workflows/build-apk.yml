@@ -1,0 +1,48 @@
+name: Build Android APK
+
+on:
+  workflow_dispatch:
+    inputs:
+      api_base_url:
+        description: "Backend API base URL baked into the build (include /api)"
+        required: false
+        default: "https://physiology-vegetables-bible-racial.trycloudflare.com/api"
+  push:
+    branches: [main]
+    paths:
+      - "ndaminkoaba_app/**"
+      - ".github/workflows/build-apk.yml"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ndaminkoaba_app
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: "3.41.9"
+          channel: stable
+
+      - run: flutter pub get
+
+      # No signing secrets configured yet, so this falls back to debug
+      # signing (see android/app/build.gradle.kts) — installable for
+      # sideload testing today, not yet suitable for Play Store upload.
+      - run: >
+          flutter build apk --release
+          --dart-define=API_BASE_URL=${{ github.event.inputs.api_base_url || 'https://physiology-vegetables-bible-racial.trycloudflare.com/api' }}
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ndaminkoaba-app-release
+          path: ndaminkoaba_app/build/app/outputs/flutter-apk/app-release.apk
+          retention-days: 30

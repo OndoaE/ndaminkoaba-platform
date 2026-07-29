@@ -23,10 +23,27 @@ async function bootstrap() {
   // JS to drive ranged/partial fetches) can see them on cross-origin
   // /uploads responses — the CORS-safelisted header set doesn't include
   // Content-Range or Accept-Ranges by default.
+  //
+  // CORS_ORIGINS is a comma-separated allowlist (e.g. the deployed web app's
+  // origin) for production; left unset, all origins are allowed, which is
+  // fine for local development and short-lived tunnel-based testing but
+  // should be set before this is a long-lived public deployment.
+  const corsOrigins = process.env.CORS_ORIGINS?.split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
   app.enableCors({
+    origin: corsOrigins && corsOrigins.length > 0 ? corsOrigins : true,
     exposedHeaders: ['Content-Range', 'Accept-Ranges', 'Content-Length'],
   });
-  app.use(helmet());
+  // Default Helmet policy is same-origin, which silently blocks the web
+  // build's <audio>/<img> tags from loading /uploads files as plain media
+  // resources whenever the Flutter web app and the API are on different
+  // origins (always true here — separate ports in dev, separate domains
+  // over the tunnels used for testing). CORS above already governs which
+  // origins may read these responses, so this header is redundant with (and
+  // stricter than) that policy — cross-origin is the correct setting for an
+  // API that's meant to be consumed from a separate frontend origin.
+  app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
   app.use(morgan('dev'));
 
   app.setGlobalPrefix('api');

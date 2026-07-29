@@ -1,7 +1,23 @@
+import 'dart:typed_data';
+
+import 'package:dio/dio.dart';
+
 import '../../../core/network/api_client.dart';
 import '../domain/knowledge_models.dart';
 
 class KnowledgeRepository {
+  /// Uploads raw audio bytes to the generic uploads endpoint and returns the
+  /// relative URL (e.g. `/uploads/audio/xxx.wav`) — used to attach a
+  /// reference pronunciation recording to a Vocabulary entry.
+  Future<String> uploadAudio(Uint8List bytes, String filename) async {
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    final response = await ApiClient.dio.post('/uploads/audio', data: formData);
+    final data = response.data as Map<String, dynamic>;
+    return ((data['data'] ?? data) as Map<String, dynamic>)['url'] as String;
+  }
+
   Future<List<KnowledgeWord>> getVocabulary({String? search, String? languageId}) async {
     final response = await ApiClient.dio.get('/vocabulary', queryParameters: {
       'limit': 100,
@@ -25,6 +41,7 @@ class KnowledgeRepository {
     String? frenchExampleTranslation,
     required String difficulty,
     String? phoneticTranscription,
+    String? audioUrl,
   }) async {
     await ApiClient.dio.post('/vocabulary', data: {
       'word': word,
@@ -38,6 +55,7 @@ class KnowledgeRepository {
         'frenchExampleTranslation': frenchExampleTranslation,
       if (phoneticTranscription != null && phoneticTranscription.isNotEmpty)
         'phoneticTranscription': phoneticTranscription,
+      if (audioUrl != null && audioUrl.isNotEmpty) 'audioUrl': audioUrl,
       'difficulty': difficulty,
     });
   }
@@ -52,6 +70,7 @@ class KnowledgeRepository {
     String? frenchExampleTranslation,
     required String difficulty,
     String? phoneticTranscription,
+    String? audioUrl,
   }) async {
     await ApiClient.dio.patch('/vocabulary/$id', data: {
       'word': word,
@@ -61,6 +80,7 @@ class KnowledgeRepository {
       'exampleTranslation': exampleTranslation ?? '',
       'frenchExampleTranslation': frenchExampleTranslation ?? '',
       'phoneticTranscription': phoneticTranscription ?? '',
+      'audioUrl': audioUrl ?? '',
       'difficulty': difficulty,
     });
   }

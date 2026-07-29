@@ -14,6 +14,8 @@ import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/widgets/lesson_content_preview.dart';
+import '../../../design_system/widgets/markdown_formatting_toolbar.dart';
 import '../../../design_system/widgets/progress_ring.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../design_system/widgets/status_pill.dart';
@@ -659,9 +661,24 @@ class _BlockCardState extends State<_BlockCard> {
           children: [
             TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.adminEyebrowLabelOptional)),
             const SizedBox(height: AppSpacing.sm),
-            TextField(controller: textController, maxLines: 4, decoration: InputDecoration(labelText: l10n.adminFieldContent)),
-            const SizedBox(height: AppSpacing.sm),
-            TextField(controller: frenchTextController, maxLines: 4, decoration: InputDecoration(labelText: l10n.adminFrenchContentOptionalLabel)),
+            TextField(
+              controller: textController,
+              maxLines: 4,
+              decoration: InputDecoration(labelText: l10n.adminFieldContent),
+              contextMenuBuilder: markdownFormattingContextMenuBuilder(textController),
+              onChanged: (_) => setState(() {}),
+            ),
+            const MarkdownHint(),
+            LessonContentPreview(text: textController.text),
+            TextField(
+              controller: frenchTextController,
+              maxLines: 4,
+              decoration: InputDecoration(labelText: l10n.adminFrenchContentOptionalLabel),
+              contextMenuBuilder: markdownFormattingContextMenuBuilder(frenchTextController),
+              onChanged: (_) => setState(() {}),
+            ),
+            const MarkdownHint(),
+            LessonContentPreview(text: frenchTextController.text),
           ],
         );
       case 'DIALOGUE':

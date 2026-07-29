@@ -154,7 +154,12 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
           onRefresh: load,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(AppSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.giant,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

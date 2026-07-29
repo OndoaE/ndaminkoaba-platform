@@ -44,11 +44,13 @@ class AppTypography {
     color: AppColors.textSecondary,
   );
 
-  /// Reading typeface for lesson content prose — a serif (Lora) rather than
-  /// the Poppins used everywhere else, so a paragraph of lesson explanation
-  /// reads like a book rather than reusing a UI heading style. Paired with
-  /// [lessonBodyStrong] for markdown-authored Ewondo words within the text.
-  static final lessonBody = GoogleFonts.lora(
+  /// Reading typeface for lesson content prose — Andika (SIL International's
+  /// literacy-focused typeface) rather than the Poppins used everywhere
+  /// else, chosen specifically for its clarity with the extended Latin
+  /// characters and diacritics used in African-language orthographies like
+  /// Ewondo's. Paired with [lessonBodyStrong] for markdown-authored Ewondo
+  /// words within the text.
+  static final lessonBody = GoogleFonts.andika(
     fontSize: 17,
     height: 1.6,
     color: AppColors.textPrimary,
@@ -58,7 +60,7 @@ class AppTypography {
   /// style markdown's `**word**` emphasis renders as, so an Ewondo word
   /// stands out as unmistakably bold *and* on-brand, not just heavier black
   /// text.
-  static final lessonBodyStrong = GoogleFonts.lora(
+  static final lessonBodyStrong = GoogleFonts.andika(
     fontSize: 17,
     height: 1.6,
     fontWeight: FontWeight.w700,

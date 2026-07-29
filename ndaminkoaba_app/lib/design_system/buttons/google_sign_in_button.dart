@@ -6,6 +6,9 @@ import 'package:google_sign_in/google_sign_in.dart';
 
 import '../../config/app_config.dart';
 import '../../features/auth/data/auth_service.dart';
+import '../colors/app_colors.dart';
+import '../spacing/app_spacing.dart';
+import '../typography/app_typography.dart';
 import 'google_web_button_stub.dart'
     if (dart.library.js_interop) 'google_web_button_web.dart';
 import 'oauth_button.dart';
@@ -150,6 +153,27 @@ class _GoogleSignInButtonState extends State<GoogleSignInButton> {
       );
     }
 
-    return SizedBox(height: 44, child: renderGoogleWebButton());
+    // Google renders its button inside a cross-origin iframe it fully
+    // controls — if the popup it opens gets blocked (browser popup
+    // blockers, Safari's tracking prevention, WhatsApp/Messenger in-app
+    // browsers), Google logs a console warning and does nothing else: no
+    // postMessage reaches us, so [_handleWebEvent]/[_handleWebStreamError]
+    // never fire and the button silently appears to do nothing. There's no
+    // way to detect that failure from this side of the iframe boundary, so
+    // this hint is shown proactively rather than in reaction to an error.
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        SizedBox(height: 44, child: renderGoogleWebButton()),
+        const SizedBox(height: AppSpacing.xs),
+        Text(
+          'Nothing happens when you tap it? Allow pop-ups for this site, or open this '
+          'page in your phone/browser (not inside WhatsApp or Messenger) — or just '
+          'sign in with email above.',
+          textAlign: TextAlign.center,
+          style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+        ),
+      ],
+    );
   }
 }

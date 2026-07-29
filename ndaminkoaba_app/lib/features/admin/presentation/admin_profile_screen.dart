@@ -351,8 +351,8 @@ class _DetailRow extends StatelessWidget {
     return Row(
       children: [
         Text(label, style: AppTypography.caption),
-        const Spacer(),
-        Flexible(
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
           child: Text(
             value,
             style: AppTypography.title.copyWith(fontSize: 14),

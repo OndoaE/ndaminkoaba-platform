@@ -9,6 +9,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/lesson_content_preview.dart';
+import '../../../design_system/widgets/markdown_formatting_toolbar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/content_repository.dart';
 import '../domain/management_models.dart';
@@ -155,6 +156,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                   maxLines: 5,
                   decoration: const InputDecoration(labelText: 'Content'),
                   onChanged: (_) => setDialogState(() {}),
+                  contextMenuBuilder: markdownFormattingContextMenuBuilder(contentController),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 LessonContentPreview(text: contentController.text),
@@ -175,6 +177,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                   maxLines: 5,
                   decoration: const InputDecoration(labelText: 'French Content (optional)'),
                   onChanged: (_) => setDialogState(() {}),
+                  contextMenuBuilder: markdownFormattingContextMenuBuilder(frenchContentController),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 LessonContentPreview(text: frenchContentController.text),

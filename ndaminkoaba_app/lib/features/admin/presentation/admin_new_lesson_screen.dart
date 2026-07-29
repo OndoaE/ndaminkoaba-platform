@@ -11,6 +11,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/lesson_content_preview.dart';
+import '../../../design_system/widgets/markdown_formatting_toolbar.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_content_models.dart';
 
@@ -180,6 +181,7 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
                               controller: contentController,
                               maxLines: 6,
                               onChanged: (_) => setState(() {}),
+                              contextMenuBuilder: markdownFormattingContextMenuBuilder(contentController),
                               decoration: InputDecoration(
                                 hintText: 'The full lesson text learners will read...',
                                 filled: true,
@@ -209,6 +211,7 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
                               controller: frenchContentController,
                               maxLines: 6,
                               onChanged: (_) => setState(() {}),
+                              contextMenuBuilder: markdownFormattingContextMenuBuilder(frenchContentController),
                               decoration: InputDecoration(
                                 hintText: 'The French translation of the lesson text...',
                                 filled: true,

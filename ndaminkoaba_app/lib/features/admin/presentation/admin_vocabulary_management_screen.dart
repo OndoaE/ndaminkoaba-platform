@@ -11,6 +11,7 @@ import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/knowledge_repository.dart';
 import '../domain/knowledge_models.dart';
+import 'widgets/audio_recorder_field.dart';
 
 const _levels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 
@@ -132,6 +133,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         frenchExampleTranslation: result.frenchExampleTranslation,
         difficulty: result.difficulty,
         phoneticTranscription: result.phoneticTranscription,
+        audioUrl: result.audioUrl,
       );
       load();
       _showMessage('Knowledge entry added.');
@@ -158,6 +160,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         frenchExampleTranslation: result.frenchExampleTranslation,
         difficulty: result.difficulty,
         phoneticTranscription: result.phoneticTranscription,
+        audioUrl: result.audioUrl,
       );
       load();
       _showMessage('Knowledge entry updated.');
@@ -460,6 +463,7 @@ class VocabFormResult {
     this.frenchExampleTranslation,
     required this.difficulty,
     this.phoneticTranscription,
+    this.audioUrl,
   });
 
   final String word;
@@ -470,6 +474,7 @@ class VocabFormResult {
   final String? frenchExampleTranslation;
   final String difficulty;
   final String? phoneticTranscription;
+  final String? audioUrl;
 }
 
 class VocabFormDialog extends StatefulWidget {
@@ -496,6 +501,7 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
   late String difficulty = widget.initial?.difficulty.isNotEmpty == true
       ? widget.initial!.difficulty
       : 'BEGINNER';
+  late String? audioUrl = widget.initial?.audioUrl;
 
   @override
   void dispose() {
@@ -581,6 +587,12 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
                 ),
               ),
               const SizedBox(height: AppSpacing.md),
+              AudioRecorderField(
+                initialUrl: audioUrl,
+                onChanged: (url) => audioUrl = url,
+                label: 'Pronunciation audio (helps Nnanga\'s "hear it" playback for learners)',
+              ),
+              const SizedBox(height: AppSpacing.md),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -630,6 +642,7 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
                 frenchExampleTranslation: frenchTranslationController.text.trim(),
                 difficulty: difficulty,
                 phoneticTranscription: phoneticController.text.trim(),
+                audioUrl: audioUrl,
               ),
             );
           },

@@ -153,7 +153,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           onRefresh: loadDashboard,
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.all(AppSpacing.xl),
+            padding: const EdgeInsets.fromLTRB(
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.xl,
+              AppSpacing.giant,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -166,7 +171,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 Text(
                   'Mbolo, $greetingName 👋',
                   style: AppTypography.h1.copyWith(fontWeight: FontWeight.w800),
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
                 Text(l10n.dashboardSubtitle, style: AppTypography.caption),
@@ -564,11 +569,14 @@ class _ExploreTile extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.sm),
             Expanded(
-              child: Text(
-                label,
-                style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+              child: FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  label,
+                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                ),
               ),
             ),
             const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 18),

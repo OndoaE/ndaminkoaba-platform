@@ -179,7 +179,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: ShimmerListLoader(itemCount: 2, itemHeight: 160),
               )
             : SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xl),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.xl,
+                  AppSpacing.xl,
+                  AppSpacing.xl,
+                  AppSpacing.giant,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -442,7 +447,10 @@ class _StatColumn extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
-        Text(label, style: AppTypography.caption, textAlign: TextAlign.center),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Text(label, style: AppTypography.caption, maxLines: 1, textAlign: TextAlign.center),
+        ),
       ],
     );
   }
