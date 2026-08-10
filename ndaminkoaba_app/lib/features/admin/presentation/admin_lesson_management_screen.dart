@@ -130,10 +130,10 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
   Future<void> editLesson(ManagedLesson lesson) async {
     final titleController = TextEditingController(text: lesson.title);
     final summaryController = TextEditingController(text: lesson.summary);
-    final contentController = TextEditingController(text: lesson.content);
+    final contentController = SmartListTextEditingController(text: lesson.content);
     final frenchTitleController = TextEditingController(text: lesson.frenchTitle ?? '');
     final frenchSummaryController = TextEditingController(text: lesson.frenchSummary ?? '');
-    final frenchContentController = TextEditingController(text: lesson.frenchContent ?? '');
+    final frenchContentController = SmartListTextEditingController(text: lesson.frenchContent ?? '');
     final conversationController =
         TextEditingController(text: conversationToLines(lesson.conversation));
 

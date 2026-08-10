@@ -93,7 +93,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
         coursesEnrolled = (results[0] as List).length;
         certificatesEarned = (results[1] as DashboardStats).certificates;
         longestStreak = (results[2] as StreakStats).longestStreak;
-        badgesEarned = (results[3] as List<BadgeEntry>).where((b) => b.earned).length;
+        badgesEarned = (results[3] as List<BadgeEntry>)
+            .where((b) => b.earned)
+            .length;
         isLoading = false;
       });
     } catch (_) {
@@ -133,7 +135,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Future<void> pickAndUploadAvatar() async {
     final l10n = AppLocalizations.of(context);
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 800);
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 800,
+    );
     if (picked == null) return;
     if (!mounted) return;
     final Uint8List bytes = await picked.readAsBytes();
@@ -151,7 +156,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
       if (!mounted) return;
       setState(() => isUploadingAvatar = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(extractErrorMessage(e, fallback: l10n.couldNotUploadPhotoError))),
+        SnackBar(
+          content: Text(
+            extractErrorMessage(e, fallback: l10n.couldNotUploadPhotoError),
+          ),
+        ),
       );
     }
   }
@@ -207,15 +216,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     color: Colors.white.withValues(alpha: 0.4),
                                     width: 1.5,
                                   ),
-                                  image: (profile?.profileImage?.isNotEmpty ?? false)
+                                  image:
+                                      (profile?.profileImage?.isNotEmpty ??
+                                          false)
                                       ? DecorationImage(
-                                          image: NetworkImage(AppConfig.resolveUrl(profile!.profileImage!)),
+                                          image: NetworkImage(
+                                            AppConfig.resolveUrl(
+                                              profile!.profileImage!,
+                                            ),
+                                          ),
                                           fit: BoxFit.cover,
                                         )
                                       : null,
                                 ),
                                 alignment: Alignment.center,
-                                child: (profile?.profileImage?.isNotEmpty ?? false)
+                                child:
+                                    (profile?.profileImage?.isNotEmpty ?? false)
                                     ? null
                                     : Text(
                                         (profile?.fullName.isNotEmpty ?? false)
@@ -233,25 +249,37 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 bottom: -2,
                                 child: InkWell(
                                   borderRadius: AppRadius.circle,
-                                  onTap: isUploadingAvatar ? null : pickAndUploadAvatar,
+                                  onTap: isUploadingAvatar
+                                      ? null
+                                      : pickAndUploadAvatar,
                                   child: Container(
                                     width: 24,
                                     height: 24,
                                     decoration: BoxDecoration(
                                       color: AppColors.secondary,
                                       shape: BoxShape.circle,
-                                      border: Border.all(color: Colors.white, width: 2),
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 2,
+                                      ),
                                     ),
                                     alignment: Alignment.center,
                                     child: isUploadingAvatar
                                         ? const SizedBox(
                                             width: 10,
                                             height: 10,
-                                            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              color: Colors.white,
+                                            ),
                                           )
                                         : Tooltip(
                                             message: l10n.uploadPhotoTooltip,
-                                            child: const Icon(Icons.camera_alt, size: 12, color: Colors.white),
+                                            child: const Icon(
+                                              Icons.camera_alt,
+                                              size: 12,
+                                              color: Colors.white,
+                                            ),
                                           ),
                                   ),
                                 ),
@@ -317,7 +345,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Expanded(
                           child: _StatColumn(
                             value: '$longestStreak',
-                            label: 'Best Streak',
+                            label: l10n.bestStreakLabel,
                           ),
                         ),
                         const SizedBox(
@@ -327,7 +355,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Expanded(
                           child: _StatColumn(
                             value: '$badgesEarned',
-                            label: 'Badges',
+                            label: l10n.badgesTitle,
                           ),
                         ),
                       ],
@@ -360,7 +388,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           _MenuRow(
                             icon: Icons.language,
                             label: l10n.switchLanguageTitle,
-                            onTap: () => context.push('/select-learning-language'),
+                            onTap: () =>
+                                context.push('/select-learning-language'),
                           ),
                           const Divider(height: 1, color: AppColors.divider),
                           _MenuRow(
@@ -449,7 +478,12 @@ class _StatColumn extends StatelessWidget {
         const SizedBox(height: AppSpacing.xs),
         FittedBox(
           fit: BoxFit.scaleDown,
-          child: Text(label, style: AppTypography.caption, maxLines: 1, textAlign: TextAlign.center),
+          child: Text(
+            label,
+            style: AppTypography.caption,
+            maxLines: 1,
+            textAlign: TextAlign.center,
+          ),
         ),
       ],
     );

@@ -403,6 +403,60 @@ export class KnowledgeService {
       8,
     );
 
+    // Question TEXT only — never choices/isCorrect. That's the same
+    // security boundary QuizAttempt scoring already enforces (the answer
+    // key is never sent to the client); grounding Nnanga in quiz questions
+    // just lets it discuss/explain what a quiz covers, not grade it.
+    const quizzesPool = keywords.length
+      ? await this.prisma.quiz.findMany({
+          where: {
+            lesson: {
+              module: languageId ? { course: { languageId } } : undefined,
+            },
+            OR: keywords.flatMap((keyword) => [
+              { title: { contains: keyword, mode: insensitive } },
+              { description: { contains: keyword, mode: insensitive } },
+              { frenchTitle: { contains: keyword, mode: insensitive } },
+              { frenchDescription: { contains: keyword, mode: insensitive } },
+              {
+                questions: {
+                  some: {
+                    OR: [
+                      { questionText: { contains: keyword, mode: insensitive } },
+                      { frenchQuestionText: { contains: keyword, mode: insensitive } },
+                    ],
+                  },
+                },
+              },
+            ]),
+          },
+          take: 50,
+          include: {
+            lesson: { select: { title: true, frenchTitle: true } },
+            questions: { select: { questionText: true, frenchQuestionText: true } },
+          },
+        })
+      : [];
+
+    const { ranked: quizzes, topScore: quizzesTopScore } = this.rankAndTake(
+      quizzesPool,
+      (q) => this.scoreMatch(
+        [
+          { value: q.title, weight: 2 },
+          { value: q.description, weight: 1 },
+          { value: q.frenchTitle, weight: 2 },
+          { value: q.frenchDescription, weight: 1 },
+          ...q.questions.flatMap((question) => [
+            { value: question.questionText, weight: 2 },
+            { value: question.frenchQuestionText, weight: 2 },
+          ]),
+        ],
+        cleanedPrompt,
+        keywords,
+      ),
+      5,
+    );
+
     const coursesPool = keywords.length
       ? await this.prisma.course.findMany({
           where: {
@@ -536,6 +590,7 @@ export class KnowledgeService {
       texts,
       verses,
       lessons,
+      quizzes,
       courses,
       books: booksWithExcerpts,
       fullVocabulary,
@@ -547,6 +602,7 @@ export class KnowledgeService {
         texts.length > 0 ||
         verses.length > 0 ||
         lessons.length > 0 ||
+        quizzes.length > 0 ||
         courses.length > 0 ||
         books.length > 0,
       // A "5" score means some row matched the full cleaned phrase, not just
@@ -564,6 +620,7 @@ export class KnowledgeService {
         textsTopScore,
         versesTopScore,
         lessonsTopScore,
+        quizzesTopScore,
         booksTopScore,
         biblePassage ? 100 : 0,
       ),
@@ -659,6 +716,19 @@ v${verse.verse} — ${languageName}: ${verse.text}
           context += `\n  French summary: ${lesson.frenchSummary ?? 'Not provided'}\n  French content: ${lesson.frenchContent}`;
         }
         context += '\n';
+      }
+    }
+
+    if (results.quizzes.length > 0) {
+      context += `\nQUIZ QUESTIONS FOUND (question text only — never reveal or guess which choice is correct; if asked, tell the learner to take the quiz in the app to find out):\n`;
+
+      for (const quiz of results.quizzes) {
+        context += `
+- Quiz: ${quiz.title}${quiz.frenchTitle ? ` (French: ${quiz.frenchTitle})` : ''} — from lesson "${quiz.lesson.title}"
+`;
+        for (const question of quiz.questions) {
+          context += `  Q: ${question.questionText}${question.frenchQuestionText ? ` (French: ${question.frenchQuestionText})` : ''}\n`;
+        }
       }
     }
 

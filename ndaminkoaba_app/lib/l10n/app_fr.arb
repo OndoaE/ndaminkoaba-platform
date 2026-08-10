@@ -126,6 +126,19 @@
   "modulesTitle": "Modules",
   "modulesSubtitle": "Apprenez étape par étape",
 
+  "downloadForOfflineButton": "Télécharger pour un usage hors ligne",
+  "downloadingOfflineLabel": "Téléchargement… {percent} %",
+  "@downloadingOfflineLabel": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "downloadedOfflineLabel": "Téléchargé pour un usage hors ligne",
+  "removeDownloadButton": "Supprimer le téléchargement",
+  "removeDownloadConfirmTitle": "Supprimer le cours téléchargé ?",
+  "removeDownloadConfirmMessage": "Vous devrez le retélécharger pour l'utiliser hors ligne.",
+  "downloadFailedMessage": "Impossible de télécharger le cours. Vérifiez votre connexion et réessayez.",
+  "downloadCompleteMessage": "Cours téléchargé — disponible hors ligne.",
+  "quizRequiresConnectivityMessage": "Vous êtes hors ligne — connectez-vous à Internet pour passer ce quiz.",
+
   "lessonNumberLabel": "Leçon {number}",
   "lessonNoContent": "Aucun contenu disponible pour cette leçon pour le moment.",
   "illustratedWordsTitle": "Mots illustrés",
@@ -247,6 +260,9 @@
   "adminNavVocabulary": "Vocabulaire",
   "adminNavAssessments": "Évaluations",
   "adminNavAiTutor": "Tuteur IA",
+  "adminNavBible": "Bible",
+  "adminNavBooks": "Livres",
+  "adminNavDaily": "Phrase et verset du jour",
   "adminNavReports": "Rapports",
   "adminLanguageActiveSuffix": "{name} · Actif",
   "adminBackToAllLanguages": "Retour à toutes les langues",
@@ -555,5 +571,100 @@
   "adminBroadcastSentMessage": "Diffusion envoyée à tous les apprenants.",
   "adminCouldNotSendBroadcast": "Impossible d'envoyer la diffusion.",
   "adminNotificationSentMessage": "Notification envoyée.",
-  "adminCouldNotSendNotification": "Impossible d'envoyer la notification."
+  "adminCouldNotSendNotification": "Impossible d'envoyer la notification.",
+
+  "dashboardProgressTitle": "Votre progression",
+  "lessonsCompletedCount": "{count} leçons terminées",
+  "@lessonsCompletedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "exploreSectionTitle": "Explorer",
+  "nnangaPromoSubtitle": "Pratiquez l'ewondo avec votre tuteur IA personnel",
+  "startPracticeButton": "COMMENCER",
+  "phraseOfDayTitle": "Phrase du jour",
+
+  "learnHubTitle": "Apprendre l'ewondo",
+  "learnHubSubtitle": "Choisissez un niveau et continuez votre parcours.",
+  "dailyGoalTitle": "Objectif du jour",
+  "dailyGoalSubtitle": "Terminez 1 leçon aujourd'hui",
+
+  "todaysLessonLabel": "LEÇON DU JOUR",
+  "listenAndRepeatTitle": "Écoutez et répétez",
+  "tapSpeakerRepeatCaption": "Appuyez sur le haut-parleur, puis répétez la phrase.",
+  "inConversationTitle": "En conversation",
+  "quickCheckTitle": "Vérification rapide",
+
+  "voiceMessageSendError": "Impossible d'envoyer ce message vocal — veuillez réessayer.",
+  "practiceModeLabel": "Mode pratique",
+  "freeConversationLabel": "Conversation libre",
+  "explainPromptPrefix": "Expliquer : {text}",
+  "@explainPromptPrefix": {
+    "placeholders": { "text": { "type": "String" } }
+  },
+  "translatePromptPrefix": "Traduire : {text}",
+  "@translatePromptPrefix": {
+    "placeholders": { "text": { "type": "String" } }
+  },
+  "explainActionLabel": "Expliquer",
+  "translateActionLabel": "Traduire",
+  "correctionLabel": "Correction",
+  "translationLabel": "Traduction",
+
+  "practiceTitle": "Pratique",
+  "practiceSubtitle": "Renforcez vos compétences en ewondo",
+  "practiceLoadError": "Un problème est survenu lors du chargement de la pratique.",
+  "dailyPracticeTitle": "Pratique quotidienne",
+  "dailyGoalReachedMessage": "Objectif du jour atteint !",
+  "minutesToGoalMessage": "{minutes} minutes pour atteindre l'objectif du jour",
+  "@minutesToGoalMessage": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "minutesUnitLabel": "min",
+  "continuePracticeButton": "CONTINUER LA PRATIQUE",
+  "smartReviewTitle": "Révision intelligente",
+  "wordsReadyForReview": "{count} mots sont prêts à être révisés",
+  "@wordsReadyForReview": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "noWordsDueMessage": "Aucun mot à réviser pour le moment",
+  "reviewNowButton": "RÉVISER",
+  "thisWeekTitle": "Cette semaine",
+  "practiceDaysCount": "{count} jours de pratique",
+  "@practiceDaysCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "almostThereTitle": "Presque là !",
+  "completeSessionsForBadge": "Terminez {count} séances supplémentaires pour obtenir le badge {badgeName}.",
+  "@completeSessionsForBadge": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "badgeName": { "type": "String" }
+    }
+  },
+  "badgesTitle": "Badges",
+  "noBadgesYetMessage": "Aucun badge pour l'instant.",
+  "completeMoreForBadge": "Encore {remaining} pour obtenir ce badge",
+  "@completeMoreForBadge": {
+    "placeholders": { "remaining": { "type": "int" } }
+  },
+
+  "tapToRevealHint": "Appuyez pour révéler",
+  "gradeAgainLabel": "À revoir",
+  "gradeHardLabel": "Difficile",
+  "gradeGoodLabel": "Bien",
+  "gradeEasyLabel": "Facile",
+
+  "bestStreakLabel": "Meilleure série",
+
+  "yourPronunciationTitle": "Votre prononciation",
+  "micPermissionRequiredError": "La permission du microphone est requise pour pratiquer la prononciation.",
+  "recordingSubmitError": "Impossible d'envoyer votre enregistrement — veuillez réessayer.",
+  "recordingStatusLabel": "Enregistrement…",
+  "scoringStatusLabel": "Évaluation…",
+  "scoredStatusLabel": "Évalué",
+  "notScoredStatusLabel": "Non évalué",
+  "readyToRecordStatusLabel": "Prêt à enregistrer",
+  "stopRecordingButton": "ARRÊTER L'ENREGISTREMENT",
+  "startRecordingButton": "ENREGISTRER",
+  "scoringFailedFallback": "Impossible d'évaluer cet essai."
 }

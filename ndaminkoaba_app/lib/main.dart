@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,7 +8,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/language/learning_language_provider.dart';
 import 'core/locale/locale_provider.dart';
+import 'core/network/connectivity_provider.dart';
 import 'core/services/storage_service.dart';
+import 'core/services/sync_queue_service.dart';
 import 'core/theme/app_theme.dart';
 import 'l10n/app_localizations.dart';
 import 'routes/app_router.dart';
@@ -33,18 +38,52 @@ Future<void> main() async {
         if (savedLanguageCode != null)
           localeProvider.overrideWith((ref) => Locale(savedLanguageCode)),
         if (savedLearningLanguageId != null)
-          currentLearningLanguageProvider.overrideWith((ref) => savedLearningLanguageId),
+          currentLearningLanguageProvider.overrideWith(
+            (ref) => savedLearningLanguageId,
+          ),
       ],
       child: const NdaMinkoabaApp(),
     ),
   );
 }
 
-class NdaMinkoabaApp extends ConsumerWidget {
+class NdaMinkoabaApp extends ConsumerStatefulWidget {
   const NdaMinkoabaApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<NdaMinkoabaApp> createState() => _NdaMinkoabaAppState();
+}
+
+class _NdaMinkoabaAppState extends ConsumerState<NdaMinkoabaApp>
+    with WidgetsBindingObserver {
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
+
+  @override
+  void initState() {
+    super.initState();
+    _connectivitySubscription = listenForConnectivityChanges(ref);
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    _connectivitySubscription?.cancel();
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // A "connected" signal from connectivity_plus can lie (captive portal,
+    // real backhaul down) — resume is a second, independent trigger that
+    // catches queued syncs the connectivity listener alone would miss.
+    if (state == AppLifecycleState.resumed) {
+      SyncQueueService().replayAll();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider);
 
     return MaterialApp.router(

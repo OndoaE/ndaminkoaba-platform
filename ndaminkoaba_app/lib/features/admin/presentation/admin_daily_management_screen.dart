@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import '../../../core/network/api_error.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/knowledge_repository.dart';
 import '../domain/knowledge_models.dart';
@@ -19,16 +19,22 @@ const _dailyAccent = Color(0xFFC77B2E);
 /// from the date, so admins only ever add/edit/remove pool entries here —
 /// never need to pick "today's" item by hand.
 class AdminDailyManagementScreen extends StatefulWidget {
-  const AdminDailyManagementScreen({super.key, required this.languageId, this.languageName});
+  const AdminDailyManagementScreen({
+    super.key,
+    required this.languageId,
+    this.languageName,
+  });
 
   final String languageId;
   final String? languageName;
 
   @override
-  State<AdminDailyManagementScreen> createState() => _AdminDailyManagementScreenState();
+  State<AdminDailyManagementScreen> createState() =>
+      _AdminDailyManagementScreenState();
 }
 
-class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen> {
+class _AdminDailyManagementScreenState
+    extends State<AdminDailyManagementScreen> {
   final repository = KnowledgeRepository();
   final searchController = TextEditingController();
 
@@ -85,13 +91,16 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> addWord() async {
     final picked = await showDialog<KnowledgeWord>(
       context: context,
-      builder: (context) => _VocabularyPickerDialog(languageId: widget.languageId),
+      builder: (context) =>
+          _VocabularyPickerDialog(languageId: widget.languageId),
     );
     if (picked == null) return;
 
@@ -117,7 +126,9 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
       load();
       _showMessage('Daily word added.');
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add daily word.'));
+      _showMessage(
+        extractErrorMessage(e, fallback: 'Could not add daily word.'),
+      );
     }
   }
 
@@ -139,7 +150,9 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
       load();
       _showMessage('Daily word updated.');
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update daily word.'));
+      _showMessage(
+        extractErrorMessage(e, fallback: 'Could not update daily word.'),
+      );
     }
   }
 
@@ -148,14 +161,17 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
       await repository.deleteDailyWord(word.id);
       load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete daily word.'));
+      _showMessage(
+        extractErrorMessage(e, fallback: 'Could not delete daily word.'),
+      );
     }
   }
 
   Future<void> addVerse() async {
     final picked = await showDialog<BibleVerseEntry>(
       context: context,
-      builder: (context) => _BibleVersePickerDialog(languageId: widget.languageId),
+      builder: (context) =>
+          _BibleVersePickerDialog(languageId: widget.languageId),
     );
     if (picked == null) return;
 
@@ -181,7 +197,9 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
       load();
       _showMessage('Daily verse added.');
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add daily verse.'));
+      _showMessage(
+        extractErrorMessage(e, fallback: 'Could not add daily verse.'),
+      );
     }
   }
 
@@ -203,7 +221,9 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
       load();
       _showMessage('Daily verse updated.');
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update daily verse.'));
+      _showMessage(
+        extractErrorMessage(e, fallback: 'Could not update daily verse.'),
+      );
     }
   }
 
@@ -212,84 +232,86 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
       await repository.deleteDailyVerse(verse.id);
       load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete daily verse.'));
+      _showMessage(
+        extractErrorMessage(e, fallback: 'Could not delete daily verse.'),
+      );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(
-        title: 'Daily Content Management',
-        colors: [_dailyAccent, Color(0xFFE0A64F)],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: _dailyAccent,
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(
-          isWordsMode ? 'Add Daily Word' : 'Add Daily Verse',
-          style: const TextStyle(color: Colors.white),
+    final title = widget.languageName ?? 'Language';
+    return AdminShell(
+      activeNavKey: 'daily',
+      languageId: widget.languageId,
+      languageName: title,
+      title: 'Phrase & Verse of the Day',
+      subtitle: 'Rotating daily word/verse pools for $title',
+      actions: [
+        FilledButton.icon(
+          style: FilledButton.styleFrom(backgroundColor: _dailyAccent),
+          onPressed: isWordsMode ? addWord : addVerse,
+          icon: const Icon(Icons.add, size: 18),
+          label: Text(isWordsMode ? 'Add Daily Word' : 'Add Daily Verse'),
         ),
-        onPressed: isWordsMode ? addWord : addVerse,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'A different entry from each pool is shown automatically every day on '
+            'the learner dashboard — no need to pick "today\'s" item by hand.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Wrap(
+            spacing: AppSpacing.sm,
             children: [
-              Text(
-                'A different entry from each pool is shown automatically every day on '
-                'the learner dashboard — no need to pick "today\'s" item by hand.',
-                style: AppTypography.caption,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Wrap(
-                spacing: AppSpacing.sm,
-                children: [
-                  ChoiceChip(
-                    label: const Text('Daily Words'),
-                    selected: isWordsMode,
-                    onSelected: (_) => setState(() => isWordsMode = true),
-                    selectedColor: _dailyAccent,
-                    labelStyle: TextStyle(color: isWordsMode ? Colors.white : AppColors.textPrimary),
-                  ),
-                  ChoiceChip(
-                    label: const Text('Daily Verses'),
-                    selected: !isWordsMode,
-                    onSelected: (_) => setState(() => isWordsMode = false),
-                    selectedColor: _dailyAccent,
-                    labelStyle: TextStyle(color: !isWordsMode ? Colors.white : AppColors.textPrimary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.md),
-              TextField(
-                controller: searchController,
-                onChanged: (_) => setState(() {}),
-                decoration: InputDecoration(
-                  hintText: isWordsMode ? 'Search Ewondo words...' : 'Search verses or reference...',
-                  prefixIcon: const Icon(Icons.search),
-                  filled: true,
-                  fillColor: AppColors.surface,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(16),
-                    borderSide: BorderSide.none,
-                  ),
+              ChoiceChip(
+                label: const Text('Daily Words'),
+                selected: isWordsMode,
+                onSelected: (_) => setState(() => isWordsMode = true),
+                selectedColor: _dailyAccent,
+                labelStyle: TextStyle(
+                  color: isWordsMode ? Colors.white : AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
-                    ? const ShimmerListLoader(itemCount: 5, itemHeight: 80)
-                    : isWordsMode
-                        ? _buildWordsList()
-                        : _buildVersesList(),
+              ChoiceChip(
+                label: const Text('Daily Verses'),
+                selected: !isWordsMode,
+                onSelected: (_) => setState(() => isWordsMode = false),
+                selectedColor: _dailyAccent,
+                labelStyle: TextStyle(
+                  color: !isWordsMode ? Colors.white : AppColors.textPrimary,
+                ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: searchController,
+            onChanged: (_) => setState(() {}),
+            decoration: InputDecoration(
+              hintText: isWordsMode
+                  ? 'Search Ewondo words...'
+                  : 'Search verses or reference...',
+              prefixIcon: const Icon(Icons.search),
+              filled: true,
+              fillColor: AppColors.surface,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(16),
+                borderSide: BorderSide.none,
+              ),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          if (isLoading)
+            const ShimmerListLoader(itemCount: 5, itemHeight: 80)
+          else if (isWordsMode)
+            _buildWordsList()
+          else
+            _buildVersesList(),
+        ],
       ),
     );
   }
@@ -305,57 +327,71 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
       );
     }
 
-    return ListView.separated(
-      itemCount: visible.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, index) {
-        final word = visible[index];
-        return InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () => editWord(word),
-          child: PremiumCard(
-            child: Row(
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: _dailyAccent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+    return Column(
+      children: visible.map((word) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: () => editWord(word),
+            child: PremiumCard(
+              child: Row(
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: _dailyAccent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.auto_awesome,
+                      color: _dailyAccent,
+                      size: 20,
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.auto_awesome, color: _dailyAccent, size: 20),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(word.word, style: AppTypography.title),
-                      if (word.englishMeaning != null && word.englishMeaning!.isNotEmpty)
-                        Text(word.englishMeaning!, style: AppTypography.caption),
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(word.word, style: AppTypography.title),
+                        if (word.englishMeaning != null &&
+                            word.englishMeaning!.isNotEmpty)
+                          Text(
+                            word.englishMeaning!,
+                            style: AppTypography.caption,
+                          ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        editWord(word);
+                      } else if (value == 'delete') {
+                        deleteWord(word);
+                      }
+                    },
+                    itemBuilder: (context) => const [
+                      PopupMenuItem(value: 'edit', child: Text('Edit')),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(color: AppColors.error),
+                        ),
+                      ),
                     ],
                   ),
-                ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      editWord(word);
-                    } else if (value == 'delete') {
-                      deleteWord(word);
-                    }
-                  },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: AppColors.error))),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
-      },
+      }).toList(),
     );
   }
 
@@ -366,70 +402,81 @@ class _AdminDailyManagementScreenState extends State<AdminDailyManagementScreen>
         icon: Icons.auto_stories,
         iconColor: _dailyAccent,
         title: 'No daily verses yet',
-        message: 'Add Ewondo Bible verses to rotate through on the learner dashboard.',
+        message:
+            'Add Ewondo Bible verses to rotate through on the learner dashboard.',
       );
     }
 
-    return ListView.separated(
-      itemCount: visible.length,
-      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
-      itemBuilder: (context, index) {
-        final verse = visible[index];
-        return InkWell(
-          borderRadius: BorderRadius.circular(24),
-          onTap: () => editVerse(verse),
-          child: PremiumCard(
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: _dailyAccent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(12),
+    return Column(
+      children: visible.map((verse) {
+        return Padding(
+          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(24),
+            onTap: () => editVerse(verse),
+            child: PremiumCard(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: _dailyAccent.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    alignment: Alignment.center,
+                    child: const Icon(
+                      Icons.auto_stories,
+                      color: _dailyAccent,
+                      size: 20,
+                    ),
                   ),
-                  alignment: Alignment.center,
-                  child: const Icon(Icons.auto_stories, color: _dailyAccent, size: 20),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        verse.reference,
-                        style: AppTypography.title.copyWith(fontSize: 15),
-                      ),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        verse.text,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: AppTypography.caption,
+                  const SizedBox(width: AppSpacing.md),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          verse.reference,
+                          style: AppTypography.title.copyWith(fontSize: 15),
+                        ),
+                        const SizedBox(height: AppSpacing.xs),
+                        Text(
+                          verse.text,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.caption,
+                        ),
+                      ],
+                    ),
+                  ),
+                  PopupMenuButton<String>(
+                    icon: const Icon(Icons.more_vert),
+                    onSelected: (value) {
+                      if (value == 'edit') {
+                        editVerse(verse);
+                      } else if (value == 'delete') {
+                        deleteVerse(verse);
+                      }
+                    },
+                    itemBuilder: (context) => const [
+                      PopupMenuItem(value: 'edit', child: Text('Edit')),
+                      PopupMenuItem(
+                        value: 'delete',
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(color: AppColors.error),
+                        ),
                       ),
                     ],
                   ),
-                ),
-                PopupMenuButton<String>(
-                  icon: const Icon(Icons.more_vert),
-                  onSelected: (value) {
-                    if (value == 'edit') {
-                      editVerse(verse);
-                    } else if (value == 'delete') {
-                      deleteVerse(verse);
-                    }
-                  },
-                  itemBuilder: (context) => const [
-                    PopupMenuItem(value: 'edit', child: Text('Edit')),
-                    PopupMenuItem(value: 'delete', child: Text('Delete', style: TextStyle(color: AppColors.error))),
-                  ],
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         );
-      },
+      }).toList(),
     );
   }
 }
@@ -475,14 +522,18 @@ class DailyWordFormDialog extends StatefulWidget {
 }
 
 class _DailyWordFormDialogState extends State<DailyWordFormDialog> {
-  late final ewondoController =
-      TextEditingController(text: widget.initial?.word ?? widget.prefillWord ?? '');
+  late final ewondoController = TextEditingController(
+    text: widget.initial?.word ?? widget.prefillWord ?? '',
+  );
   late final englishController = TextEditingController(
-      text: widget.initial?.englishMeaning ?? widget.prefillEnglishMeaning ?? '');
+    text: widget.initial?.englishMeaning ?? widget.prefillEnglishMeaning ?? '',
+  );
   late final frenchController = TextEditingController(
-      text: widget.initial?.frenchMeaning ?? widget.prefillFrenchMeaning ?? '');
-  late final usageController =
-      TextEditingController(text: widget.initial?.usageHint ?? widget.prefillUsageHint ?? '');
+    text: widget.initial?.frenchMeaning ?? widget.prefillFrenchMeaning ?? '',
+  );
+  late final usageController = TextEditingController(
+    text: widget.initial?.usageHint ?? widget.prefillUsageHint ?? '',
+  );
 
   @override
   void dispose() {
@@ -525,14 +576,19 @@ class _DailyWordFormDialogState extends State<DailyWordFormDialog> {
                 controller: usageController,
                 maxLines: 3,
                 minLines: 2,
-                decoration: const InputDecoration(labelText: 'Usage hint (optional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Usage hint (optional)',
+                ),
               ),
             ],
           ),
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
         FilledButton(
           onPressed: () {
             if (ewondoController.text.trim().isEmpty) return;
@@ -594,14 +650,18 @@ class DailyVerseFormDialog extends StatefulWidget {
 }
 
 class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
-  late final referenceController =
-      TextEditingController(text: widget.initial?.reference ?? widget.prefillReference ?? '');
-  late final ewondoController =
-      TextEditingController(text: widget.initial?.text ?? widget.prefillText ?? '');
+  late final referenceController = TextEditingController(
+    text: widget.initial?.reference ?? widget.prefillReference ?? '',
+  );
+  late final ewondoController = TextEditingController(
+    text: widget.initial?.text ?? widget.prefillText ?? '',
+  );
   late final englishController = TextEditingController(
-      text: widget.initial?.englishText ?? widget.prefillEnglishText ?? '');
-  late final frenchController =
-      TextEditingController(text: widget.initial?.frenchText ?? widget.prefillFrenchText ?? '');
+    text: widget.initial?.englishText ?? widget.prefillEnglishText ?? '',
+  );
+  late final frenchController = TextEditingController(
+    text: widget.initial?.frenchText ?? widget.prefillFrenchText ?? '',
+  );
 
   @override
   void dispose() {
@@ -627,7 +687,9 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
             children: [
               TextField(
                 controller: referenceController,
-                decoration: const InputDecoration(labelText: 'Reference (e.g. Yoannes 3:16)'),
+                decoration: const InputDecoration(
+                  labelText: 'Reference (e.g. Yoannes 3:16)',
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
@@ -641,24 +703,33 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
                 controller: englishController,
                 maxLines: 4,
                 minLines: 2,
-                decoration: const InputDecoration(labelText: 'English translation'),
+                decoration: const InputDecoration(
+                  labelText: 'English translation',
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: frenchController,
                 maxLines: 4,
                 minLines: 2,
-                decoration: const InputDecoration(labelText: 'French translation'),
+                decoration: const InputDecoration(
+                  labelText: 'French translation',
+                ),
               ),
             ],
           ),
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
         FilledButton(
           onPressed: () {
-            if (ewondoController.text.trim().isEmpty || referenceController.text.trim().isEmpty) return;
+            if (ewondoController.text.trim().isEmpty ||
+                referenceController.text.trim().isEmpty)
+              return;
             Navigator.pop(
               context,
               DailyVerseFormResult(
@@ -685,7 +756,8 @@ class _VocabularyPickerDialog extends StatefulWidget {
   final String languageId;
 
   @override
-  State<_VocabularyPickerDialog> createState() => _VocabularyPickerDialogState();
+  State<_VocabularyPickerDialog> createState() =>
+      _VocabularyPickerDialogState();
 }
 
 class _VocabularyPickerDialogState extends State<_VocabularyPickerDialog> {
@@ -752,40 +824,49 @@ class _VocabularyPickerDialogState extends State<_VocabularyPickerDialog> {
               child: isLoading
                   ? const ShimmerListLoader(itemCount: 5, itemHeight: 64)
                   : error != null
-                      ? EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
-                      : words.isEmpty
-                          ? const EmptyState(
-                              icon: Icons.menu_book_outlined,
-                              title: 'No vocabulary yet',
-                              message: 'Add words in Vocabulary Management first.',
-                            )
-                          : ListView.separated(
-                              itemCount: words.length,
-                              separatorBuilder: (_, __) => const Divider(height: 1),
-                              itemBuilder: (context, index) {
-                                final word = words[index];
-                                return ListTile(
-                                  title: Text(
-                                    word.word,
-                                    style: AppTypography.body.copyWith(fontWeight: FontWeight.w700),
-                                  ),
-                                  subtitle: Text(
-                                    [word.englishMeaning, word.frenchMeaning]
-                                        .where((m) => m != null && m.isNotEmpty)
-                                        .join(' • '),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                  onTap: () => Navigator.pop(context, word),
-                                );
-                              },
+                  ? EmptyState(
+                      icon: Icons.error_outline,
+                      title: 'Something went wrong',
+                      message: error,
+                    )
+                  : words.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.menu_book_outlined,
+                      title: 'No vocabulary yet',
+                      message: 'Add words in Vocabulary Management first.',
+                    )
+                  : ListView.separated(
+                      itemCount: words.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final word = words[index];
+                        return ListTile(
+                          title: Text(
+                            word.word,
+                            style: AppTypography.body.copyWith(
+                              fontWeight: FontWeight.w700,
                             ),
+                          ),
+                          subtitle: Text(
+                            [word.englishMeaning, word.frenchMeaning]
+                                .where((m) => m != null && m.isNotEmpty)
+                                .join(' • '),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: () => Navigator.pop(context, word),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
       ],
     );
   }
@@ -801,7 +882,8 @@ class _BibleVersePickerDialog extends StatefulWidget {
   final String languageId;
 
   @override
-  State<_BibleVersePickerDialog> createState() => _BibleVersePickerDialogState();
+  State<_BibleVersePickerDialog> createState() =>
+      _BibleVersePickerDialogState();
 }
 
 class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
@@ -824,14 +906,19 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
       error = null;
     });
     try {
-      final result = await repository.getBibleChapters(languageId: widget.languageId);
+      final result = await repository.getBibleChapters(
+        languageId: widget.languageId,
+      );
       setState(() {
         chapters = result;
         isLoading = false;
       });
     } on DioException catch (e) {
       setState(() {
-        error = extractErrorMessage(e, fallback: 'Could not load Bible chapters.');
+        error = extractErrorMessage(
+          e,
+          fallback: 'Could not load Bible chapters.',
+        );
         isLoading = false;
       });
     }
@@ -873,66 +960,82 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
   Widget build(BuildContext context) {
     final chapter = selectedChapter;
     return AlertDialog(
-      title: Text(chapter == null ? 'Pick a chapter' : '${chapter.book} ${chapter.chapter}'),
+      title: Text(
+        chapter == null
+            ? 'Pick a chapter'
+            : '${chapter.book} ${chapter.chapter}',
+      ),
       content: SizedBox(
         width: 420,
         height: 480,
         child: isLoading
             ? const ShimmerListLoader(itemCount: 5, itemHeight: 64)
             : error != null
-                ? EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
-                : chapter == null
-                    ? (chapters.isEmpty
-                        ? const EmptyState(
-                            icon: Icons.menu_book_outlined,
-                            title: 'No Bible content yet',
-                            message: 'Add chapters in Bible Management first.',
-                          )
-                        : ListView.separated(
-                            itemCount: chapters.length,
-                            separatorBuilder: (_, __) => const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final c = chapters[index];
-                              return ListTile(
-                                title: Text(
-                                  '${c.book} ${c.chapter}',
-                                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                                subtitle: Text('${c.verseCount} verses'),
-                                trailing: const Icon(Icons.chevron_right),
-                                onTap: () => selectChapter(c),
-                              );
-                            },
-                          ))
-                    : (verses.isEmpty
-                        ? const EmptyState(
-                            icon: Icons.menu_book_outlined,
-                            title: 'No verses yet',
-                            message: 'This chapter has no verses.',
-                          )
-                        : ListView.separated(
-                            itemCount: verses.length,
-                            separatorBuilder: (_, __) => const Divider(height: 1),
-                            itemBuilder: (context, index) {
-                              final verse = verses[index];
-                              return ListTile(
-                                title: Text(
-                                  'Verse ${verse.verse}',
-                                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w700),
-                                ),
-                                subtitle: Text(
-                                  verse.text,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                                onTap: () => Navigator.pop(context, verse),
-                              );
-                            },
-                          )),
+            ? EmptyState(
+                icon: Icons.error_outline,
+                title: 'Something went wrong',
+                message: error,
+              )
+            : chapter == null
+            ? (chapters.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.menu_book_outlined,
+                      title: 'No Bible content yet',
+                      message: 'Add chapters in Bible Management first.',
+                    )
+                  : ListView.separated(
+                      itemCount: chapters.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final c = chapters[index];
+                        return ListTile(
+                          title: Text(
+                            '${c.book} ${c.chapter}',
+                            style: AppTypography.body.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          subtitle: Text('${c.verseCount} verses'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () => selectChapter(c),
+                        );
+                      },
+                    ))
+            : (verses.isEmpty
+                  ? const EmptyState(
+                      icon: Icons.menu_book_outlined,
+                      title: 'No verses yet',
+                      message: 'This chapter has no verses.',
+                    )
+                  : ListView.separated(
+                      itemCount: verses.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final verse = verses[index];
+                        return ListTile(
+                          title: Text(
+                            'Verse ${verse.verse}',
+                            style: AppTypography.body.copyWith(
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          subtitle: Text(
+                            verse.text,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          onTap: () => Navigator.pop(context, verse),
+                        );
+                      },
+                    )),
       ),
       actions: [
-        if (chapter != null) TextButton(onPressed: backToChapters, child: const Text('Back')),
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        if (chapter != null)
+          TextButton(onPressed: backToChapters, child: const Text('Back')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
       ],
     );
   }

@@ -1,3 +1,6 @@
+import '../../../lessons/domain/lesson.dart';
+import '../../../offline/domain/course_download_manifest.dart';
+
 class CourseDetail {
   final String id;
   final String title;
@@ -30,6 +33,23 @@ class CourseDetail {
       level: (json['level'] ?? '').toString(),
       modules: ((json['modules'] ?? []) as List)
           .map((item) => CourseDetailModule.fromJson(item))
+          .toList(),
+    );
+  }
+
+  /// Builds the same shape a live `GET /courses/:id` would, from a
+  /// downloaded course's on-disk manifest — lets every screen that renders
+  /// a `CourseDetail` keep working unmodified when falling back offline.
+  factory CourseDetail.fromManifest(CourseDownloadManifest manifest) {
+    return CourseDetail(
+      id: manifest.courseId,
+      title: manifest.title,
+      description: manifest.description,
+      frenchTitle: manifest.frenchTitle,
+      frenchDescription: manifest.frenchDescription,
+      level: manifest.level,
+      modules: manifest.modules
+          .map((module) => CourseDetailModule.fromOfflineModule(module))
           .toList(),
     );
   }
@@ -67,6 +87,20 @@ class CourseDetailModule {
           .toList(),
     );
   }
+
+  factory CourseDetailModule.fromOfflineModule(OfflineModule module) {
+    return CourseDetailModule(
+      id: module.id,
+      title: module.title,
+      description: module.description,
+      frenchTitle: module.frenchTitle,
+      frenchDescription: module.frenchDescription,
+      orderNumber: module.orderNumber,
+      lessons: module.lessons
+          .map((lesson) => CourseDetailLesson.fromLesson(lesson.lesson))
+          .toList(),
+    );
+  }
 }
 
 class CourseDetailLesson {
@@ -94,6 +128,17 @@ class CourseDetailLesson {
       frenchTitle: json['frenchTitle'],
       frenchSummary: json['frenchSummary'],
       orderNumber: json['orderNumber'] ?? 0,
+    );
+  }
+
+  factory CourseDetailLesson.fromLesson(Lesson lesson) {
+    return CourseDetailLesson(
+      id: lesson.id,
+      title: lesson.title,
+      summary: lesson.summary,
+      frenchTitle: lesson.frenchTitle,
+      frenchSummary: lesson.frenchSummary,
+      orderNumber: lesson.orderNumber,
     );
   }
 }

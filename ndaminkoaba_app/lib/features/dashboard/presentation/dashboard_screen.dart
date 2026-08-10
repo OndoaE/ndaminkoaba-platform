@@ -139,7 +139,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
-    final greetingName = fullName.isNotEmpty ? fullName : l10n.dashboardFallbackName;
+    final greetingName = fullName.isNotEmpty
+        ? fullName
+        : l10n.dashboardFallbackName;
     final courseProgress = continueCourse?.progress ?? 0;
 
     return Scaffold(
@@ -162,9 +164,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AppHeader(
-                  title: 'NdaMinkoaba',
-                  subtitle: 'Learn • Preserve • Transmit',
+                AppHeader(
+                  title: l10n.appTitle,
+                  subtitle: l10n.appTagline,
                   showAvatar: true,
                 ),
                 const SizedBox(height: AppSpacing.xl),
@@ -181,12 +183,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   PremiumCard(
                     child: Row(
                       children: [
-                        const Icon(Icons.wifi_off_outlined, color: AppColors.error),
+                        const Icon(
+                          Icons.wifi_off_outlined,
+                          color: AppColors.error,
+                        ),
                         const SizedBox(width: AppSpacing.md),
                         Expanded(
                           child: Text(
                             l10n.commonSomethingWrong,
-                            style: AppTypography.caption.copyWith(color: AppColors.error),
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.error,
+                            ),
                           ),
                         ),
                       ],
@@ -213,8 +220,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Your Learning Progress',
-                              style: AppTypography.title.copyWith(color: Colors.white),
+                              l10n.dashboardProgressTitle,
+                              style: AppTypography.title.copyWith(
+                                color: Colors.white,
+                              ),
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             Row(
@@ -229,17 +238,28 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 const SizedBox(width: AppSpacing.lg),
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        '${stats?.completedLessons ?? 0} lessons completed',
-                                        style: AppTypography.title.copyWith(color: Colors.white, fontSize: 16),
+                                        l10n.lessonsCompletedCount(
+                                          stats?.completedLessons ?? 0,
+                                        ),
+                                        style: AppTypography.title.copyWith(
+                                          color: Colors.white,
+                                          fontSize: 16,
+                                        ),
                                       ),
                                       const SizedBox(height: AppSpacing.md),
-                                      Container(height: 1, color: Colors.white24),
+                                      Container(
+                                        height: 1,
+                                        color: Colors.white24,
+                                      ),
                                       const SizedBox(height: AppSpacing.md),
                                       if (streakStats != null)
-                                        StreakBadge(days: streakStats!.currentStreak),
+                                        StreakBadge(
+                                          days: streakStats!.currentStreak,
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -257,13 +277,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   const SizedBox(height: AppSpacing.lg),
                   InkWell(
                     borderRadius: AppRadius.large,
-                    onTap: () => context.push('/courses/${continueCourse!.courseId}'),
-                    child: _ContinueLearningCard(course: continueCourse!, isFrench: isFrench),
+                    onTap: () =>
+                        context.push('/courses/${continueCourse!.courseId}'),
+                    child: _ContinueLearningCard(
+                      course: continueCourse!,
+                      isFrench: isFrench,
+                    ),
                   ),
                 ],
 
                 const SizedBox(height: AppSpacing.xl),
-                SectionTitle(title: 'Explore'),
+                SectionTitle(title: l10n.exploreSectionTitle),
                 const SizedBox(height: AppSpacing.lg),
                 if (isLoading)
                   const ShimmerListLoader(itemCount: 2, itemHeight: 160)
@@ -323,9 +347,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Text(l10n.nnangaTitle, style: AppTypography.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                  Text(
+                                    l10n.nnangaTitle,
+                                    style: AppTypography.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
                                   const SizedBox(height: AppSpacing.xs),
-                                  Text('Practice Ewondo with your personal AI tutor', style: AppTypography.caption),
+                                  Text(
+                                    l10n.nnangaPromoSubtitle,
+                                    style: AppTypography.caption,
+                                  ),
                                 ],
                               ),
                             ),
@@ -335,11 +367,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         Align(
                           alignment: Alignment.centerRight,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                            decoration: BoxDecoration(color: AppColors.primary, borderRadius: AppRadius.circle),
-                            child: const Text(
-                              'START PRACTICE',
-                              style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: AppSpacing.md,
+                              vertical: AppSpacing.sm,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary,
+                              borderRadius: AppRadius.circle,
+                            ),
+                            child: Text(
+                              l10n.startPracticeButton,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w700,
+                              ),
                             ),
                           ),
                         ),
@@ -349,7 +391,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
 
                 const SizedBox(height: AppSpacing.xl),
-                SectionTitle(title: 'Phrase of the Day'),
+                SectionTitle(title: l10n.phraseOfDayTitle),
                 const SizedBox(height: AppSpacing.lg),
                 PremiumCard(
                   child: Row(
@@ -363,20 +405,30 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           borderRadius: AppRadius.medium,
                         ),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.wb_sunny_outlined, color: AppColors.secondary),
+                        child: const Icon(
+                          Icons.wb_sunny_outlined,
+                          color: AppColors.secondary,
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.lg),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text(dailyWord?.word ?? 'Mbɔ́', style: AppTypography.h2.copyWith(color: AppColors.primary)),
+                            Text(
+                              dailyWord?.word ?? 'Mbɔ́',
+                              style: AppTypography.h2.copyWith(
+                                color: AppColors.primary,
+                              ),
+                            ),
                             const SizedBox(height: AppSpacing.xs),
                             Text(
                               dailyWord == null
                                   ? l10n.dailyWordMeaning
-                                  : (isFrench ? dailyWord!.frenchMeaning : dailyWord!.englishMeaning) ??
-                                      l10n.bibleTranslationPending,
+                                  : (isFrench
+                                            ? dailyWord!.frenchMeaning
+                                            : dailyWord!.englishMeaning) ??
+                                        l10n.bibleTranslationPending,
                               style: AppTypography.caption,
                             ),
                           ],
@@ -385,15 +437,25 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       Container(
                         width: 40,
                         height: 40,
-                        decoration: BoxDecoration(color: AppColors.primary.withValues(alpha: 0.1), shape: BoxShape.circle),
-                        child: const Icon(Icons.volume_up, color: AppColors.primary, size: 20),
+                        decoration: BoxDecoration(
+                          color: AppColors.primary.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.volume_up,
+                          color: AppColors.primary,
+                          size: 20,
+                        ),
                       ),
                     ],
                   ),
                 ),
 
                 const SizedBox(height: AppSpacing.xl),
-                SectionTitle(title: l10n.dailyVerseTitle, subtitle: l10n.dailyVerseSubtitle),
+                SectionTitle(
+                  title: l10n.dailyVerseTitle,
+                  subtitle: l10n.dailyVerseSubtitle,
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 PremiumCard(
                   child: dailyVerse == null
@@ -403,14 +465,24 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF8B3A3A).withValues(alpha: 0.12),
+                                color: const Color(
+                                  0xFF8B3A3A,
+                                ).withValues(alpha: 0.12),
                                 borderRadius: AppRadius.medium,
                               ),
                               alignment: Alignment.center,
-                              child: const Icon(Icons.auto_stories, color: Color(0xFF8B3A3A)),
+                              child: const Icon(
+                                Icons.auto_stories,
+                                color: Color(0xFF8B3A3A),
+                              ),
                             ),
                             const SizedBox(width: AppSpacing.lg),
-                            Expanded(child: Text(l10n.dailyContentEmpty, style: AppTypography.caption)),
+                            Expanded(
+                              child: Text(
+                                l10n.dailyContentEmpty,
+                                style: AppTypography.caption,
+                              ),
+                            ),
                           ],
                         )
                       : Row(
@@ -420,11 +492,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                color: const Color(0xFF8B3A3A).withValues(alpha: 0.12),
+                                color: const Color(
+                                  0xFF8B3A3A,
+                                ).withValues(alpha: 0.12),
                                 borderRadius: AppRadius.medium,
                               ),
                               alignment: Alignment.center,
-                              child: const Icon(Icons.auto_stories, color: Color(0xFF8B3A3A)),
+                              child: const Icon(
+                                Icons.auto_stories,
+                                color: Color(0xFF8B3A3A),
+                              ),
                             ),
                             const SizedBox(width: AppSpacing.lg),
                             Expanded(
@@ -433,11 +510,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 children: [
                                   Text(
                                     dailyVerse!.text,
-                                    style: AppTypography.body.copyWith(height: 1.5, fontWeight: FontWeight.w500),
+                                    style: AppTypography.body.copyWith(
+                                      height: 1.5,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                   const SizedBox(height: AppSpacing.sm),
                                   Text(
-                                    (isFrench ? dailyVerse!.frenchText : dailyVerse!.englishText) ??
+                                    (isFrench
+                                            ? dailyVerse!.frenchText
+                                            : dailyVerse!.englishText) ??
                                         l10n.bibleTranslationPending,
                                     style: const TextStyle(fontSize: 13),
                                   ),
@@ -504,7 +586,12 @@ class _ContinueLearningCard extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 2),
-                Text('Lesson ${(course.progress / 100 * 10).clamp(1, 999).round()}', style: AppTypography.caption),
+                Text(
+                  l10n.lessonNumberLabel(
+                    (course.progress / 100 * 10).clamp(1, 999).round(),
+                  ),
+                  style: AppTypography.caption,
+                ),
                 const SizedBox(height: AppSpacing.sm),
                 Row(
                   children: [
@@ -520,7 +607,10 @@ class _ContinueLearningCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
-                    Text(l10n.progressPercentLabel(course.progress), style: AppTypography.caption),
+                    Text(
+                      l10n.progressPercentLabel(course.progress),
+                      style: AppTypography.caption,
+                    ),
                   ],
                 ),
               ],
@@ -528,11 +618,21 @@ class _ContinueLearningCard extends StatelessWidget {
           ),
           const SizedBox(width: AppSpacing.md),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-            decoration: BoxDecoration(color: AppColors.primary, borderRadius: AppRadius.circle),
-            child: const Text(
-              'CONTINUE',
-              style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.primary,
+              borderRadius: AppRadius.circle,
+            ),
+            child: Text(
+              l10n.continueButton.toUpperCase(),
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 11,
+                fontWeight: FontWeight.w700,
+              ),
             ),
           ),
         ],
@@ -542,7 +642,11 @@ class _ContinueLearningCard extends StatelessWidget {
 }
 
 class _ExploreTile extends StatelessWidget {
-  const _ExploreTile({required this.icon, required this.label, required this.onTap});
+  const _ExploreTile({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   final IconData icon;
   final String label;
@@ -554,7 +658,10 @@ class _ExploreTile extends StatelessWidget {
       borderRadius: AppRadius.medium,
       onTap: onTap,
       child: PremiumCard(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.md,
+          vertical: AppSpacing.sm,
+        ),
         child: Row(
           children: [
             Container(
@@ -574,12 +681,18 @@ class _ExploreTile extends StatelessWidget {
                 alignment: Alignment.centerLeft,
                 child: Text(
                   label,
-                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                 ),
               ),
             ),
-            const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 18),
+            const Icon(
+              Icons.chevron_right,
+              color: AppColors.textSecondary,
+              size: 18,
+            ),
           ],
         ),
       ),

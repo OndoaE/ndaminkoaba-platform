@@ -19,8 +19,9 @@ class MarkdownHint extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.only(top: AppSpacing.xs, bottom: AppSpacing.sm),
       child: Text(
-        'Select text above to format it: **bold**, *italic*, <u>underline</u>, '
-        '<sup>superscript</sup>, [link](url).',
+        'Select text above to format it — bold, italic, underline, links, '
+        'bullet and numbered lists. Press Enter inside a list to continue it '
+        'automatically.',
         style: AppTypography.caption.copyWith(fontStyle: FontStyle.italic),
       ),
     );
@@ -72,6 +73,7 @@ class LessonContentPreview extends StatelessWidget {
                 p: AppTypography.lessonBody,
                 strong: AppTypography.lessonBodyStrong,
               ),
+              softLineBreak: true,
               inlineSyntaxes: ndaMarkdownInlineSyntaxes,
               builders: ndaMarkdownBuilders,
               onTapLink: ndaMarkdownOnTapLink,

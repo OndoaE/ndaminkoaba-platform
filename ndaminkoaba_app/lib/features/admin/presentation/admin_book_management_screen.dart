@@ -9,10 +9,10 @@ import '../../../core/network/api_error.dart';
 import '../../../config/app_config.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/book_repository.dart';
 import '../domain/book_models.dart';
@@ -20,13 +20,18 @@ import '../domain/book_models.dart';
 const _bookAccent = [Color(0xFF5D4037), Color(0xFF8D6E63)];
 
 class AdminBookManagementScreen extends StatefulWidget {
-  const AdminBookManagementScreen({super.key, required this.languageId, this.languageName});
+  const AdminBookManagementScreen({
+    super.key,
+    required this.languageId,
+    this.languageName,
+  });
 
   final String languageId;
   final String? languageName;
 
   @override
-  State<AdminBookManagementScreen> createState() => _AdminBookManagementScreenState();
+  State<AdminBookManagementScreen> createState() =>
+      _AdminBookManagementScreenState();
 }
 
 class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
@@ -80,10 +85,16 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
     try {
       String? coverUrl;
       if (result.coverBytes != null) {
-        coverUrl = await repository.uploadCoverImage(result.coverBytes!, result.coverFilename!);
+        coverUrl = await repository.uploadCoverImage(
+          result.coverBytes!,
+          result.coverFilename!,
+        );
       }
 
-      final uploaded = await repository.uploadBookFile(result.fileBytes!, result.fileFilename!);
+      final uploaded = await repository.uploadBookFile(
+        result.fileBytes!,
+        result.fileFilename!,
+      );
 
       await repository.createBook(
         title: result.title,
@@ -111,7 +122,10 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
     try {
       String? coverUrl = book.coverUrl;
       if (result.coverBytes != null) {
-        coverUrl = await repository.uploadCoverImage(result.coverBytes!, result.coverFilename!);
+        coverUrl = await repository.uploadCoverImage(
+          result.coverBytes!,
+          result.coverFilename!,
+        );
       }
 
       await repository.updateBook(
@@ -135,10 +149,16 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
         title: const Text('Delete book?'),
         content: Text('"${book.title}" will be removed for every learner.'),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.error),
+            ),
           ),
         ],
       ),
@@ -163,106 +183,119 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'Book Management', colors: _bookAccent),
-      floatingActionButton: FloatingActionButton.extended(
-        onPressed: addBook,
-        backgroundColor: _bookAccent[0],
-        icon: const Icon(Icons.add),
-        label: const Text('Add Book'),
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              TextField(
-                controller: searchController,
-                decoration: const InputDecoration(
-                  labelText: 'Search books',
-                  prefixIcon: Icon(Icons.search),
-                ),
-                onSubmitted: (_) => load(),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
-                    ? const ShimmerListLoader(itemCount: 5, itemHeight: 88)
-                    : error != null
-                        ? EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
-                        : books.isEmpty
-                            ? const EmptyState(
-                                icon: Icons.menu_book_outlined,
-                                title: 'No books yet',
-                                message: 'Tap "Add Book" to upload the first one.',
-                              )
-                            : ListView.separated(
-                                itemCount: books.length,
-                                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                                itemBuilder: (context, index) {
-                                  final book = books[index];
-                                  return PremiumCard(
-                                    padding: const EdgeInsets.all(AppSpacing.md),
-                                    child: Row(
-                                      children: [
-                                        _BookCover(book: book),
-                                        const SizedBox(width: AppSpacing.md),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                book.title,
-                                                style: AppTypography.body.copyWith(fontWeight: FontWeight.w700),
-                                                maxLines: 1,
-                                                overflow: TextOverflow.ellipsis,
-                                              ),
-                                              if (book.author != null && book.author!.isNotEmpty)
-                                                Text(
-                                                  book.author!,
-                                                  style: AppTypography.caption,
-                                                  maxLines: 1,
-                                                  overflow: TextOverflow.ellipsis,
-                                                ),
-                                              const SizedBox(height: 4),
-                                              Container(
-                                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                                                decoration: BoxDecoration(
-                                                  color: _bookAccent[0].withValues(alpha: 0.12),
-                                                  borderRadius: BorderRadius.circular(6),
-                                                ),
-                                                child: Text(
-                                                  book.fileType.toUpperCase(),
-                                                  style: AppTypography.caption.copyWith(
-                                                    color: _bookAccent[0],
-                                                    fontWeight: FontWeight.w700,
-                                                  ),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        PopupMenuButton<String>(
-                                          onSelected: (value) {
-                                            if (value == 'edit') editBook(book);
-                                            if (value == 'delete') deleteBook(book);
-                                          },
-                                          itemBuilder: (context) => const [
-                                            PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                            PopupMenuItem(value: 'delete', child: Text('Delete')),
-                                          ],
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                              ),
-              ),
-            ],
-          ),
+    final title = widget.languageName ?? 'Language';
+    return AdminShell(
+      activeNavKey: 'books',
+      languageId: widget.languageId,
+      languageName: title,
+      title: 'Book Management',
+      subtitle: 'Books for $title',
+      actions: [
+        FilledButton.icon(
+          style: FilledButton.styleFrom(backgroundColor: _bookAccent[0]),
+          onPressed: addBook,
+          icon: const Icon(Icons.add, size: 18),
+          label: const Text('Add Book'),
         ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          TextField(
+            controller: searchController,
+            decoration: const InputDecoration(
+              labelText: 'Search books',
+              prefixIcon: Icon(Icons.search),
+            ),
+            onSubmitted: (_) => load(),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          if (isLoading)
+            const ShimmerListLoader(itemCount: 5, itemHeight: 88)
+          else if (error != null)
+            EmptyState(
+              icon: Icons.error_outline,
+              title: 'Something went wrong',
+              message: error,
+            )
+          else if (books.isEmpty)
+            const EmptyState(
+              icon: Icons.menu_book_outlined,
+              title: 'No books yet',
+              message: 'Tap "Add Book" to upload the first one.',
+            )
+          else
+            Column(
+              children: books.map((book) {
+                return Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                  child: PremiumCard(
+                    padding: const EdgeInsets.all(AppSpacing.md),
+                    child: Row(
+                      children: [
+                        _BookCover(book: book),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                book.title,
+                                style: AppTypography.body.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              if (book.author != null &&
+                                  book.author!.isNotEmpty)
+                                Text(
+                                  book.author!,
+                                  style: AppTypography.caption,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              const SizedBox(height: 4),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 2,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: _bookAccent[0].withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Text(
+                                  book.fileType.toUpperCase(),
+                                  style: AppTypography.caption.copyWith(
+                                    color: _bookAccent[0],
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'edit') editBook(book);
+                            if (value == 'delete') deleteBook(book);
+                          },
+                          itemBuilder: (context) => const [
+                            PopupMenuItem(value: 'edit', child: Text('Edit')),
+                            PopupMenuItem(
+                              value: 'delete',
+                              child: Text('Delete'),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }).toList(),
+            ),
+        ],
       ),
     );
   }
@@ -337,9 +370,15 @@ class _BookFormDialog extends StatefulWidget {
 }
 
 class _BookFormDialogState extends State<_BookFormDialog> {
-  late final titleController = TextEditingController(text: widget.existing?.title ?? '');
-  late final authorController = TextEditingController(text: widget.existing?.author ?? '');
-  late final descriptionController = TextEditingController(text: widget.existing?.description ?? '');
+  late final titleController = TextEditingController(
+    text: widget.existing?.title ?? '',
+  );
+  late final authorController = TextEditingController(
+    text: widget.existing?.author ?? '',
+  );
+  late final descriptionController = TextEditingController(
+    text: widget.existing?.description ?? '',
+  );
 
   Uint8List? coverBytes;
   String? coverFilename;
@@ -398,21 +437,28 @@ class _BookFormDialogState extends State<_BookFormDialog> {
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: authorController,
-                decoration: const InputDecoration(labelText: 'Author (optional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Author (optional)',
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: descriptionController,
                 maxLines: 3,
                 minLines: 2,
-                decoration: const InputDecoration(labelText: 'Description (optional)'),
+                decoration: const InputDecoration(
+                  labelText: 'Description (optional)',
+                ),
               ),
               const SizedBox(height: AppSpacing.lg),
               OutlinedButton.icon(
                 onPressed: pickCover,
                 icon: const Icon(Icons.image_outlined),
                 label: Text(
-                  coverFilename ?? (isEditing ? 'Replace cover image (optional)' : 'Cover image (optional)'),
+                  coverFilename ??
+                      (isEditing
+                          ? 'Replace cover image (optional)'
+                          : 'Cover image (optional)'),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
@@ -432,7 +478,10 @@ class _BookFormDialogState extends State<_BookFormDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancel'),
+        ),
         FilledButton(
           onPressed: () {
             final title = titleController.text.trim();

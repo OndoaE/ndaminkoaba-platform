@@ -8,6 +8,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/badge_earned_dialog.dart';
 import '../../../design_system/widgets/pagination_dots.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../badges/domain/badge_entry.dart';
 import '../data/vocabulary_review_repository.dart';
 import '../domain/review_item.dart';
@@ -22,10 +23,12 @@ class VocabularyReviewScreen extends ConsumerStatefulWidget {
   final List<ReviewItem> items;
 
   @override
-  ConsumerState<VocabularyReviewScreen> createState() => _VocabularyReviewScreenState();
+  ConsumerState<VocabularyReviewScreen> createState() =>
+      _VocabularyReviewScreenState();
 }
 
-class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen> {
+class _VocabularyReviewScreenState
+    extends ConsumerState<VocabularyReviewScreen> {
   final repository = VocabularyReviewRepository();
 
   int index = 0;
@@ -37,7 +40,10 @@ class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen>
     setState(() => isGrading = true);
     var newlyEarnedBadges = <BadgeEntry>[];
     try {
-      newlyEarnedBadges = await repository.grade(widget.items[index].vocabularyId, grade);
+      newlyEarnedBadges = await repository.grade(
+        widget.items[index].vocabularyId,
+        grade,
+      );
     } catch (_) {
       // Best-effort — move on regardless so one failed grade doesn't strand
       // the learner mid-review.
@@ -60,6 +66,7 @@ class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
     final word = widget.items[index].vocabulary;
     final meaning = isFrench ? word.frenchMeaning : word.englishMeaning;
@@ -69,7 +76,7 @@ class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen>
       appBar: AppBar(
         backgroundColor: AppColors.background,
         elevation: 0,
-        title: const Text('Smart Review'),
+        title: Text(l10n.smartReviewTitle),
       ),
       body: SafeArea(
         child: Padding(
@@ -87,7 +94,11 @@ class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen>
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(word.word, style: AppTypography.h1, textAlign: TextAlign.center),
+                        Text(
+                          word.word,
+                          style: AppTypography.h1,
+                          textAlign: TextAlign.center,
+                        ),
                         if (revealed) ...[
                           const SizedBox(height: AppSpacing.lg),
                           Text(
@@ -105,7 +116,10 @@ class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen>
                           ],
                         ] else ...[
                           const SizedBox(height: AppSpacing.lg),
-                          Text('Tap to reveal', style: AppTypography.caption),
+                          Text(
+                            l10n.tapToRevealHint,
+                            style: AppTypography.caption,
+                          ),
                         ],
                       ],
                     ),
@@ -116,13 +130,37 @@ class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen>
               if (revealed)
                 Row(
                   children: [
-                    Expanded(child: _GradeButton(label: 'Again', color: AppColors.error, onTap: () => _grade(0))),
+                    Expanded(
+                      child: _GradeButton(
+                        label: l10n.gradeAgainLabel,
+                        color: AppColors.error,
+                        onTap: () => _grade(0),
+                      ),
+                    ),
                     const SizedBox(width: AppSpacing.sm),
-                    Expanded(child: _GradeButton(label: 'Hard', color: AppColors.warning, onTap: () => _grade(2))),
+                    Expanded(
+                      child: _GradeButton(
+                        label: l10n.gradeHardLabel,
+                        color: AppColors.warning,
+                        onTap: () => _grade(2),
+                      ),
+                    ),
                     const SizedBox(width: AppSpacing.sm),
-                    Expanded(child: _GradeButton(label: 'Good', color: AppColors.primary, onTap: () => _grade(4))),
+                    Expanded(
+                      child: _GradeButton(
+                        label: l10n.gradeGoodLabel,
+                        color: AppColors.primary,
+                        onTap: () => _grade(4),
+                      ),
+                    ),
                     const SizedBox(width: AppSpacing.sm),
-                    Expanded(child: _GradeButton(label: 'Easy', color: AppColors.success, onTap: () => _grade(5))),
+                    Expanded(
+                      child: _GradeButton(
+                        label: l10n.gradeEasyLabel,
+                        color: AppColors.success,
+                        onTap: () => _grade(5),
+                      ),
+                    ),
                   ],
                 ),
             ],
@@ -134,7 +172,11 @@ class _VocabularyReviewScreenState extends ConsumerState<VocabularyReviewScreen>
 }
 
 class _GradeButton extends StatelessWidget {
-  const _GradeButton({required this.label, required this.color, required this.onTap});
+  const _GradeButton({
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
 
   final String label;
   final Color color;
@@ -150,7 +192,10 @@ class _GradeButton extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
       ),
-      child: Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+      child: Text(
+        label,
+        style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+      ),
     );
   }
 }

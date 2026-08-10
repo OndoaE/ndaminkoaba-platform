@@ -38,6 +38,23 @@
   <title>ndaminkoaba_app</title>
   <link rel="manifest" href="manifest.json">
 
+  <!-- One-time cleanup: earlier builds registered a Flutter service worker
+       that could keep serving stale JS/assets after a deploy (learners
+       stuck seeing old content until they manually cleared browser data).
+       This app now ships without one (see web/flutter_bootstrap.js) — this
+       unregisters any leftover worker/cache so already-affected visitors
+       self-heal on their very next load. -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => {
+        for (const reg of regs) reg.unregister();
+      });
+    }
+    if (window.caches) {
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    }
+  </script>
+
   <!-- Required by syncfusion_flutter_pdfviewer's web implementation, which
        calls into a global `pdfjsLib` via JS interop instead of bundling
        PDF.js itself. Without this SfPdfViewer fails to open any document

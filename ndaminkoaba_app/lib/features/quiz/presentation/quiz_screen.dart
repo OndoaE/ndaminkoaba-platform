@@ -194,7 +194,10 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                 quiz: currentQuiz,
                 result: result!,
                 onRetry: retry,
-                onDone: () => context.pop(),
+                // `true` signals "quiz passed" so `LessonScreen`'s Take Quiz
+                // button knows to continue straight into the next lesson,
+                // instead of leaving the learner stuck on the result screen.
+                onDone: () => context.pop(true),
                 isFrench: isFrench,
               );
             }

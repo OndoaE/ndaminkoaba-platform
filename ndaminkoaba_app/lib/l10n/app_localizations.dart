@@ -788,6 +788,60 @@ abstract class AppLocalizations {
   /// **'Learn step by step'**
   String get modulesSubtitle;
 
+  /// No description provided for @downloadForOfflineButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Download for offline'**
+  String get downloadForOfflineButton;
+
+  /// No description provided for @downloadingOfflineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloading… {percent}%'**
+  String downloadingOfflineLabel(int percent);
+
+  /// No description provided for @downloadedOfflineLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Downloaded for offline'**
+  String get downloadedOfflineLabel;
+
+  /// No description provided for @removeDownloadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove download'**
+  String get removeDownloadButton;
+
+  /// No description provided for @removeDownloadConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove downloaded course?'**
+  String get removeDownloadConfirmTitle;
+
+  /// No description provided for @removeDownloadConfirmMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll need to download it again to use it offline.'**
+  String get removeDownloadConfirmMessage;
+
+  /// No description provided for @downloadFailedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t download the course. Check your connection and try again.'**
+  String get downloadFailedMessage;
+
+  /// No description provided for @downloadCompleteMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Course downloaded — available offline now.'**
+  String get downloadCompleteMessage;
+
+  /// No description provided for @quizRequiresConnectivityMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re offline — connect to the internet to take this quiz.'**
+  String get quizRequiresConnectivityMessage;
+
   /// No description provided for @lessonNumberLabel.
   ///
   /// In en, this message translates to:
@@ -1453,6 +1507,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'AI Tutor'**
   String get adminNavAiTutor;
+
+  /// No description provided for @adminNavBible.
+  ///
+  /// In en, this message translates to:
+  /// **'Bible'**
+  String get adminNavBible;
+
+  /// No description provided for @adminNavBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Books'**
+  String get adminNavBooks;
+
+  /// No description provided for @adminNavDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Phrase & Verse of the Day'**
+  String get adminNavDaily;
 
   /// No description provided for @adminNavReports.
   ///
@@ -3241,6 +3313,366 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not send notification.'**
   String get adminCouldNotSendNotification;
+
+  /// No description provided for @dashboardProgressTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Learning Progress'**
+  String get dashboardProgressTitle;
+
+  /// No description provided for @lessonsCompletedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} lessons completed'**
+  String lessonsCompletedCount(int count);
+
+  /// No description provided for @exploreSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore'**
+  String get exploreSectionTitle;
+
+  /// No description provided for @nnangaPromoSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice Ewondo with your personal AI tutor'**
+  String get nnangaPromoSubtitle;
+
+  /// No description provided for @startPracticeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'START PRACTICE'**
+  String get startPracticeButton;
+
+  /// No description provided for @phraseOfDayTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phrase of the Day'**
+  String get phraseOfDayTitle;
+
+  /// No description provided for @learnHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn Ewondo'**
+  String get learnHubTitle;
+
+  /// No description provided for @learnHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a level and continue your journey.'**
+  String get learnHubSubtitle;
+
+  /// No description provided for @dailyGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Goal'**
+  String get dailyGoalTitle;
+
+  /// No description provided for @dailyGoalSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete 1 lesson today'**
+  String get dailyGoalSubtitle;
+
+  /// No description provided for @todaysLessonLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'TODAY\'S LESSON'**
+  String get todaysLessonLabel;
+
+  /// No description provided for @listenAndRepeatTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen and Repeat'**
+  String get listenAndRepeatTitle;
+
+  /// No description provided for @tapSpeakerRepeatCaption.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap the speaker, then repeat the phrase.'**
+  String get tapSpeakerRepeatCaption;
+
+  /// No description provided for @inConversationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'In Conversation'**
+  String get inConversationTitle;
+
+  /// No description provided for @quickCheckTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Check'**
+  String get quickCheckTitle;
+
+  /// No description provided for @voiceMessageSendError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send that voice message — please try again.'**
+  String get voiceMessageSendError;
+
+  /// No description provided for @practiceModeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice Mode'**
+  String get practiceModeLabel;
+
+  /// No description provided for @freeConversationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Conversation'**
+  String get freeConversationLabel;
+
+  /// No description provided for @explainPromptPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain: {text}'**
+  String explainPromptPrefix(String text);
+
+  /// No description provided for @translatePromptPrefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate: {text}'**
+  String translatePromptPrefix(String text);
+
+  /// No description provided for @explainActionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Explain'**
+  String get explainActionLabel;
+
+  /// No description provided for @translateActionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Translate'**
+  String get translateActionLabel;
+
+  /// No description provided for @correctionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Correction'**
+  String get correctionLabel;
+
+  /// No description provided for @translationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get translationLabel;
+
+  /// No description provided for @practiceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Practice'**
+  String get practiceTitle;
+
+  /// No description provided for @practiceSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Strengthen your Ewondo skills'**
+  String get practiceSubtitle;
+
+  /// No description provided for @practiceLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong loading Practice.'**
+  String get practiceLoadError;
+
+  /// No description provided for @dailyPracticeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Practice'**
+  String get dailyPracticeTitle;
+
+  /// No description provided for @dailyGoalReachedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Today\'s goal reached!'**
+  String get dailyGoalReachedMessage;
+
+  /// No description provided for @minutesToGoalMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} minutes to reach today\'s goal'**
+  String minutesToGoalMessage(int minutes);
+
+  /// No description provided for @minutesUnitLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'min'**
+  String get minutesUnitLabel;
+
+  /// No description provided for @continuePracticeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'CONTINUE PRACTICE'**
+  String get continuePracticeButton;
+
+  /// No description provided for @smartReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Review'**
+  String get smartReviewTitle;
+
+  /// No description provided for @wordsReadyForReview.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} words are ready for review'**
+  String wordsReadyForReview(int count);
+
+  /// No description provided for @noWordsDueMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No words due for review right now'**
+  String get noWordsDueMessage;
+
+  /// No description provided for @reviewNowButton.
+  ///
+  /// In en, this message translates to:
+  /// **'REVIEW NOW'**
+  String get reviewNowButton;
+
+  /// No description provided for @thisWeekTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This Week'**
+  String get thisWeekTitle;
+
+  /// No description provided for @practiceDaysCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} practice days'**
+  String practiceDaysCount(int count);
+
+  /// No description provided for @almostThereTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Almost there!'**
+  String get almostThereTitle;
+
+  /// No description provided for @completeSessionsForBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete {count} more sessions to earn the {badgeName} badge.'**
+  String completeSessionsForBadge(int count, String badgeName);
+
+  /// No description provided for @badgesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Badges'**
+  String get badgesTitle;
+
+  /// No description provided for @noBadgesYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No badges yet.'**
+  String get noBadgesYetMessage;
+
+  /// No description provided for @completeMoreForBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete {remaining} more to earn this badge'**
+  String completeMoreForBadge(int remaining);
+
+  /// No description provided for @tapToRevealHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to reveal'**
+  String get tapToRevealHint;
+
+  /// No description provided for @gradeAgainLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Again'**
+  String get gradeAgainLabel;
+
+  /// No description provided for @gradeHardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Hard'**
+  String get gradeHardLabel;
+
+  /// No description provided for @gradeGoodLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Good'**
+  String get gradeGoodLabel;
+
+  /// No description provided for @gradeEasyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Easy'**
+  String get gradeEasyLabel;
+
+  /// No description provided for @bestStreakLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Best Streak'**
+  String get bestStreakLabel;
+
+  /// No description provided for @yourPronunciationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Pronunciation'**
+  String get yourPronunciationTitle;
+
+  /// No description provided for @micPermissionRequiredError.
+  ///
+  /// In en, this message translates to:
+  /// **'Microphone permission is required to practice pronunciation.'**
+  String get micPermissionRequiredError;
+
+  /// No description provided for @recordingSubmitError.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t submit your recording — please try again.'**
+  String get recordingSubmitError;
+
+  /// No description provided for @recordingStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recording…'**
+  String get recordingStatusLabel;
+
+  /// No description provided for @scoringStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scoring…'**
+  String get scoringStatusLabel;
+
+  /// No description provided for @scoredStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Scored'**
+  String get scoredStatusLabel;
+
+  /// No description provided for @notScoredStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Not scored'**
+  String get notScoredStatusLabel;
+
+  /// No description provided for @readyToRecordStatusLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to record'**
+  String get readyToRecordStatusLabel;
+
+  /// No description provided for @stopRecordingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'STOP RECORDING'**
+  String get stopRecordingButton;
+
+  /// No description provided for @startRecordingButton.
+  ///
+  /// In en, this message translates to:
+  /// **'START RECORDING'**
+  String get startRecordingButton;
+
+  /// No description provided for @scoringFailedFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t score that attempt.'**
+  String get scoringFailedFallback;
 }
 
 class _AppLocalizationsDelegate

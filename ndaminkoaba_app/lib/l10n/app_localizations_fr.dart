@@ -390,6 +390,39 @@ class AppLocalizationsFr extends AppLocalizations {
   String get modulesSubtitle => 'Apprenez étape par étape';
 
   @override
+  String get downloadForOfflineButton => 'Télécharger pour un usage hors ligne';
+
+  @override
+  String downloadingOfflineLabel(int percent) {
+    return 'Téléchargement… $percent %';
+  }
+
+  @override
+  String get downloadedOfflineLabel => 'Téléchargé pour un usage hors ligne';
+
+  @override
+  String get removeDownloadButton => 'Supprimer le téléchargement';
+
+  @override
+  String get removeDownloadConfirmTitle => 'Supprimer le cours téléchargé ?';
+
+  @override
+  String get removeDownloadConfirmMessage =>
+      'Vous devrez le retélécharger pour l\'utiliser hors ligne.';
+
+  @override
+  String get downloadFailedMessage =>
+      'Impossible de télécharger le cours. Vérifiez votre connexion et réessayez.';
+
+  @override
+  String get downloadCompleteMessage =>
+      'Cours téléchargé — disponible hors ligne.';
+
+  @override
+  String get quizRequiresConnectivityMessage =>
+      'Vous êtes hors ligne — connectez-vous à Internet pour passer ce quiz.';
+
+  @override
   String lessonNumberLabel(int number) {
     return 'Leçon $number';
   }
@@ -768,6 +801,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminNavAiTutor => 'Tuteur IA';
+
+  @override
+  String get adminNavBible => 'Bible';
+
+  @override
+  String get adminNavBooks => 'Livres';
+
+  @override
+  String get adminNavDaily => 'Phrase et verset du jour';
 
   @override
   String get adminNavReports => 'Rapports';
@@ -1747,4 +1789,207 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get adminCouldNotSendNotification =>
       'Impossible d\'envoyer la notification.';
+
+  @override
+  String get dashboardProgressTitle => 'Votre progression';
+
+  @override
+  String lessonsCompletedCount(int count) {
+    return '$count leçons terminées';
+  }
+
+  @override
+  String get exploreSectionTitle => 'Explorer';
+
+  @override
+  String get nnangaPromoSubtitle =>
+      'Pratiquez l\'ewondo avec votre tuteur IA personnel';
+
+  @override
+  String get startPracticeButton => 'COMMENCER';
+
+  @override
+  String get phraseOfDayTitle => 'Phrase du jour';
+
+  @override
+  String get learnHubTitle => 'Apprendre l\'ewondo';
+
+  @override
+  String get learnHubSubtitle =>
+      'Choisissez un niveau et continuez votre parcours.';
+
+  @override
+  String get dailyGoalTitle => 'Objectif du jour';
+
+  @override
+  String get dailyGoalSubtitle => 'Terminez 1 leçon aujourd\'hui';
+
+  @override
+  String get todaysLessonLabel => 'LEÇON DU JOUR';
+
+  @override
+  String get listenAndRepeatTitle => 'Écoutez et répétez';
+
+  @override
+  String get tapSpeakerRepeatCaption =>
+      'Appuyez sur le haut-parleur, puis répétez la phrase.';
+
+  @override
+  String get inConversationTitle => 'En conversation';
+
+  @override
+  String get quickCheckTitle => 'Vérification rapide';
+
+  @override
+  String get voiceMessageSendError =>
+      'Impossible d\'envoyer ce message vocal — veuillez réessayer.';
+
+  @override
+  String get practiceModeLabel => 'Mode pratique';
+
+  @override
+  String get freeConversationLabel => 'Conversation libre';
+
+  @override
+  String explainPromptPrefix(String text) {
+    return 'Expliquer : $text';
+  }
+
+  @override
+  String translatePromptPrefix(String text) {
+    return 'Traduire : $text';
+  }
+
+  @override
+  String get explainActionLabel => 'Expliquer';
+
+  @override
+  String get translateActionLabel => 'Traduire';
+
+  @override
+  String get correctionLabel => 'Correction';
+
+  @override
+  String get translationLabel => 'Traduction';
+
+  @override
+  String get practiceTitle => 'Pratique';
+
+  @override
+  String get practiceSubtitle => 'Renforcez vos compétences en ewondo';
+
+  @override
+  String get practiceLoadError =>
+      'Un problème est survenu lors du chargement de la pratique.';
+
+  @override
+  String get dailyPracticeTitle => 'Pratique quotidienne';
+
+  @override
+  String get dailyGoalReachedMessage => 'Objectif du jour atteint !';
+
+  @override
+  String minutesToGoalMessage(int minutes) {
+    return '$minutes minutes pour atteindre l\'objectif du jour';
+  }
+
+  @override
+  String get minutesUnitLabel => 'min';
+
+  @override
+  String get continuePracticeButton => 'CONTINUER LA PRATIQUE';
+
+  @override
+  String get smartReviewTitle => 'Révision intelligente';
+
+  @override
+  String wordsReadyForReview(int count) {
+    return '$count mots sont prêts à être révisés';
+  }
+
+  @override
+  String get noWordsDueMessage => 'Aucun mot à réviser pour le moment';
+
+  @override
+  String get reviewNowButton => 'RÉVISER';
+
+  @override
+  String get thisWeekTitle => 'Cette semaine';
+
+  @override
+  String practiceDaysCount(int count) {
+    return '$count jours de pratique';
+  }
+
+  @override
+  String get almostThereTitle => 'Presque là !';
+
+  @override
+  String completeSessionsForBadge(int count, String badgeName) {
+    return 'Terminez $count séances supplémentaires pour obtenir le badge $badgeName.';
+  }
+
+  @override
+  String get badgesTitle => 'Badges';
+
+  @override
+  String get noBadgesYetMessage => 'Aucun badge pour l\'instant.';
+
+  @override
+  String completeMoreForBadge(int remaining) {
+    return 'Encore $remaining pour obtenir ce badge';
+  }
+
+  @override
+  String get tapToRevealHint => 'Appuyez pour révéler';
+
+  @override
+  String get gradeAgainLabel => 'À revoir';
+
+  @override
+  String get gradeHardLabel => 'Difficile';
+
+  @override
+  String get gradeGoodLabel => 'Bien';
+
+  @override
+  String get gradeEasyLabel => 'Facile';
+
+  @override
+  String get bestStreakLabel => 'Meilleure série';
+
+  @override
+  String get yourPronunciationTitle => 'Votre prononciation';
+
+  @override
+  String get micPermissionRequiredError =>
+      'La permission du microphone est requise pour pratiquer la prononciation.';
+
+  @override
+  String get recordingSubmitError =>
+      'Impossible d\'envoyer votre enregistrement — veuillez réessayer.';
+
+  @override
+  String get recordingStatusLabel => 'Enregistrement…';
+
+  @override
+  String get scoringStatusLabel => 'Évaluation…';
+
+  @override
+  String get scoredStatusLabel => 'Évalué';
+
+  @override
+  String get notScoredStatusLabel => 'Non évalué';
+
+  @override
+  String get readyToRecordStatusLabel => 'Prêt à enregistrer';
+
+  @override
+  String get stopRecordingButton => 'ARRÊTER L\'ENREGISTREMENT';
+
+  @override
+  String get startRecordingButton => 'ENREGISTRER';
+
+  @override
+  String get scoringFailedFallback => 'Impossible d\'évaluer cet essai.';
 }

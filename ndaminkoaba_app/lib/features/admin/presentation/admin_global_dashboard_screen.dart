@@ -488,36 +488,57 @@ class _QuickActionsGrid extends StatelessWidget {
         children: [
           Text(l10n.adminQuickActionsTitle, style: AppTypography.title.copyWith(fontSize: 15)),
           const SizedBox(height: AppSpacing.md),
-          GridView.count(
-            crossAxisCount: 2,
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            crossAxisSpacing: AppSpacing.sm,
-            mainAxisSpacing: AppSpacing.sm,
-            childAspectRatio: 1.4,
+          Row(
             children: [
-              _QuickActionTile(
-                icon: Icons.menu_book_outlined,
-                label: l10n.adminQuickActionCreateCourse,
-                onTap: () => context.push('/admin/languages'),
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1.4,
+                  child: _QuickActionTile(
+                    icon: Icons.menu_book_outlined,
+                    label: l10n.adminQuickActionCreateCourse,
+                    onTap: () => context.push('/admin/languages'),
+                  ),
+                ),
               ),
-              _QuickActionTile(
-                icon: Icons.person_add_outlined,
-                label: l10n.adminQuickActionAddUser,
-                onTap: () async {
-                  await context.push('/admin/users/new');
-                  onChanged();
-                },
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1.4,
+                  child: _QuickActionTile(
+                    icon: Icons.person_add_outlined,
+                    label: l10n.adminQuickActionAddUser,
+                    onTap: () async {
+                      await context.push('/admin/users/new');
+                      onChanged();
+                    },
+                  ),
+                ),
               ),
-              _QuickActionTile(
-                icon: Icons.upload_file_outlined,
-                label: l10n.adminQuickActionUploadContent,
-                onTap: () => context.push('/admin/languages'),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1.4,
+                  child: _QuickActionTile(
+                    icon: Icons.upload_file_outlined,
+                    label: l10n.adminQuickActionUploadContent,
+                    onTap: () => context.push('/admin/languages'),
+                  ),
+                ),
               ),
-              _QuickActionTile(
-                icon: Icons.workspace_premium_outlined,
-                label: l10n.adminNavCertificates,
-                onTap: () => context.push('/admin/certificates'),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: AspectRatio(
+                  aspectRatio: 1.4,
+                  child: _QuickActionTile(
+                    icon: Icons.workspace_premium_outlined,
+                    label: l10n.adminNavCertificates,
+                    onTap: () => context.push('/admin/certificates'),
+                  ),
+                ),
               ),
             ],
           ),

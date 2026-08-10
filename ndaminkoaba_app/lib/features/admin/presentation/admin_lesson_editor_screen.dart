@@ -466,8 +466,8 @@ class _BlockCard extends StatefulWidget {
 
 class _BlockCardState extends State<_BlockCard> {
   late final titleController = TextEditingController(text: widget.block.titleLabel);
-  late final textController = TextEditingController(text: widget.block.textContent);
-  late final frenchTextController = TextEditingController(text: widget.block.frenchTextContent);
+  late final textController = SmartListTextEditingController(text: widget.block.textContent);
+  late final frenchTextController = SmartListTextEditingController(text: widget.block.frenchTextContent);
   late final mediaUrlController = TextEditingController(text: widget.block.mediaUrl);
   late final exerciseJsonController =
       TextEditingController(text: widget.block.exerciseJson == null ? '' : jsonEncode(widget.block.exerciseJson));

@@ -8,11 +8,11 @@ import '../../../core/network/api_error.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/knowledge_repository.dart';
 import '../data/usfm_parser.dart';
@@ -47,13 +47,18 @@ class _VersePreview {
 /// distinct way to grow the knowledge base beyond single words
 /// (VocabFormDialog) or freeform text blocks (TextEntryFormDialog).
 class AdminBibleChapterScreen extends StatefulWidget {
-  const AdminBibleChapterScreen({super.key, required this.languageId, this.languageName});
+  const AdminBibleChapterScreen({
+    super.key,
+    required this.languageId,
+    this.languageName,
+  });
 
   final String languageId;
   final String? languageName;
 
   @override
-  State<AdminBibleChapterScreen> createState() => _AdminBibleChapterScreenState();
+  State<AdminBibleChapterScreen> createState() =>
+      _AdminBibleChapterScreenState();
 }
 
 class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
@@ -91,7 +96,9 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   Future<void> loadChapters() async {
     setState(() => isLoadingChapters = true);
     try {
-      final result = await repository.getBibleChapters(languageId: widget.languageId);
+      final result = await repository.getBibleChapters(
+        languageId: widget.languageId,
+      );
       if (!mounted) return;
       setState(() {
         savedChapters = result;
@@ -105,7 +112,9 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Future<void> _uploadUsfmFile(TextEditingController controller) async {
@@ -171,18 +180,23 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     final ewondoByVerse = {for (final v in ewondoVerses) v.verse: v.text};
     final englishByVerse = {for (final v in englishVerses) v.verse: v.text};
     final frenchByVerse = {for (final v in frenchVerses) v.verse: v.text};
-    final verseNumbers = {...ewondoByVerse.keys, ...englishByVerse.keys, ...frenchByVerse.keys}.toList()
-      ..sort();
+    final verseNumbers = {
+      ...ewondoByVerse.keys,
+      ...englishByVerse.keys,
+      ...frenchByVerse.keys,
+    }.toList()..sort();
 
     setState(() {
       preview = verseNumbers
-          .map((n) => _VersePreview(
-                chapter: chapter,
-                verse: n,
-                ewondoText: ewondoByVerse[n],
-                englishText: englishByVerse[n],
-                frenchText: frenchByVerse[n],
-              ))
+          .map(
+            (n) => _VersePreview(
+              chapter: chapter,
+              verse: n,
+              ewondoText: ewondoByVerse[n],
+              englishText: englishByVerse[n],
+              frenchText: frenchByVerse[n],
+            ),
+          )
           .toList();
     });
   }
@@ -192,7 +206,9 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     final englishResult = UsfmParser.parse(englishController.text);
     final frenchResult = UsfmParser.parse(frenchController.text);
 
-    if (ewondoResult.verseCount == 0 && englishResult.verseCount == 0 && frenchResult.verseCount == 0) {
+    if (ewondoResult.verseCount == 0 &&
+        englishResult.verseCount == 0 &&
+        frenchResult.verseCount == 0) {
       _showMessage(
         'Could not find any \\v verse markers. Make sure you pasted valid USFM text '
         '(e.g. "\\c 1 \\v 1 In the beginning...").',
@@ -213,28 +229,33 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       ...ewondoByChapter.keys,
       ...englishByChapter.keys,
       ...frenchByChapter.keys,
-    }.toList()
-      ..sort();
+    }.toList()..sort();
 
     final result = <_VersePreview>[];
     for (final chapterNum in chapterNumbers) {
       final ewondoVerses = ewondoByChapter[chapterNum] ?? {};
       final englishVerses = englishByChapter[chapterNum] ?? {};
       final frenchVerses = frenchByChapter[chapterNum] ?? {};
-      final verseNumbers = {...ewondoVerses.keys, ...englishVerses.keys, ...frenchVerses.keys}.toList()
-        ..sort();
+      final verseNumbers = {
+        ...ewondoVerses.keys,
+        ...englishVerses.keys,
+        ...frenchVerses.keys,
+      }.toList()..sort();
       for (final verseNum in verseNumbers) {
-        result.add(_VersePreview(
-          chapter: chapterNum,
-          verse: verseNum,
-          ewondoText: ewondoVerses[verseNum],
-          englishText: englishVerses[verseNum],
-          frenchText: frenchVerses[verseNum],
-        ));
+        result.add(
+          _VersePreview(
+            chapter: chapterNum,
+            verse: verseNum,
+            ewondoText: ewondoVerses[verseNum],
+            englishText: englishVerses[verseNum],
+            frenchText: frenchVerses[verseNum],
+          ),
+        );
       }
     }
 
-    final detectedBook = ewondoResult.bookName ??
+    final detectedBook =
+        ewondoResult.bookName ??
         englishResult.bookName ??
         frenchResult.bookName ??
         ewondoResult.bookCode ??
@@ -251,16 +272,22 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
   Future<void> saveChapter() async {
     final book = bookController.text.trim();
-    final version = versionController.text.trim().isEmpty ? 'ESV' : versionController.text.trim();
+    final version = versionController.text.trim().isEmpty
+        ? 'ESV'
+        : versionController.text.trim();
 
     if (book.isEmpty) {
       _showMessage('Enter a book name.');
       return;
     }
 
-    final versesToSave = preview.where((v) => v.ewondoText != null && v.ewondoText!.isNotEmpty).toList();
+    final versesToSave = preview
+        .where((v) => v.ewondoText != null && v.ewondoText!.isNotEmpty)
+        .toList();
     if (versesToSave.isEmpty) {
-      _showMessage('No verses with Ewondo text to save — preview the comparison first.');
+      _showMessage(
+        'No verses with Ewondo text to save — preview the comparison first.',
+      );
       return;
     }
 
@@ -270,15 +297,19 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     try {
       await repository.bulkUpsertBibleVerses(
         versesToSave
-            .map((v) => {
-                  'book': book,
-                  'chapter': v.chapter,
-                  'verse': v.verse,
-                  'text': v.ewondoText,
-                  if (v.englishText != null && v.englishText!.isNotEmpty) 'englishText': v.englishText,
-                  if (v.frenchText != null && v.frenchText!.isNotEmpty) 'frenchText': v.frenchText,
-                  'version': version,
-                })
+            .map(
+              (v) => {
+                'book': book,
+                'chapter': v.chapter,
+                'verse': v.verse,
+                'text': v.ewondoText,
+                if (v.englishText != null && v.englishText!.isNotEmpty)
+                  'englishText': v.englishText,
+                if (v.frenchText != null && v.frenchText!.isNotEmpty)
+                  'frenchText': v.frenchText,
+                'version': version,
+              },
+            )
             .toList(),
         languageId: widget.languageId,
       );
@@ -313,7 +344,10 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
           'Delete all ${summary.verseCount} verse(s) of ${summary.book} ${summary.chapter} (${summary.version})?',
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Cancel'),
+          ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(context, true),
@@ -333,16 +367,25 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       );
       loadChapters();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete chapter.'));
+      _showMessage(
+        extractErrorMessage(e, fallback: 'Could not delete chapter.'),
+      );
     }
   }
 
-  Widget _field(String label, TextEditingController controller, {TextInputType? keyboardType}) {
+  Widget _field(
+    String label,
+    TextEditingController controller, {
+    TextInputType? keyboardType,
+  }) {
     return Expanded(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(label, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600)),
+          Text(
+            label,
+            style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+          ),
           const SizedBox(height: AppSpacing.xs),
           TextField(
             controller: controller,
@@ -351,7 +394,10 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
               isDense: true,
               filled: true,
               fillColor: AppColors.surface,
-              contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 12,
+              ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(10),
                 borderSide: BorderSide.none,
@@ -416,7 +462,8 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     for (final item in preview) {
       grouped.putIfAbsent(item.chapter, () => []).add(item);
     }
-    final entries = grouped.entries.toList()..sort((a, b) => a.key.compareTo(b.key));
+    final entries = grouped.entries.toList()
+      ..sort((a, b) => a.key.compareTo(b.key));
     return entries;
   }
 
@@ -426,21 +473,28 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     final rows = verses.map(_verseRow).toList();
 
     if (_previewChapters.length == 1) {
-      return Column(crossAxisAlignment: CrossAxisAlignment.start, children: rows);
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: rows,
+      );
     }
 
     return Theme(
       data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
-        title: Text('Chapter $chapter', style: AppTypography.title.copyWith(fontSize: 15)),
+        title: Text(
+          'Chapter $chapter',
+          style: AppTypography.title.copyWith(fontSize: 15),
+        ),
         subtitle: Text('${verses.length} verses', style: AppTypography.caption),
         children: rows,
       ),
     );
   }
 
-  bool get _hasFrenchData => preview.any((v) => v.frenchText != null && v.frenchText!.isNotEmpty);
+  bool get _hasFrenchData =>
+      preview.any((v) => v.frenchText != null && v.frenchText!.isNotEmpty);
 
   Widget _verseRow(_VersePreview item) {
     return Container(
@@ -517,223 +571,246 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(
-        title: 'Bible Management',
-        colors: [Color(0xFF0D7A4C), Color(0xFF6B4CE0)],
-      ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final title = widget.languageName ?? 'Language';
+    return AdminShell(
+      activeNavKey: 'bible',
+      languageId: widget.languageId,
+      languageName: title,
+      title: 'Bible Management',
+      subtitle: 'Bible chapters and verses for $title',
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            isUsfmMode
+                ? 'Upload (or paste) an entire book\'s USFM in Ewondo alongside its '
+                      'English (ESV) USFM. Chapters and verses are detected automatically '
+                      'from the \\c and \\v markers and matched verse by verse.'
+                : 'Paste a full chapter in Ewondo (New Testament) alongside its English '
+                      '(ESV) translation. Each is matched verse by verse so Nnanga learns '
+                      'accurate, side-by-side translations.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
             children: [
-              Text(
-                isUsfmMode
-                    ? 'Upload (or paste) an entire book\'s USFM in Ewondo alongside its '
-                        'English (ESV) USFM. Chapters and verses are detected automatically '
-                        'from the \\c and \\v markers and matched verse by verse.'
-                    : 'Paste a full chapter in Ewondo (New Testament) alongside its English '
-                        '(ESV) translation. Each is matched verse by verse so Nnanga learns '
-                        'accurate, side-by-side translations.',
-                style: AppTypography.caption,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Wrap(
-                spacing: AppSpacing.sm,
-                runSpacing: AppSpacing.sm,
-                children: [
-                  ChoiceChip(
-                    label: const Text('Single Chapter'),
-                    selected: !isUsfmMode,
-                    onSelected: (_) => setState(() {
-                      isUsfmMode = false;
-                      preview = [];
-                    }),
-                    selectedColor: AppColors.primary,
-                    labelStyle: TextStyle(color: !isUsfmMode ? Colors.white : AppColors.textPrimary),
-                  ),
-                  ChoiceChip(
-                    label: const Text('USFM (Whole Book)'),
-                    selected: isUsfmMode,
-                    onSelected: (_) => setState(() {
-                      isUsfmMode = true;
-                      preview = [];
-                    }),
-                    selectedColor: AppColors.primary,
-                    labelStyle: TextStyle(color: isUsfmMode ? Colors.white : AppColors.textPrimary),
-                  ),
-                ],
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              PremiumCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(isUsfmMode ? 'Book Details' : 'Chapter Details', style: AppTypography.title),
-                    if (isUsfmMode) ...[
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        'Auto-filled from the USFM \\h/\\mt1 title once previewed — edit if needed.',
-                        style: AppTypography.caption,
-                      ),
-                    ],
-                    const SizedBox(height: AppSpacing.md),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        _field('Book', bookController),
-                        const SizedBox(width: AppSpacing.md),
-                        if (!isUsfmMode) ...[
-                          _field('Chapter', chapterController, keyboardType: TextInputType.number),
-                          const SizedBox(width: AppSpacing.md),
-                        ],
-                        _field('Version', versionController),
-                      ],
-                    ),
-                  ],
+              ChoiceChip(
+                label: const Text('Single Chapter'),
+                selected: !isUsfmMode,
+                onSelected: (_) => setState(() {
+                  isUsfmMode = false;
+                  preview = [];
+                }),
+                selectedColor: AppColors.primary,
+                labelStyle: TextStyle(
+                  color: !isUsfmMode ? Colors.white : AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: AppSpacing.lg),
-              _pasteBox(
-                isUsfmMode ? 'Ewondo USFM (entire book)' : 'Ewondo Chapter Text',
-                isUsfmMode
-                    ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
-                    : 'One verse per line, each starting with its verse number.',
-                isUsfmMode
-                    ? '\\id JHN\n\\h John\n\\c 1\n\\v 1 Kiki avele, Nkobo a nga bo...\n\\v 2 ...'
-                    : '1 In the beginning was the Word...\n2 He was in the beginning with God...',
-                ewondoController,
-                onUpload: isUsfmMode ? () => _uploadUsfmFile(ewondoController) : null,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _pasteBox(
-                isUsfmMode ? 'English USFM (entire book, ESV)' : 'English Chapter Text (ESV)',
-                isUsfmMode
-                    ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
-                    : 'One verse per line, each starting with its verse number.',
-                isUsfmMode
-                    ? '\\id JHN\n\\h John\n\\c 1\n\\v 1 In the beginning was the Word...\n\\v 2 ...'
-                    : '1 In the beginning was the Word...\n2 He was in the beginning with God...',
-                englishController,
-                onUpload: isUsfmMode ? () => _uploadUsfmFile(englishController) : null,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              _pasteBox(
-                isUsfmMode ? 'French USFM (entire book, optional)' : 'French Chapter Text (optional)',
-                isUsfmMode
-                    ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
-                    : 'One verse per line, each starting with its verse number.',
-                isUsfmMode
-                    ? '\\id JHN\n\\h Jean\n\\c 1\n\\v 1 Au commencement était la Parole...\n\\v 2 ...'
-                    : '1 Au commencement était la Parole...\n2 Elle était au commencement avec Dieu...',
-                frenchController,
-                onUpload: isUsfmMode ? () => _uploadUsfmFile(frenchController) : null,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              SizedBox(
-                width: double.infinity,
-                child: OutlinedButton.icon(
-                  onPressed: buildPreview,
-                  icon: const Icon(Icons.compare_arrows),
-                  label: const Text('Preview Verse-by-Verse Comparison'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
-                    shape: RoundedRectangleBorder(borderRadius: AppRadius.medium),
-                  ),
+              ChoiceChip(
+                label: const Text('USFM (Whole Book)'),
+                selected: isUsfmMode,
+                onSelected: (_) => setState(() {
+                  isUsfmMode = true;
+                  preview = [];
+                }),
+                selectedColor: AppColors.primary,
+                labelStyle: TextStyle(
+                  color: isUsfmMode ? Colors.white : AppColors.textPrimary,
                 ),
               ),
-              if (preview.isNotEmpty) ...[
-                const SizedBox(height: AppSpacing.lg),
-                PremiumCard(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Verse-by-Verse Comparison', style: AppTypography.title),
-                      const SizedBox(height: AppSpacing.xs),
-                      Text(
-                        '${preview.length} verses across ${_previewChapters.length} '
-                        '${_previewChapters.length == 1 ? 'chapter' : 'chapters'}',
-                        style: AppTypography.caption,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      ..._previewChapters.map(_chapterPreviewSection),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                PrimaryButton(
-                  label: isUsfmMode ? 'Save Book' : 'Save Chapter',
-                  icon: Icons.save_outlined,
-                  isLoading: isSaving,
-                  onPressed: saveChapter,
-                ),
-              ],
-              const SizedBox(height: AppSpacing.xxl),
-              Text('Saved Chapters', style: AppTypography.title),
-              const SizedBox(height: AppSpacing.md),
-              isLoadingChapters
-                  ? const ShimmerListLoader(itemCount: 2, itemHeight: 72)
-                  : savedChapters.isEmpty
-                      ? EmptyState(
-                          icon: Icons.menu_book_outlined,
-                          title: 'No chapters yet',
-                          message: 'Paste and save a chapter above to see it here.',
-                        )
-                      : Column(
-                          children: savedChapters
-                              .map(
-                                (summary) => Padding(
-                                  padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                                  child: PremiumCard(
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 40,
-                                          height: 40,
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFF6B4CE0).withValues(alpha: 0.12),
-                                            shape: BoxShape.circle,
-                                          ),
-                                          alignment: Alignment.center,
-                                          child: const Icon(
-                                            Icons.menu_book_outlined,
-                                            color: Color(0xFF6B4CE0),
-                                            size: 18,
-                                          ),
-                                        ),
-                                        const SizedBox(width: AppSpacing.md),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                '${summary.book} ${summary.chapter}',
-                                                style: AppTypography.title,
-                                              ),
-                                              Text(
-                                                '${summary.version} • ${summary.verseCount} verses',
-                                                style: AppTypography.caption,
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        IconButton(
-                                          icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                                          tooltip: 'Delete chapter',
-                                          onPressed: () => deleteChapter(summary),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                        ),
             ],
           ),
-        ),
+          const SizedBox(height: AppSpacing.lg),
+          PremiumCard(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isUsfmMode ? 'Book Details' : 'Chapter Details',
+                  style: AppTypography.title,
+                ),
+                if (isUsfmMode) ...[
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    'Auto-filled from the USFM \\h/\\mt1 title once previewed — edit if needed.',
+                    style: AppTypography.caption,
+                  ),
+                ],
+                const SizedBox(height: AppSpacing.md),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _field('Book', bookController),
+                    const SizedBox(width: AppSpacing.md),
+                    if (!isUsfmMode) ...[
+                      _field(
+                        'Chapter',
+                        chapterController,
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                    ],
+                    _field('Version', versionController),
+                  ],
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          _pasteBox(
+            isUsfmMode ? 'Ewondo USFM (entire book)' : 'Ewondo Chapter Text',
+            isUsfmMode
+                ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
+                : 'One verse per line, each starting with its verse number.',
+            isUsfmMode
+                ? '\\id JHN\n\\h John\n\\c 1\n\\v 1 Kiki avele, Nkobo a nga bo...\n\\v 2 ...'
+                : '1 In the beginning was the Word...\n2 He was in the beginning with God...',
+            ewondoController,
+            onUpload: isUsfmMode
+                ? () => _uploadUsfmFile(ewondoController)
+                : null,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          _pasteBox(
+            isUsfmMode
+                ? 'English USFM (entire book, ESV)'
+                : 'English Chapter Text (ESV)',
+            isUsfmMode
+                ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
+                : 'One verse per line, each starting with its verse number.',
+            isUsfmMode
+                ? '\\id JHN\n\\h John\n\\c 1\n\\v 1 In the beginning was the Word...\n\\v 2 ...'
+                : '1 In the beginning was the Word...\n2 He was in the beginning with God...',
+            englishController,
+            onUpload: isUsfmMode
+                ? () => _uploadUsfmFile(englishController)
+                : null,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          _pasteBox(
+            isUsfmMode
+                ? 'French USFM (entire book, optional)'
+                : 'French Chapter Text (optional)',
+            isUsfmMode
+                ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
+                : 'One verse per line, each starting with its verse number.',
+            isUsfmMode
+                ? '\\id JHN\n\\h Jean\n\\c 1\n\\v 1 Au commencement était la Parole...\n\\v 2 ...'
+                : '1 Au commencement était la Parole...\n2 Elle était au commencement avec Dieu...',
+            frenchController,
+            onUpload: isUsfmMode
+                ? () => _uploadUsfmFile(frenchController)
+                : null,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: buildPreview,
+              icon: const Icon(Icons.compare_arrows),
+              label: const Text('Preview Verse-by-Verse Comparison'),
+              style: OutlinedButton.styleFrom(
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.medium),
+              ),
+            ),
+          ),
+          if (preview.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            PremiumCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Verse-by-Verse Comparison', style: AppTypography.title),
+                  const SizedBox(height: AppSpacing.xs),
+                  Text(
+                    '${preview.length} verses across ${_previewChapters.length} '
+                    '${_previewChapters.length == 1 ? 'chapter' : 'chapters'}',
+                    style: AppTypography.caption,
+                  ),
+                  const SizedBox(height: AppSpacing.md),
+                  ..._previewChapters.map(_chapterPreviewSection),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.lg),
+            PrimaryButton(
+              label: isUsfmMode ? 'Save Book' : 'Save Chapter',
+              icon: Icons.save_outlined,
+              isLoading: isSaving,
+              onPressed: saveChapter,
+            ),
+          ],
+          const SizedBox(height: AppSpacing.xxl),
+          Text('Saved Chapters', style: AppTypography.title),
+          const SizedBox(height: AppSpacing.md),
+          isLoadingChapters
+              ? const ShimmerListLoader(itemCount: 2, itemHeight: 72)
+              : savedChapters.isEmpty
+              ? EmptyState(
+                  icon: Icons.menu_book_outlined,
+                  title: 'No chapters yet',
+                  message: 'Paste and save a chapter above to see it here.',
+                )
+              : Column(
+                  children: savedChapters
+                      .map(
+                        (summary) => Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                          child: PremiumCard(
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: const Color(
+                                      0xFF6B4CE0,
+                                    ).withValues(alpha: 0.12),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  alignment: Alignment.center,
+                                  child: const Icon(
+                                    Icons.menu_book_outlined,
+                                    color: Color(0xFF6B4CE0),
+                                    size: 18,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.md),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        '${summary.book} ${summary.chapter}',
+                                        style: AppTypography.title,
+                                      ),
+                                      Text(
+                                        '${summary.version} • ${summary.verseCount} verses',
+                                        style: AppTypography.caption,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: AppColors.error,
+                                  ),
+                                  tooltip: 'Delete chapter',
+                                  onPressed: () => deleteChapter(summary),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+                ),
+        ],
       ),
     );
   }

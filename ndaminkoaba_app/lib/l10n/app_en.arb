@@ -151,6 +151,19 @@
   "modulesTitle": "Modules",
   "modulesSubtitle": "Learn step by step",
 
+  "downloadForOfflineButton": "Download for offline",
+  "downloadingOfflineLabel": "Downloading… {percent}%",
+  "@downloadingOfflineLabel": {
+    "placeholders": { "percent": { "type": "int" } }
+  },
+  "downloadedOfflineLabel": "Downloaded for offline",
+  "removeDownloadButton": "Remove download",
+  "removeDownloadConfirmTitle": "Remove downloaded course?",
+  "removeDownloadConfirmMessage": "You'll need to download it again to use it offline.",
+  "downloadFailedMessage": "Couldn't download the course. Check your connection and try again.",
+  "downloadCompleteMessage": "Course downloaded — available offline now.",
+  "quizRequiresConnectivityMessage": "You're offline — connect to the internet to take this quiz.",
+
   "lessonNumberLabel": "Lesson {number}",
   "@lessonNumberLabel": {
     "placeholders": { "number": { "type": "int" } }
@@ -302,6 +315,9 @@
   "adminNavVocabulary": "Vocabulary",
   "adminNavAssessments": "Assessments",
   "adminNavAiTutor": "AI Tutor",
+  "adminNavBible": "Bible",
+  "adminNavBooks": "Books",
+  "adminNavDaily": "Phrase & Verse of the Day",
   "adminNavReports": "Reports",
   "adminLanguageActiveSuffix": "{name} · Active",
   "@adminLanguageActiveSuffix": {
@@ -680,5 +696,100 @@
   "adminBroadcastSentMessage": "Broadcast sent to all learners.",
   "adminCouldNotSendBroadcast": "Could not send broadcast.",
   "adminNotificationSentMessage": "Notification sent.",
-  "adminCouldNotSendNotification": "Could not send notification."
+  "adminCouldNotSendNotification": "Could not send notification.",
+
+  "dashboardProgressTitle": "Your Learning Progress",
+  "lessonsCompletedCount": "{count} lessons completed",
+  "@lessonsCompletedCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "exploreSectionTitle": "Explore",
+  "nnangaPromoSubtitle": "Practice Ewondo with your personal AI tutor",
+  "startPracticeButton": "START PRACTICE",
+  "phraseOfDayTitle": "Phrase of the Day",
+
+  "learnHubTitle": "Learn Ewondo",
+  "learnHubSubtitle": "Choose a level and continue your journey.",
+  "dailyGoalTitle": "Daily Goal",
+  "dailyGoalSubtitle": "Complete 1 lesson today",
+
+  "todaysLessonLabel": "TODAY'S LESSON",
+  "listenAndRepeatTitle": "Listen and Repeat",
+  "tapSpeakerRepeatCaption": "Tap the speaker, then repeat the phrase.",
+  "inConversationTitle": "In Conversation",
+  "quickCheckTitle": "Quick Check",
+
+  "voiceMessageSendError": "Couldn't send that voice message — please try again.",
+  "practiceModeLabel": "Practice Mode",
+  "freeConversationLabel": "Free Conversation",
+  "explainPromptPrefix": "Explain: {text}",
+  "@explainPromptPrefix": {
+    "placeholders": { "text": { "type": "String" } }
+  },
+  "translatePromptPrefix": "Translate: {text}",
+  "@translatePromptPrefix": {
+    "placeholders": { "text": { "type": "String" } }
+  },
+  "explainActionLabel": "Explain",
+  "translateActionLabel": "Translate",
+  "correctionLabel": "Correction",
+  "translationLabel": "Translation",
+
+  "practiceTitle": "Practice",
+  "practiceSubtitle": "Strengthen your Ewondo skills",
+  "practiceLoadError": "Something went wrong loading Practice.",
+  "dailyPracticeTitle": "Daily Practice",
+  "dailyGoalReachedMessage": "Today's goal reached!",
+  "minutesToGoalMessage": "{minutes} minutes to reach today's goal",
+  "@minutesToGoalMessage": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "minutesUnitLabel": "min",
+  "continuePracticeButton": "CONTINUE PRACTICE",
+  "smartReviewTitle": "Smart Review",
+  "wordsReadyForReview": "{count} words are ready for review",
+  "@wordsReadyForReview": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "noWordsDueMessage": "No words due for review right now",
+  "reviewNowButton": "REVIEW NOW",
+  "thisWeekTitle": "This Week",
+  "practiceDaysCount": "{count} practice days",
+  "@practiceDaysCount": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "almostThereTitle": "Almost there!",
+  "completeSessionsForBadge": "Complete {count} more sessions to earn the {badgeName} badge.",
+  "@completeSessionsForBadge": {
+    "placeholders": {
+      "count": { "type": "int" },
+      "badgeName": { "type": "String" }
+    }
+  },
+  "badgesTitle": "Badges",
+  "noBadgesYetMessage": "No badges yet.",
+  "completeMoreForBadge": "Complete {remaining} more to earn this badge",
+  "@completeMoreForBadge": {
+    "placeholders": { "remaining": { "type": "int" } }
+  },
+
+  "tapToRevealHint": "Tap to reveal",
+  "gradeAgainLabel": "Again",
+  "gradeHardLabel": "Hard",
+  "gradeGoodLabel": "Good",
+  "gradeEasyLabel": "Easy",
+
+  "bestStreakLabel": "Best Streak",
+
+  "yourPronunciationTitle": "Your Pronunciation",
+  "micPermissionRequiredError": "Microphone permission is required to practice pronunciation.",
+  "recordingSubmitError": "Couldn't submit your recording — please try again.",
+  "recordingStatusLabel": "Recording…",
+  "scoringStatusLabel": "Scoring…",
+  "scoredStatusLabel": "Scored",
+  "notScoredStatusLabel": "Not scored",
+  "readyToRecordStatusLabel": "Ready to record",
+  "stopRecordingButton": "STOP RECORDING",
+  "startRecordingButton": "START RECORDING",
+  "scoringFailedFallback": "Couldn't score that attempt."
 }

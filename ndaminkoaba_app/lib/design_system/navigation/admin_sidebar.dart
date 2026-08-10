@@ -42,30 +42,120 @@ class AdminSidebar extends StatelessWidget {
   final String? userAvatarUrl;
 
   List<_NavItem> _globalItems(AppLocalizations l10n) => [
-        _NavItem('overview', l10n.adminNavOverview, Icons.dashboard_outlined, '/admin'),
-        _NavItem('languages', l10n.adminNavLanguages, Icons.language_outlined, '/admin/languages'),
-        _NavItem('users', l10n.adminNavUsers, Icons.people_outline, '/admin/users'),
-        _NavItem('notifications', l10n.adminNavNotifications, Icons.campaign_outlined, '/admin/notifications'),
-        _NavItem('certificates', l10n.adminNavCertificates, Icons.workspace_premium_outlined, '/admin/certificates'),
-        _NavItem('history', l10n.adminNavReportsActivity, Icons.bar_chart_outlined, '/admin/history'),
-      ];
+    _NavItem(
+      'overview',
+      l10n.adminNavOverview,
+      Icons.dashboard_outlined,
+      '/admin',
+    ),
+    _NavItem(
+      'languages',
+      l10n.adminNavLanguages,
+      Icons.language_outlined,
+      '/admin/languages',
+    ),
+    _NavItem('users', l10n.adminNavUsers, Icons.people_outline, '/admin/users'),
+    _NavItem(
+      'notifications',
+      l10n.adminNavNotifications,
+      Icons.campaign_outlined,
+      '/admin/notifications',
+    ),
+    _NavItem(
+      'certificates',
+      l10n.adminNavCertificates,
+      Icons.workspace_premium_outlined,
+      '/admin/certificates',
+    ),
+    _NavItem(
+      'history',
+      l10n.adminNavReportsActivity,
+      Icons.bar_chart_outlined,
+      '/admin/history',
+    ),
+  ];
 
   List<_NavItem> _languageItems(String id, AppLocalizations l10n) => [
-        _NavItem('dashboard', l10n.adminNavDashboard, Icons.dashboard_outlined, '/admin/languages/$id'),
-        _NavItem('learners', l10n.adminNavLearners, Icons.people_outline, '/admin/users'),
-        _NavItem('courses', l10n.adminNavCourses, Icons.menu_book_outlined, '/admin/languages/$id/management/courses'),
-        _NavItem('lessons', l10n.adminNavLessonsContent, Icons.description_outlined, '/admin/languages/$id/management/lessons'),
-        _NavItem('vocabulary', l10n.adminNavVocabulary, Icons.translate_outlined, '/admin/languages/$id/management/vocabulary'),
-        _NavItem('assessments', l10n.adminNavAssessments, Icons.quiz_outlined, '/admin/languages/$id/management/quizzes'),
-        _NavItem('ai_tutor', l10n.adminNavAiTutor, Icons.smart_toy_outlined, '/admin/languages/$id/knowledge'),
-        _NavItem('certificates', l10n.adminNavCertificates, Icons.workspace_premium_outlined, '/admin/certificates'),
-        _NavItem('reports', l10n.adminNavReports, Icons.bar_chart_outlined, '/admin/history'),
-      ];
+    _NavItem(
+      'dashboard',
+      l10n.adminNavDashboard,
+      Icons.dashboard_outlined,
+      '/admin/languages/$id',
+    ),
+    _NavItem(
+      'learners',
+      l10n.adminNavLearners,
+      Icons.people_outline,
+      '/admin/users',
+    ),
+    _NavItem(
+      'courses',
+      l10n.adminNavCourses,
+      Icons.menu_book_outlined,
+      '/admin/languages/$id/management/courses',
+    ),
+    _NavItem(
+      'lessons',
+      l10n.adminNavLessonsContent,
+      Icons.description_outlined,
+      '/admin/languages/$id/management/lessons',
+    ),
+    _NavItem(
+      'vocabulary',
+      l10n.adminNavVocabulary,
+      Icons.translate_outlined,
+      '/admin/languages/$id/management/vocabulary',
+    ),
+    _NavItem(
+      'assessments',
+      l10n.adminNavAssessments,
+      Icons.quiz_outlined,
+      '/admin/languages/$id/management/quizzes',
+    ),
+    _NavItem(
+      'ai_tutor',
+      l10n.adminNavAiTutor,
+      Icons.smart_toy_outlined,
+      '/admin/languages/$id/knowledge',
+    ),
+    _NavItem(
+      'bible',
+      l10n.adminNavBible,
+      Icons.auto_stories_outlined,
+      '/admin/languages/$id/management/bible',
+    ),
+    _NavItem(
+      'books',
+      l10n.adminNavBooks,
+      Icons.library_books_outlined,
+      '/admin/languages/$id/management/books',
+    ),
+    _NavItem(
+      'daily',
+      l10n.adminNavDaily,
+      Icons.auto_awesome_outlined,
+      '/admin/languages/$id/management/daily',
+    ),
+    _NavItem(
+      'certificates',
+      l10n.adminNavCertificates,
+      Icons.workspace_premium_outlined,
+      '/admin/certificates',
+    ),
+    _NavItem(
+      'reports',
+      l10n.adminNavReports,
+      Icons.bar_chart_outlined,
+      '/admin/history',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final items = languageId != null ? _languageItems(languageId!, l10n) : _globalItems(l10n);
+    final items = languageId != null
+        ? _languageItems(languageId!, l10n)
+        : _globalItems(l10n);
 
     return Container(
       width: 248,
@@ -75,7 +165,12 @@ class AdminSidebar extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, AppSpacing.md),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.md,
+              ),
               child: Row(
                 children: [
                   ClipOval(
@@ -87,7 +182,11 @@ class AdminSidebar extends StatelessWidget {
                       errorBuilder: (_, __, ___) => const CircleAvatar(
                         radius: 20,
                         backgroundColor: AppColors.secondary,
-                        child: Icon(Icons.school, color: Colors.white, size: 18),
+                        child: Icon(
+                          Icons.school,
+                          color: Colors.white,
+                          size: 18,
+                        ),
                       ),
                     ),
                   ),
@@ -101,13 +200,20 @@ class AdminSidebar extends StatelessWidget {
                           'NdaMinkoaba Admin',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w800, fontSize: 14),
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                          ),
                         ),
                         Text(
                           l10n.appTagline,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 10),
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 10,
+                          ),
                         ),
                       ],
                     ),
@@ -123,7 +229,10 @@ class AdminSidebar extends StatelessWidget {
                   onTap: () => context.push('/admin/languages'),
                   child: Container(
                     width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.md,
+                      vertical: AppSpacing.sm,
+                    ),
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.1),
                       borderRadius: AppRadius.medium,
@@ -132,13 +241,23 @@ class AdminSidebar extends StatelessWidget {
                       children: [
                         Expanded(
                           child: Text(
-                            l10n.adminLanguageActiveSuffix(languageName ?? l10n.adminLanguageFallback),
+                            l10n.adminLanguageActiveSuffix(
+                              languageName ?? l10n.adminLanguageFallback,
+                            ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 12),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
-                        const Icon(Icons.expand_more, color: Colors.white, size: 16),
+                        const Icon(
+                          Icons.expand_more,
+                          color: Colors.white,
+                          size: 16,
+                        ),
                       ],
                     ),
                   ),
@@ -149,14 +268,20 @@ class AdminSidebar extends StatelessWidget {
               child: ListView(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
                 children: [
-                  for (final item in items) _SidebarTile(item: item, active: item.key == activeNavKey),
+                  for (final item in items)
+                    _SidebarTile(item: item, active: item.key == activeNavKey),
                 ],
               ),
             ),
             const Divider(color: Colors.white24, height: 1),
             if (languageId != null)
               _SidebarTile(
-                item: _NavItem('back', l10n.adminBackToAllLanguages, Icons.arrow_back, '/admin/languages'),
+                item: _NavItem(
+                  'back',
+                  l10n.adminBackToAllLanguages,
+                  Icons.arrow_back,
+                  '/admin/languages',
+                ),
                 active: false,
               ),
             Material(
@@ -176,8 +301,14 @@ class AdminSidebar extends StatelessWidget {
                         child: (userAvatarUrl?.isNotEmpty ?? false)
                             ? null
                             : Text(
-                                (userName?.isNotEmpty ?? false) ? userName![0].toUpperCase() : '?',
-                                style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+                                (userName?.isNotEmpty ?? false)
+                                    ? userName![0].toUpperCase()
+                                    : '?',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
                               ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
@@ -190,11 +321,18 @@ class AdminSidebar extends StatelessWidget {
                               userName ?? l10n.adminRoleFallback,
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 13),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 13,
+                              ),
                             ),
                             Text(
                               userRole ?? l10n.adminSuperAdminFallback,
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.7), fontSize: 11),
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.7),
+                                fontSize: 11,
+                              ),
                             ),
                           ],
                         ),
@@ -228,7 +366,10 @@ class _SidebarTile extends StatelessWidget {
           borderRadius: AppRadius.medium,
           onTap: () => context.go(item.route),
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: AppSpacing.sm,
+            ),
             child: Row(
               children: [
                 Icon(item.icon, color: Colors.white, size: 20),

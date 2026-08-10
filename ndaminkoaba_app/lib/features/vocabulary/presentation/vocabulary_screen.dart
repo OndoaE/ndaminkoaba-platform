@@ -1,7 +1,10 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/language/learning_language_provider.dart';
+import '../../../core/network/api_error.dart';
 import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
@@ -14,6 +17,7 @@ import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/gradient_hero_card.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../offline/data/offline_course_repository.dart';
 import '../data/vocabulary_repository.dart';
 import '../domain/vocabulary_word.dart';
 
@@ -41,11 +45,13 @@ class VocabularyScreen extends ConsumerStatefulWidget {
 
 class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
   final repository = VocabularyRepository();
+  final offlineCourseRepository = OfflineCourseRepository();
   final searchController = TextEditingController();
 
   String? selectedLevel;
   bool isLoading = true;
   bool hasError = false;
+  bool isOfflineFallback = false;
   List<VocabularyWord> words = [];
 
   @override
@@ -64,6 +70,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
     setState(() {
       isLoading = true;
       hasError = false;
+      isOfflineFallback = false;
     });
     try {
       final result = await repository.getVocabulary(
@@ -76,13 +83,59 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
         words = result;
         isLoading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      final isConnectivityIssue =
+          !kIsWeb && e is DioException && isConnectivityFailure(e);
+      if (isConnectivityIssue && await _loadFromOfflineCache()) return;
+
       if (!mounted) return;
       setState(() {
         hasError = true;
         isLoading = false;
       });
     }
+  }
+
+  /// Falls back to whatever vocabulary is sitting in already-downloaded
+  /// courses when the live fetch fails for connectivity reasons — no
+  /// whole-catalog caching, just the words a learner's downloads already
+  /// carry. Applies the same level/search filters client-side. Returns
+  /// whether any cached words were found.
+  Future<bool> _loadFromOfflineCache() async {
+    final courseIds = await offlineCourseRepository.getDownloadedCourseIds();
+    if (courseIds.isEmpty) return false;
+
+    final seenWordIds = <String>{};
+    final offlineWords = <VocabularyWord>[];
+    for (final courseId in courseIds) {
+      final manifest = await offlineCourseRepository.loadManifest(courseId);
+      if (manifest == null) continue;
+      for (final lesson in manifest.orderedLessons) {
+        for (final entry in lesson.vocabulary) {
+          if (!seenWordIds.add(entry.word.id)) continue;
+          offlineWords.add(entry.word);
+        }
+      }
+    }
+
+    final searchText = searchController.text.trim().toLowerCase();
+    final filtered = offlineWords.where((word) {
+      if (selectedLevel != null && word.difficulty != selectedLevel) {
+        return false;
+      }
+      if (searchText.isEmpty) return true;
+      return word.word.toLowerCase().contains(searchText) ||
+          (word.englishMeaning ?? '').toLowerCase().contains(searchText) ||
+          (word.frenchMeaning ?? '').toLowerCase().contains(searchText);
+    }).toList();
+
+    if (!mounted) return true;
+    setState(() {
+      words = filtered;
+      isOfflineFallback = true;
+      isLoading = false;
+    });
+    return true;
   }
 
   @override
@@ -115,6 +168,39 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
                   ),
                 ],
               ),
+              if (isOfflineFallback) ...[
+                const SizedBox(height: AppSpacing.md),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.md,
+                    vertical: AppSpacing.sm,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.secondary.withValues(alpha: 0.12),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.cloud_off,
+                        size: 18,
+                        color: AppColors.secondary,
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          l10n.downloadedOfflineLabel,
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.secondary,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               const SizedBox(height: AppSpacing.lg),
               GradientHeroCard(
                 gradient: AppGradients.primary,
@@ -262,9 +348,7 @@ class _VocabularyCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(word.word, style: AppTypography.title),
-              ),
+              Expanded(child: Text(word.word, style: AppTypography.title)),
               if (word.difficulty.isNotEmpty)
                 Container(
                   padding: const EdgeInsets.symmetric(

@@ -10,6 +10,7 @@ import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/waveform_visualizer.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../badges/domain/badge_entry.dart';
 import '../data/pronunciation_repository.dart';
 import '../data/wav_encoder.dart';
@@ -29,14 +30,14 @@ class PronunciationRecorder extends StatefulWidget {
     this.vocabularyId,
     this.lessonId,
     this.onNewlyEarnedBadges,
-    this.title = 'Your Pronunciation',
+    this.title,
   });
 
   final String targetText;
   final String? vocabularyId;
   final String? lessonId;
   final void Function(List<BadgeEntry> badges)? onNewlyEarnedBadges;
-  final String title;
+  final String? title;
 
   @override
   State<PronunciationRecorder> createState() => _PronunciationRecorderState();
@@ -64,7 +65,9 @@ class _PronunciationRecorderState extends State<PronunciationRecorder> {
     final hasPermission = await _recorder.hasPermission();
     if (!hasPermission) {
       if (!mounted) return;
-      setState(() => _error = 'Microphone permission is required to practice pronunciation.');
+      setState(
+        () => _error = AppLocalizations.of(context).micPermissionRequiredError,
+      );
       return;
     }
 
@@ -123,7 +126,7 @@ class _PronunciationRecorderState extends State<PronunciationRecorder> {
       if (!mounted) return;
       setState(() {
         _isSubmitting = false;
-        _error = "Couldn't submit your recording — please try again.";
+        _error = AppLocalizations.of(context).recordingSubmitError;
       });
     }
   }
@@ -134,36 +137,56 @@ class _PronunciationRecorderState extends State<PronunciationRecorder> {
     return AppColors.error;
   }
 
-  String get _statusText {
-    if (_isRecording) return 'Recording…';
-    if (_isSubmitting) return 'Scoring…';
-    if (_result != null) return _result!.scored ? 'Scored' : 'Not scored';
-    return 'Ready to record';
+  String _statusText(AppLocalizations l10n) {
+    if (_isRecording) return l10n.recordingStatusLabel;
+    if (_isSubmitting) return l10n.scoringStatusLabel;
+    if (_result != null) {
+      return _result!.scored
+          ? l10n.scoredStatusLabel
+          : l10n.notScoredStatusLabel;
+    }
+    return l10n.readyToRecordStatusLabel;
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
     return FeaturedCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(widget.title, style: AppTypography.title.copyWith(fontSize: 15)),
+          Text(
+            widget.title ?? l10n.yourPronunciationTitle,
+            style: AppTypography.title.copyWith(fontSize: 15),
+          ),
           const SizedBox(height: AppSpacing.md),
           WaveformVisualizer(animate: _isRecording, height: 32),
           const SizedBox(height: AppSpacing.md),
           Row(
             children: [
               Expanded(
-                child: Text(_statusText, style: AppTypography.caption),
+                child: Text(_statusText(l10n), style: AppTypography.caption),
               ),
               OutlinedButton.icon(
-                onPressed: _isSubmitting ? null : (_isRecording ? _stopAndSubmit : _startRecording),
+                onPressed: _isSubmitting
+                    ? null
+                    : (_isRecording ? _stopAndSubmit : _startRecording),
                 icon: _isSubmitting
-                    ? const SizedBox(width: 14, height: 14, child: CircularProgressIndicator(strokeWidth: 2))
+                    ? const SizedBox(
+                        width: 14,
+                        height: 14,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                     : Icon(_isRecording ? Icons.stop : Icons.mic, size: 16),
                 label: Text(
-                  _isRecording ? 'STOP RECORDING' : 'START RECORDING',
-                  style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
+                  _isRecording
+                      ? l10n.stopRecordingButton
+                      : l10n.startRecordingButton,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                  ),
                 ),
                 style: OutlinedButton.styleFrom(
                   foregroundColor: AppColors.primary,
@@ -175,7 +198,10 @@ class _PronunciationRecorderState extends State<PronunciationRecorder> {
           ),
           if (_error != null) ...[
             const SizedBox(height: AppSpacing.md),
-            Text(_error!, style: AppTypography.caption.copyWith(color: AppColors.error)),
+            Text(
+              _error!,
+              style: AppTypography.caption.copyWith(color: AppColors.error),
+            ),
           ],
           if (_result != null) ...[
             const SizedBox(height: AppSpacing.lg),
@@ -184,18 +210,25 @@ class _PronunciationRecorderState extends State<PronunciationRecorder> {
                 children: [
                   Text(
                     '${_result!.accuracyScore}%',
-                    style: AppTypography.numeric.copyWith(color: _scoreColor(_result!.accuracyScore ?? 0)),
+                    style: AppTypography.numeric.copyWith(
+                      color: _scoreColor(_result!.accuracyScore ?? 0),
+                    ),
                   ),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
-                    child: Text(_result!.feedback ?? '', style: AppTypography.caption),
+                    child: Text(
+                      _result!.feedback ?? '',
+                      style: AppTypography.caption,
+                    ),
                   ),
                 ],
               ),
             ] else
               Text(
-                _result!.feedback ?? "Couldn't score that attempt.",
-                style: AppTypography.caption.copyWith(color: AppColors.textSecondary),
+                _result!.feedback ?? l10n.scoringFailedFallback,
+                style: AppTypography.caption.copyWith(
+                  color: AppColors.textSecondary,
+                ),
               ),
           ],
         ],

@@ -1,3 +1,5 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -5,6 +7,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../core/locale/locale_provider.dart';
 import '../../../core/locale/localized_text.dart';
+import '../../../core/network/api_error.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
@@ -17,6 +20,7 @@ import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../certificates/data/certificate_repository.dart';
+import '../../offline/data/offline_course_repository.dart';
 import '../../progress/data/progress_repository.dart';
 import '../data/course_repository.dart';
 import '../data/enrollment_repository.dart';
@@ -41,8 +45,7 @@ class CourseDetailScreen extends ConsumerStatefulWidget {
   final String courseId;
 
   @override
-  ConsumerState<CourseDetailScreen> createState() =>
-      _CourseDetailScreenState();
+  ConsumerState<CourseDetailScreen> createState() => _CourseDetailScreenState();
 }
 
 class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
@@ -50,6 +53,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   final progressRepository = ProgressRepository();
   final enrollmentRepository = EnrollmentRepository();
   final certificateRepository = CertificateRepository();
+  final offlineCourseRepository = OfflineCourseRepository();
 
   bool isLoading = true;
   bool hasError = false;
@@ -58,6 +62,12 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
   Set<String> completedLessonIds = {};
   bool hasCertificate = false;
   String? userId;
+
+  bool isDownloaded = false;
+  bool isDownloading = false;
+  int downloadCompleted = 0;
+  int downloadTotal = 0;
+  bool isOfflineFallback = false;
 
   @override
   void initState() {
@@ -69,6 +79,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
     setState(() {
       isLoading = true;
       hasError = false;
+      isOfflineFallback = false;
     });
 
     try {
@@ -93,20 +104,49 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
       final completed = id != null ? results[1] as Set<String> : <String>{};
       final certificates = results[id != null ? 2 : 1] as List;
 
+      final downloaded = kIsWeb
+          ? false
+          : await offlineCourseRepository.isDownloaded(widget.courseId);
+
+      if (!mounted) return;
+
       setState(() {
         course = fetchedCourse;
         completedLessonIds = completed;
         hasCertificate = certificates.any((c) => c.courseId == widget.courseId);
         userId = id;
+        isDownloaded = downloaded;
         isLoading = false;
       });
-    } catch (_) {
+    } catch (e) {
+      final isConnectivityIssue = !kIsWeb && e is DioException && isConnectivityFailure(e);
+      if (isConnectivityIssue && await _loadFromOfflineCache()) return;
+
       if (!mounted) return;
       setState(() {
         hasError = true;
         isLoading = false;
       });
     }
+  }
+
+  /// Falls back to the downloaded copy (if any) when the live fetch fails
+  /// for connectivity reasons. Returns whether a cached copy was found and
+  /// rendered — the caller falls through to the normal error state
+  /// otherwise. Progress/certificate data isn't cached, so those stay at
+  /// their defaults offline.
+  Future<bool> _loadFromOfflineCache() async {
+    final manifest = await offlineCourseRepository.loadManifest(widget.courseId);
+    if (manifest == null) return false;
+
+    if (!mounted) return true;
+    setState(() {
+      course = CourseDetail.fromManifest(manifest);
+      isDownloaded = true;
+      isOfflineFallback = true;
+      isLoading = false;
+    });
+    return true;
   }
 
   Future<void> claimCertificate() async {
@@ -141,6 +181,74 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
         ),
       );
     }
+  }
+
+  Future<void> downloadForOffline() async {
+    setState(() {
+      isDownloading = true;
+      downloadCompleted = 0;
+      downloadTotal = 0;
+    });
+
+    try {
+      await offlineCourseRepository.downloadCourse(
+        widget.courseId,
+        onProgress: (completed, total) {
+          if (!mounted) return;
+          setState(() {
+            downloadCompleted = completed;
+            downloadTotal = total;
+          });
+        },
+      );
+
+      if (!mounted) return;
+      setState(() {
+        isDownloaded = true;
+        isDownloading = false;
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).downloadCompleteMessage),
+        ),
+      );
+    } catch (_) {
+      if (!mounted) return;
+      setState(() => isDownloading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context).downloadFailedMessage),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
+  }
+
+  Future<void> removeOfflineDownload() async {
+    final l10n = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: Text(l10n.removeDownloadConfirmTitle),
+        content: Text(l10n.removeDownloadConfirmMessage),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(false),
+            child: Text(l10n.commonCancel),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(true),
+            child: Text(l10n.removeDownloadButton),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    await offlineCourseRepository.removeDownload(widget.courseId);
+    if (!mounted) return;
+    setState(() => isDownloaded = false);
   }
 
   Future<void> _showCertificateEarnedCelebration() {
@@ -306,6 +414,10 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
                     onPressed: () => Navigator.pop(context),
                     icon: const Icon(Icons.arrow_back),
                   ),
+                  if (isOfflineFallback) ...[
+                    const SizedBox(height: AppSpacing.md),
+                    _OfflineBanner(label: l10n.downloadedOfflineLabel),
+                  ],
                   const SizedBox(height: AppSpacing.md),
                   Row(
                     children: [
@@ -381,6 +493,18 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
                     ),
                   ),
 
+                  if (!kIsWeb) ...[
+                    const SizedBox(height: AppSpacing.lg),
+                    _OfflineDownloadCard(
+                      isDownloaded: isDownloaded,
+                      isDownloading: isDownloading,
+                      downloadCompleted: downloadCompleted,
+                      downloadTotal: downloadTotal,
+                      onDownload: downloadForOffline,
+                      onRemove: removeOfflineDownload,
+                    ),
+                  ],
+
                   if (isComplete) ...[
                     const SizedBox(height: AppSpacing.lg),
                     if (hasCertificate)
@@ -420,6 +544,121 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
           },
         ),
       ),
+    );
+  }
+}
+
+class _OfflineBanner extends StatelessWidget {
+  const _OfflineBanner({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: BoxDecoration(
+        color: AppColors.secondary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          const Icon(Icons.cloud_off, size: 18, color: AppColors.secondary),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Text(
+              label,
+              style: AppTypography.caption.copyWith(
+                color: AppColors.secondary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _OfflineDownloadCard extends StatelessWidget {
+  const _OfflineDownloadCard({
+    required this.isDownloaded,
+    required this.isDownloading,
+    required this.downloadCompleted,
+    required this.downloadTotal,
+    required this.onDownload,
+    required this.onRemove,
+  });
+
+  final bool isDownloaded;
+  final bool isDownloading;
+  final int downloadCompleted;
+  final int downloadTotal;
+  final VoidCallback onDownload;
+  final VoidCallback onRemove;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+
+    if (isDownloading) {
+      final percent = downloadTotal == 0
+          ? 0
+          : ((downloadCompleted / downloadTotal) * 100).round();
+      return PremiumCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              l10n.downloadingOfflineLabel(percent),
+              style: AppTypography.title,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ClipRRect(
+              borderRadius: BorderRadius.circular(100),
+              child: LinearProgressIndicator(
+                value: downloadTotal == 0 ? null : percent / 100,
+                minHeight: 8,
+                backgroundColor: AppColors.divider,
+                valueColor: const AlwaysStoppedAnimation<Color>(
+                  AppColors.secondary,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (isDownloaded) {
+      return PremiumCard(
+        child: Row(
+          children: [
+            const Icon(Icons.offline_pin, color: AppColors.success),
+            const SizedBox(width: AppSpacing.md),
+            Expanded(
+              child: Text(
+                l10n.downloadedOfflineLabel,
+                style: AppTypography.title,
+              ),
+            ),
+            TextButton(
+              onPressed: onRemove,
+              child: Text(l10n.removeDownloadButton),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return PrimaryButton(
+      label: l10n.downloadForOfflineButton,
+      icon: Icons.download_outlined,
+      onPressed: onDownload,
     );
   }
 }

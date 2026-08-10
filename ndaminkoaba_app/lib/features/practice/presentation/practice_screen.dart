@@ -18,6 +18,7 @@ import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../design_system/widgets/streak_badge.dart';
 import '../../../design_system/widgets/week_calendar.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../badges/data/badges_repository.dart';
 import '../../badges/domain/badge_entry.dart';
 import '../../pronunciation/presentation/pronunciation_recorder.dart';
@@ -106,6 +107,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final nextBadge = badges.where((b) => !b.earned).isNotEmpty
         ? badges.where((b) => !b.earned).first
         : null;
@@ -130,17 +132,22 @@ class _PracticeScreenState extends State<PracticeScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const AppHeader(title: 'Practice', subtitle: 'Strengthen your Ewondo skills', showAvatar: true),
+                AppHeader(
+                  title: l10n.practiceTitle,
+                  subtitle: l10n.practiceSubtitle,
+                  showAvatar: true,
+                ),
                 const SizedBox(height: AppSpacing.xl),
                 if (hasError)
                   PremiumCard(
                     child: Row(
                       children: [
-                        const Icon(Icons.wifi_off_outlined, color: AppColors.error),
-                        const SizedBox(width: AppSpacing.md),
-                        const Expanded(
-                          child: Text('Something went wrong loading Practice.'),
+                        const Icon(
+                          Icons.wifi_off_outlined,
+                          color: AppColors.error,
                         ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(child: Text(l10n.practiceLoadError)),
                       ],
                     ),
                   )
@@ -151,7 +158,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   Container(
                     width: double.infinity,
                     clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(gradient: AppGradients.primary, borderRadius: AppRadius.large),
+                    decoration: BoxDecoration(
+                      gradient: AppGradients.primary,
+                      borderRadius: AppRadius.large,
+                    ),
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: Stack(
                       children: [
@@ -159,14 +169,25 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Daily Practice', style: AppTypography.title.copyWith(color: Colors.white)),
+                            Text(
+                              l10n.dailyPracticeTitle,
+                              style: AppTypography.title.copyWith(
+                                color: Colors.white,
+                              ),
+                            ),
                             Text(
                               today != null
                                   ? (today!.minutesToday >= today!.goalMinutes
-                                      ? 'Today\'s goal reached!'
-                                      : '${today!.goalMinutes - today!.minutesToday} minutes to reach today\'s goal')
+                                        ? l10n.dailyGoalReachedMessage
+                                        : l10n.minutesToGoalMessage(
+                                            today!.goalMinutes -
+                                                today!.minutesToday,
+                                          ))
                                   : '',
-                              style: TextStyle(color: Colors.white.withValues(alpha: 0.85), fontSize: 12),
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.85),
+                                fontSize: 12,
+                              ),
                             ),
                             const SizedBox(height: AppSpacing.lg),
                             Row(
@@ -174,15 +195,21 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                 if (today != null)
                                   ProgressRing(
                                     progress: today!.progressRatio,
-                                    centerLabel: '${today!.minutesToday}/${today!.goalMinutes}',
-                                    subLabel: 'min',
+                                    centerLabel:
+                                        '${today!.minutesToday}/${today!.goalMinutes}',
+                                    subLabel: l10n.minutesUnitLabel,
                                     size: 84,
                                     strokeWidth: 8,
                                   ),
                                 const SizedBox(width: AppSpacing.lg),
-                                Container(width: 1, height: 40, color: Colors.white24),
+                                Container(
+                                  width: 1,
+                                  height: 40,
+                                  color: Colors.white24,
+                                ),
                                 const SizedBox(width: AppSpacing.lg),
-                                if (streakStats != null) StreakBadge(days: streakStats!.currentStreak),
+                                if (streakStats != null)
+                                  StreakBadge(days: streakStats!.currentStreak),
                                 const Spacer(),
                               ],
                             ),
@@ -190,14 +217,27 @@ class _PracticeScreenState extends State<PracticeScreen> {
                             SizedBox(
                               width: double.infinity,
                               child: ElevatedButton(
-                                onPressed: () {},
+                                onPressed: (due?.dueCount ?? 0) > 0
+                                    ? _startReview
+                                    : null,
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.white,
                                   foregroundColor: AppColors.primary,
-                                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                                  shape: RoundedRectangleBorder(borderRadius: AppRadius.circle),
+                                  disabledBackgroundColor: Colors.white
+                                      .withValues(alpha: 0.5),
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: AppSpacing.md,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: AppRadius.circle,
+                                  ),
                                 ),
-                                child: const Text('CONTINUE PRACTICE', style: TextStyle(fontWeight: FontWeight.w700)),
+                                child: Text(
+                                  l10n.continuePracticeButton,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ),
                           ],
@@ -217,21 +257,32 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           Container(
                             width: 48,
                             height: 48,
-                            decoration: BoxDecoration(color: AppColors.ai.withValues(alpha: 0.14), shape: BoxShape.circle),
+                            decoration: BoxDecoration(
+                              color: AppColors.ai.withValues(alpha: 0.14),
+                              shape: BoxShape.circle,
+                            ),
                             alignment: Alignment.center,
-                            child: const Icon(Icons.autorenew, color: AppColors.ai),
+                            child: const Icon(
+                              Icons.autorenew,
+                              color: AppColors.ai,
+                            ),
                           ),
                           const SizedBox(width: AppSpacing.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Smart Review', style: AppTypography.title.copyWith(fontSize: 15)),
+                                Text(
+                                  l10n.smartReviewTitle,
+                                  style: AppTypography.title.copyWith(
+                                    fontSize: 15,
+                                  ),
+                                ),
                                 const SizedBox(height: 2),
                                 Text(
                                   (due?.dueCount ?? 0) > 0
-                                      ? '${due!.dueCount} words are ready for review'
-                                      : 'No words due for review right now',
+                                      ? l10n.wordsReadyForReview(due!.dueCount)
+                                      : l10n.noWordsDueMessage,
                                   style: AppTypography.caption,
                                 ),
                               ],
@@ -239,11 +290,21 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           ),
                           if ((due?.dueCount ?? 0) > 0)
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-                              decoration: BoxDecoration(color: AppColors.primary, borderRadius: AppRadius.circle),
-                              child: const Text(
-                                'REVIEW NOW',
-                                style: TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: AppSpacing.md,
+                                vertical: AppSpacing.sm,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.primary,
+                                borderRadius: AppRadius.circle,
+                              ),
+                              child: Text(
+                                l10n.reviewNowButton,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                ),
                               ),
                             ),
                         ],
@@ -254,22 +315,34 @@ class _PracticeScreenState extends State<PracticeScreen> {
 
                   // Pronunciation practice
                   PronunciationRecorder(
-                    targetText: (due?.items.isNotEmpty ?? false) ? due!.items.first.vocabulary.word : 'Mbolo',
-                    vocabularyId: (due?.items.isNotEmpty ?? false) ? due!.items.first.vocabularyId : null,
+                    targetText: (due?.items.isNotEmpty ?? false)
+                        ? due!.items.first.vocabulary.word
+                        : 'Mbolo',
+                    vocabularyId: (due?.items.isNotEmpty ?? false)
+                        ? due!.items.first.vocabularyId
+                        : null,
                     onNewlyEarnedBadges: _onBadgesEarned,
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
                   // Weekly calendar
                   SectionTitle(
-                    title: 'This Week',
-                    subtitle: '${weeklyCalendar.where((d) => d.completed).length} practice days',
+                    title: l10n.thisWeekTitle,
+                    subtitle: l10n.practiceDaysCount(
+                      weeklyCalendar.where((d) => d.completed).length,
+                    ),
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   PremiumCard(
                     child: WeekCalendar(
                       days: weeklyCalendar
-                          .map((d) => WeekCalendarDay(date: d.date, completed: d.completed, minutes: d.minutes))
+                          .map(
+                            (d) => WeekCalendarDay(
+                              date: d.date,
+                              completed: d.completed,
+                              minutes: d.minutes,
+                            ),
+                          )
                           .toList(),
                     ),
                   ),
@@ -282,18 +355,36 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           Container(
                             width: 44,
                             height: 44,
-                            decoration: BoxDecoration(color: AppColors.badgeEarned.withValues(alpha: 0.15), shape: BoxShape.circle),
+                            decoration: BoxDecoration(
+                              color: AppColors.badgeEarned.withValues(
+                                alpha: 0.15,
+                              ),
+                              shape: BoxShape.circle,
+                            ),
                             alignment: Alignment.center,
-                            child: const Icon(Icons.emoji_events, color: AppColors.badgeEarned),
+                            child: const Icon(
+                              Icons.emoji_events,
+                              color: AppColors.badgeEarned,
+                            ),
                           ),
                           const SizedBox(width: AppSpacing.md),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text('Almost there!', style: AppTypography.title.copyWith(fontSize: 15)),
                                 Text(
-                                  'Complete ${(nextBadge.criteriaValue - nextBadge.progress).clamp(0, nextBadge.criteriaValue)} more sessions to earn the ${nextBadge.name} badge.',
+                                  l10n.almostThereTitle,
+                                  style: AppTypography.title.copyWith(
+                                    fontSize: 15,
+                                  ),
+                                ),
+                                Text(
+                                  l10n.completeSessionsForBadge(
+                                    (nextBadge.criteriaValue -
+                                            nextBadge.progress)
+                                        .clamp(0, nextBadge.criteriaValue),
+                                    nextBadge.name,
+                                  ),
                                   style: AppTypography.caption,
                                 ),
                               ],
@@ -305,10 +396,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
                   ],
 
                   const SizedBox(height: AppSpacing.xl),
-                  SectionTitle(title: 'Badges'),
+                  SectionTitle(title: l10n.badgesTitle),
                   const SizedBox(height: AppSpacing.lg),
                   if (badges.isEmpty)
-                    Text('No badges yet.', style: AppTypography.caption)
+                    Text(l10n.noBadgesYetMessage, style: AppTypography.caption)
                   else
                     ...badges.map(
                       (badge) => Padding(
@@ -319,7 +410,8 @@ class _PracticeScreenState extends State<PracticeScreen> {
                           earned: badge.earned,
                           progress: badge.progress,
                           criteriaValue: badge.criteriaValue,
-                          remainingLabel: (remaining) => 'Complete $remaining more to earn this badge',
+                          remainingLabel: (remaining) =>
+                              l10n.completeMoreForBadge(remaining),
                         ),
                       ),
                     ),

@@ -5,9 +5,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:lottie/lottie.dart';
 import 'package:record/record.dart';
 
+import '../../../config/app_config.dart';
 import '../../../core/language/learning_language_provider.dart';
 import '../../../core/network/api_error.dart';
 import '../../../design_system/buttons/bouncy_icon_button.dart';
@@ -69,6 +71,7 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
   final inputController = TextEditingController();
   final scrollController = ScrollController();
   final recorder = AudioRecorder();
+  final audioPlayer = AudioPlayer();
   final pcmBuffer = BytesBuilder();
   StreamSubscription<Uint8List>? recordingSubscription;
 
@@ -99,14 +102,16 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
         } else {
           for (final turn in history) {
             messages.add(_ChatMessage(isUser: true, text: turn.prompt));
-            messages.add(_ChatMessage(
-              isUser: false,
-              text: turn.response,
-              usedLocalKnowledge: turn.usedLocalKnowledge,
-              correction: turn.correction,
-              translation: turn.translation,
-              suggestedReplies: turn.suggestedReplies,
-            ));
+            messages.add(
+              _ChatMessage(
+                isUser: false,
+                text: turn.response,
+                usedLocalKnowledge: turn.usedLocalKnowledge,
+                correction: turn.correction,
+                translation: turn.translation,
+                suggestedReplies: turn.suggestedReplies,
+              ),
+            );
           }
         }
         isLoadingHistory = false;
@@ -127,7 +132,18 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
     scrollController.dispose();
     recordingSubscription?.cancel();
     recorder.dispose();
+    audioPlayer.dispose();
     super.dispose();
+  }
+
+  Future<void> _playAudio(String url) async {
+    try {
+      await audioPlayer.setUrl(AppConfig.resolveUrl(url));
+      await audioPlayer.play();
+    } catch (_) {
+      // Playback failures are silently ignored, matching the lesson screen's
+      // treatment of audio as a content gap rather than an error state.
+    }
   }
 
   Future<void> send({String? overrideText, String? audioUrl}) async {
@@ -195,7 +211,11 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
     setState(() => isRecording = true);
 
     final stream = await recorder.startStream(
-      const RecordConfig(encoder: AudioEncoder.pcm16bits, sampleRate: _kSampleRate, numChannels: 1),
+      const RecordConfig(
+        encoder: AudioEncoder.pcm16bits,
+        sampleRate: _kSampleRate,
+        numChannels: 1,
+      ),
     );
     recordingSubscription = stream.listen((chunk) => pcmBuffer.add(chunk));
   }
@@ -208,16 +228,25 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
     if (!mounted) return;
     setState(() => isRecording = false);
 
-    final wavBytes = wrapPcm16AsWav(pcmBuffer.toBytes(), sampleRate: _kSampleRate, numChannels: 1);
+    final wavBytes = wrapPcm16AsWav(
+      pcmBuffer.toBytes(),
+      sampleRate: _kSampleRate,
+      numChannels: 1,
+    );
     if (wavBytes.length <= 44) return; // header-only, nothing was recorded
 
     try {
-      final audioUrl = await uploadRepository.uploadAudio(wavBytes, 'voice_message.wav');
+      final audioUrl = await uploadRepository.uploadAudio(
+        wavBytes,
+        'voice_message.wav',
+      );
       await send(overrideText: '', audioUrl: audioUrl);
     } catch (_) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Couldn't send that voice message — please try again.")),
+        SnackBar(
+          content: Text(AppLocalizations.of(context).voiceMessageSendError),
+        ),
       );
     }
   }
@@ -272,7 +301,12 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(AppSpacing.lg, AppSpacing.lg, AppSpacing.lg, 0),
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.lg,
+                AppSpacing.lg,
+                0,
+              ),
               child: FeaturedCard(
                 padding: const EdgeInsets.all(AppSpacing.md),
                 child: Row(
@@ -280,17 +314,33 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
                     Container(
                       width: 36,
                       height: 36,
-                      decoration: BoxDecoration(color: AppColors.secondary.withValues(alpha: 0.15), shape: BoxShape.circle),
+                      decoration: BoxDecoration(
+                        color: AppColors.secondary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
                       alignment: Alignment.center,
-                      child: const Icon(Icons.gps_fixed, color: AppColors.secondary, size: 18),
+                      child: const Icon(
+                        Icons.gps_fixed,
+                        color: AppColors.secondary,
+                        size: 18,
+                      ),
                     ),
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Practice Mode', style: AppTypography.caption.copyWith(color: AppColors.secondary, fontWeight: FontWeight.w700)),
-                          Text('Free Conversation', style: AppTypography.title.copyWith(fontSize: 14)),
+                          Text(
+                            l10n.practiceModeLabel,
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.secondary,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          Text(
+                            l10n.freeConversationLabel,
+                            style: AppTypography.title.copyWith(fontSize: 14),
+                          ),
                         ],
                       ),
                     ),
@@ -313,8 +363,19 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
                         }
                         return _MessageBubble(
                           message: messages[index],
-                          onExplain: () => send(overrideText: 'Explain: ${messages[index].text}'),
-                          onTranslate: () => send(overrideText: 'Translate: ${messages[index].text}'),
+                          onExplain: () => send(
+                            overrideText: l10n.explainPromptPrefix(
+                              messages[index].text,
+                            ),
+                          ),
+                          onTranslate: () => send(
+                            overrideText: l10n.translatePromptPrefix(
+                              messages[index].text,
+                            ),
+                          ),
+                          onPlayAudio: messages[index].audioUrl != null
+                              ? () => _playAudio(messages[index].audioUrl!)
+                              : null,
                         );
                       },
                     ),
@@ -324,14 +385,21 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
                 height: 40,
                 child: ListView(
                   scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.lg,
+                  ),
                   children: lastAssistantMessage.suggestedReplies
                       .map(
                         (reply) => Padding(
                           padding: const EdgeInsets.only(right: AppSpacing.sm),
                           child: ActionChip(
-                            label: Text(reply, style: const TextStyle(fontSize: 12)),
-                            backgroundColor: AppColors.ai.withValues(alpha: 0.1),
+                            label: Text(
+                              reply,
+                              style: const TextStyle(fontSize: 12),
+                            ),
+                            backgroundColor: AppColors.ai.withValues(
+                              alpha: 0.1,
+                            ),
                             onPressed: () => send(overrideText: reply),
                           ),
                         ),
@@ -342,7 +410,11 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
             if (isRecording)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: WaveformVisualizer(animate: true, height: 28, color: AppColors.ai),
+                child: WaveformVisualizer(
+                  animate: true,
+                  height: 28,
+                  color: AppColors.ai,
+                ),
               ),
             Padding(
               padding: const EdgeInsets.all(AppSpacing.lg),
@@ -371,9 +443,15 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
                   BouncyIconButton(
                     icon: Icon(
                       isRecording ? Icons.stop_circle : Icons.mic_none,
-                      color: isRecording ? AppColors.error : AppColors.textSecondary,
+                      color: isRecording
+                          ? AppColors.error
+                          : AppColors.textSecondary,
                     ),
-                    onPressed: isSending ? null : (isRecording ? _stopRecordingAndSend : _startRecording),
+                    onPressed: isSending
+                        ? null
+                        : (isRecording
+                              ? _stopRecordingAndSend
+                              : _startRecording),
                   ),
                   const SizedBox(width: AppSpacing.xs),
                   Container(
@@ -414,14 +492,17 @@ class _MessageBubble extends StatelessWidget {
     required this.message,
     required this.onExplain,
     required this.onTranslate,
+    this.onPlayAudio,
   });
 
   final _ChatMessage message;
   final VoidCallback onExplain;
   final VoidCallback onTranslate;
+  final VoidCallback? onPlayAudio;
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isUser = message.isUser;
 
     return Align(
@@ -443,11 +524,26 @@ class _MessageBubble extends StatelessWidget {
         ),
         child: isUser
             ? (message.audioUrl != null
-                ? WaveformVisualizer(height: 24, color: Colors.white)
-                : Text(
-                    message.text,
-                    style: AppTypography.body.copyWith(color: Colors.white),
-                  ))
+                  ? InkWell(
+                      borderRadius: AppRadius.medium,
+                      onTap: onPlayAudio,
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.play_arrow,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          const SizedBox(width: AppSpacing.xs),
+                          WaveformVisualizer(height: 24, color: Colors.white),
+                        ],
+                      ),
+                    )
+                  : Text(
+                      message.text,
+                      style: AppTypography.body.copyWith(color: Colors.white),
+                    ))
             : Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -458,25 +554,41 @@ class _MessageBubble extends StatelessWidget {
                   ),
                   if (message.usedLocalKnowledge != null) ...[
                     const SizedBox(height: AppSpacing.xs),
-                    _GroundingBadge(usedLocalKnowledge: message.usedLocalKnowledge!),
+                    _GroundingBadge(
+                      usedLocalKnowledge: message.usedLocalKnowledge!,
+                    ),
                   ],
                   if (message.text.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.xs),
                     Wrap(
                       spacing: AppSpacing.xs,
                       children: [
-                        _MessageActionButton(label: 'Explain', onTap: onExplain),
-                        _MessageActionButton(label: 'Translate', onTap: onTranslate),
+                        _MessageActionButton(
+                          label: l10n.explainActionLabel,
+                          onTap: onExplain,
+                        ),
+                        _MessageActionButton(
+                          label: l10n.translateActionLabel,
+                          onTap: onTranslate,
+                        ),
                       ],
                     ),
                   ],
                   if (message.correction != null) ...[
                     const SizedBox(height: AppSpacing.xs),
-                    _InlineNote(icon: Icons.spellcheck, label: 'Correction', text: message.correction!),
+                    _InlineNote(
+                      icon: Icons.spellcheck,
+                      label: l10n.correctionLabel,
+                      text: message.correction!,
+                    ),
                   ],
                   if (message.translation != null) ...[
                     const SizedBox(height: AppSpacing.xs),
-                    _InlineNote(icon: Icons.translate, label: 'Translation', text: message.translation!),
+                    _InlineNote(
+                      icon: Icons.translate,
+                      label: l10n.translationLabel,
+                      text: message.translation!,
+                    ),
                   ],
                 ],
               ),
@@ -497,19 +609,29 @@ class _MessageActionButton extends StatelessWidget {
       borderRadius: BorderRadius.circular(100),
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
+        padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.sm,
+          vertical: 3,
+        ),
         decoration: BoxDecoration(
           border: Border.all(color: AppColors.divider),
           borderRadius: BorderRadius.circular(100),
         ),
-        child: Text(label, style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600)),
+        child: Text(
+          label,
+          style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+        ),
       ),
     );
   }
 }
 
 class _InlineNote extends StatelessWidget {
-  const _InlineNote({required this.icon, required this.label, required this.text});
+  const _InlineNote({
+    required this.icon,
+    required this.label,
+    required this.text,
+  });
 
   final IconData icon;
   final String label;
@@ -528,9 +650,7 @@ class _InlineNote extends StatelessWidget {
         children: [
           Icon(icon, size: 14, color: AppColors.secondary),
           const SizedBox(width: AppSpacing.xs),
-          Expanded(
-            child: Text(text, style: AppTypography.caption),
-          ),
+          Expanded(child: Text(text, style: AppTypography.caption)),
         ],
       ),
     );
@@ -545,10 +665,15 @@ class _GroundingBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final color = usedLocalKnowledge ? AppColors.success : AppColors.textSecondary;
+    final color = usedLocalKnowledge
+        ? AppColors.success
+        : AppColors.textSecondary;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.sm,
+        vertical: 2,
+      ),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(100),
@@ -563,8 +688,14 @@ class _GroundingBadge extends StatelessWidget {
           ),
           const SizedBox(width: 4),
           Text(
-            usedLocalKnowledge ? l10n.nnangaGroundedBadge : l10n.nnangaGeneralBadge,
-            style: TextStyle(fontSize: 10, fontWeight: FontWeight.w600, color: color),
+            usedLocalKnowledge
+                ? l10n.nnangaGroundedBadge
+                : l10n.nnangaGeneralBadge,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w600,
+              color: color,
+            ),
           ),
         ],
       ),
@@ -599,7 +730,10 @@ class _TypingBubble extends StatelessWidget {
             errorBuilder: (context, error, stackTrace) => const SizedBox(
               width: 20,
               height: 20,
-              child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.ai),
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: AppColors.ai,
+              ),
             ),
           ),
         ),

@@ -46,9 +46,9 @@ class LanguageSelectionScreen extends ConsumerWidget {
                 constraints: const BoxConstraints(maxWidth: 430),
                 child: Column(
                   children: [
-                    const LogoHeader(
-                      title: 'NdaMinkoaba',
-                      subtitle: 'Learn • Preserve • Transmit',
+                    LogoHeader(
+                      title: l10n.appTitle,
+                      subtitle: l10n.appTagline,
                       imagePath: 'assets/images/ndaminkoaba_logo.png',
                       size: 140,
                     ),
@@ -104,9 +104,7 @@ class _LanguageOption extends StatelessWidget {
           children: [
             Text(flag, style: const TextStyle(fontSize: 32)),
             const SizedBox(width: AppSpacing.lg),
-            Expanded(
-              child: Text(label, style: AppTypography.title),
-            ),
+            Expanded(child: Text(label, style: AppTypography.title)),
             const Icon(Icons.chevron_right, color: AppColors.textSecondary),
           ],
         ),

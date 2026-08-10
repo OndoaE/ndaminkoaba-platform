@@ -380,6 +380,39 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modulesSubtitle => 'Learn step by step';
 
   @override
+  String get downloadForOfflineButton => 'Download for offline';
+
+  @override
+  String downloadingOfflineLabel(int percent) {
+    return 'Downloading… $percent%';
+  }
+
+  @override
+  String get downloadedOfflineLabel => 'Downloaded for offline';
+
+  @override
+  String get removeDownloadButton => 'Remove download';
+
+  @override
+  String get removeDownloadConfirmTitle => 'Remove downloaded course?';
+
+  @override
+  String get removeDownloadConfirmMessage =>
+      'You\'ll need to download it again to use it offline.';
+
+  @override
+  String get downloadFailedMessage =>
+      'Couldn\'t download the course. Check your connection and try again.';
+
+  @override
+  String get downloadCompleteMessage =>
+      'Course downloaded — available offline now.';
+
+  @override
+  String get quizRequiresConnectivityMessage =>
+      'You\'re offline — connect to the internet to take this quiz.';
+
+  @override
   String lessonNumberLabel(int number) {
     return 'Lesson $number';
   }
@@ -747,6 +780,15 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminNavAiTutor => 'AI Tutor';
+
+  @override
+  String get adminNavBible => 'Bible';
+
+  @override
+  String get adminNavBooks => 'Books';
+
+  @override
+  String get adminNavDaily => 'Phrase & Verse of the Day';
 
   @override
   String get adminNavReports => 'Reports';
@@ -1701,4 +1743,205 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminCouldNotSendNotification => 'Could not send notification.';
+
+  @override
+  String get dashboardProgressTitle => 'Your Learning Progress';
+
+  @override
+  String lessonsCompletedCount(int count) {
+    return '$count lessons completed';
+  }
+
+  @override
+  String get exploreSectionTitle => 'Explore';
+
+  @override
+  String get nnangaPromoSubtitle =>
+      'Practice Ewondo with your personal AI tutor';
+
+  @override
+  String get startPracticeButton => 'START PRACTICE';
+
+  @override
+  String get phraseOfDayTitle => 'Phrase of the Day';
+
+  @override
+  String get learnHubTitle => 'Learn Ewondo';
+
+  @override
+  String get learnHubSubtitle => 'Choose a level and continue your journey.';
+
+  @override
+  String get dailyGoalTitle => 'Daily Goal';
+
+  @override
+  String get dailyGoalSubtitle => 'Complete 1 lesson today';
+
+  @override
+  String get todaysLessonLabel => 'TODAY\'S LESSON';
+
+  @override
+  String get listenAndRepeatTitle => 'Listen and Repeat';
+
+  @override
+  String get tapSpeakerRepeatCaption =>
+      'Tap the speaker, then repeat the phrase.';
+
+  @override
+  String get inConversationTitle => 'In Conversation';
+
+  @override
+  String get quickCheckTitle => 'Quick Check';
+
+  @override
+  String get voiceMessageSendError =>
+      'Couldn\'t send that voice message — please try again.';
+
+  @override
+  String get practiceModeLabel => 'Practice Mode';
+
+  @override
+  String get freeConversationLabel => 'Free Conversation';
+
+  @override
+  String explainPromptPrefix(String text) {
+    return 'Explain: $text';
+  }
+
+  @override
+  String translatePromptPrefix(String text) {
+    return 'Translate: $text';
+  }
+
+  @override
+  String get explainActionLabel => 'Explain';
+
+  @override
+  String get translateActionLabel => 'Translate';
+
+  @override
+  String get correctionLabel => 'Correction';
+
+  @override
+  String get translationLabel => 'Translation';
+
+  @override
+  String get practiceTitle => 'Practice';
+
+  @override
+  String get practiceSubtitle => 'Strengthen your Ewondo skills';
+
+  @override
+  String get practiceLoadError => 'Something went wrong loading Practice.';
+
+  @override
+  String get dailyPracticeTitle => 'Daily Practice';
+
+  @override
+  String get dailyGoalReachedMessage => 'Today\'s goal reached!';
+
+  @override
+  String minutesToGoalMessage(int minutes) {
+    return '$minutes minutes to reach today\'s goal';
+  }
+
+  @override
+  String get minutesUnitLabel => 'min';
+
+  @override
+  String get continuePracticeButton => 'CONTINUE PRACTICE';
+
+  @override
+  String get smartReviewTitle => 'Smart Review';
+
+  @override
+  String wordsReadyForReview(int count) {
+    return '$count words are ready for review';
+  }
+
+  @override
+  String get noWordsDueMessage => 'No words due for review right now';
+
+  @override
+  String get reviewNowButton => 'REVIEW NOW';
+
+  @override
+  String get thisWeekTitle => 'This Week';
+
+  @override
+  String practiceDaysCount(int count) {
+    return '$count practice days';
+  }
+
+  @override
+  String get almostThereTitle => 'Almost there!';
+
+  @override
+  String completeSessionsForBadge(int count, String badgeName) {
+    return 'Complete $count more sessions to earn the $badgeName badge.';
+  }
+
+  @override
+  String get badgesTitle => 'Badges';
+
+  @override
+  String get noBadgesYetMessage => 'No badges yet.';
+
+  @override
+  String completeMoreForBadge(int remaining) {
+    return 'Complete $remaining more to earn this badge';
+  }
+
+  @override
+  String get tapToRevealHint => 'Tap to reveal';
+
+  @override
+  String get gradeAgainLabel => 'Again';
+
+  @override
+  String get gradeHardLabel => 'Hard';
+
+  @override
+  String get gradeGoodLabel => 'Good';
+
+  @override
+  String get gradeEasyLabel => 'Easy';
+
+  @override
+  String get bestStreakLabel => 'Best Streak';
+
+  @override
+  String get yourPronunciationTitle => 'Your Pronunciation';
+
+  @override
+  String get micPermissionRequiredError =>
+      'Microphone permission is required to practice pronunciation.';
+
+  @override
+  String get recordingSubmitError =>
+      'Couldn\'t submit your recording — please try again.';
+
+  @override
+  String get recordingStatusLabel => 'Recording…';
+
+  @override
+  String get scoringStatusLabel => 'Scoring…';
+
+  @override
+  String get scoredStatusLabel => 'Scored';
+
+  @override
+  String get notScoredStatusLabel => 'Not scored';
+
+  @override
+  String get readyToRecordStatusLabel => 'Ready to record';
+
+  @override
+  String get stopRecordingButton => 'STOP RECORDING';
+
+  @override
+  String get startRecordingButton => 'START RECORDING';
+
+  @override
+  String get scoringFailedFallback => 'Couldn\'t score that attempt.';
 }

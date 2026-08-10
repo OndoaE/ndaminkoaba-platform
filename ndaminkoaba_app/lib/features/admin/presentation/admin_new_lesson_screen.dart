@@ -29,10 +29,10 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
   final repository = ContentRepository();
   final titleController = TextEditingController();
   final summaryController = TextEditingController();
-  final contentController = TextEditingController();
+  final contentController = SmartListTextEditingController();
   final frenchTitleController = TextEditingController();
   final frenchSummaryController = TextEditingController();
-  final frenchContentController = TextEditingController();
+  final frenchContentController = SmartListTextEditingController();
 
   bool isLoading = true;
   bool isSaving = false;
