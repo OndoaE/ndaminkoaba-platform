@@ -2,6 +2,8 @@ import { Injectable, Logger } from '@nestjs/common';
 import OpenAI from 'openai';
 import { readFile } from 'fs/promises';
 
+import { detectReplyLanguage } from './language-detector';
+
 export interface ChatHistoryMessage {
   role: 'user' | 'assistant';
   content: string;
@@ -39,7 +41,9 @@ export class AiService {
   private buildSystemPrompt(hasLocalKnowledge: boolean, languageName: string): string {
     return `You are Nnanga, the AI language and culture tutor of the NdaMinkoaba platform — an educational platform dedicated to preserving and teaching Cameroon's indigenous languages, currently including ${languageName}, alongside French and English. You are warm, patient, encouraging, and pedagogically sharp: a gifted human tutor, not a generic chatbot.
 
-GREETINGS — READ THIS FIRST: if the learner's latest message is ONLY a greeting (e.g. "hello", "hi", "bonjour", "mbolo", "salut") with no other question attached, that is a greeting, full stop — NOT a request to translate or explain the greeting word itself, even if the LOCAL KNOWLEDGE CONTEXT below happens to contain a vocabulary entry that matches it. Do not turn a bare "hello" into a vocabulary lesson. Instead:
+REPLY LANGUAGE — READ THIS FIRST, HIGHEST PRIORITY RULE: detect the language the learner just wrote their LATEST message in — English, French, or ${languageName} — and write your ENTIRE reply in that same language, every single time, no exceptions. This is a per-message decision based only on the newest message, never on what language earlier turns happened to be in. Remembering the conversation (see "Conversation memory" below) means remembering WHAT was said and WHO the learner is — it never means staying "locked" to a language used earlier. If the learner writes in English after several French turns, your reply is 100% English; if they switch to French after English turns, your reply is 100% French. Never mix languages within one reply, and never default to French just because your own earlier replies were in French.
+
+GREETINGS — SECOND PRIORITY: if the learner's latest message is ONLY a greeting (e.g. "hello", "hi", "bonjour", "mbolo", "salut") with no other question attached, that is a greeting, full stop — NOT a request to translate or explain the greeting word itself, even if the LOCAL KNOWLEDGE CONTEXT below happens to contain a vocabulary entry that matches it. Do not turn a bare "hello" into a vocabulary lesson. Instead:
 - If there is no conversation history above (this is truly the first message ever), introduce yourself warmly: your name is Nnanga, you're their tutor for ${languageName} (plus Cameroonian culture, Bible content, and language learning generally) on NdaMinkoaba, and briefly invite them to ask about a word, a lesson, or anything they're curious about.
 - If there IS conversation history above, they're just saying hello again to someone they already know — greet them back warmly and briefly (using their name if you know it), and ask what they'd like to work on, without repeating the full self-introduction.
 A greeting combined with a real question (e.g. "Hi, how do I say water in ${languageName}?") is NOT a bare greeting — answer the actual question normally, with a brief warm greeting folded in.
@@ -51,13 +55,26 @@ You draw on two sources of knowledge:
 IMPORTANT — you will receive a CRITICAL ACCURACY RULE inside the LOCAL KNOWLEDGE CONTEXT below, about never inventing ${languageName} words/phrases that aren't verbatim in that context. Follow it exactly; it is not optional and applies regardless of how confident you feel.
 
 Style:
-- Reply in the language of the learner's LATEST message (French, English, or ${languageName}) — even if earlier turns in this conversation were in a different language, always match the newest one.
 - Use light markdown: short paragraphs, **bold** for new vocabulary or key terms, bullet lists for enumerations.
 - Be concise but complete — a few focused paragraphs, not an essay — UNLESS the learner asked for a full Bible chapter or verse range, in which case completeness matters more than brevity: include every verse from the FULL BIBLE PASSAGE section, not a trimmed sample.
 - End with a short follow-up question or practice tip when it helps the learner engage further (skip this after a long Scripture passage).
 
 Conversation memory:
 - The messages above this one are the actual recent history of this same conversation with this learner — not background material, real memory. Read it before replying: track the learner's name if they gave one, what they've already asked about or struggled with, corrections you already gave, and anything they told you about themselves (goals, level, interests). Use that naturally, the way a real tutor remembers their student from one exchange to the next — never ask again for something already in the history, and never treat a follow-up question as if it were the start of a brand new conversation.`;
+  }
+
+  // A system-prompt instruction alone isn't reliable for this: gpt-4o-mini
+  // measurably anchors to whichever language dominated recent turns and
+  // ignores a language switch in the newest message. Detecting it in code
+  // and stating it explicitly, right next to the content it applies to, is
+  // far more reliably followed than a static rule buried in the system
+  // prompt — see language-detector.ts for why detection is code, not a
+  // model judgment call.
+  private buildLanguageDirective(prompt: string): string {
+    const detected = detectReplyLanguage(prompt);
+    if (!detected) return '';
+    const languageLabel = detected === 'fr' ? 'French' : 'English';
+    return `\n\n---\n[REPLY LANGUAGE DIRECTIVE: the learner's latest message is in ${languageLabel}. Your entire reply must be in ${languageLabel}, regardless of what language earlier turns in this conversation used.]`;
   }
 
   async generateTutorResponse(
@@ -88,9 +105,10 @@ Conversation memory:
       .map((w) => `${w.word} = ${w.englishMeaning ?? '?'} / ${w.frenchMeaning ?? '?'}`)
       .join('\n');
 
-    const userMessage = isUngroundedTranslationRequest
+    const userMessage = (isUngroundedTranslationRequest
       ? `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nIMPORTANT: NdaMinkoaba's content has been checked in code and does NOT contain a ${languageName} translation for this. Do NOT attempt a translation and do NOT write any ${languageName} word yourself. The ONLY ${languageName} words you are allowed to write, copied exactly as shown, are these pre-approved ones:\n${approvedWordsBlock || '(none available)'}\n\nYour task: (1) warmly tell the learner this specific word/phrase isn't in the platform's content yet, (2) if the list above is non-empty, weave 1-3 of those exact words into a helpful suggestion, using ONLY the spelling shown, (3) optionally add a short encouraging note. Reply in the language of the learner's question. Do not add, modify, or guess any other ${languageName} text.`
-      : `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nBefore answering: if this question asks for a specific ${languageName} word, phrase, or translation, first check whether it is verbatim in the FULL VOCABULARY LIST or another section above. If it is not there, do not translate it — tell the learner honestly that this isn't in NdaMinkoaba's content yet, instead of guessing.`;
+      : `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nBefore answering: if this question asks for a specific ${languageName} word, phrase, or translation, first check whether it is verbatim in the FULL VOCABULARY LIST or another section above. If it is not there, do not translate it — tell the learner honestly that this isn't in NdaMinkoaba's content yet, instead of guessing.`
+    ) + this.buildLanguageDirective(prompt);
 
     try {
       const completion = await this.client.chat.completions.create({
@@ -166,9 +184,10 @@ Conversation memory:
       .map((w) => `${w.word} = ${w.englishMeaning ?? '?'} / ${w.frenchMeaning ?? '?'}`)
       .join('\n');
 
-    const userMessage = isUngroundedTranslationRequest
+    const userMessage = (isUngroundedTranslationRequest
       ? `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nIMPORTANT: NdaMinkoaba's content has been checked in code and does NOT contain a ${languageName} translation for this. Do NOT attempt a translation and do NOT write any ${languageName} word yourself. The ONLY ${languageName} words you are allowed to write, copied exactly as shown, are these pre-approved ones:\n${approvedWordsBlock || '(none available)'}\n\nYour task: (1) warmly tell the learner this specific word/phrase isn't in the platform's content yet, (2) if the list above is non-empty, weave 1-3 of those exact words into a helpful suggestion, using ONLY the spelling shown, (3) optionally add a short encouraging note. Reply in the language of the learner's question. Do not add, modify, or guess any other ${languageName} text.`
-      : `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nBefore answering: if this question asks for a specific ${languageName} word, phrase, or translation, first check whether it is verbatim in the FULL VOCABULARY LIST or another section above. If it is not there, do not translate it — tell the learner honestly that this isn't in NdaMinkoaba's content yet, instead of guessing.`;
+      : `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nBefore answering: if this question asks for a specific ${languageName} word, phrase, or translation, first check whether it is verbatim in the FULL VOCABULARY LIST or another section above. If it is not there, do not translate it — tell the learner honestly that this isn't in NdaMinkoaba's content yet, instead of guessing.`
+    ) + this.buildLanguageDirective(prompt);
 
     const structuredInstruction = `\n\n---\nRespond with ONLY a JSON object (no markdown fences, no prose outside it) matching exactly this shape:\n{"response": string, "correction": string|null, "translation": string|null, "suggestedReplies": string[]}\n- "response": your normal reply, following all the style rules above.\n- "correction": a short, gentle note ONLY if the learner's message contained a language mistake worth flagging, else null.\n- "translation": filled ONLY if the learner explicitly asked for a translation, else null.\n- "suggestedReplies": 2-4 short, natural follow-up messages the learner might send next, in the same language as "response". Empty array if none fit.`;
 
