@@ -11,6 +11,7 @@ import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/knowledge_repository.dart';
 import '../domain/knowledge_models.dart';
+import '../domain/vocabulary_paste_parser.dart';
 import 'widgets/audio_recorder_field.dart';
 
 const _levels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
@@ -142,6 +143,48 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
     }
   }
 
+  Future<void> pasteVocabulary() async {
+    final parsedWords = await showDialog<List<ParsedVocabWord>>(
+      context: context,
+      builder: (context) => const _PasteVocabularyDialog(),
+    );
+    if (parsedWords == null || parsedWords.isEmpty) return;
+
+    var succeeded = 0;
+    var failed = 0;
+    String? firstError;
+    for (final w in parsedWords) {
+      try {
+        await repository.createVocabulary(
+          word: w.word,
+          languageId: widget.languageId,
+          englishMeaning: w.englishMeaning,
+          frenchMeaning: w.frenchMeaning,
+          exampleSentence: w.exampleSentence,
+          exampleTranslation: w.exampleTranslation,
+          frenchExampleTranslation: w.frenchExampleTranslation,
+          difficulty: w.difficulty,
+          phoneticTranscription: w.phoneticTranscription,
+        );
+        succeeded++;
+      } on DioException catch (e) {
+        failed++;
+        firstError ??= extractErrorMessage(e, fallback: 'Unknown server error.');
+      } catch (e) {
+        failed++;
+        firstError ??= e.toString();
+      }
+    }
+
+    load();
+    _showMessage(
+      failed == 0
+          ? 'Imported $succeeded word(s).'
+          : 'Imported $succeeded word(s), $failed failed'
+                '${firstError != null ? ' — $firstError' : ''}.',
+    );
+  }
+
   Future<void> editWord(KnowledgeWord word) async {
     final result = await showDialog<VocabFormResult>(
       context: context,
@@ -235,6 +278,14 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
           ),
           const SizedBox(height: AppSpacing.md),
           FloatingActionButton.extended(
+            heroTag: 'pasteVocabulary',
+            backgroundColor: AppColors.secondary,
+            icon: const Icon(Icons.content_paste, color: Colors.white),
+            label: const Text('Paste Vocabulary', style: TextStyle(color: Colors.white)),
+            onPressed: pasteVocabulary,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          FloatingActionButton.extended(
             heroTag: 'addWord',
             backgroundColor: AppColors.ai,
             icon: const Icon(Icons.add, color: Colors.white),
@@ -294,9 +345,19 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
               child: isLoading
                   ? const ShimmerListLoader()
                   : (_visibleWords.isEmpty && _visibleTexts.isEmpty)
-                      ? Center(child: Text('No knowledge found.', style: AppTypography.caption))
+                      ? Center(
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
+                            child: Text(
+                              'No knowledge found. Use "Paste Vocabulary" below to add a whole '
+                              'word list at once, or "Add Knowledge" for a single word.',
+                              style: AppTypography.caption,
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        )
                       : ListView(
-                          padding: const EdgeInsets.only(bottom: 140),
+                          padding: const EdgeInsets.only(bottom: 200),
                           children: [
                             if (_visibleTexts.isNotEmpty) ...[
                               SectionTitle(
@@ -732,6 +793,234 @@ class _TextEntryFormDialogState extends State<TextEntryFormDialog> {
           child: Text(isEditing ? 'Save' : 'Add'),
         ),
       ],
+    );
+  }
+}
+
+/// Lets an admin paste a whole word list as plain text, previews how it
+/// was parsed, and hands back the list to import — one [KnowledgeRepository
+/// .createVocabulary] call per word, the same shape [addWord] already sends
+/// for a single manually-entered word.
+class _PasteVocabularyDialog extends StatefulWidget {
+  const _PasteVocabularyDialog();
+
+  @override
+  State<_PasteVocabularyDialog> createState() => _PasteVocabularyDialogState();
+}
+
+class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
+  final textController = TextEditingController();
+  VocabularyPasteParseResult? result;
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  void parse() {
+    setState(() => result = parseVocabularyPaste(textController.text));
+  }
+
+  void backToPaste() {
+    setState(() => result = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final current = result;
+    return AlertDialog(
+      title: Text(current == null ? 'Paste Vocabulary' : 'Preview Import'),
+      content: SizedBox(
+        width: 520,
+        child: current == null ? _buildPasteStep() : _buildPreviewStep(current),
+      ),
+      actions: current == null
+          ? [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: textController.text.trim().isEmpty ? null : parse,
+                child: const Text('Parse'),
+              ),
+            ]
+          : [
+              TextButton(onPressed: backToPaste, child: const Text('Back')),
+              FilledButton(
+                onPressed: current.words.where((w) => w.isValid).isEmpty
+                    ? null
+                    : () => Navigator.pop(
+                        context,
+                        current.words.where((w) => w.isValid).toList(),
+                      ),
+                child: Text(
+                  'Import ${current.words.where((w) => w.isValid).length} Word(s)',
+                ),
+              ),
+            ],
+    );
+  }
+
+  Widget _buildPasteStep() {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Paste a word list — one per line, or a blank line between richer entries.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              'mendim | water | eau\n'
+              'abé | house | maison\n'
+              '\n'
+              'nnom\n'
+              'EN: man\n'
+              'FR: homme\n'
+              'Example: Nnom a ne mbem.\n'
+              'Example EN: The man is strong.\n'
+              'Phonetic: /nnɔm/\n'
+              'Level: INTERMEDIATE',
+              style: AppTypography.caption.copyWith(fontFamily: 'monospace'),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Simple lines: "word | English meaning | French meaning" (meanings '
+            'optional). Or spell it out over several lines with EN:, FR:, '
+            'Example:, Example EN:, Example FR:, Phonetic:, and Level: — only '
+            'the word itself is required.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: textController,
+            maxLines: 12,
+            minLines: 8,
+            decoration: const InputDecoration(
+              hintText: 'Paste your word list here…',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewStep(VocabularyPasteParseResult result) {
+    final validCount = result.words.where((w) => w.isValid).length;
+    return SizedBox(
+      height: 420,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${result.words.length} word(s) detected — $validCount ready to import.',
+            style: AppTypography.caption,
+          ),
+          if (result.globalWarnings.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                result.globalWarnings.join(' '),
+                style: AppTypography.caption.copyWith(color: AppColors.error),
+              ),
+            ),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: result.words.isEmpty
+                ? Center(
+                    child: Text(
+                      'Nothing to preview — go back and adjust the pasted text.',
+                      style: AppTypography.caption,
+                    ),
+                  )
+                : ListView.separated(
+                    itemCount: result.words.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, index) {
+                      final w = result.words[index];
+                      return Opacity(
+                        opacity: w.isValid ? 1 : 0.5,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(AppSpacing.sm),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.divider),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      w.word,
+                                      style: AppTypography.body.copyWith(
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ),
+                                  Chip(
+                                    label: Text(w.difficulty, style: const TextStyle(fontSize: 11)),
+                                    backgroundColor: AppColors.secondary.withValues(alpha: 0.2),
+                                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                                    visualDensity: VisualDensity.compact,
+                                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+                                  ),
+                                ],
+                              ),
+                              if (w.englishMeaning != null || w.frenchMeaning != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                                  child: Text(
+                                    [
+                                      if (w.englishMeaning != null) 'EN: ${w.englishMeaning}',
+                                      if (w.frenchMeaning != null) 'FR: ${w.frenchMeaning}',
+                                    ].join('   '),
+                                    style: AppTypography.caption,
+                                  ),
+                                ),
+                              if (w.exampleSentence != null)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                                  child: Text(
+                                    w.exampleSentence!,
+                                    style: AppTypography.caption.copyWith(fontStyle: FontStyle.italic),
+                                  ),
+                                ),
+                              if (w.warnings.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                                  child: Text(
+                                    w.warnings.join(' '),
+                                    style: AppTypography.caption.copyWith(
+                                      color: AppColors.warning,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }
