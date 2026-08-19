@@ -779,6 +779,13 @@
   "gradeGoodLabel": "Good",
   "gradeEasyLabel": "Easy",
 
+  "smartReviewCompleteTitle": "Review Complete!",
+  "smartReviewCompleteSummary": "You reviewed {count} words today.",
+  "@smartReviewCompleteSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "backToPracticeButton": "Back to Practice",
+
   "bestStreakLabel": "Best Streak",
 
   "yourPronunciationTitle": "Your Pronunciation",

@@ -654,6 +654,13 @@
   "gradeGoodLabel": "Bien",
   "gradeEasyLabel": "Facile",
 
+  "smartReviewCompleteTitle": "Révision terminée !",
+  "smartReviewCompleteSummary": "Vous avez révisé {count} mots aujourd'hui.",
+  "@smartReviewCompleteSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "backToPracticeButton": "Retour à la pratique",
+
   "bestStreakLabel": "Meilleure série",
 
   "yourPronunciationTitle": "Votre prononciation",

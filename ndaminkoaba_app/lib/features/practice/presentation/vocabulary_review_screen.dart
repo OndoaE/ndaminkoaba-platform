@@ -1,15 +1,24 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/locale/locale_provider.dart';
+import '../../../core/services/storage_service.dart';
+import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/badge_earned_dialog.dart';
+import '../../../design_system/widgets/gradient_hero_card.dart';
 import '../../../design_system/widgets/pagination_dots.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../badges/domain/badge_entry.dart';
+import '../../courses/data/enrollment_repository.dart';
+import '../../courses/domain/models/enrolled_course.dart';
 import '../data/vocabulary_review_repository.dart';
 import '../domain/review_item.dart';
 
@@ -30,10 +39,14 @@ class VocabularyReviewScreen extends ConsumerStatefulWidget {
 class _VocabularyReviewScreenState
     extends ConsumerState<VocabularyReviewScreen> {
   final repository = VocabularyReviewRepository();
+  final enrollmentRepository = EnrollmentRepository();
 
   int index = 0;
   bool revealed = false;
   bool isGrading = false;
+  bool completed = false;
+  bool resolvingContinue = false;
+  EnrolledCourse? continueCourse;
 
   Future<void> _grade(int grade) async {
     if (isGrading) return;
@@ -60,6 +73,42 @@ class _VocabularyReviewScreenState
         isGrading = false;
       });
     } else {
+      setState(() => completed = true);
+      unawaited(_resolveContinueCourse());
+    }
+  }
+
+  /// Finds where the learner should continue next — the same "active
+  /// enrollment" resolution the dashboard's Continue Learning card uses —
+  /// so finishing a review flows straight back into the learner's course
+  /// instead of dead-ending on a review screen.
+  Future<void> _resolveContinueCourse() async {
+    setState(() => resolvingContinue = true);
+    try {
+      final userId = await StorageService.getUserId();
+      if (userId == null || userId.isEmpty) return;
+      final enrollments = await enrollmentRepository.getMyEnrollments(userId);
+      final active = enrollments.where((e) => e.status == 'ACTIVE');
+      if (!mounted) return;
+      setState(() => continueCourse = active.isNotEmpty ? active.first : null);
+    } catch (_) {
+      // Best-effort — the completion screen falls back to a plain "back to
+      // practice" button when no course could be resolved.
+    } finally {
+      if (mounted) setState(() => resolvingContinue = false);
+    }
+  }
+
+  void _continue() {
+    final course = continueCourse;
+    if (course != null) {
+      // Forward-only push (matching the dashboard's own Continue Learning
+      // navigation) rather than a replace — this screen was pushed with a
+      // raw Navigator.push, and go_router's pushReplacement isn't safe to
+      // mix with that since it doesn't know about imperatively-pushed
+      // routes sitting on top of its own page stack.
+      context.push('/courses/${course.courseId}');
+    } else {
       Navigator.of(context).pop();
     }
   }
@@ -67,6 +116,58 @@ class _VocabularyReviewScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+
+    if (completed) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: AppColors.background,
+          elevation: 0,
+          title: Text(l10n.smartReviewTitle),
+        ),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                GradientHeroCard(
+                  gradient: AppGradients.primary,
+                  child: Column(
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.white,
+                        size: 48,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        l10n.smartReviewCompleteTitle,
+                        style: AppTypography.h2.copyWith(color: Colors.white),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        l10n.smartReviewCompleteSummary(widget.items.length),
+                        style: const TextStyle(color: Colors.white70),
+                      ),
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                PrimaryButton(
+                  label: continueCourse != null
+                      ? l10n.continueButton
+                      : l10n.backToPracticeButton,
+                  isLoading: resolvingContinue,
+                  onPressed: _continue,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
     final word = widget.items[index].vocabulary;
     final meaning = isFrench ? word.frenchMeaning : word.englishMeaning;

@@ -1956,6 +1956,17 @@ class AppLocalizationsFr extends AppLocalizations {
   String get gradeEasyLabel => 'Facile';
 
   @override
+  String get smartReviewCompleteTitle => 'Révision terminée !';
+
+  @override
+  String smartReviewCompleteSummary(int count) {
+    return 'Vous avez révisé $count mots aujourd\'hui.';
+  }
+
+  @override
+  String get backToPracticeButton => 'Retour à la pratique';
+
+  @override
   String get bestStreakLabel => 'Meilleure série';
 
   @override

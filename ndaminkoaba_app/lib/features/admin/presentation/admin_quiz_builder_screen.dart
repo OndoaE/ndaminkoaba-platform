@@ -14,6 +14,7 @@ import '../../../design_system/widgets/gradient_hero_card.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_content_models.dart';
+import '../domain/quiz_paste_parser.dart';
 
 class AdminQuizBuilderScreen extends StatefulWidget {
   const AdminQuizBuilderScreen({
@@ -233,6 +234,51 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
     }
   }
 
+  Future<void> pasteQuiz() async {
+    final currentQuiz = quiz;
+    if (currentQuiz == null) return;
+
+    final parsedQuestions = await showDialog<List<ParsedQuestion>>(
+      context: context,
+      builder: (context) => const _PasteQuizDialog(),
+    );
+    if (parsedQuestions == null || parsedQuestions.isEmpty) return;
+
+    var succeeded = 0;
+    var failed = 0;
+    String? firstError;
+    for (final q in parsedQuestions) {
+      try {
+        await repository.createQuestionWithChoices(
+          quizId: currentQuiz.id,
+          questionText: q.questionText,
+          explanation: q.explanation,
+          frenchQuestionText: q.frenchQuestionText,
+          frenchExplanation: q.frenchExplanation,
+          choices: [
+            for (final c in q.choices)
+              (text: c.text, frenchText: c.frenchText, isCorrect: c.isCorrect),
+          ],
+        );
+        succeeded++;
+      } on DioException catch (e) {
+        failed++;
+        firstError ??= extractErrorMessage(e, fallback: 'Unknown server error.');
+      } catch (e) {
+        failed++;
+        firstError ??= e.toString();
+      }
+    }
+
+    await load();
+    _showMessage(
+      failed == 0
+          ? 'Imported $succeeded question(s).'
+          : 'Imported $succeeded question(s), $failed failed'
+                '${firstError != null ? ' — $firstError' : ''}.',
+    );
+  }
+
   Future<void> editQuestion(AdminQuestion question) async {
     final result = await showDialog<_QuestionFormResult>(
       context: context,
@@ -398,19 +444,39 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('Questions', style: AppTypography.title),
-            TextButton.icon(
-              onPressed: addQuestion,
-              icon: const Icon(Icons.add),
-              label: const Text('Add Question'),
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: pasteQuiz,
+                  icon: const Icon(Icons.content_paste),
+                  label: const Text('Paste Quiz'),
+                ),
+                TextButton.icon(
+                  onPressed: addQuestion,
+                  icon: const Icon(Icons.add),
+                  label: const Text('Add Question'),
+                ),
+              ],
             ),
           ],
         ),
         const SizedBox(height: AppSpacing.md),
         if (quiz.questions.isEmpty)
           PremiumCard(
-            child: Text(
-              'No questions yet. A quiz needs at least one question before a learner can take it.',
-              style: AppTypography.caption,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'No questions yet. A quiz needs at least one question before a learner can take it.',
+                  style: AppTypography.caption,
+                ),
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'Already have a quiz written elsewhere? Use "Paste Quiz" above to '
+                  'copy and paste it in and have the questions and choices created for you.',
+                  style: AppTypography.caption,
+                ),
+              ],
             ),
           )
         else
@@ -754,6 +820,230 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
           child: Text(isEditing ? 'Save' : 'Add Question'),
         ),
       ],
+    );
+  }
+}
+
+/// Lets an admin paste a whole quiz (written elsewhere) as plain text,
+/// previews how it was parsed into questions/choices, and hands back the
+/// list to import — the same shape [ContentRepository.createQuestionWithChoices]
+/// already consumes for a manually-created question.
+class _PasteQuizDialog extends StatefulWidget {
+  const _PasteQuizDialog();
+
+  @override
+  State<_PasteQuizDialog> createState() => _PasteQuizDialogState();
+}
+
+class _PasteQuizDialogState extends State<_PasteQuizDialog> {
+  final textController = TextEditingController();
+  QuizPasteParseResult? result;
+
+  @override
+  void dispose() {
+    textController.dispose();
+    super.dispose();
+  }
+
+  void parse() {
+    setState(() => result = parseQuizPaste(textController.text));
+  }
+
+  void backToPaste() {
+    setState(() => result = null);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final current = result;
+    return AlertDialog(
+      title: Text(current == null ? 'Paste Quiz' : 'Preview Import'),
+      content: SizedBox(
+        width: 520,
+        child: current == null ? _buildPasteStep() : _buildPreviewStep(current),
+      ),
+      actions: current == null
+          ? [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: textController.text.trim().isEmpty ? null : parse,
+                child: const Text('Parse'),
+              ),
+            ]
+          : [
+              TextButton(onPressed: backToPaste, child: const Text('Back')),
+              FilledButton(
+                onPressed: current.questions.where((q) => q.isValid).isEmpty
+                    ? null
+                    : () => Navigator.pop(
+                        context,
+                        current.questions.where((q) => q.isValid).toList(),
+                      ),
+                child: Text(
+                  'Import ${current.questions.where((q) => q.isValid).length} Question(s)',
+                ),
+              ),
+            ],
+    );
+  }
+
+  Widget _buildPasteStep() {
+    return SingleChildScrollView(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            'Paste one or more questions, with a blank line between each question.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.sm),
+            decoration: BoxDecoration(
+              color: AppColors.background,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Text(
+              '1. What is the Ewondo word for "water"?\n'
+              'A) Mendim *\n'
+              'B) Ayong\n'
+              'C) Nti\n'
+              'Explanation: Mendim means water.\n\n'
+              '2. Next question...\n'
+              'A) Choice one\n'
+              'B) Choice two\n'
+              'Answer: B',
+              style: AppTypography.caption.copyWith(fontFamily: 'monospace'),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            'Mark the correct choice with a trailing * or add an "Answer: B" / '
+            '"Réponse : B" line. Add "FR: ..." on its own line right after a '
+            'question or choice for the French translation. Numbered '
+            'questions with all the answers listed separately at the bottom '
+            'under a heading "Answer Key" (e.g. "7. B) Parents") also work.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: textController,
+            maxLines: 12,
+            minLines: 8,
+            decoration: const InputDecoration(
+              hintText: 'Paste your quiz text here…',
+              border: OutlineInputBorder(),
+            ),
+            onChanged: (_) => setState(() {}),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPreviewStep(QuizPasteParseResult result) {
+    final validCount = result.questions.where((q) => q.isValid).length;
+    return SizedBox(
+      height: 420,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '${result.questions.length} question(s) detected — $validCount ready to import.',
+            style: AppTypography.caption,
+          ),
+          if (result.globalWarnings.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: Text(
+                result.globalWarnings.join(' '),
+                style: AppTypography.caption.copyWith(color: AppColors.error),
+              ),
+            ),
+          const SizedBox(height: AppSpacing.sm),
+          Expanded(
+            child: result.questions.isEmpty
+                ? Center(
+                    child: Text(
+                      'Nothing to preview — go back and adjust the pasted text.',
+                      style: AppTypography.caption,
+                    ),
+                  )
+                : ListView.separated(
+                    itemCount: result.questions.length,
+                    separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+                    itemBuilder: (context, index) {
+                      final q = result.questions[index];
+                      return Opacity(
+                        opacity: q.isValid ? 1 : 0.5,
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(AppSpacing.sm),
+                          decoration: BoxDecoration(
+                            border: Border.all(color: AppColors.divider),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                '${index + 1}. ${q.questionText}',
+                                style: AppTypography.body.copyWith(
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              if (q.frenchQuestionText != null)
+                                Text(
+                                  q.frenchQuestionText!,
+                                  style: AppTypography.caption,
+                                ),
+                              const SizedBox(height: AppSpacing.xs),
+                              ...q.choices.map(
+                                (c) => Row(
+                                  children: [
+                                    Icon(
+                                      c.isCorrect
+                                          ? Icons.check_circle
+                                          : Icons.radio_button_unchecked,
+                                      size: 16,
+                                      color: c.isCorrect
+                                          ? AppColors.success
+                                          : AppColors.textSecondary,
+                                    ),
+                                    const SizedBox(width: AppSpacing.xs),
+                                    Expanded(
+                                      child: Text(
+                                        c.text,
+                                        style: AppTypography.caption,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (q.warnings.isNotEmpty)
+                                Padding(
+                                  padding: const EdgeInsets.only(top: AppSpacing.xs),
+                                  child: Text(
+                                    q.warnings.join(' '),
+                                    style: AppTypography.caption.copyWith(
+                                      color: AppColors.warning,
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
     );
   }
 }

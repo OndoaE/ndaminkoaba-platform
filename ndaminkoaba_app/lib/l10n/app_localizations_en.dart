@@ -1908,6 +1908,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get gradeEasyLabel => 'Easy';
 
   @override
+  String get smartReviewCompleteTitle => 'Review Complete!';
+
+  @override
+  String smartReviewCompleteSummary(int count) {
+    return 'You reviewed $count words today.';
+  }
+
+  @override
+  String get backToPracticeButton => 'Back to Practice';
+
+  @override
   String get bestStreakLabel => 'Best Streak';
 
   @override

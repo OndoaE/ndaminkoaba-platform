@@ -61,7 +61,13 @@ class _NdaMinkoabaAppState extends ConsumerState<NdaMinkoabaApp>
   @override
   void initState() {
     super.initState();
-    _connectivitySubscription = listenForConnectivityChanges(ref);
+    // connectivity_plus has no web-platform listener implementation here,
+    // so starting it unconditionally throws a MissingPluginException on
+    // every web load. Offline mode is already !kIsWeb-gated everywhere
+    // else (see the offline-mode plan's Non-goals) — this listener is too.
+    if (!kIsWeb) {
+      _connectivitySubscription = listenForConnectivityChanges(ref);
+    }
     WidgetsBinding.instance.addObserver(this);
   }
 

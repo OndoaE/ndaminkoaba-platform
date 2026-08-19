@@ -103,11 +103,13 @@ export class NnangaService {
 
     // Recent turns for this learner, oldest first, so Nnanga can follow up
     // on what was just discussed instead of treating every message as a
-    // fresh, context-free question.
+    // fresh, context-free question. 20 turns (40 messages) comfortably fits
+    // gpt-4o-mini's context window and covers a genuinely long conversation
+    // rather than losing the thread after a handful of exchanges.
     const priorTurns = await this.prisma.aIConversation.findMany({
       where: { userId: dto.userId },
       orderBy: { createdAt: 'desc' },
-      take: 6,
+      take: 20,
       select: { prompt: true, response: true },
     });
     const history = priorTurns

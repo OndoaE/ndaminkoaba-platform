@@ -3602,6 +3602,24 @@ abstract class AppLocalizations {
   /// **'Easy'**
   String get gradeEasyLabel;
 
+  /// No description provided for @smartReviewCompleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Complete!'**
+  String get smartReviewCompleteTitle;
+
+  /// No description provided for @smartReviewCompleteSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'You reviewed {count} words today.'**
+  String smartReviewCompleteSummary(int count);
+
+  /// No description provided for @backToPracticeButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Practice'**
+  String get backToPracticeButton;
+
   /// No description provided for @bestStreakLabel.
   ///
   /// In en, this message translates to:

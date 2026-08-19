@@ -11,7 +11,6 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/app_header.dart';
 import '../../../design_system/widgets/badge_card.dart';
-import '../../../design_system/widgets/badge_earned_dialog.dart';
 import '../../../design_system/widgets/gold_corner_pattern.dart';
 import '../../../design_system/widgets/progress_ring.dart';
 import '../../../design_system/widgets/section_title.dart';
@@ -21,7 +20,6 @@ import '../../../design_system/widgets/week_calendar.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../badges/data/badges_repository.dart';
 import '../../badges/domain/badge_entry.dart';
-import '../../pronunciation/presentation/pronunciation_recorder.dart';
 import '../../streaks/data/streaks_repository.dart';
 import '../../streaks/domain/streak_stats.dart';
 import '../data/practice_repository.dart';
@@ -30,7 +28,7 @@ import '../domain/practice_today.dart';
 import 'vocabulary_review_screen.dart';
 
 /// Tab-root "Practice" screen (bottom nav index 2) — Smart Review queue,
-/// pronunciation practice, weekly activity calendar, and badge progress.
+/// weekly activity calendar, and badge progress.
 /// Entirely new screen; no equivalent existed before this redesign.
 class PracticeScreen extends StatefulWidget {
   const PracticeScreen({super.key});
@@ -96,12 +94,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
     await Navigator.of(context).push<void>(
       MaterialPageRoute(builder: (_) => VocabularyReviewScreen(items: items)),
     );
-    load();
-  }
-
-  Future<void> _onBadgesEarned(List<BadgeEntry> newBadges) async {
-    if (!mounted || newBadges.isEmpty) return;
-    await BadgeEarnedDialog.show(context, newBadges);
     load();
   }
 
@@ -310,18 +302,6 @@ class _PracticeScreenState extends State<PracticeScreen> {
                         ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-
-                  // Pronunciation practice
-                  PronunciationRecorder(
-                    targetText: (due?.items.isNotEmpty ?? false)
-                        ? due!.items.first.vocabulary.word
-                        : 'Mbolo',
-                    vocabularyId: (due?.items.isNotEmpty ?? false)
-                        ? due!.items.first.vocabularyId
-                        : null,
-                    onNewlyEarnedBadges: _onBadgesEarned,
                   ),
                   const SizedBox(height: AppSpacing.xl),
 
