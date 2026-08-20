@@ -107,6 +107,16 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 
+  /// A search query or difficulty chip left over from browsing can silently
+  /// hide content that was just added — it's created successfully server-side
+  /// but filtered out of `_visibleWords`/`_visibleTexts` with no obvious sign
+  /// why. Clearing both after a successful add/import guarantees the admin
+  /// actually sees what they just entered.
+  void _clearFilters() {
+    searchController.clear();
+    setState(() => difficultyFilter = null);
+  }
+
   Future<void> deleteWord(KnowledgeWord word) async {
     try {
       await repository.deleteVocabulary(word.id);
@@ -136,6 +146,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         phoneticTranscription: result.phoneticTranscription,
         audioUrl: result.audioUrl,
       );
+      _clearFilters();
       load();
       _showMessage('Knowledge entry added.');
     } on DioException catch (e) {
@@ -176,6 +187,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
       }
     }
 
+    _clearFilters();
     load();
     _showMessage(
       failed == 0
@@ -234,6 +246,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         languageId: widget.languageId,
         translation: result.translation,
       );
+      _clearFilters();
       load();
       _showMessage('Text & translation added.');
     } on DioException catch (e) {

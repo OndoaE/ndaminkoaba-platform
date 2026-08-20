@@ -18,17 +18,30 @@ class KnowledgeRepository {
     return ((data['data'] ?? data) as Map<String, dynamic>)['url'] as String;
   }
 
+  /// Drains every page of `/vocabulary` instead of capping at a fixed
+  /// count — a language's word list has no upper bound the admin should
+  /// have to work around, so this keeps fetching until a page comes back
+  /// short of a full page (i.e. the last one), however many that takes.
   Future<List<KnowledgeWord>> getVocabulary({String? search, String? languageId}) async {
-    final response = await ApiClient.dio.get('/vocabulary', queryParameters: {
-      'limit': 100,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (languageId != null) 'languageId': languageId,
-    });
-    final data = response.data as Map<String, dynamic>;
-    final items = data['data']?['items'] ?? data['items'] ?? [];
-    return (items as List)
-        .map((item) => KnowledgeWord.fromJson(item as Map<String, dynamic>))
-        .toList();
+    const pageSize = 200;
+    final allWords = <KnowledgeWord>[];
+    var page = 1;
+    while (true) {
+      final response = await ApiClient.dio.get('/vocabulary', queryParameters: {
+        'limit': pageSize,
+        'page': page,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (languageId != null) 'languageId': languageId,
+      });
+      final data = response.data as Map<String, dynamic>;
+      final items = (data['data']?['items'] ?? data['items'] ?? []) as List;
+      allWords.addAll(
+        items.map((item) => KnowledgeWord.fromJson(item as Map<String, dynamic>)),
+      );
+      if (items.length < pageSize) break;
+      page++;
+    }
+    return allWords;
   }
 
   Future<void> createVocabulary({
