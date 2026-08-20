@@ -104,17 +104,28 @@ class KnowledgeRepository {
 
   // --- Knowledge texts (longer text + translation entries) ---
 
+  /// Drains every page instead of capping at a fixed count — see
+  /// [getVocabulary] for why.
   Future<List<KnowledgeText>> getKnowledgeTexts({String? search, String? languageId}) async {
-    final response = await ApiClient.dio.get('/knowledge-texts', queryParameters: {
-      'limit': 100,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (languageId != null) 'languageId': languageId,
-    });
-    final data = response.data as Map<String, dynamic>;
-    final items = data['data']?['items'] ?? data['items'] ?? [];
-    return (items as List)
-        .map((item) => KnowledgeText.fromJson(item as Map<String, dynamic>))
-        .toList();
+    const pageSize = 200;
+    final allTexts = <KnowledgeText>[];
+    var page = 1;
+    while (true) {
+      final response = await ApiClient.dio.get('/knowledge-texts', queryParameters: {
+        'limit': pageSize,
+        'page': page,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (languageId != null) 'languageId': languageId,
+      });
+      final data = response.data as Map<String, dynamic>;
+      final items = (data['data']?['items'] ?? data['items'] ?? []) as List;
+      allTexts.addAll(
+        items.map((item) => KnowledgeText.fromJson(item as Map<String, dynamic>)),
+      );
+      if (items.length < pageSize) break;
+      page++;
+    }
+    return allTexts;
   }
 
   Future<void> createKnowledgeText({
@@ -196,17 +207,28 @@ class KnowledgeRepository {
 
   // --- Daily word / verse (rotating pool shown on the learner dashboard) ---
 
+  /// Drains every page instead of capping at a fixed count — see
+  /// [getVocabulary] for why.
   Future<List<DailyWordEntry>> getDailyWords({String? search, String? languageId}) async {
-    final response = await ApiClient.dio.get('/daily/words', queryParameters: {
-      'limit': 100,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (languageId != null) 'languageId': languageId,
-    });
-    final data = response.data as Map<String, dynamic>;
-    final items = data['data']?['items'] ?? data['items'] ?? [];
-    return (items as List)
-        .map((item) => DailyWordEntry.fromJson(item as Map<String, dynamic>))
-        .toList();
+    const pageSize = 200;
+    final allWords = <DailyWordEntry>[];
+    var page = 1;
+    while (true) {
+      final response = await ApiClient.dio.get('/daily/words', queryParameters: {
+        'limit': pageSize,
+        'page': page,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (languageId != null) 'languageId': languageId,
+      });
+      final data = response.data as Map<String, dynamic>;
+      final items = (data['data']?['items'] ?? data['items'] ?? []) as List;
+      allWords.addAll(
+        items.map((item) => DailyWordEntry.fromJson(item as Map<String, dynamic>)),
+      );
+      if (items.length < pageSize) break;
+      page++;
+    }
+    return allWords;
   }
 
   Future<void> createDailyWord({
@@ -244,17 +266,28 @@ class KnowledgeRepository {
     await ApiClient.dio.delete('/daily/words/$id');
   }
 
+  /// Drains every page instead of capping at a fixed count — see
+  /// [getVocabulary] for why.
   Future<List<DailyVerseEntry>> getDailyVerses({String? search, String? languageId}) async {
-    final response = await ApiClient.dio.get('/daily/verses', queryParameters: {
-      'limit': 100,
-      if (search != null && search.isNotEmpty) 'search': search,
-      if (languageId != null) 'languageId': languageId,
-    });
-    final data = response.data as Map<String, dynamic>;
-    final items = data['data']?['items'] ?? data['items'] ?? [];
-    return (items as List)
-        .map((item) => DailyVerseEntry.fromJson(item as Map<String, dynamic>))
-        .toList();
+    const pageSize = 200;
+    final allVerses = <DailyVerseEntry>[];
+    var page = 1;
+    while (true) {
+      final response = await ApiClient.dio.get('/daily/verses', queryParameters: {
+        'limit': pageSize,
+        'page': page,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (languageId != null) 'languageId': languageId,
+      });
+      final data = response.data as Map<String, dynamic>;
+      final items = (data['data']?['items'] ?? data['items'] ?? []) as List;
+      allVerses.addAll(
+        items.map((item) => DailyVerseEntry.fromJson(item as Map<String, dynamic>)),
+      );
+      if (items.length < pageSize) break;
+      page++;
+    }
+    return allVerses;
   }
 
   Future<void> createDailyVerse({

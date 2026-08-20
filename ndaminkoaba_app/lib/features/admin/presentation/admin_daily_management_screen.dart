@@ -123,6 +123,9 @@ class _AdminDailyManagementScreenState
         frenchMeaning: result.frenchMeaning,
         usageHint: result.usageHint,
       );
+      // A leftover search query would otherwise silently filter the just-
+      // added word out of view — see the same fix on the Vocabulary screen.
+      searchController.clear();
       load();
       _showMessage('Daily word added.');
     } on DioException catch (e) {
@@ -194,6 +197,9 @@ class _AdminDailyManagementScreenState
         frenchText: result.frenchText,
         reference: result.reference,
       );
+      // A leftover search query would otherwise silently filter the just-
+      // added verse out of view — see the same fix on the Vocabulary screen.
+      searchController.clear();
       load();
       _showMessage('Daily verse added.');
     } on DioException catch (e) {
