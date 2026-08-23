@@ -105,18 +105,49 @@ class SyllabaryRepository {
 
   // ---------- Admin: AI extraction (never writes anything itself) ----------
 
-  Future<SyllabaryExtractionResult> extractChart({
+  Future<SyllabaryExtractionResult> extractChartFromImage({
     required Uint8List imageBytes,
     required String mimeType,
     required String languageId,
+  }) {
+    return _extract(
+      languageId: languageId,
+      body: {'imageBase64': base64Encode(imageBytes), 'mimeType': mimeType},
+    );
+  }
+
+  /// A PDF/Word/Excel/txt upload — the backend text-extracts it, then runs
+  /// the same text-based AI extraction as [extractChartFromText].
+  Future<SyllabaryExtractionResult> extractChartFromDocument({
+    required Uint8List documentBytes,
+    required String mimeType,
+    required String languageId,
+  }) {
+    return _extract(
+      languageId: languageId,
+      body: {'documentBase64': base64Encode(documentBytes), 'mimeType': mimeType},
+    );
+  }
+
+  /// Pasted or typed text/table content — e.g. a table copy-pasted from a
+  /// spreadsheet or document, which browsers deliver as plain text.
+  Future<SyllabaryExtractionResult> extractChartFromText({
+    required String text,
+    required String languageId,
+  }) {
+    return _extract(languageId: languageId, body: {'text': text});
+  }
+
+  Future<SyllabaryExtractionResult> _extract({
+    required String languageId,
+    required Map<String, dynamic> body,
   }) async {
     final response = await ApiClient.dio.post('/syllabary/extract', data: {
-      'imageBase64': base64Encode(imageBytes),
-      'mimeType': mimeType,
+      ...body,
       'languageId': languageId,
     });
     final data = response.data as Map<String, dynamic>;
-    final body = (data['data'] ?? data) as Map<String, dynamic>;
-    return SyllabaryExtractionResult.fromJson(body);
+    final result = (data['data'] ?? data) as Map<String, dynamic>;
+    return SyllabaryExtractionResult.fromJson(result);
   }
 }

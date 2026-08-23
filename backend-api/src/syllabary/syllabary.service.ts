@@ -7,6 +7,7 @@ import { CreateSyllabaryEntryDto } from './dto/create-syllabary-entry.dto';
 import { UpdateSyllabaryEntryDto } from './dto/update-syllabary-entry.dto';
 import { QuerySyllabaryDto } from './dto/query-syllabary.dto';
 import { ExtractSyllabaryDto } from './dto/extract-syllabary.dto';
+import { extractDocumentText } from './document-text-extractor';
 
 @Injectable()
 export class SyllabaryService {
@@ -102,6 +103,11 @@ export class SyllabaryService {
 
   // ---------- AI extraction (never writes to the DB) ----------
 
+  /// Dispatches on whichever content field is present — pasted text goes
+  /// straight to the text model, an uploaded document is text-extracted
+  /// first (see `document-text-extractor.ts`) then goes the same route, and
+  /// a photographed chart goes to the vision model, matching how
+  /// `ExtractSyllabaryDto` documents its "exactly one of" contract.
   async extract(dto: ExtractSyllabaryDto) {
     const language = await this.prisma.language.findUnique({ where: { id: dto.languageId } });
     if (!language) {
@@ -112,6 +118,33 @@ export class SyllabaryService {
       };
     }
 
-    return this.aiService.extractSyllabaryChart(dto.imageBase64, dto.mimeType, language.name);
+    if (dto.text && dto.text.trim().length > 0) {
+      return this.aiService.extractSyllabaryChartFromText(dto.text, language.name);
+    }
+
+    if (dto.documentBase64 && dto.mimeType) {
+      const buffer = Buffer.from(dto.documentBase64, 'base64');
+      const text = await extractDocumentText(buffer, dto.mimeType);
+      if (!text) {
+        return {
+          consonant: null,
+          rows: [],
+          warnings: [
+            'Could not read any text from this file — try a different file, or paste the content directly.',
+          ],
+        };
+      }
+      return this.aiService.extractSyllabaryChartFromText(text, language.name);
+    }
+
+    if (dto.imageBase64 && dto.mimeType) {
+      return this.aiService.extractSyllabaryChart(dto.imageBase64, dto.mimeType, language.name);
+    }
+
+    return {
+      consonant: null,
+      rows: [],
+      warnings: ['No content provided to analyze.'],
+    };
   }
 }

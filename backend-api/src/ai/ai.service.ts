@@ -407,44 +407,126 @@ Rules:
 
       const raw = completion.choices[0]?.message?.content?.trim();
       if (!raw) return empty('Nnanga could not read this image. Try Re-analyze.');
-
-      try {
-        const parsed = JSON.parse(raw);
-        const rawRows = Array.isArray(parsed.rows) ? parsed.rows : [];
-        const rows: SyllabaryExtractionRow[] = rawRows
-          .filter((r: unknown) => typeof r === 'object' && r !== null)
-          .map((r: any, index: number) => ({
-            vowel: typeof r.vowel === 'string' ? r.vowel : '',
-            syllable: typeof r.syllable === 'string' ? r.syllable : '',
-            exampleWord: typeof r.exampleWord === 'string' ? r.exampleWord : null,
-            translation: typeof r.translation === 'string' ? r.translation : null,
-            exampleSentence: typeof r.exampleSentence === 'string' ? r.exampleSentence : null,
-            orderNumber: typeof r.orderNumber === 'number' ? r.orderNumber : index,
-            confidence: r.confidence === 'low' ? 'low' : 'high',
-          }))
-          .filter((r: SyllabaryExtractionRow) => r.vowel !== '' || r.syllable !== '');
-
-        return {
-          consonant: typeof parsed.consonant === 'string' ? parsed.consonant : null,
-          rows,
-          warnings: Array.isArray(parsed.warnings)
-            ? parsed.warnings.filter((w: unknown) => typeof w === 'string')
-            : [],
-        };
-      } catch (parseError) {
-        this.logger.warn(`Syllabary extraction response was not valid JSON: ${parseError}`);
-        return empty('Could not read the AI response — try Re-analyze.');
-      }
+      return this.parseSyllabaryExtractionResponse(raw, empty);
     } catch (error: any) {
-      this.logger.error(error);
-
-      if (error?.status === 401) {
-        return empty('Nnanga could not authenticate with OpenRouter. Please verify OPENROUTER_API_KEY.');
-      }
-      if (error?.status === 429) {
-        return empty('Nnanga has reached the OpenRouter usage limit. Please check credits or rate limits.');
-      }
-      return empty('Nnanga could not reach the AI service right now. Try Re-analyze in a moment.');
+      return this.handleSyllabaryExtractionError(error, empty);
     }
+  }
+
+  /// Same contract as [extractSyllabaryChart], but for a pasted/typed table
+  /// or free-text description instead of a photographed chart — used both
+  /// for direct clipboard-paste input and for text extracted from an
+  /// uploaded PDF/Word/Excel/txt file (see `document-text-extractor.ts`).
+  /// Reuses the same response parsing/error handling so both paths stay in
+  /// sync on the JSON contract.
+  async extractSyllabaryChartFromText(
+    text: string,
+    languageName: string,
+  ): Promise<SyllabaryExtractionResult> {
+    const empty = (warning: string): SyllabaryExtractionResult => ({
+      consonant: null,
+      rows: [],
+      warnings: [warning],
+    });
+
+    if (!process.env.OPENROUTER_API_KEY) {
+      return empty('Nnanga AI is not configured yet. Please add OPENROUTER_API_KEY to the .env file.');
+    }
+
+    const prompt = `You are extracting a ${languageName} syllabics teaching chart from pasted or typed content (this may be a plain-text description, a table copy-pasted from a spreadsheet or document, or a plain list) into structured JSON. These charts follow a standard literacy-teaching convention: one consonant letter combined with each of the language's vowels to form a syllable per vowel (e.g. consonant "L" + vowel "a" -> syllable "la"). Some content instead describes a single standalone vowel with no consonant. Each row typically also lists an example word containing that syllable, a French translation of that word, and an example sentence — though any of these may be missing.
+
+Here is the pasted/typed content:
+"""
+${text}
+"""
+
+Respond with ONLY a JSON object (no markdown fences, no prose outside it) matching exactly this shape:
+{
+  "consonant": string | null,
+  "rows": [
+    {
+      "vowel": string,
+      "syllable": string,
+      "exampleWord": string | null,
+      "translation": string | null,
+      "exampleSentence": string | null,
+      "orderNumber": number,
+      "confidence": "high" | "low"
+    }
+  ],
+  "warnings": string[]
+}
+
+Rules:
+- "consonant" is the single letter the content is built around (e.g. "L"); null if it describes a standalone vowel with nothing combined with it.
+- "rows" has one entry per vowel row you can identify, in the same order as the source content — "orderNumber" is that 0-based position.
+- If a field is missing or unclear for a row, use null for that field — do NOT guess or invent content to fill it in.
+- Set "confidence" to "low" on any row where the content is ambiguous or you had to infer structure, rather than silently guessing "high".
+- Add an entry to "warnings" for anything that affected extraction: the content seemed truncated or malformed, formatting was inconsistent, or you found fewer/more rows than the language's usual vowel count would suggest.
+- If the pasted content doesn't look like a syllabics chart at all, return empty "rows" and say so in "warnings".`;
+
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini',
+        temperature: 0,
+        max_tokens: 2000,
+        response_format: { type: 'json_object' },
+        messages: [{ role: 'user', content: prompt }],
+      });
+
+      const raw = completion.choices[0]?.message?.content?.trim();
+      if (!raw) return empty('Nnanga could not read this content. Try Re-analyze.');
+      return this.parseSyllabaryExtractionResponse(raw, empty);
+    } catch (error: any) {
+      return this.handleSyllabaryExtractionError(error, empty);
+    }
+  }
+
+  private parseSyllabaryExtractionResponse(
+    raw: string,
+    empty: (warning: string) => SyllabaryExtractionResult,
+  ): SyllabaryExtractionResult {
+    try {
+      const parsed = JSON.parse(raw);
+      const rawRows = Array.isArray(parsed.rows) ? parsed.rows : [];
+      const rows: SyllabaryExtractionRow[] = rawRows
+        .filter((r: unknown) => typeof r === 'object' && r !== null)
+        .map((r: any, index: number) => ({
+          vowel: typeof r.vowel === 'string' ? r.vowel : '',
+          syllable: typeof r.syllable === 'string' ? r.syllable : '',
+          exampleWord: typeof r.exampleWord === 'string' ? r.exampleWord : null,
+          translation: typeof r.translation === 'string' ? r.translation : null,
+          exampleSentence: typeof r.exampleSentence === 'string' ? r.exampleSentence : null,
+          orderNumber: typeof r.orderNumber === 'number' ? r.orderNumber : index,
+          confidence: r.confidence === 'low' ? 'low' : 'high',
+        }))
+        .filter((r: SyllabaryExtractionRow) => r.vowel !== '' || r.syllable !== '');
+
+      return {
+        consonant: typeof parsed.consonant === 'string' ? parsed.consonant : null,
+        rows,
+        warnings: Array.isArray(parsed.warnings)
+          ? parsed.warnings.filter((w: unknown) => typeof w === 'string')
+          : [],
+      };
+    } catch (parseError) {
+      this.logger.warn(`Syllabary extraction response was not valid JSON: ${parseError}`);
+      return empty('Could not read the AI response — try Re-analyze.');
+    }
+  }
+
+  private handleSyllabaryExtractionError(
+    error: any,
+    empty: (warning: string) => SyllabaryExtractionResult,
+  ): SyllabaryExtractionResult {
+    this.logger.error(error);
+
+    if (error?.status === 401) {
+      return empty('Nnanga could not authenticate with OpenRouter. Please verify OPENROUTER_API_KEY.');
+    }
+    if (error?.status === 429) {
+      return empty('Nnanga has reached the OpenRouter usage limit. Please check credits or rate limits.');
+    }
+    return empty('Nnanga could not reach the AI service right now. Try Re-analyze in a moment.');
   }
 }

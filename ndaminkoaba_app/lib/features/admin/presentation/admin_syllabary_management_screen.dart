@@ -1,22 +1,62 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'dart:ui' show instantiateImageCodec;
 
+import 'package:desktop_drop/desktop_drop.dart';
 import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 
 import '../../../core/network/api_error.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../data/clipboard_paste_reader.dart';
 import '../../syllabary/data/syllabary_repository.dart';
 import '../../syllabary/domain/syllabary_models.dart';
 
-enum _Phase { list, review }
+enum _Phase { list, upload, review }
+
+/// What's currently loaded into the upload step, before "Analyze with AI"
+/// is pressed — an image, a document (PDF/Word/Excel), or pasted/typed
+/// text/table content. Exactly one of [imageOrDocumentBytes] or [text] is
+/// set; [isImage] only matters when bytes are set (drives whether a
+/// thumbnail + dimensions are shown).
+class _PickedContent {
+  const _PickedContent.file({
+    required this.bytes,
+    required this.fileName,
+    required this.mimeType,
+    required this.isImage,
+    this.sizeBytes,
+    this.imageWidth,
+    this.imageHeight,
+  }) : text = null;
+
+  const _PickedContent.text(this.text)
+      : bytes = null,
+        fileName = null,
+        mimeType = null,
+        isImage = false,
+        sizeBytes = null,
+        imageWidth = null,
+        imageHeight = null;
+
+  final Uint8List? bytes;
+  final String? fileName;
+  final String? mimeType;
+  final bool isImage;
+  final int? sizeBytes;
+  final int? imageWidth;
+  final int? imageHeight;
+  final String? text;
+}
 
 /// Admin screen for the syllabary/literacy-chart knowledge base: an admin
 /// photographs a chart (a consonant with arrows to each vowel, forming
@@ -41,16 +81,15 @@ class AdminSyllabaryManagementScreen extends StatefulWidget {
 class _AdminSyllabaryManagementScreenState
     extends State<AdminSyllabaryManagementScreen> {
   final repository = SyllabaryRepository();
-  final picker = ImagePicker();
 
   _Phase phase = _Phase.list;
   bool isLoading = true;
   bool isExtracting = false;
   bool isImporting = false;
+  bool isDraggingOver = false;
   List<SyllabaryEntry> entries = [];
 
-  Uint8List? pickedImageBytes;
-  String? pickedImageMimeType;
+  _PickedContent? picked;
   SyllabaryExtractionResult? draft;
 
   @override
@@ -131,64 +170,144 @@ class _AdminSyllabaryManagementScreenState
     }
   }
 
-  Future<void> pickImageSource() async {
-    final source = await showModalBottomSheet<ImageSource>(
-      context: context,
-      builder: (context) => SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Icons.photo_library_outlined),
-              title: const Text('Choose from gallery'),
-              onTap: () => Navigator.pop(context, ImageSource.gallery),
-            ),
-            ListTile(
-              leading: const Icon(Icons.camera_alt_outlined),
-              title: const Text('Take a photo'),
-              onTap: () => Navigator.pop(context, ImageSource.camera),
-            ),
-          ],
-        ),
-      ),
-    );
-    if (source == null) return;
-    await _pickAndExtract(source);
-  }
+  static const _kAllowedExtensions = ['png', 'jpg', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'];
 
-  Future<void> _pickAndExtract(ImageSource source) async {
-    final picked = await picker.pickImage(source: source, imageQuality: 85);
-    if (picked == null) return;
-
-    final bytes = await picked.readAsBytes();
-    if (!mounted) return;
-
+  void openUploadPhase() {
     setState(() {
-      pickedImageBytes = bytes;
-      pickedImageMimeType = picked.mimeType ?? _guessMimeType(picked.name);
+      phase = _Phase.upload;
+      picked = null;
     });
-    await _runExtraction();
   }
 
   String _guessMimeType(String filename) {
     final lower = filename.toLowerCase();
     if (lower.endsWith('.png')) return 'image/png';
+    if (lower.endsWith('.jpg') || lower.endsWith('.jpeg')) return 'image/jpeg';
     if (lower.endsWith('.webp')) return 'image/webp';
-    return 'image/jpeg';
+    if (lower.endsWith('.pdf')) return 'application/pdf';
+    if (lower.endsWith('.docx')) {
+      return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+    }
+    if (lower.endsWith('.doc')) return 'application/msword';
+    if (lower.endsWith('.xlsx')) {
+      return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+    }
+    if (lower.endsWith('.xls')) return 'application/vnd.ms-excel';
+    return 'text/plain';
   }
 
-  Future<void> _runExtraction() async {
-    final bytes = pickedImageBytes;
-    final mimeType = pickedImageMimeType;
-    if (bytes == null || mimeType == null) return;
+  Future<(int, int)?> _decodeImageDimensions(Uint8List bytes) async {
+    try {
+      final codec = await instantiateImageCodec(bytes);
+      final frame = await codec.getNextFrame();
+      return (frame.image.width, frame.image.height);
+    } catch (_) {
+      return null;
+    }
+  }
+
+  Future<void> _setPickedFile({
+    required Uint8List bytes,
+    required String fileName,
+    String? mimeType,
+  }) async {
+    final resolvedMimeType = mimeType ?? _guessMimeType(fileName);
+    final isImage = resolvedMimeType.startsWith('image/');
+    (int, int)? dimensions;
+    if (isImage) dimensions = await _decodeImageDimensions(bytes);
+    if (!mounted) return;
+
+    if (resolvedMimeType == 'text/plain') {
+      // A dropped/picked .txt file is handled identically to pasted text —
+      // no need for a server round-trip through the document extractor.
+      setState(() => picked = _PickedContent.text(_safeUtf8Decode(bytes)));
+      return;
+    }
+
+    setState(() {
+      picked = _PickedContent.file(
+        bytes: bytes,
+        fileName: fileName,
+        mimeType: resolvedMimeType,
+        isImage: isImage,
+        sizeBytes: bytes.length,
+        imageWidth: dimensions?.$1,
+        imageHeight: dimensions?.$2,
+      );
+    });
+  }
+
+  String _safeUtf8Decode(Uint8List bytes) {
+    try {
+      return utf8.decode(bytes);
+    } catch (_) {
+      return '';
+    }
+  }
+
+  Future<void> pickFile() async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: _kAllowedExtensions,
+      withData: true,
+    );
+    final file = result?.files.firstOrNull;
+    if (file == null || file.bytes == null) return;
+    await _setPickedFile(bytes: file.bytes!, fileName: file.name);
+  }
+
+  Future<void> pasteFromClipboard() async {
+    final result = await readClipboardPaste();
+    if (result == null) {
+      _showMessage('Nothing usable found on the clipboard.');
+      return;
+    }
+    if (result.isImage) {
+      await _setPickedFile(
+        bytes: result.imageBytes!,
+        fileName: 'pasted-image',
+        mimeType: result.imageMimeType,
+      );
+    } else if (result.text != null) {
+      setState(() => picked = _PickedContent.text(result.text!));
+    }
+  }
+
+  Future<void> handleDroppedFiles(List<DropItem> files) async {
+    setState(() => isDraggingOver = false);
+    final file = files.firstOrNull;
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    await _setPickedFile(bytes: bytes, fileName: file.name, mimeType: file.mimeType);
+  }
+
+  void clearPicked() => setState(() => picked = null);
+
+  Future<void> analyzeWithAi() async {
+    final current = picked;
+    if (current == null) return;
 
     setState(() => isExtracting = true);
     try {
-      final result = await repository.extractChart(
-        imageBytes: bytes,
-        mimeType: mimeType,
-        languageId: widget.languageId,
-      );
+      final SyllabaryExtractionResult result;
+      if (current.text != null) {
+        result = await repository.extractChartFromText(
+          text: current.text!,
+          languageId: widget.languageId,
+        );
+      } else if (current.isImage) {
+        result = await repository.extractChartFromImage(
+          imageBytes: current.bytes!,
+          mimeType: current.mimeType!,
+          languageId: widget.languageId,
+        );
+      } else {
+        result = await repository.extractChartFromDocument(
+          documentBytes: current.bytes!,
+          mimeType: current.mimeType!,
+          languageId: widget.languageId,
+        );
+      }
       if (!mounted) return;
       setState(() {
         draft = result;
@@ -201,12 +320,12 @@ class _AdminSyllabaryManagementScreenState
     } on DioException catch (e) {
       if (!mounted) return;
       setState(() => isExtracting = false);
-      _showMessage(extractErrorMessage(e, fallback: 'Could not analyze this image.'));
+      _showMessage(extractErrorMessage(e, fallback: 'Could not analyze this content.'));
     }
   }
 
   Future<void> reanalyze() async {
-    if (pickedImageBytes == null) return;
+    if (picked == null) return;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
@@ -227,15 +346,14 @@ class _AdminSyllabaryManagementScreenState
       ),
     );
     if (confirmed != true) return;
-    await _runExtraction();
+    await analyzeWithAi();
   }
 
   void cancelReview() {
     setState(() {
       phase = _Phase.list;
       draft = null;
-      pickedImageBytes = null;
-      pickedImageMimeType = null;
+      picked = null;
     });
   }
 
@@ -274,8 +392,7 @@ class _AdminSyllabaryManagementScreenState
       isImporting = false;
       phase = _Phase.list;
       draft = null;
-      pickedImageBytes = null;
-      pickedImageMimeType = null;
+      picked = null;
     });
     load();
     _showMessage(
@@ -286,20 +403,32 @@ class _AdminSyllabaryManagementScreenState
     );
   }
 
+  static const _kTitles = {
+    _Phase.list: 'Syllabus Management',
+    _Phase.upload: 'Upload Chart',
+    _Phase.review: 'Review Chart',
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: GradientAppBar(
-        title: phase == _Phase.review ? 'Review Chart' : 'Syllabus Management',
+        title: _kTitles[phase]!,
         colors: const [AppColors.ai, Color(0xFF6B4CE0)],
+        leading: phase == _Phase.upload && !isExtracting
+            ? IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => setState(() => phase = _Phase.list),
+              )
+            : null,
       ),
       floatingActionButton: phase == _Phase.list && !isExtracting
           ? FloatingActionButton.extended(
-              onPressed: pickImageSource,
+              onPressed: openUploadPhase,
               icon: const Icon(Icons.add_a_photo_outlined, color: Colors.white),
               label: const Text(
-                'Upload Chart Photo',
+                'Upload Chart',
                 style: TextStyle(color: Colors.white),
               ),
               backgroundColor: AppColors.ai,
@@ -308,9 +437,11 @@ class _AdminSyllabaryManagementScreenState
       body: SafeArea(
         child: isExtracting
             ? _buildExtractingState()
-            : phase == _Phase.review
-                ? _buildReviewPhase()
-                : _buildListPhase(),
+            : switch (phase) {
+                _Phase.review => _buildReviewPhase(),
+                _Phase.upload => _buildUploadPhase(),
+                _Phase.list => _buildListPhase(),
+              },
       ),
     );
   }
@@ -341,8 +472,8 @@ class _AdminSyllabaryManagementScreenState
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
           child: Text(
-            'No syllabary content yet. Tap "Upload Chart Photo" below — take a '
-            'photo of a chart like a consonant with arrows to each vowel, and '
+            'No syllabary content yet. Tap "Upload Chart" below — paste, drop, '
+            'or choose a photo, PDF, Word, Excel, or text file of a chart, and '
             'the AI will extract it for you to review before saving.',
             style: AppTypography.caption,
             textAlign: TextAlign.center,
@@ -428,6 +559,97 @@ class _AdminSyllabaryManagementScreenState
               ),
             ),
           ),
+      ],
+    );
+  }
+
+  Widget _buildUploadPhase() {
+    final current = picked;
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, 120),
+      children: [
+        const SectionTitle(
+          title: '1. Paste or Import Content',
+          subtitle: 'A photo, a table, or text — pick whichever is easiest.',
+        ),
+        const SizedBox(height: AppSpacing.md),
+        DropTarget(
+          onDragEntered: (_) => setState(() => isDraggingOver = true),
+          onDragExited: (_) => setState(() => isDraggingOver = false),
+          onDragDone: (details) => handleDroppedFiles(details.files),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.xl),
+            decoration: BoxDecoration(
+              color: isDraggingOver
+                  ? AppColors.ai.withValues(alpha: 0.06)
+                  : AppColors.surface,
+              borderRadius: AppRadius.medium,
+              border: Border.all(
+                color: isDraggingOver ? AppColors.ai : AppColors.divider,
+                width: isDraggingOver ? 2 : 1,
+                style: BorderStyle.solid,
+              ),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.content_paste_outlined,
+                  size: 40,
+                  color: isDraggingOver ? AppColors.ai : AppColors.textSecondary,
+                ),
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  'Paste an image, a table, or text here\nor drag and drop a file',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  'Supported formats: PNG, JPG, PDF, Word, Excel, TXT',
+                  style: AppTypography.caption,
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Wrap(
+                  spacing: AppSpacing.sm,
+                  runSpacing: AppSpacing.sm,
+                  alignment: WrapAlignment.center,
+                  children: [
+                    OutlinedButton.icon(
+                      onPressed: pasteFromClipboard,
+                      icon: const Icon(Icons.content_paste, size: 16),
+                      label: const Text('Paste from Clipboard'),
+                    ),
+                    OutlinedButton.icon(
+                      onPressed: pickFile,
+                      icon: const Icon(Icons.folder_open_outlined, size: 16),
+                      label: const Text('Choose a File'),
+                    ),
+                    if (current != null)
+                      OutlinedButton.icon(
+                        onPressed: clearPicked,
+                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.error),
+                        icon: const Icon(Icons.close, size: 16),
+                        label: const Text('Clear'),
+                      ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (current != null) ...[
+          const SizedBox(height: AppSpacing.lg),
+          const SectionTitle(title: 'Content Preview'),
+          const SizedBox(height: AppSpacing.md),
+          _ContentPreviewCard(content: current),
+          const SizedBox(height: AppSpacing.xl),
+          PrimaryButton(
+            label: 'Analyze with AI',
+            icon: Icons.auto_awesome,
+            onPressed: analyzeWithAi,
+          ),
+        ],
       ],
     );
   }
@@ -559,6 +781,99 @@ class _AdminSyllabaryManagementScreenState
           ),
         ),
       ],
+    );
+  }
+}
+
+/// The "1. Content Preview" step-2-equivalent shown after something's been
+/// pasted/dropped/chosen but before "Analyze with AI" runs — filename,
+/// type, size (and dimensions for an image), plus a thumbnail or a text
+/// snippet, matching what the admin picked so they can confirm it before
+/// spending an AI call on it.
+class _ContentPreviewCard extends StatelessWidget {
+  const _ContentPreviewCard({required this.content});
+
+  final _PickedContent content;
+
+  String _formatSize(int bytes) {
+    if (bytes < 1024) return '$bytes B';
+    if (bytes < 1024 * 1024) return '${(bytes / 1024).toStringAsFixed(1)} KB';
+    return '${(bytes / (1024 * 1024)).toStringAsFixed(1)} MB';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (content.text != null) {
+      final preview = content.text!.length > 400
+          ? '${content.text!.substring(0, 400)}…'
+          : content.text!;
+      return PremiumCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                const Icon(Icons.text_snippet_outlined, color: AppColors.ai),
+                const SizedBox(width: AppSpacing.sm),
+                Text('Pasted text', style: AppTypography.title.copyWith(fontSize: 14)),
+              ],
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Text(preview, style: AppTypography.caption),
+          ],
+        ),
+      );
+    }
+
+    return PremiumCard(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (content.isImage)
+            ClipRRect(
+              borderRadius: AppRadius.small,
+              child: Image.memory(
+                content.bytes!,
+                width: 72,
+                height: 72,
+                fit: BoxFit.cover,
+              ),
+            )
+          else
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                color: AppColors.ai.withValues(alpha: 0.1),
+                borderRadius: AppRadius.small,
+              ),
+              alignment: Alignment.center,
+              child: const Icon(Icons.description_outlined, color: AppColors.ai, size: 32),
+            ),
+          const SizedBox(width: AppSpacing.md),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  content.fileName ?? '—',
+                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                Text('Type: ${content.mimeType ?? '—'}', style: AppTypography.caption),
+                if (content.imageWidth != null && content.imageHeight != null)
+                  Text(
+                    'Dimensions: ${content.imageWidth} × ${content.imageHeight}',
+                    style: AppTypography.caption,
+                  ),
+                if (content.sizeBytes != null)
+                  Text('Size: ${_formatSize(content.sizeBytes!)}', style: AppTypography.caption),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
