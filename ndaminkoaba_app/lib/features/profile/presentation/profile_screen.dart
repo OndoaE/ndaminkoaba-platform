@@ -13,8 +13,7 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/inputs/premium_textfield.dart';
-import '../../../design_system/navigation/app_bottom_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -175,12 +174,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: 'settings',
+      child: Scaffold(
       backgroundColor: AppColors.background,
-      bottomNavigationBar: AppBottomNavigation(
-        currentIndex: 4,
-        onTap: (index) => handleTabTap(context, index),
-      ),
       body: SafeArea(
         child: isLoading
             ? const Padding(
@@ -453,6 +450,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               ),
+      ),
       ),
     );
   }

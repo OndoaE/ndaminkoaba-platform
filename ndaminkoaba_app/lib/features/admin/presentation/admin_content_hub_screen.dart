@@ -35,6 +35,8 @@ const _sections = [
       Icons.auto_awesome, Color(0xFFC77B2E), '/management/daily'),
   _Section('Book Management', 'Upload PDF and EPUB books for learners',
       Icons.local_library, Color(0xFF5D4037), '/management/books'),
+  _Section('Syllabus Management', 'Photograph a syllabary chart, review, and import',
+      Icons.grid_view, Color(0xFF2E7D6B), '/management/syllabary'),
 ];
 
 /// The 8 content-management sections for one language, reached from that

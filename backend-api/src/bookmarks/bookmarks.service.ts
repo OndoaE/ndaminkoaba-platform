@@ -86,7 +86,7 @@ export class BookmarksService {
               role: true,
             },
           },
-          lesson: true,
+          lesson: { include: { module: { include: { course: true } } } },
         },
       }),
       this.prisma.bookmark.count({ where }),

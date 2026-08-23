@@ -30,6 +30,7 @@ import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../badges/domain/badge_entry.dart';
 import '../../bookmarks/data/bookmarks_repository.dart';
+import '../../history/data/lesson_history_repository.dart';
 import '../../courses/data/course_repository.dart';
 import '../../courses/domain/models/course_detail.dart';
 import '../../offline/data/offline_course_repository.dart';
@@ -79,6 +80,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   final quizRepository = QuizRepository();
   final vocabularyRepository = VocabularyRepository();
   final bookmarksRepository = BookmarksRepository();
+  final lessonHistoryRepository = LessonHistoryRepository();
   final courseRepository = CourseRepository();
   final offlineCourseRepository = OfflineCourseRepository();
   final audioPlayer = AudioPlayer();
@@ -205,6 +207,14 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
         bookmarkId = fetchedBookmarkId;
         isLoading = false;
       });
+
+      if (fetchedUserId != null) {
+        // Best-effort — Historique is a nice-to-have, never block lesson
+        // rendering on it (mirrors the bookmark-lookup catch above).
+        lessonHistoryRepository
+            .recordView(userId: fetchedUserId, lessonId: widget.lessonId)
+            .catchError((_) {});
+      }
     } catch (e) {
       final isConnectivityIssue =
           !kIsWeb && e is DioException && isConnectivityFailure(e);

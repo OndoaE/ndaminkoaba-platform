@@ -33,7 +33,7 @@ export class LessonsService {
   }
 
   async findAll(query: QueryLessonDto) {
-    const { page = 1, limit = 10, search, moduleId, languageId } = query;
+    const { page = 1, limit = 10, search, moduleId, courseId, languageId } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.LessonWhereInput = {};
@@ -59,8 +59,11 @@ export class LessonsService {
       where.moduleId = moduleId;
     }
 
-    if (languageId) {
-      where.module = { course: { languageId } };
+    if (courseId || languageId) {
+      where.module = {
+        ...(courseId ? { courseId } : {}),
+        ...(languageId ? { course: { languageId } } : {}),
+      };
     }
 
     const [lessons, total] = await Promise.all([

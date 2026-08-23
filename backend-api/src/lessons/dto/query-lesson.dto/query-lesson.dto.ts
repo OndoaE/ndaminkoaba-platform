@@ -12,5 +12,9 @@ export class QueryLessonDto extends PaginationDto {
 
   @IsOptional()
   @IsUUID()
+  courseId?: string;
+
+  @IsOptional()
+  @IsUUID()
   languageId?: string;
 }

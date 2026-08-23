@@ -87,38 +87,60 @@ class LessonComment {
 class LessonDetail {
   final String id;
   final String title;
+  final String? summary;
   final String content;
   final String? frenchContent;
   final String? audioUrl;
   final String? videoUrl;
+  final int orderNumber;
   final String status;
   final bool generatedByAi;
   final String? reviewerId;
   final String? reviewerName;
+  final String? difficulty;
   final String moduleId;
   final String courseId;
   final String courseTitle;
   final String languageId;
   final String languageName;
   final bool hasQuiz;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+
+  // Lesson Info tab fields.
+  final String? category;
+  final int? estimatedMinutes;
+  final String? coverImageUrl;
+  final List<String> learningObjectives;
+  final List<String> outcomes;
 
   const LessonDetail({
     required this.id,
     required this.title,
+    this.summary,
     required this.content,
     this.frenchContent,
     this.audioUrl,
     this.videoUrl,
+    required this.orderNumber,
     required this.status,
     required this.generatedByAi,
     this.reviewerId,
     this.reviewerName,
+    this.difficulty,
     required this.moduleId,
     required this.courseId,
     required this.courseTitle,
     required this.languageId,
     required this.languageName,
     required this.hasQuiz,
+    this.createdAt,
+    this.updatedAt,
+    this.category,
+    this.estimatedMinutes,
+    this.coverImageUrl,
+    this.learningObjectives = const [],
+    this.outcomes = const [],
   });
 
   factory LessonDetail.fromJson(Map<String, dynamic> json) {
@@ -130,20 +152,31 @@ class LessonDetail {
     return LessonDetail(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
+      summary: json['summary'],
       content: json['content'] ?? '',
       frenchContent: json['frenchContent'],
       audioUrl: json['audioUrl'],
       videoUrl: json['videoUrl'],
+      orderNumber: (json['orderNumber'] as num?)?.toInt() ?? 1,
       status: (json['status'] ?? 'DRAFT').toString(),
       generatedByAi: json['generatedByAi'] == true,
       reviewerId: reviewer?['id'],
       reviewerName: reviewer?['fullName'],
+      difficulty: json['difficulty'] as String?,
       moduleId: json['moduleId'] ?? '',
       courseId: course?['id'] ?? '',
       courseTitle: course?['title'] ?? '',
       languageId: course?['languageId'] ?? '',
       languageName: '',
       hasQuiz: quizzes.isNotEmpty,
+      createdAt: DateTime.tryParse(json['createdAt'] ?? ''),
+      updatedAt: DateTime.tryParse(json['updatedAt'] ?? ''),
+      category: json['category'] as String?,
+      estimatedMinutes: (json['estimatedMinutes'] as num?)?.toInt(),
+      coverImageUrl: json['coverImageUrl'] as String?,
+      learningObjectives:
+          ((json['learningObjectives'] as List?) ?? []).whereType<String>().toList(),
+      outcomes: ((json['outcomes'] as List?) ?? []).whereType<String>().toList(),
     );
   }
 }

@@ -216,6 +216,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get navProfile => 'Profile';
 
   @override
+  String get learnerNavHome => 'Home';
+
+  @override
+  String get learnerNavMyCourses => 'My Courses';
+
+  @override
+  String get learnerNavLibrary => 'Library';
+
+  @override
+  String get learnerNavLessons => 'Lessons';
+
+  @override
+  String get learnerNavVocabulary => 'Vocabulary';
+
+  @override
+  String get learnerNavAiTutor => 'AI Assistant';
+
+  @override
+  String get learnerNavFavorites => 'Favorites';
+
+  @override
+  String get learnerNavHistory => 'History';
+
+  @override
+  String get learnerNavSettings => 'Settings';
+
+  @override
+  String get learnerShellTagline => 'Mbolo! Let\'s learn together';
+
+  @override
+  String get learnerHistoryEmptyMessage =>
+      'No lessons viewed yet. Start a lesson to see it here.';
+
+  @override
+  String learnerHistoryViewedOn(String date) {
+    return 'Viewed $date';
+  }
+
+  @override
+  String get learnerFavoritesEmptyMessage =>
+      'No favorites yet. Bookmark a lesson to see it here.';
+
+  @override
+  String get lessonsHubTitle => 'Lessons';
+
+  @override
+  String get lessonsHubSubtitle => 'Browse every lesson in a course';
+
+  @override
+  String get lessonsHubSelectLessonMessage =>
+      'Select a lesson to see its details.';
+
+  @override
+  String get lessonsHubEmptyMessage => 'This course has no lessons yet.';
+
+  @override
+  String get lessonsHubStartLessonButton => 'Start Lesson';
+
+  @override
+  String get lessonsHubLearningObjectivesTitle => 'Learning Objectives';
+
+  @override
+  String get lessonsHubWhatYouWillLearnTitle => 'What You\'ll Learn';
+
+  @override
+  String lessonsHubMinutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
   String get dashboardSubtitle => 'Continue your Ewondo learning journey';
 
   @override
@@ -792,6 +862,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get adminNavReports => 'Reports';
+
+  @override
+  String get adminNavSettings => 'Settings';
 
   @override
   String adminLanguageActiveSuffix(String name) {

@@ -108,6 +108,7 @@ model User {
   vocabularyProgress    VocabularyProgress[]
   pronunciationAttempts PronunciationAttempt[]
   userBadges            UserBadge[]
+  lessonViewHistory     LessonViewHistory[]
 
   // Admin content-workflow relations: a user can be assigned as the
   // reviewer on courses/lessons (separate from "TeacherCourses", which is
@@ -127,13 +128,14 @@ model Language {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  courses        Course[]
-  vocabulary     Vocabulary[]
-  bibleVerses    BibleVerse[]
-  dailyWords     DailyWord[]
-  dailyVerses    DailyVerse[]
-  knowledgeTexts KnowledgeText[]
-  books          Book[]
+  courses          Course[]
+  vocabulary       Vocabulary[]
+  bibleVerses      BibleVerse[]
+  dailyWords       DailyWord[]
+  dailyVerses      DailyVerse[]
+  knowledgeTexts   KnowledgeText[]
+  books            Book[]
+  syllabaryEntries SyllabaryEntry[]
 }
 
 model Course {
@@ -231,6 +233,15 @@ model Lesson {
   visibility           String?
   completionRule       String?
 
+  // Lesson Editor "Lesson Info" tab fields — admin-authored metadata shown
+  // to the learner on the Leçons overview screen. All additive/optional so
+  // lessons authored before this existed keep rendering unchanged.
+  category           String?
+  estimatedMinutes   Int?
+  coverImageUrl      String?
+  learningObjectives String[] @default([])
+  outcomes           String[] @default([])
+
   module             CourseModule @relation(fields: [moduleId], references: [id])
   reviewer           User?        @relation("LessonReviewer", fields: [reviewerId], references: [id], onDelete: SetNull)
   prerequisiteLesson Lesson?      @relation("LessonPrerequisite", fields: [prerequisiteLessonId], references: [id], onDelete: SetNull)
@@ -244,6 +255,26 @@ model Lesson {
   pronunciationAttempts PronunciationAttempt[]
   comments              LessonComment[]
   blocks                LessonBlock[]
+  viewHistory           LessonViewHistory[]
+}
+
+/// One row per learner/lesson/day, upserted (not appended) so opening the
+/// same lesson repeatedly in one sitting doesn't spam the Historique list —
+/// `viewDate` is the UTC start-of-day, `viewedAt` is the freshest open time
+/// for sorting. Recorded best-effort from the lesson screen on open; a
+/// failure here must never block the learner from seeing lesson content.
+model LessonViewHistory {
+  id        String   @id @default(uuid())
+  userId    String
+  lessonId  String
+  viewDate  DateTime
+  viewedAt  DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id])
+  lesson Lesson @relation(fields: [lessonId], references: [id])
+
+  @@unique([userId, lessonId, viewDate])
 }
 
 model LessonImage {
@@ -362,6 +393,33 @@ model DailyVerse {
   updatedAt   DateTime @updatedAt
 
   language Language @relation(fields: [languageId], references: [id])
+}
+
+/// One consonant+vowel syllable row within a language's syllabary/literacy
+/// chart (e.g. consonant "L" + vowel "a" -> syllable "la"). A standalone
+/// vowel "letter" with no consonant is supported by leaving `consonant`
+/// null — `syllable` is always populated (== vowel in that case) so the
+/// learner-facing chart query never needs a null-coalesce. Admin-authored
+/// via AI-assisted extraction from a photographed chart (see AiService),
+/// reviewed and approved before being written here.
+model SyllabaryEntry {
+  id              String   @id @default(uuid())
+  consonant       String?
+  vowel           String
+  syllable        String
+  exampleWord     String?
+  translation     String?
+  exampleSentence String?
+  // Preserves the language's own vowel display order (e.g. Ewondo's
+  // a/ə/ɛ/e/i/u/o/ɔ), which is not alphabetically or Unicode sortable.
+  orderNumber     Int
+  languageId      String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@index([languageId, consonant])
 }
 
 /// A book (PDF or EPUB) admins upload for learners to read in-app.

@@ -16,8 +16,7 @@ import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/cards/featured_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
-import '../../../design_system/navigation/app_bottom_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/shadows/app_shadows.dart';
 import '../../../design_system/spacing/app_spacing.dart';
@@ -270,7 +269,9 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
       orElse: () => const _ChatMessage(isUser: false, text: ''),
     );
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: 'ai_tutor',
+      child: Scaffold(
       backgroundColor: AppColors.background,
       appBar: GradientAppBar(
         title: l10n.nnangaTitle,
@@ -292,10 +293,6 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
             ),
           ],
         ),
-      ),
-      bottomNavigationBar: AppBottomNavigation(
-        currentIndex: 3,
-        onTap: (index) => handleTabTap(context, index),
       ),
       body: SafeArea(
         child: Column(
@@ -482,6 +479,7 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
             ),
           ],
         ),
+      ),
       ),
     );
   }

@@ -11,6 +11,7 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/inputs/premium_textfield.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
@@ -142,7 +143,9 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: 'vocabulary',
+      child: Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
@@ -298,6 +301,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
             ],
           ),
         ),
+      ),
       ),
     );
   }

@@ -32,6 +32,8 @@ import { KnowledgeModule } from './knowledge/knowledge.module';
 import { KnowledgeTextsModule } from './knowledge-texts/knowledge-texts.module';
 import { BibleVersesModule } from './bible-verses/bible-verses.module';
 import { DailyModule } from './daily/daily.module';
+import { SyllabaryModule } from './syllabary/syllabary.module';
+import { LessonHistoryModule } from './lesson-history/lesson-history.module';
 import { AiModule } from './ai/ai.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { BooksModule } from './books/books.module';
@@ -78,6 +80,8 @@ import { ContentWorkflowModule } from './content-workflow/content-workflow.modul
     KnowledgeTextsModule,
     BibleVersesModule,
     DailyModule,
+    SyllabaryModule,
+    LessonHistoryModule,
     AiModule,
     AuditLogModule,
     BooksModule,

@@ -88,4 +88,27 @@ export class CreateLessonDto {
   @IsOptional()
   @IsString()
   completionRule?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsInt()
+  @Min(1)
+  estimatedMinutes?: number;
+
+  @IsOptional()
+  @IsString()
+  coverImageUrl?: string;
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  learningObjectives?: string[];
+
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  outcomes?: string[];
 }

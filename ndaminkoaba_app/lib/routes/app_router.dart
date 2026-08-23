@@ -25,6 +25,7 @@ import '../features/admin/presentation/admin_profile_screen.dart';
 import '../features/admin/presentation/admin_quiz_builder_screen.dart';
 import '../features/admin/presentation/admin_quiz_management_screen.dart';
 import '../features/admin/presentation/admin_users_screen.dart';
+import '../features/admin/presentation/admin_syllabary_management_screen.dart';
 import '../features/admin/presentation/admin_vocabulary_management_screen.dart';
 import '../features/auth/presentation/login_screen.dart';
 import '../features/auth/presentation/register_screen.dart';
@@ -35,6 +36,7 @@ import '../features/languages/presentation/learning_language_selection_screen.da
 import '../features/bible/presentation/bible_books_screen.dart';
 import '../features/bible/presentation/bible_chapters_screen.dart';
 import '../features/bible/presentation/bible_reader_screen.dart';
+import '../features/bookmarks/presentation/bookmarks_screen.dart';
 import '../features/books/presentation/book_reader_screen.dart';
 import '../features/books/presentation/books_screen.dart';
 import '../features/certificates/presentation/certificate_detail_screen.dart';
@@ -42,15 +44,19 @@ import '../features/certificates/presentation/certificates_screen.dart';
 import '../features/courses/presentation/courses_screen.dart';
 import '../features/courses/presentation/course_detail_screen.dart';
 import '../features/dashboard/presentation/dashboard_screen.dart';
+import '../features/history/presentation/history_screen.dart';
 import '../features/learning/presentation/learn_hub_screen.dart';
 import '../features/learning/presentation/my_learning_screen.dart';
 import '../features/lessons/presentation/lesson_screen.dart';
+import '../features/lessons/presentation/lessons_hub_screen.dart';
 import '../features/nnanga/presentation/nnanga_screen.dart';
 import '../features/practice/presentation/practice_screen.dart';
 import '../features/profile/presentation/profile_screen.dart';
 import '../features/quiz/presentation/quiz_screen.dart';
 import '../features/splash/presentation/splash_screen.dart';
 import '../features/vocabulary/presentation/vocabulary_screen.dart';
+import '../features/syllabary/presentation/syllabary_alphabet_screen.dart';
+import '../features/syllabary/presentation/syllabary_chart_screen.dart';
 
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
@@ -124,6 +130,10 @@ final appRouter = GoRouter(
       builder: (context, state) => const MyLearningScreen(),
     ),
     GoRoute(
+      path: '/lessons',
+      builder: (context, state) => const LessonsHubScreen(),
+    ),
+    GoRoute(
       path: '/learn',
       builder: (context, state) => const LearnHubScreen(),
     ),
@@ -134,6 +144,17 @@ final appRouter = GoRouter(
     GoRoute(
       path: '/vocabulary',
       builder: (context, state) => const VocabularyScreen(),
+    ),
+    GoRoute(
+      path: '/syllabary',
+      builder: (context, state) => const SyllabaryAlphabetScreen(),
+    ),
+    GoRoute(
+      path: '/syllabary/:letter',
+      builder: (context, state) {
+        final letter = state.pathParameters['letter']!;
+        return SyllabaryChartScreen(letter: letter);
+      },
     ),
     GoRoute(path: '/nnanga', builder: (context, state) => const NnangaScreen()),
     GoRoute(
@@ -182,6 +203,14 @@ final appRouter = GoRouter(
         final id = state.pathParameters['id']!;
         return BookReaderScreen(bookId: id);
       },
+    ),
+    GoRoute(
+      path: '/bookmarks',
+      builder: (context, state) => const BookmarksScreen(),
+    ),
+    GoRoute(
+      path: '/history',
+      builder: (context, state) => const HistoryScreen(),
     ),
 
     // Administrator — global (language-agnostic)
@@ -373,6 +402,14 @@ final appRouter = GoRouter(
         final languageId = state.pathParameters['languageId']!;
         final languageName = state.extra as String?;
         return AdminBookManagementScreen(languageId: languageId, languageName: languageName);
+      },
+    ),
+    GoRoute(
+      path: '/admin/languages/:languageId/management/syllabary',
+      builder: (context, state) {
+        final languageId = state.pathParameters['languageId']!;
+        final languageName = state.extra as String?;
+        return AdminSyllabaryManagementScreen(languageId: languageId, languageName: languageName);
       },
     ),
   ],

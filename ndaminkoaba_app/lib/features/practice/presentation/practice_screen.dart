@@ -4,8 +4,7 @@ import '../../../design_system/cards/featured_card.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
-import '../../../design_system/navigation/app_bottom_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -104,12 +103,10 @@ class _PracticeScreenState extends State<PracticeScreen> {
         ? badges.where((b) => !b.earned).first
         : null;
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: '',
+      child: Scaffold(
       backgroundColor: AppColors.background,
-      bottomNavigationBar: AppBottomNavigation(
-        currentIndex: 2,
-        onTap: (index) => handleTabTap(context, index),
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: load,
@@ -400,6 +397,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

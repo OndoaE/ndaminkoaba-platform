@@ -8,6 +8,7 @@ import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -66,7 +67,9 @@ class _BooksScreenState extends ConsumerState<BooksScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: 'library',
+      child: Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: isLoading
@@ -132,6 +135,7 @@ class _BooksScreenState extends ConsumerState<BooksScreen> {
                   ],
                 ),
               ),
+      ),
       ),
     );
   }

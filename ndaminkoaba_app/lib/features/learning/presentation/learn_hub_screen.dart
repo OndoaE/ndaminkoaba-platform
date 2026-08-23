@@ -8,8 +8,7 @@ import '../../../core/services/storage_service.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/inputs/premium_textfield.dart';
-import '../../../design_system/navigation/app_bottom_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -132,12 +131,10 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
     final l10n = AppLocalizations.of(context);
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: '',
+      child: Scaffold(
       backgroundColor: AppColors.background,
-      bottomNavigationBar: AppBottomNavigation(
-        currentIndex: 1,
-        onTap: (index) => handleTabTap(context, index),
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: load,
@@ -180,6 +177,40 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
                       child: const Icon(Icons.tune, color: AppColors.primary),
                     ),
                   ],
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                InkWell(
+                  borderRadius: AppRadius.medium,
+                  onTap: () => context.push('/syllabary'),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                      vertical: AppSpacing.md,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.ai.withValues(alpha: 0.08),
+                      borderRadius: AppRadius.medium,
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.grid_view_outlined, color: AppColors.ai),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Alphabet', style: AppTypography.title),
+                              Text(
+                                'Browse syllables by letter',
+                                style: AppTypography.caption,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const Icon(Icons.chevron_right, color: AppColors.ai),
+                      ],
+                    ),
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.lg),
                 Container(
@@ -323,6 +354,7 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

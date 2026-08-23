@@ -7,6 +7,7 @@ import '../../../core/locale/localized_text.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -88,7 +89,9 @@ class _MyLearningScreenState extends ConsumerState<MyLearningScreen> {
     final l10n = AppLocalizations.of(context);
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: 'my_courses',
+      child: Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,
@@ -141,6 +144,7 @@ class _MyLearningScreenState extends ConsumerState<MyLearningScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

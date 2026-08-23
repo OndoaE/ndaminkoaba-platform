@@ -389,7 +389,10 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                               final lesson = _visible[index];
                               return InkWell(
                                 borderRadius: BorderRadius.circular(24),
-                                onTap: () => editLesson(lesson),
+                                onTap: () async {
+                                  await context.push('/admin/lessons/${lesson.id}/edit', extra: lesson.title);
+                                  load();
+                                },
                                 child: PremiumCard(
                                   child: Row(
                                     children: [
@@ -431,7 +434,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                                         onSelected: (value) {
                                           switch (value) {
                                             case 'edit':
-                                              editLesson(lesson);
+                                              context.push('/admin/lessons/${lesson.id}/edit', extra: lesson.title);
                                             case 'move':
                                               moveLesson(lesson);
                                             case 'reorder':

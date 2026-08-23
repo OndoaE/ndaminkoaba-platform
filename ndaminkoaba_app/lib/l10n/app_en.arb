@@ -81,6 +81,34 @@
   "navAI": "AI Tutor",
   "navProfile": "Profile",
 
+  "learnerNavHome": "Home",
+  "learnerNavMyCourses": "My Courses",
+  "learnerNavLibrary": "Library",
+  "learnerNavLessons": "Lessons",
+  "learnerNavVocabulary": "Vocabulary",
+  "learnerNavAiTutor": "AI Assistant",
+  "learnerNavFavorites": "Favorites",
+  "learnerNavHistory": "History",
+  "learnerNavSettings": "Settings",
+  "learnerShellTagline": "Mbolo! Let's learn together",
+  "learnerHistoryEmptyMessage": "No lessons viewed yet. Start a lesson to see it here.",
+  "learnerHistoryViewedOn": "Viewed {date}",
+  "@learnerHistoryViewedOn": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "learnerFavoritesEmptyMessage": "No favorites yet. Bookmark a lesson to see it here.",
+  "lessonsHubTitle": "Lessons",
+  "lessonsHubSubtitle": "Browse every lesson in a course",
+  "lessonsHubSelectLessonMessage": "Select a lesson to see its details.",
+  "lessonsHubEmptyMessage": "This course has no lessons yet.",
+  "lessonsHubStartLessonButton": "Start Lesson",
+  "lessonsHubLearningObjectivesTitle": "Learning Objectives",
+  "lessonsHubWhatYouWillLearnTitle": "What You'll Learn",
+  "lessonsHubMinutesShort": "{minutes} min",
+  "@lessonsHubMinutesShort": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+
   "dashboardSubtitle": "Continue your Ewondo learning journey",
   "dashboardFallbackName": "Learner",
   "statLessons": "Lessons",
@@ -319,6 +347,7 @@
   "adminNavBooks": "Books",
   "adminNavDaily": "Phrase & Verse of the Day",
   "adminNavReports": "Reports",
+  "adminNavSettings": "Settings",
   "adminLanguageActiveSuffix": "{name} · Active",
   "@adminLanguageActiveSuffix": {
     "placeholders": { "name": { "type": "String" } }

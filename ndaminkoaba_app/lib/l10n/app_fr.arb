@@ -72,6 +72,34 @@
   "navAI": "Tuteur IA",
   "navProfile": "Profil",
 
+  "learnerNavHome": "Accueil",
+  "learnerNavMyCourses": "Mes Cours",
+  "learnerNavLibrary": "Bibliothèque",
+  "learnerNavLessons": "Leçons",
+  "learnerNavVocabulary": "Vocabulaire",
+  "learnerNavAiTutor": "Assistant IA",
+  "learnerNavFavorites": "Favoris",
+  "learnerNavHistory": "Historique",
+  "learnerNavSettings": "Paramètres",
+  "learnerShellTagline": "Mbolo! Apprenons ensemble",
+  "learnerHistoryEmptyMessage": "Aucune leçon consultée pour le moment. Ouvrez une leçon pour la voir ici.",
+  "learnerHistoryViewedOn": "Consulté le {date}",
+  "@learnerHistoryViewedOn": {
+    "placeholders": { "date": { "type": "String" } }
+  },
+  "learnerFavoritesEmptyMessage": "Aucun favori pour le moment. Ajoutez une leçon à vos favoris pour la voir ici.",
+  "lessonsHubTitle": "Leçons",
+  "lessonsHubSubtitle": "Parcourez toutes les leçons d'un cours",
+  "lessonsHubSelectLessonMessage": "Sélectionnez une leçon pour voir ses détails.",
+  "lessonsHubEmptyMessage": "Ce cours n'a pas encore de leçons.",
+  "lessonsHubStartLessonButton": "Commencer la leçon",
+  "lessonsHubLearningObjectivesTitle": "Objectifs d'apprentissage",
+  "lessonsHubWhatYouWillLearnTitle": "Ce que vous allez apprendre",
+  "lessonsHubMinutesShort": "{minutes} min",
+  "@lessonsHubMinutesShort": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+
   "dashboardSubtitle": "Poursuivez votre apprentissage de l'Ewondo",
   "dashboardFallbackName": "Apprenant",
   "statLessons": "Leçons",
@@ -264,6 +292,7 @@
   "adminNavBooks": "Livres",
   "adminNavDaily": "Phrase et verset du jour",
   "adminNavReports": "Rapports",
+  "adminNavSettings": "Paramètres",
   "adminLanguageActiveSuffix": "{name} · Actif",
   "adminBackToAllLanguages": "Retour à toutes les langues",
   "adminRoleFallback": "Administrateur",

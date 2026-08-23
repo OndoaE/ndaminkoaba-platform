@@ -106,24 +106,10 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
       if (!mounted) return;
       _showMessage('Lesson created.');
 
-      final addQuiz = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: const Text('Lesson created'),
-          content: const Text('Add a quiz to it now so learners can complete it?'),
-          actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Later')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Add Quiz')),
-          ],
-        ),
-      );
-
-      if (!mounted) return;
-      if (addQuiz == true) {
-        context.pushReplacement('/admin/lessons/$lessonId/quiz', extra: titleController.text.trim());
-      } else {
-        Navigator.pop(context);
-      }
+      // Land straight in the tabbed editor's Lesson Info tab so the admin
+      // can immediately fill in category/level/estimated time/cover image —
+      // fields this quick-create form deliberately doesn't collect.
+      context.pushReplacement('/admin/lessons/$lessonId/edit', extra: titleController.text.trim());
     } on DioException catch (e) {
       _showMessage(extractErrorMessage(e, fallback: 'Could not create lesson.'));
     } finally {

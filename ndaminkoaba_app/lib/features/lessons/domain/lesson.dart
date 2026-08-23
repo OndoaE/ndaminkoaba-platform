@@ -28,6 +28,13 @@ class Lesson {
   final int orderNumber;
   final List<ConversationLine> conversation;
 
+  // Lesson Management redesign fields (backend-api/prisma/schema.prisma).
+  final String? category;
+  final int? estimatedMinutes;
+  final String? coverImageUrl;
+  final List<String> learningObjectives;
+  final List<String> outcomes;
+
   const Lesson({
     required this.id,
     required this.moduleId,
@@ -41,6 +48,11 @@ class Lesson {
     required this.videoUrl,
     required this.orderNumber,
     this.conversation = const [],
+    this.category,
+    this.estimatedMinutes,
+    this.coverImageUrl,
+    this.learningObjectives = const [],
+    this.outcomes = const [],
   });
 
   factory Lesson.fromJson(Map<String, dynamic> json) {
@@ -62,6 +74,11 @@ class Lesson {
               ?.map((e) => ConversationLine.fromJson(e as Map<String, dynamic>))
               .toList() ??
           const [],
+      category: json['category'] as String?,
+      estimatedMinutes: (json['estimatedMinutes'] as num?)?.toInt(),
+      coverImageUrl: json['coverImageUrl'] as String?,
+      learningObjectives: ((json['learningObjectives'] as List?) ?? []).whereType<String>().toList(),
+      outcomes: ((json['outcomes'] as List?) ?? []).whereType<String>().toList(),
     );
   }
 }

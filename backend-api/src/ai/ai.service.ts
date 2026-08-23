@@ -22,6 +22,22 @@ export interface SuggestedVocabularyEntry {
   frenchMeaning: string | null;
 }
 
+export interface SyllabaryExtractionRow {
+  vowel: string;
+  syllable: string;
+  exampleWord: string | null;
+  translation: string | null;
+  exampleSentence: string | null;
+  orderNumber: number;
+  confidence: 'high' | 'low';
+}
+
+export interface SyllabaryExtractionResult {
+  consonant: string | null;
+  rows: SyllabaryExtractionRow[];
+  warnings: string[];
+}
+
 @Injectable()
 export class AiService {
   private readonly client: OpenAI;
@@ -315,6 +331,120 @@ Conversation memory:
     } catch (error) {
       this.logger.error(`Audio transcription failed: ${error}`);
       return null;
+    }
+  }
+
+  /// Extracts a photographed syllabics/literacy chart (a consonant with
+  /// arrows fanning out to each of the language's vowels, each row showing
+  /// an example word + translation + example sentence) into structured
+  /// rows via a vision-capable model. Never writes anything itself — the
+  /// admin reviews/edits the result and only "Approve & Import" persists
+  /// it, one row at a time, through the normal SyllabaryEntry create
+  /// endpoint. Returns an empty-rows result with a warning on any failure
+  /// rather than throwing, so "Re-analyze" in the admin UI is a meaningful
+  /// retry instead of a guaranteed repeat crash.
+  async extractSyllabaryChart(
+    base64Image: string,
+    mimeType: string,
+    languageName: string,
+  ): Promise<SyllabaryExtractionResult> {
+    const empty = (warning: string): SyllabaryExtractionResult => ({
+      consonant: null,
+      rows: [],
+      warnings: [warning],
+    });
+
+    if (!process.env.OPENROUTER_API_KEY) {
+      return empty('Nnanga AI is not configured yet. Please add OPENROUTER_API_KEY to the .env file.');
+    }
+
+    const prompt = `You are extracting a hand-drawn or printed syllabics teaching chart for ${languageName} into structured JSON. These charts follow a standard literacy-teaching convention: one consonant letter, with arrows fanning out to each of the language's vowels, forming a syllable per vowel (e.g. consonant "L" + vowel "a" -> syllable "la"). Some charts instead show a single standalone vowel with no consonant. Each row typically also shows an example word containing that syllable, a French translation of that word, and an example sentence using the word — though any of these may be missing or illegible.
+
+Read the image and respond with ONLY a JSON object (no markdown fences, no prose outside it) matching exactly this shape:
+{
+  "consonant": string | null,
+  "rows": [
+    {
+      "vowel": string,
+      "syllable": string,
+      "exampleWord": string | null,
+      "translation": string | null,
+      "exampleSentence": string | null,
+      "orderNumber": number,
+      "confidence": "high" | "low"
+    }
+  ],
+  "warnings": string[]
+}
+
+Rules:
+- "consonant" is the single big letter the chart is built around (e.g. "L"); null if the chart is a standalone vowel with nothing combined with it.
+- "rows" has one entry per vowel row you can see, in the same top-to-bottom order as the chart — "orderNumber" is that 0-based position.
+- If a field is not legible or not present for a row, use null for that field — do NOT guess or invent content to fill it in.
+- Set "confidence" to "low" on any row where you are unsure of what you read (blurry, ambiguous handwriting, cut off) rather than silently guessing "high".
+- Add an entry to "warnings" for anything that affected extraction quality: the photo is angled/rotated, blurry, poorly lit, handwriting was hard to read, the chart appears cropped or incomplete, or you found fewer/more rows than the language's usual vowel count would suggest.
+- If the image doesn't look like a syllabics chart at all, return empty "rows" and say so in "warnings".`;
+
+    try {
+      const completion = await this.client.chat.completions.create({
+        model: process.env.OPENROUTER_VISION_MODEL || 'openai/gpt-4o-mini',
+        temperature: 0,
+        max_tokens: 2000,
+        response_format: { type: 'json_object' },
+        messages: [
+          {
+            role: 'user',
+            content: [
+              { type: 'text', text: prompt },
+              {
+                type: 'image_url',
+                image_url: { url: `data:${mimeType};base64,${base64Image}` },
+              } as any,
+            ],
+          },
+        ],
+      });
+
+      const raw = completion.choices[0]?.message?.content?.trim();
+      if (!raw) return empty('Nnanga could not read this image. Try Re-analyze.');
+
+      try {
+        const parsed = JSON.parse(raw);
+        const rawRows = Array.isArray(parsed.rows) ? parsed.rows : [];
+        const rows: SyllabaryExtractionRow[] = rawRows
+          .filter((r: unknown) => typeof r === 'object' && r !== null)
+          .map((r: any, index: number) => ({
+            vowel: typeof r.vowel === 'string' ? r.vowel : '',
+            syllable: typeof r.syllable === 'string' ? r.syllable : '',
+            exampleWord: typeof r.exampleWord === 'string' ? r.exampleWord : null,
+            translation: typeof r.translation === 'string' ? r.translation : null,
+            exampleSentence: typeof r.exampleSentence === 'string' ? r.exampleSentence : null,
+            orderNumber: typeof r.orderNumber === 'number' ? r.orderNumber : index,
+            confidence: r.confidence === 'low' ? 'low' : 'high',
+          }))
+          .filter((r: SyllabaryExtractionRow) => r.vowel !== '' || r.syllable !== '');
+
+        return {
+          consonant: typeof parsed.consonant === 'string' ? parsed.consonant : null,
+          rows,
+          warnings: Array.isArray(parsed.warnings)
+            ? parsed.warnings.filter((w: unknown) => typeof w === 'string')
+            : [],
+        };
+      } catch (parseError) {
+        this.logger.warn(`Syllabary extraction response was not valid JSON: ${parseError}`);
+        return empty('Could not read the AI response — try Re-analyze.');
+      }
+    } catch (error: any) {
+      this.logger.error(error);
+
+      if (error?.status === 401) {
+        return empty('Nnanga could not authenticate with OpenRouter. Please verify OPENROUTER_API_KEY.');
+      }
+      if (error?.status === 429) {
+        return empty('Nnanga has reached the OpenRouter usage limit. Please check credits or rate limits.');
+      }
+      return empty('Nnanga could not reach the AI service right now. Try Re-analyze in a moment.');
     }
   }
 }

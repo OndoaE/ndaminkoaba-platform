@@ -1,6 +1,17 @@
 import '../../../core/network/api_client.dart';
+import '../domain/bookmarked_lesson.dart';
 
 class BookmarksRepository {
+  Future<List<BookmarkedLesson>> getAll({required String userId, int limit = 100}) async {
+    final response = await ApiClient.dio.get('/bookmarks', queryParameters: {
+      'userId': userId,
+      'limit': limit,
+    });
+    final data = response.data as Map<String, dynamic>;
+    final items = (data['data']?['items'] ?? data['items'] ?? []) as List;
+    return items.map((e) => BookmarkedLesson.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
   /// Returns the bookmark id if this lesson is bookmarked by [userId], else
   /// null — used both to render the bookmark icon's filled/outline state
   /// and to know which id to delete on un-bookmark.

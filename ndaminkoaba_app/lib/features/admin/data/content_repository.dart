@@ -293,6 +293,12 @@ class ContentRepository {
     List<Map<String, dynamic>>? conversationJson,
     String? status,
     String? reviewerId,
+    String? difficulty,
+    String? category,
+    int? estimatedMinutes,
+    String? coverImageUrl,
+    List<String>? learningObjectives,
+    List<String>? outcomes,
   }) async {
     await ApiClient.dio.patch('/lessons/$id', data: {
       if (title != null) 'title': title,
@@ -306,6 +312,12 @@ class ContentRepository {
       if (conversationJson != null) 'conversationJson': conversationJson,
       if (status != null) 'status': status,
       if (reviewerId != null) 'reviewerId': reviewerId,
+      if (difficulty != null) 'difficulty': difficulty,
+      if (category != null) 'category': category,
+      if (estimatedMinutes != null) 'estimatedMinutes': estimatedMinutes,
+      if (coverImageUrl != null) 'coverImageUrl': coverImageUrl,
+      if (learningObjectives != null) 'learningObjectives': learningObjectives,
+      if (outcomes != null) 'outcomes': outcomes,
     });
   }
 

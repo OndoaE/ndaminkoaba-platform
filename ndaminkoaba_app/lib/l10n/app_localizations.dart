@@ -488,6 +488,132 @@ abstract class AppLocalizations {
   /// **'Profile'**
   String get navProfile;
 
+  /// No description provided for @learnerNavHome.
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get learnerNavHome;
+
+  /// No description provided for @learnerNavMyCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'My Courses'**
+  String get learnerNavMyCourses;
+
+  /// No description provided for @learnerNavLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Library'**
+  String get learnerNavLibrary;
+
+  /// No description provided for @learnerNavLessons.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get learnerNavLessons;
+
+  /// No description provided for @learnerNavVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get learnerNavVocabulary;
+
+  /// No description provided for @learnerNavAiTutor.
+  ///
+  /// In en, this message translates to:
+  /// **'AI Assistant'**
+  String get learnerNavAiTutor;
+
+  /// No description provided for @learnerNavFavorites.
+  ///
+  /// In en, this message translates to:
+  /// **'Favorites'**
+  String get learnerNavFavorites;
+
+  /// No description provided for @learnerNavHistory.
+  ///
+  /// In en, this message translates to:
+  /// **'History'**
+  String get learnerNavHistory;
+
+  /// No description provided for @learnerNavSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get learnerNavSettings;
+
+  /// No description provided for @learnerShellTagline.
+  ///
+  /// In en, this message translates to:
+  /// **'Mbolo! Let\'s learn together'**
+  String get learnerShellTagline;
+
+  /// No description provided for @learnerHistoryEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No lessons viewed yet. Start a lesson to see it here.'**
+  String get learnerHistoryEmptyMessage;
+
+  /// No description provided for @learnerHistoryViewedOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Viewed {date}'**
+  String learnerHistoryViewedOn(String date);
+
+  /// No description provided for @learnerFavoritesEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No favorites yet. Bookmark a lesson to see it here.'**
+  String get learnerFavoritesEmptyMessage;
+
+  /// No description provided for @lessonsHubTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get lessonsHubTitle;
+
+  /// No description provided for @lessonsHubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Browse every lesson in a course'**
+  String get lessonsHubSubtitle;
+
+  /// No description provided for @lessonsHubSelectLessonMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a lesson to see its details.'**
+  String get lessonsHubSelectLessonMessage;
+
+  /// No description provided for @lessonsHubEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This course has no lessons yet.'**
+  String get lessonsHubEmptyMessage;
+
+  /// No description provided for @lessonsHubStartLessonButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Lesson'**
+  String get lessonsHubStartLessonButton;
+
+  /// No description provided for @lessonsHubLearningObjectivesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Objectives'**
+  String get lessonsHubLearningObjectivesTitle;
+
+  /// No description provided for @lessonsHubWhatYouWillLearnTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What You\'ll Learn'**
+  String get lessonsHubWhatYouWillLearnTitle;
+
+  /// No description provided for @lessonsHubMinutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String lessonsHubMinutesShort(int minutes);
+
   /// No description provided for @dashboardSubtitle.
   ///
   /// In en, this message translates to:
@@ -1531,6 +1657,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reports'**
   String get adminNavReports;
+
+  /// No description provided for @adminNavSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get adminNavSettings;
 
   /// No description provided for @adminLanguageActiveSuffix.
   ///

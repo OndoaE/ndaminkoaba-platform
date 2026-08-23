@@ -29,6 +29,22 @@ class LessonRepository {
         .toList();
   }
 
+  /// Fetches every lesson across every module of a course
+  /// (`GET /lessons?courseId=`), for the flat "Leçons" hub screen.
+  Future<List<Lesson>> getLessonsByCourse(String courseId) async {
+    final response = await ApiClient.dio.get(
+      '/lessons',
+      queryParameters: {'courseId': courseId, 'limit': 200},
+    );
+
+    final data = response.data as Map<String, dynamic>;
+    final items = data['data']?['items'] ?? data['items'] ?? [];
+
+    return (items as List)
+        .map((item) => Lesson.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
   /// Fetches the illustrative images for a lesson (`GET /lesson-images?lessonId=`).
   Future<List<LessonImage>> getLessonImages(String lessonId) async {
     final response = await ApiClient.dio.get(

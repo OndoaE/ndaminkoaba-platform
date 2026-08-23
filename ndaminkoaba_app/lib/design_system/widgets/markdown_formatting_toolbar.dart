@@ -276,3 +276,152 @@ Widget Function(BuildContext, EditableTextState) markdownFormattingContextMenuBu
     );
   };
 }
+
+/// Always-visible formatting bar above a content [TextField] — the same
+/// markdown-insertion actions as [markdownFormattingContextMenuBuilder]
+/// (which only appears on text selection), plus a paragraph-style dropdown
+/// (maps to `#`/`##`/`###` heading prefixes) and image/video/embed insert
+/// buttons. Image/video/embed each insert as markdown; only images actually
+/// render inline (`![...](url)`, native `flutter_markdown` support) — video
+/// and embed insert as a plain clickable link (`[label](url)`), matching
+/// this codebase's existing disclosed gap that video isn't rendered inline
+/// to learners yet, rather than pretending to support embeds this markdown
+/// pipeline can't actually play.
+///
+/// [onInsertImage]/[onInsertVideo]/[onInsertEmbed] each resolve to a URL (or
+/// null if cancelled) — callers own how that URL is obtained (an upload
+/// flow, a prompt dialog, ...); omit any of them to hide that button.
+class PersistentMarkdownToolbar extends StatelessWidget {
+  const PersistentMarkdownToolbar({
+    super.key,
+    required this.controller,
+    this.onInsertImage,
+    this.onInsertVideo,
+    this.onInsertEmbed,
+  });
+
+  final TextEditingController controller;
+  final Future<String?> Function()? onInsertImage;
+  final Future<String?> Function()? onInsertVideo;
+  final Future<String?> Function()? onInsertEmbed;
+
+  void _applyHeading(int level) {
+    final text = controller.text;
+    final selection = controller.selection;
+    final cursor = selection.isValid ? selection.start : text.length;
+    final lineStart = cursor == 0 ? 0 : (text.lastIndexOf('\n', cursor - 1) + 1);
+    final lineEndSearch = text.indexOf('\n', cursor);
+    final lineEnd = lineEndSearch == -1 ? text.length : lineEndSearch;
+    final line = text.substring(lineStart, lineEnd);
+
+    final stripped = line.replaceFirst(RegExp(r'^#{1,6}\s*'), '');
+    final newLine = level == 0 ? stripped : '${'#' * level} $stripped';
+    final delta = newLine.length - line.length;
+
+    controller.value = TextEditingValue(
+      text: text.replaceRange(lineStart, lineEnd, newLine),
+      selection: TextSelection.collapsed(offset: (cursor + delta).clamp(lineStart, lineStart + newLine.length)),
+    );
+  }
+
+  void _insertAtCursor(String markdown) {
+    final text = controller.text;
+    final selection = controller.selection;
+    final insertAt = selection.isValid ? selection.start : text.length;
+    controller.value = TextEditingValue(
+      text: text.replaceRange(insertAt, insertAt, markdown),
+      selection: TextSelection.collapsed(offset: insertAt + markdown.length),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs, vertical: 2),
+      decoration: BoxDecoration(
+        color: AppColors.background,
+        border: Border.all(color: AppColors.divider),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(10)),
+      ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+            DropdownButton<int>(
+              value: 0,
+              underline: const SizedBox.shrink(),
+              style: const TextStyle(fontSize: 12, color: AppColors.textPrimary),
+              items: const [
+                DropdownMenuItem(value: 0, child: Text('Paragraph')),
+                DropdownMenuItem(value: 1, child: Text('Heading 1')),
+                DropdownMenuItem(value: 2, child: Text('Heading 2')),
+                DropdownMenuItem(value: 3, child: Text('Heading 3')),
+              ],
+              onChanged: (level) {
+                if (level != null) _applyHeading(level);
+              },
+            ),
+            const SizedBox(width: AppSpacing.xs),
+            IconButton(
+              icon: const Icon(Icons.format_bold, size: 18),
+              tooltip: 'Bold',
+              onPressed: () => _wrapSelection(controller, '**'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_italic, size: 18),
+              tooltip: 'Italic',
+              onPressed: () => _wrapSelection(controller, '*'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_underlined, size: 18),
+              tooltip: 'Underline',
+              onPressed: () => _wrapSelection(controller, '<u>', '</u>'),
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_list_bulleted, size: 18),
+              tooltip: 'Bullet list',
+              onPressed: () => applyMarkdownListPrefix(controller, numbered: false),
+            ),
+            IconButton(
+              icon: const Icon(Icons.format_list_numbered, size: 18),
+              tooltip: 'Numbered list',
+              onPressed: () => applyMarkdownListPrefix(controller, numbered: true),
+            ),
+            IconButton(
+              icon: const Icon(Icons.link, size: 18),
+              tooltip: 'Link',
+              onPressed: () => _insertLink(context, controller),
+            ),
+            if (onInsertImage != null)
+              IconButton(
+                icon: const Icon(Icons.image_outlined, size: 18),
+                tooltip: 'Image',
+                onPressed: () async {
+                  final url = await onInsertImage!();
+                  if (url != null && url.isNotEmpty) _insertAtCursor('![image]($url)\n');
+                },
+              ),
+            if (onInsertVideo != null)
+              IconButton(
+                icon: const Icon(Icons.videocam_outlined, size: 18),
+                tooltip: 'Video',
+                onPressed: () async {
+                  final url = await onInsertVideo!();
+                  if (url != null && url.isNotEmpty) _insertAtCursor('[🎬 Video]($url)\n');
+                },
+              ),
+            if (onInsertEmbed != null)
+              IconButton(
+                icon: const Icon(Icons.code, size: 18),
+                tooltip: 'Embed',
+                onPressed: () async {
+                  final url = await onInsertEmbed!();
+                  if (url != null && url.isNotEmpty) _insertAtCursor('[🔗 Embedded content]($url)\n');
+                },
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}

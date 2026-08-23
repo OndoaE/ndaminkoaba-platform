@@ -10,8 +10,7 @@ import '../../../core/services/storage_service.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/gradients/app_gradients.dart';
-import '../../../design_system/navigation/app_bottom_navigation.dart';
-import '../../../design_system/navigation/tab_navigation.dart';
+import '../../../design_system/navigation/learner_shell.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
@@ -144,12 +143,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         : l10n.dashboardFallbackName;
     final courseProgress = continueCourse?.progress ?? 0;
 
-    return Scaffold(
+    return LearnerShell(
+      activeNavKey: 'home',
+      child: Scaffold(
       backgroundColor: AppColors.background,
-      bottomNavigationBar: AppBottomNavigation(
-        currentIndex: 0,
-        onTap: (index) => handleTabTap(context, index),
-      ),
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: loadDashboard,
@@ -528,6 +525,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             ),
           ),
         ),
+      ),
       ),
     );
   }

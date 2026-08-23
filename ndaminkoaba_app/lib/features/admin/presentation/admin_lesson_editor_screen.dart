@@ -4,9 +4,11 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 
+import '../../../config/app_config.dart';
 import '../../../core/network/api_error.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../design_system/colors/app_colors.dart';
@@ -28,10 +30,15 @@ import '../domain/admin_models.dart';
 import '../domain/knowledge_models.dart';
 import '../domain/lesson_editor_models.dart';
 
+const _kLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+const _kTabLabels = ['Lesson Info', 'Content', 'Activities', 'Quiz', 'Resources', 'Settings'];
+
 /// Ordered block-type palette — TEXT/DIALOGUE/AUDIO/IMAGE map cleanly onto
 /// existing Lesson/LessonImage fields; VOCABULARY/QUIZ/PRONUNCIATION are
 /// pointer-only; EXERCISE is last since it's stored but not yet rendered to
-/// learners (disclosed in its card).
+/// learners (disclosed in its card). EXERCISE/PRONUNCIATION live on the
+/// Activities tab, everything else on Content — see [_contentBlockTypes]/
+/// [_activityBlockTypes].
 List<(String, IconData, String)> _blockTypes(AppLocalizations l10n) => [
       ('TEXT', Icons.article_outlined, l10n.adminBlockTypeText),
       ('DIALOGUE', Icons.forum_outlined, l10n.adminBlockTypeDialogue),
@@ -43,6 +50,8 @@ List<(String, IconData, String)> _blockTypes(AppLocalizations l10n) => [
       ('EXERCISE', Icons.extension_outlined, l10n.adminBlockTypeExercise),
       ('VIDEO', Icons.videocam_outlined, l10n.adminBlockTypeVideo),
     ];
+
+const _kActivityBlockTypes = {'EXERCISE', 'PRONUNCIATION'};
 
 List<(String, String)> _aiActions(AppLocalizations l10n) => [
       ('GENERATE_EXAMPLES', l10n.adminAiActionGenerateExamples),
@@ -75,6 +84,23 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
   List<AdminUser> staff = [];
   String? existingQuizId;
 
+  int selectedTab = 0;
+
+  // Lesson Info tab.
+  final infoTitleController = TextEditingController();
+  final infoSummaryController = TextEditingController();
+  final infoCategoryController = TextEditingController();
+  final infoEstimatedMinutesController = TextEditingController();
+  final infoOrderController = TextEditingController();
+  final infoObjectivesController = TextEditingController();
+  final infoOutcomesController = TextEditingController();
+  String? infoLevel;
+  String? infoCoverImageUrl;
+  bool isUploadingCover = false;
+  bool isSavingInfo = false;
+  bool isSavingDraft = false;
+  bool isPublishing = false;
+
   bool aiLoading = false;
   String aiAction = 'GENERATE_EXAMPLES';
   final aiInstructionController = TextEditingController();
@@ -91,6 +117,13 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
 
   @override
   void dispose() {
+    infoTitleController.dispose();
+    infoSummaryController.dispose();
+    infoCategoryController.dispose();
+    infoEstimatedMinutesController.dispose();
+    infoOrderController.dispose();
+    infoObjectivesController.dispose();
+    infoOutcomesController.dispose();
     aiInstructionController.dispose();
     commentController.dispose();
     super.dispose();
@@ -116,6 +149,16 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
         staff = (results[3] as List<AdminUser>).where((u) => u.role == 'TEACHER' || u.role == 'ADMIN').toList();
         existingQuizId = (results[4] as AdminQuiz?)?.id;
         isLoading = false;
+
+        infoTitleController.text = fetchedLesson.title;
+        infoSummaryController.text = fetchedLesson.summary ?? '';
+        infoCategoryController.text = fetchedLesson.category ?? '';
+        infoEstimatedMinutesController.text = fetchedLesson.estimatedMinutes?.toString() ?? '';
+        infoOrderController.text = fetchedLesson.orderNumber.toString();
+        infoObjectivesController.text = fetchedLesson.learningObjectives.join('\n');
+        infoOutcomesController.text = fetchedLesson.outcomes.join('\n');
+        infoLevel = fetchedLesson.difficulty;
+        infoCoverImageUrl = fetchedLesson.coverImageUrl;
       });
     } catch (_) {
       if (!mounted) return;
@@ -126,6 +169,94 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  List<String> _linesToList(String text) =>
+      text.split('\n').map((l) => l.trim()).where((l) => l.isNotEmpty).toList();
+
+  Future<void> _uploadCoverImage() async {
+    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+    if (picked == null) return;
+    if (!mounted) return;
+    final bytes = await picked.readAsBytes();
+    setState(() => isUploadingCover = true);
+    try {
+      final url = await contentRepository.uploadImage(bytes, picked.name);
+      if (!mounted) return;
+      setState(() => infoCoverImageUrl = url);
+    } on DioException catch (e) {
+      _showMessage(extractErrorMessage(e, fallback: 'Could not upload image.'));
+    } finally {
+      if (mounted) setState(() => isUploadingCover = false);
+    }
+  }
+
+  Future<void> _saveLessonInfo() async {
+    setState(() => isSavingInfo = true);
+    try {
+      await contentRepository.updateLesson(
+        widget.lessonId,
+        title: infoTitleController.text.trim(),
+        summary: infoSummaryController.text.trim(),
+        category: infoCategoryController.text.trim(),
+        difficulty: infoLevel,
+        estimatedMinutes: int.tryParse(infoEstimatedMinutesController.text.trim()),
+        orderNumber: int.tryParse(infoOrderController.text.trim()),
+        coverImageUrl: infoCoverImageUrl ?? '',
+        learningObjectives: _linesToList(infoObjectivesController.text),
+        outcomes: _linesToList(infoOutcomesController.text),
+      );
+      await load();
+      _showMessage('Lesson info saved.');
+    } on DioException catch (e) {
+      _showMessage(extractErrorMessage(e, fallback: 'Could not save lesson info.'));
+    } finally {
+      if (mounted) setState(() => isSavingInfo = false);
+    }
+  }
+
+  Future<void> _saveDraft() async {
+    setState(() => isSavingDraft = true);
+    try {
+      await contentRepository.updateLesson(
+        widget.lessonId,
+        title: infoTitleController.text.trim(),
+        summary: infoSummaryController.text.trim(),
+        category: infoCategoryController.text.trim(),
+        difficulty: infoLevel,
+        estimatedMinutes: int.tryParse(infoEstimatedMinutesController.text.trim()),
+        orderNumber: int.tryParse(infoOrderController.text.trim()),
+        coverImageUrl: infoCoverImageUrl ?? '',
+        learningObjectives: _linesToList(infoObjectivesController.text),
+        outcomes: _linesToList(infoOutcomesController.text),
+        status: (lesson?.status == 'PUBLISHED') ? null : 'DRAFT',
+      );
+      await load();
+      _showMessage('Draft saved.');
+    } on DioException catch (e) {
+      _showMessage(extractErrorMessage(e, fallback: 'Could not save draft.'));
+    } finally {
+      if (mounted) setState(() => isSavingDraft = false);
+    }
+  }
+
+  Future<void> _publish() async {
+    setState(() => isPublishing = true);
+    try {
+      await contentRepository.updateLesson(widget.lessonId, status: 'PUBLISHED');
+      await load();
+      _showMessage('Lesson published.');
+    } on DioException catch (e) {
+      _showMessage(extractErrorMessage(e, fallback: 'Could not publish lesson.'));
+    } finally {
+      if (mounted) setState(() => isPublishing = false);
+    }
+  }
+
+  void _previewAsLearner() {
+    final current = lesson;
+    if (current == null) return;
+    context.push('/courses/${current.courseId}/lessons/${widget.lessonId}');
   }
 
   Future<void> _addBlock(String type) async {
@@ -183,17 +314,6 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       await load();
     } on DioException catch (e) {
       _showMessage(extractErrorMessage(e, fallback: l10n.adminCouldNotReorderBlocks));
-    }
-  }
-
-  Future<void> _submitForReview() async {
-    final l10n = AppLocalizations.of(context);
-    try {
-      await contentRepository.updateLesson(widget.lessonId, status: 'IN_REVIEW');
-      await load();
-      _showMessage(l10n.adminSubmittedForReviewMessage);
-    } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: l10n.adminCouldNotSubmitForReview));
     }
   }
 
@@ -298,108 +418,544 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       activeNavKey: 'lessons',
       languageId: lesson?.languageId,
       languageName: lesson?.courseTitle,
-      title: l10n.adminLessonEditorTitle,
-      subtitle: widget.lessonTitle ?? lesson?.title ?? '',
+      title: 'Edit Lesson',
+      subtitle: lesson?.courseTitle ?? widget.lessonTitle ?? '',
       actions: [
-        if (lesson != null && lesson!.status == 'DRAFT')
-          FilledButton.icon(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
-            onPressed: _submitForReview,
-            icon: const Icon(Icons.send_outlined, size: 16),
-            label: Text(l10n.adminSubmitForReviewButton),
-          ),
+        OutlinedButton.icon(
+          onPressed: lesson == null ? null : _previewAsLearner,
+          icon: const Icon(Icons.visibility_outlined, size: 16),
+          label: const Text('Preview (Learner View)'),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        OutlinedButton(
+          onPressed: isSavingDraft ? null : _saveDraft,
+          child: Text(isSavingDraft ? 'Saving…' : 'Save Draft'),
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        FilledButton.icon(
+          style: FilledButton.styleFrom(backgroundColor: AppColors.success),
+          onPressed: isPublishing ? null : _publish,
+          icon: const Icon(Icons.publish_outlined, size: 16),
+          label: Text(isPublishing ? 'Publishing…' : 'Publish Lesson'),
+        ),
       ],
       child: isLoading
           ? const ShimmerListLoader(itemCount: 5, itemHeight: 100)
-          : Row(
+          : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(width: 200, child: _BlockPalette(onAdd: _addBlock)),
-                const SizedBox(width: AppSpacing.md),
-                Expanded(
-                  flex: 2,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                Row(
+                  children: [
+                    Expanded(child: Text(lesson?.title ?? '', style: AppTypography.title)),
+                    StatusPill(status: lesson?.status ?? 'DRAFT'),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.md),
+                _TabSelector(
+                  labels: _kTabLabels,
+                  selected: selectedTab,
+                  onSelect: (i) => setState(() => selectedTab = i),
+                ),
+                const SizedBox(height: AppSpacing.lg),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Expanded(flex: 2, child: _buildTabBody(l10n)),
+                    const SizedBox(width: AppSpacing.md),
+                    SizedBox(
+                      width: 300,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(child: Text(lesson?.title ?? '', style: AppTypography.title)),
-                          StatusPill(status: lesson?.status ?? 'DRAFT'),
+                          _LessonSummaryCard(lesson: lesson),
+                          const SizedBox(height: AppSpacing.md),
+                          _LessonImagePreviewCard(coverImageUrl: infoCoverImageUrl),
+                          const SizedBox(height: AppSpacing.md),
+                          const _TipsCard(),
+                          if (selectedTab == 1 || selectedTab == 2) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            _NnangaAssistantPanel(
+                              action: aiAction,
+                              onActionChanged: (v) => setState(() => aiAction = v),
+                              instructionController: aiInstructionController,
+                              loading: aiLoading,
+                              suggestion: aiSuggestion,
+                              quizDraft: aiQuizDraft,
+                              hasQuiz: existingQuizId != null,
+                              onAsk: _runAiAssist,
+                              onApplySuggestion: _applySuggestionAsTextBlock,
+                              onApplyQuizDraft: _applyQuizDraft,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            _ContentChecklistCard(blocks: blocks, lesson: lesson),
+                          ],
+                          if (selectedTab == 5) ...[
+                            const SizedBox(height: AppSpacing.md),
+                            _ReviewCollaborationCard(
+                              lesson: lesson,
+                              staff: staff,
+                              comments: comments,
+                              commentController: commentController,
+                              onAssignReviewer: _assignReviewer,
+                              onPostComment: _postComment,
+                            ),
+                          ],
                         ],
                       ),
-                      const SizedBox(height: AppSpacing.md),
-                      if (blocks.isEmpty)
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(AppSpacing.xl),
-                          decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
-                          child: Text(
-                            l10n.adminNoBlocksYetMessage,
-                            style: AppTypography.caption,
-                          ),
-                        )
-                      else
-                        for (var i = 0; i < blocks.length; i++)
-                          Padding(
-                            padding: const EdgeInsets.only(bottom: AppSpacing.md),
-                            child: _BlockCard(
-                              key: ValueKey(blocks[i].id),
-                              block: blocks[i],
-                              index: i,
-                              total: blocks.length,
-                              vocabulary: vocabulary,
-                              existingQuizId: existingQuizId,
-                              lessonId: widget.lessonId,
-                              repository: repository,
-                              onMove: (delta) => _moveBlock(i, delta),
-                              onDelete: () => _deleteBlock(blocks[i]),
-                              onSaved: load,
-                              onShowMessage: _showMessage,
-                            ),
-                          ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: AppSpacing.md),
-                SizedBox(
-                  width: 300,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _NnangaAssistantPanel(
-                        action: aiAction,
-                        onActionChanged: (v) => setState(() => aiAction = v),
-                        instructionController: aiInstructionController,
-                        loading: aiLoading,
-                        suggestion: aiSuggestion,
-                        quizDraft: aiQuizDraft,
-                        hasQuiz: existingQuizId != null,
-                        onAsk: _runAiAssist,
-                        onApplySuggestion: _applySuggestionAsTextBlock,
-                        onApplyQuizDraft: _applyQuizDraft,
-                      ),
-                      const SizedBox(height: AppSpacing.md),
-                      _ContentChecklistCard(blocks: blocks, lesson: lesson),
-                      const SizedBox(height: AppSpacing.md),
-                      _ReviewCollaborationCard(
-                        lesson: lesson,
-                        staff: staff,
-                        comments: comments,
-                        commentController: commentController,
-                        onAssignReviewer: _assignReviewer,
-                        onPostComment: _postComment,
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),
     );
   }
+
+  Widget _buildTabBody(AppLocalizations l10n) {
+    switch (selectedTab) {
+      case 0:
+        return _buildLessonInfoTab();
+      case 1:
+        return _buildBlocksTab(l10n, forActivities: false);
+      case 2:
+        return _buildBlocksTab(l10n, forActivities: true);
+      case 3:
+        return _buildQuizTab();
+      case 4:
+        return _buildResourcesTab(l10n);
+      case 5:
+        return _buildSettingsTab();
+      default:
+        return const SizedBox.shrink();
+    }
+  }
+
+  Widget _buildLessonInfoTab() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Lesson Information', style: AppTypography.title),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: infoTitleController,
+            decoration: const InputDecoration(labelText: 'Lesson Title'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: infoSummaryController,
+            maxLines: 2,
+            decoration: const InputDecoration(labelText: 'Short Description'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: infoCategoryController,
+            decoration: const InputDecoration(labelText: 'Lesson Category'),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Text('Level', style: AppTypography.caption),
+          const SizedBox(height: AppSpacing.xs),
+          Wrap(
+            spacing: AppSpacing.sm,
+            children: [
+              for (final level in _kLevels)
+                ChoiceChip(
+                  label: Text(level),
+                  selected: infoLevel == level,
+                  onSelected: (_) => setState(() => infoLevel = level),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: infoEstimatedMinutesController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Estimated Time (min)'),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: TextField(
+                  controller: infoOrderController,
+                  keyboardType: TextInputType.number,
+                  decoration: const InputDecoration(labelText: 'Order'),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text('Lesson Cover / Image', style: AppTypography.caption),
+          Text(
+            'This image will appear on the learner view.',
+            style: AppTypography.caption.copyWith(fontSize: 11),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          if (infoCoverImageUrl != null && infoCoverImageUrl!.isNotEmpty)
+            ClipRRect(
+              borderRadius: AppRadius.small,
+              child: Image.network(
+                AppConfig.resolveUrl(infoCoverImageUrl!),
+                height: 120,
+                width: double.infinity,
+                fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+              ),
+            ),
+          const SizedBox(height: AppSpacing.sm),
+          Row(
+            children: [
+              OutlinedButton.icon(
+                onPressed: isUploadingCover ? null : _uploadCoverImage,
+                icon: const Icon(Icons.upload_outlined, size: 16),
+                label: Text(isUploadingCover ? '…' : 'Change Image'),
+              ),
+              if (infoCoverImageUrl != null && infoCoverImageUrl!.isNotEmpty) ...[
+                const SizedBox(width: AppSpacing.sm),
+                TextButton.icon(
+                  onPressed: () => setState(() => infoCoverImageUrl = null),
+                  icon: const Icon(Icons.delete_outline, size: 16, color: AppColors.error),
+                  label: const Text('Remove Image', style: TextStyle(color: AppColors.error)),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          Text('Learning Objectives (one per line)', style: AppTypography.caption),
+          const SizedBox(height: AppSpacing.xs),
+          TextField(controller: infoObjectivesController, maxLines: 3),
+          const SizedBox(height: AppSpacing.md),
+          Text("What Learners Will Learn (one per line)", style: AppTypography.caption),
+          const SizedBox(height: AppSpacing.xs),
+          TextField(controller: infoOutcomesController, maxLines: 3),
+          const SizedBox(height: AppSpacing.lg),
+          Align(
+            alignment: Alignment.centerRight,
+            child: FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+              onPressed: isSavingInfo ? null : _saveLessonInfo,
+              child: Text(isSavingInfo ? 'Saving…' : 'Save'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildBlocksTab(AppLocalizations l10n, {required bool forActivities}) {
+    final visibleBlocks = blocks
+        .where((b) => _kActivityBlockTypes.contains(b.type) == forActivities)
+        .toList();
+    final paletteTypes = _blockTypes(l10n)
+        .where((t) => _kActivityBlockTypes.contains(t.$1) == forActivities)
+        .toList();
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SizedBox(width: 200, child: _BlockPalette(types: paletteTypes, onAdd: _addBlock)),
+        const SizedBox(width: AppSpacing.md),
+        Expanded(
+          child: visibleBlocks.isEmpty
+              ? Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+                  child: Text(
+                    forActivities ? 'No activities yet.' : l10n.adminNoBlocksYetMessage,
+                    style: AppTypography.caption,
+                  ),
+                )
+              : Column(
+                  children: [
+                    for (var i = 0; i < visibleBlocks.length; i++)
+                      Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                        child: _BlockCard(
+                          key: ValueKey(visibleBlocks[i].id),
+                          block: visibleBlocks[i],
+                          index: blocks.indexOf(visibleBlocks[i]),
+                          total: blocks.length,
+                          vocabulary: vocabulary,
+                          existingQuizId: existingQuizId,
+                          lessonId: widget.lessonId,
+                          repository: repository,
+                          onMove: (delta) => _moveBlock(blocks.indexOf(visibleBlocks[i]), delta),
+                          onDelete: () => _deleteBlock(visibleBlocks[i]),
+                          onSaved: load,
+                          onShowMessage: _showMessage,
+                        ),
+                      ),
+                  ],
+                ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildQuizTab() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Quiz', style: AppTypography.title),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            existingQuizId == null
+                ? 'This lesson has no quiz yet.'
+                : 'This lesson has a quiz linked to it.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          FilledButton.icon(
+            onPressed: () => context.push(
+              '/admin/lessons/${widget.lessonId}/quiz',
+              extra: lesson?.title ?? widget.lessonTitle,
+            ),
+            icon: const Icon(Icons.quiz_outlined, size: 18),
+            label: const Text('Manage Quiz'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildResourcesTab(AppLocalizations l10n) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Resources', style: AppTypography.title),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Illustrated word images attached to this lesson. Add or remove '
+            'per-word images from the dedicated Images screen.',
+            style: AppTypography.caption,
+          ),
+          const SizedBox(height: AppSpacing.lg),
+          OutlinedButton.icon(
+            onPressed: () => context.push(
+              '/admin/lessons/${widget.lessonId}/images',
+              extra: lesson?.title ?? widget.lessonTitle,
+            ),
+            icon: const Icon(Icons.photo_library_outlined, size: 18),
+            label: const Text('Manage Lesson Images'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSettingsTab() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Settings', style: AppTypography.title),
+          const SizedBox(height: AppSpacing.sm),
+          Text(
+            'Reviewer assignment and comments are in the panel on the right.',
+            style: AppTypography.caption,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TabSelector extends StatelessWidget {
+  const _TabSelector({required this.labels, required this.selected, required this.onSelect});
+
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onSelect;
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: [
+          for (var i = 0; i < labels.length; i++)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.lg),
+              child: InkWell(
+                onTap: () => onSelect(i),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.sm),
+                      child: Text(
+                        labels[i],
+                        style: TextStyle(
+                          fontWeight: i == selected ? FontWeight.w700 : FontWeight.w500,
+                          color: i == selected ? AppColors.primary : AppColors.textSecondary,
+                        ),
+                      ),
+                    ),
+                    Container(
+                      height: 2,
+                      width: 60,
+                      color: i == selected ? AppColors.primary : Colors.transparent,
+                    ),
+                  ],
+                ),
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class _LessonSummaryCard extends StatelessWidget {
+  const _LessonSummaryCard({required this.lesson});
+
+  final LessonDetail? lesson;
+
+  @override
+  Widget build(BuildContext context) {
+    final current = lesson;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Lesson Summary', style: AppTypography.title.copyWith(fontSize: 15)),
+          const SizedBox(height: AppSpacing.md),
+          _row('Lesson ID', current?.id.isNotEmpty == true ? '${current!.id.substring(0, 8)}…' : '—'),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+            child: Row(
+              children: [
+                Expanded(child: Text('Status', style: AppTypography.caption)),
+                StatusPill(status: current?.status ?? 'DRAFT'),
+              ],
+            ),
+          ),
+          _row('Created', current?.createdAt != null ? DateFormat.yMMMd().format(current!.createdAt!) : '—'),
+          _row('Last Updated', current?.updatedAt != null ? DateFormat.yMMMd().format(current!.updatedAt!) : '—'),
+        ],
+      ),
+    );
+  }
+
+  Widget _row(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+      child: Row(
+        children: [
+          Expanded(child: Text(label, style: AppTypography.caption)),
+          Text(value, style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600, color: AppColors.textPrimary)),
+        ],
+      ),
+    );
+  }
+}
+
+class _LessonImagePreviewCard extends StatelessWidget {
+  const _LessonImagePreviewCard({required this.coverImageUrl});
+
+  final String? coverImageUrl;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Lesson Image Preview (Learner View)', style: AppTypography.title.copyWith(fontSize: 13)),
+          const SizedBox(height: AppSpacing.sm),
+          ClipRRect(
+            borderRadius: AppRadius.small,
+            child: (coverImageUrl != null && coverImageUrl!.isNotEmpty)
+                ? Image.network(
+                    AppConfig.resolveUrl(coverImageUrl!),
+                    height: 100,
+                    width: double.infinity,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => Container(
+                      height: 100,
+                      color: AppColors.background,
+                      alignment: Alignment.center,
+                      child: const Icon(Icons.image_not_supported_outlined, color: AppColors.textSecondary),
+                    ),
+                  )
+                : Container(
+                    height: 100,
+                    width: double.infinity,
+                    color: AppColors.background,
+                    alignment: Alignment.center,
+                    child: const Icon(Icons.image_outlined, color: AppColors.textSecondary),
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TipsCard extends StatelessWidget {
+  const _TipsCard();
+
+  static const _tips = [
+    'Use high quality images (1280x720 recommended)',
+    'Images make lessons more engaging',
+    'You can add multiple images in the content',
+    'Keep lessons focused and interactive',
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text('Tips', style: AppTypography.title.copyWith(fontSize: 15)),
+          const SizedBox(height: AppSpacing.sm),
+          for (final tip in _tips)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(Icons.check_circle_outline, size: 14, color: AppColors.success),
+                  const SizedBox(width: AppSpacing.xs),
+                  Expanded(child: Text(tip, style: AppTypography.caption)),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
 }
 
 class _BlockPalette extends StatelessWidget {
-  const _BlockPalette({required this.onAdd});
+  const _BlockPalette({required this.types, required this.onAdd});
+
+  final List<(String, IconData, String)> types;
   final ValueChanged<String> onAdd;
 
   @override
@@ -413,7 +969,7 @@ class _BlockPalette extends StatelessWidget {
         children: [
           Text(l10n.adminAddBlockTitle, style: AppTypography.title.copyWith(fontSize: 15)),
           const SizedBox(height: AppSpacing.md),
-          for (final t in _blockTypes(l10n))
+          for (final t in types)
             Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.sm),
               child: OutlinedButton.icon(
@@ -661,10 +1217,56 @@ class _BlockCardState extends State<_BlockCard> {
           children: [
             TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.adminEyebrowLabelOptional)),
             const SizedBox(height: AppSpacing.sm),
+            PersistentMarkdownToolbar(
+              controller: textController,
+              onInsertImage: () async {
+                final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
+                if (picked == null) return null;
+                final bytes = await picked.readAsBytes();
+                return ContentRepository().uploadImage(bytes, picked.name);
+              },
+              onInsertVideo: () async {
+                final urlController = TextEditingController();
+                final url = await showDialog<String>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Video URL'),
+                    content: TextField(controller: urlController, decoration: const InputDecoration(hintText: 'https://...')),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                      FilledButton(onPressed: () => Navigator.pop(context, urlController.text.trim()), child: const Text('Insert')),
+                    ],
+                  ),
+                );
+                urlController.dispose();
+                return url;
+              },
+              onInsertEmbed: () async {
+                final urlController = TextEditingController();
+                final url = await showDialog<String>(
+                  context: context,
+                  builder: (context) => AlertDialog(
+                    title: const Text('Embed URL'),
+                    content: TextField(controller: urlController, decoration: const InputDecoration(hintText: 'https://...')),
+                    actions: [
+                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+                      FilledButton(onPressed: () => Navigator.pop(context, urlController.text.trim()), child: const Text('Insert')),
+                    ],
+                  ),
+                );
+                urlController.dispose();
+                return url;
+              },
+            ),
             TextField(
               controller: textController,
               maxLines: 4,
-              decoration: InputDecoration(labelText: l10n.adminFieldContent),
+              decoration: InputDecoration(
+                labelText: l10n.adminFieldContent,
+                border: const OutlineInputBorder(
+                  borderRadius: BorderRadius.vertical(bottom: Radius.circular(10)),
+                ),
+              ),
               contextMenuBuilder: markdownFormattingContextMenuBuilder(textController),
               onChanged: (_) => setState(() {}),
             ),

@@ -148,6 +148,12 @@ class AdminSidebar extends StatelessWidget {
       Icons.bar_chart_outlined,
       '/admin/history',
     ),
+    _NavItem(
+      'settings',
+      l10n.adminNavSettings,
+      Icons.settings_outlined,
+      '/admin/languages/$id',
+    ),
   ];
 
   @override

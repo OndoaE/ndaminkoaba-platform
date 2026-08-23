@@ -222,6 +222,76 @@ class AppLocalizationsFr extends AppLocalizations {
   String get navProfile => 'Profil';
 
   @override
+  String get learnerNavHome => 'Accueil';
+
+  @override
+  String get learnerNavMyCourses => 'Mes Cours';
+
+  @override
+  String get learnerNavLibrary => 'Bibliothèque';
+
+  @override
+  String get learnerNavLessons => 'Leçons';
+
+  @override
+  String get learnerNavVocabulary => 'Vocabulaire';
+
+  @override
+  String get learnerNavAiTutor => 'Assistant IA';
+
+  @override
+  String get learnerNavFavorites => 'Favoris';
+
+  @override
+  String get learnerNavHistory => 'Historique';
+
+  @override
+  String get learnerNavSettings => 'Paramètres';
+
+  @override
+  String get learnerShellTagline => 'Mbolo! Apprenons ensemble';
+
+  @override
+  String get learnerHistoryEmptyMessage =>
+      'Aucune leçon consultée pour le moment. Ouvrez une leçon pour la voir ici.';
+
+  @override
+  String learnerHistoryViewedOn(String date) {
+    return 'Consulté le $date';
+  }
+
+  @override
+  String get learnerFavoritesEmptyMessage =>
+      'Aucun favori pour le moment. Ajoutez une leçon à vos favoris pour la voir ici.';
+
+  @override
+  String get lessonsHubTitle => 'Leçons';
+
+  @override
+  String get lessonsHubSubtitle => 'Parcourez toutes les leçons d\'un cours';
+
+  @override
+  String get lessonsHubSelectLessonMessage =>
+      'Sélectionnez une leçon pour voir ses détails.';
+
+  @override
+  String get lessonsHubEmptyMessage => 'Ce cours n\'a pas encore de leçons.';
+
+  @override
+  String get lessonsHubStartLessonButton => 'Commencer la leçon';
+
+  @override
+  String get lessonsHubLearningObjectivesTitle => 'Objectifs d\'apprentissage';
+
+  @override
+  String get lessonsHubWhatYouWillLearnTitle => 'Ce que vous allez apprendre';
+
+  @override
+  String lessonsHubMinutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
   String get dashboardSubtitle => 'Poursuivez votre apprentissage de l\'Ewondo';
 
   @override
@@ -813,6 +883,9 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get adminNavReports => 'Rapports';
+
+  @override
+  String get adminNavSettings => 'Paramètres';
 
   @override
   String adminLanguageActiveSuffix(String name) {
