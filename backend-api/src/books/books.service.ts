@@ -12,16 +12,22 @@ export class BooksService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateBookDto) {
-    const content = await extractBookText(dto.fileUrl, dto.fileType);
+    // A book can be created with neither a file nor pages yet — pages get
+    // added afterward via the book-pages module, mirroring how a Lesson
+    // starts with zero blocks. Extraction only makes sense once a file
+    // exists.
+    const content =
+      dto.fileUrl && dto.fileType ? await extractBookText(dto.fileUrl, dto.fileType) : null;
     return this.prisma.book.create({ data: { ...dto, content } });
   }
 
   async findAll(query: QueryBookDto) {
-    const { page = 1, limit = 10, search, languageId } = query;
+    const { page = 1, limit = 10, search, languageId, category } = query;
     const skip = (page - 1) * limit;
 
     const where: Prisma.BookWhereInput = {};
     if (languageId) where.languageId = languageId;
+    if (category) where.category = category;
     if (search) {
       where.OR = [
         { title: { contains: search, mode: Prisma.QueryMode.insensitive } },
@@ -30,7 +36,13 @@ export class BooksService {
     }
 
     const [items, total] = await Promise.all([
-      this.prisma.book.findMany({ where, skip, take: limit, orderBy: { createdAt: 'desc' } }),
+      this.prisma.book.findMany({
+        where,
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' },
+        include: { language: { select: { name: true } } },
+      }),
       this.prisma.book.count({ where }),
     ]);
 
@@ -38,7 +50,10 @@ export class BooksService {
   }
 
   async findOne(id: string) {
-    const book = await this.prisma.book.findUnique({ where: { id } });
+    const book = await this.prisma.book.findUnique({
+      where: { id },
+      include: { language: { select: { name: true } } },
+    });
     if (!book) throw new NotFoundException('Book not found.');
     return book;
   }
@@ -51,9 +66,8 @@ export class BooksService {
     const fileUrl = dto.fileUrl ?? existing.fileUrl;
     const fileType = dto.fileType ?? existing.fileType;
     const fileChanged = dto.fileUrl != null && dto.fileUrl !== existing.fileUrl;
-    const content = fileChanged
-      ? await extractBookText(fileUrl, fileType)
-      : undefined;
+    const content =
+      fileChanged && fileUrl && fileType ? await extractBookText(fileUrl, fileType) : undefined;
 
     return this.prisma.book.update({
       where: { id },
@@ -71,6 +85,9 @@ export class BooksService {
   /// since) without needing to re-upload the file.
   async reextract(id: string) {
     const book = await this.findOne(id);
+    if (!book.fileUrl || !book.fileType) {
+      return book;
+    }
     const content = await extractBookText(book.fileUrl, book.fileType);
     return this.prisma.book.update({ where: { id }, data: { content } });
   }
@@ -80,13 +97,13 @@ export class BooksService {
   /// already-extracted books are left untouched.
   async backfillContent() {
     const pending = await this.prisma.book.findMany({
-      where: { content: null },
+      where: { content: null, fileUrl: { not: null }, fileType: { not: null } },
       select: { id: true, fileUrl: true, fileType: true },
     });
 
     let extracted = 0;
     for (const book of pending) {
-      const content = await extractBookText(book.fileUrl, book.fileType);
+      const content = await extractBookText(book.fileUrl!, book.fileType!);
       if (content) {
         await this.prisma.book.update({ where: { id: book.id }, data: { content } });
         extracted++;

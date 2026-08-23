@@ -1,15 +1,13 @@
-import 'dart:typed_data';
-
 import 'package:dio/dio.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_error.dart';
 import '../../../config/app_config.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/navigation/admin_shell.dart';
+import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
@@ -40,6 +38,7 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
   List<AdminBook> books = [];
   bool isLoading = true;
   String? error;
+  String? categoryFilter;
 
   @override
   void initState() {
@@ -59,10 +58,7 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
       error = null;
     });
     try {
-      final result = await repository.getBooks(
-        search: searchController.text.trim(),
-        languageId: widget.languageId,
-      );
+      final result = await repository.getBooks(languageId: widget.languageId);
       setState(() {
         books = result;
         isLoading = false;
@@ -75,71 +71,55 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
     }
   }
 
+  List<AdminBook> get _visible {
+    final query = searchController.text.trim().toLowerCase();
+    return books.where((book) {
+      final matchesCategory = categoryFilter == null || book.category == categoryFilter;
+      final matchesSearch = query.isEmpty ||
+          book.title.toLowerCase().contains(query) ||
+          (book.author?.toLowerCase().contains(query) ?? false);
+      return matchesCategory && matchesSearch;
+    }).toList();
+  }
+
   Future<void> addBook() async {
-    final result = await showDialog<_BookFormResult>(
+    final titleController = TextEditingController();
+    final title = await showDialog<String>(
       context: context,
-      builder: (context) => const _BookFormDialog(),
+      builder: (context) => AlertDialog(
+        title: const Text('Add Book'),
+        content: TextField(
+          controller: titleController,
+          autofocus: true,
+          decoration: const InputDecoration(labelText: 'Title'),
+          onSubmitted: (v) => Navigator.pop(context, v.trim()),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, titleController.text.trim()),
+            child: const Text('Create'),
+          ),
+        ],
+      ),
     );
-    if (result == null) return;
+    titleController.dispose();
+    if (title == null || title.isEmpty) return;
 
     try {
-      String? coverUrl;
-      if (result.coverBytes != null) {
-        coverUrl = await repository.uploadCoverImage(
-          result.coverBytes!,
-          result.coverFilename!,
-        );
-      }
-
-      final uploaded = await repository.uploadBookFile(
-        result.fileBytes!,
-        result.fileFilename!,
-      );
-
-      await repository.createBook(
-        title: result.title,
-        languageId: widget.languageId,
-        author: result.author,
-        description: result.description,
-        coverUrl: coverUrl,
-        fileUrl: uploaded.url,
-        fileType: uploaded.fileType,
-      );
-      load();
-      _showMessage('Book added.');
+      final bookId = await repository.createBook(title: title, languageId: widget.languageId);
+      if (!mounted) return;
+      // Land straight in the full editor so category/level/reading-time/
+      // cover/content (file or pages) can be filled in right after
+      // creation — mirrors the Lesson Management redirect pattern.
+      context.pushReplacement('/admin/books/$bookId/edit', extra: title);
     } on DioException catch (e) {
       _showMessage(extractErrorMessage(e, fallback: 'Could not add book.'));
     }
   }
 
-  Future<void> editBook(AdminBook book) async {
-    final result = await showDialog<_BookFormResult>(
-      context: context,
-      builder: (context) => _BookFormDialog(existing: book),
-    );
-    if (result == null) return;
-
-    try {
-      String? coverUrl = book.coverUrl;
-      if (result.coverBytes != null) {
-        coverUrl = await repository.uploadCoverImage(
-          result.coverBytes!,
-          result.coverFilename!,
-        );
-      }
-
-      await repository.updateBook(
-        book.id,
-        title: result.title,
-        author: result.author,
-        description: result.description,
-        coverUrl: coverUrl,
-      );
-      load();
-      _showMessage('Book updated.');
-    } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update book.'));
-    }
+  void editBook(AdminBook book) {
+    context.push('/admin/books/${book.id}/edit', extra: book.title).then((_) => load());
   }
 
   Future<void> deleteBook(AdminBook book) async {
@@ -184,6 +164,7 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
   @override
   Widget build(BuildContext context) {
     final title = widget.languageName ?? 'Language';
+    final visible = _visible;
     return AdminShell(
       activeNavKey: 'books',
       languageId: widget.languageId,
@@ -207,7 +188,30 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
               labelText: 'Search books',
               prefixIcon: Icon(Icons.search),
             ),
-            onSubmitted: (_) => load(),
+            onChanged: (_) => setState(() {}),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          SizedBox(
+            height: 36,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                _CategoryChip(
+                  label: 'All',
+                  selected: categoryFilter == null,
+                  onTap: () => setState(() => categoryFilter = null),
+                ),
+                for (final category in kBookCategories)
+                  Padding(
+                    padding: const EdgeInsets.only(left: AppSpacing.sm),
+                    child: _CategoryChip(
+                      label: bookCategoryLabel(category),
+                      selected: categoryFilter == category,
+                      onTap: () => setState(() => categoryFilter = category),
+                    ),
+                  ),
+              ],
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           if (isLoading)
@@ -218,84 +222,134 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
               title: 'Something went wrong',
               message: error,
             )
-          else if (books.isEmpty)
+          else if (visible.isEmpty)
             const EmptyState(
               icon: Icons.menu_book_outlined,
               title: 'No books yet',
-              message: 'Tap "Add Book" to upload the first one.',
+              message: 'Tap "Add Book" to create the first one.',
             )
           else
             Column(
-              children: books.map((book) {
+              children: visible.map((book) {
                 return Padding(
                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                  child: PremiumCard(
-                    padding: const EdgeInsets.all(AppSpacing.md),
-                    child: Row(
-                      children: [
-                        _BookCover(book: book),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                book.title,
-                                style: AppTypography.body.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                              if (book.author != null &&
-                                  book.author!.isNotEmpty)
+                  child: InkWell(
+                    borderRadius: AppRadius.medium,
+                    onTap: () => editBook(book),
+                    child: PremiumCard(
+                      padding: const EdgeInsets.all(AppSpacing.md),
+                      child: Row(
+                        children: [
+                          _BookCover(book: book),
+                          const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
                                 Text(
-                                  book.author!,
-                                  style: AppTypography.caption,
+                                  book.title,
+                                  style: AppTypography.body.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                   maxLines: 1,
                                   overflow: TextOverflow.ellipsis,
                                 ),
-                              const SizedBox(height: 4),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: _bookAccent[0].withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  book.fileType.toUpperCase(),
-                                  style: AppTypography.caption.copyWith(
-                                    color: _bookAccent[0],
-                                    fontWeight: FontWeight.w700,
+                                if (book.author != null &&
+                                    book.author!.isNotEmpty)
+                                  Text(
+                                    book.author!,
+                                    style: AppTypography.caption,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                   ),
+                                const SizedBox(height: 4),
+                                Wrap(
+                                  spacing: AppSpacing.xs,
+                                  children: [
+                                    _Pill(
+                                      label: book.fileType != null
+                                          ? book.fileType!.toUpperCase()
+                                          : (book.pageCount != null
+                                              ? '${book.pageCount} pages'
+                                              : 'No content yet'),
+                                    ),
+                                    if (book.category != null)
+                                      _Pill(label: bookCategoryLabel(book.category!)),
+                                  ],
                                 ),
+                              ],
+                            ),
+                          ),
+                          PopupMenuButton<String>(
+                            onSelected: (value) {
+                              if (value == 'edit') editBook(book);
+                              if (value == 'delete') deleteBook(book);
+                            },
+                            itemBuilder: (context) => const [
+                              PopupMenuItem(value: 'edit', child: Text('Edit')),
+                              PopupMenuItem(
+                                value: 'delete',
+                                child: Text('Delete'),
                               ),
                             ],
                           ),
-                        ),
-                        PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'edit') editBook(book);
-                            if (value == 'delete') deleteBook(book);
-                          },
-                          itemBuilder: (context) => const [
-                            PopupMenuItem(value: 'edit', child: Text('Edit')),
-                            PopupMenuItem(
-                              value: 'delete',
-                              child: Text('Delete'),
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );
               }).toList(),
             ),
         ],
+      ),
+    );
+  }
+}
+
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({required this.label, required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return ChoiceChip(
+      label: Text(label),
+      selected: selected,
+      onSelected: (_) => onTap(),
+      selectedColor: _bookAccent[0],
+      showCheckmark: false,
+      labelStyle: TextStyle(
+        color: selected ? Colors.white : AppColors.textPrimary,
+        fontWeight: FontWeight.w600,
+        fontSize: 12,
+      ),
+      shape: const StadiumBorder(),
+    );
+  }
+}
+
+class _Pill extends StatelessWidget {
+  const _Pill({required this.label});
+
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+      decoration: BoxDecoration(
+        color: _bookAccent[0].withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(6),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.caption.copyWith(
+          color: _bookAccent[0],
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -309,6 +363,7 @@ class _BookCover extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPdf = book.fileType == 'pdf';
+    final isPages = book.fileType == null && (book.pageCount ?? 0) > 0;
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(8),
@@ -318,192 +373,22 @@ class _BookCover extends StatelessWidget {
               width: 48,
               height: 64,
               fit: BoxFit.cover,
-              errorBuilder: (context, error, stack) => _fallbackIcon(isPdf),
+              errorBuilder: (context, error, stack) => _fallbackIcon(isPdf, isPages),
             )
-          : SizedBox(width: 48, height: 64, child: _fallbackIcon(isPdf)),
+          : SizedBox(width: 48, height: 64, child: _fallbackIcon(isPdf, isPages)),
     );
   }
 
-  Widget _fallbackIcon(bool isPdf) {
+  Widget _fallbackIcon(bool isPdf, bool isPages) {
     return Container(
       color: _bookAccent[0].withValues(alpha: 0.12),
       alignment: Alignment.center,
       child: Icon(
-        isPdf ? Icons.picture_as_pdf_outlined : Icons.menu_book_outlined,
+        isPages
+            ? Icons.auto_stories_outlined
+            : (isPdf ? Icons.picture_as_pdf_outlined : Icons.menu_book_outlined),
         color: _bookAccent[0],
       ),
-    );
-  }
-}
-
-class _BookFormResult {
-  const _BookFormResult({
-    required this.title,
-    this.author,
-    this.description,
-    this.coverBytes,
-    this.coverFilename,
-    this.fileBytes,
-    this.fileFilename,
-  });
-
-  final String title;
-  final String? author;
-  final String? description;
-  final Uint8List? coverBytes;
-  final String? coverFilename;
-  final Uint8List? fileBytes;
-  final String? fileFilename;
-}
-
-/// Add or edit a book. In "edit" mode ([existing] non-null) the underlying
-/// PDF/EPUB file can't be swapped — only metadata and the cover — since
-/// re-uploading just to fix a typo in the title is unnecessary complexity;
-/// delete and re-add if the file itself needs to change.
-class _BookFormDialog extends StatefulWidget {
-  const _BookFormDialog({this.existing});
-
-  final AdminBook? existing;
-
-  @override
-  State<_BookFormDialog> createState() => _BookFormDialogState();
-}
-
-class _BookFormDialogState extends State<_BookFormDialog> {
-  late final titleController = TextEditingController(
-    text: widget.existing?.title ?? '',
-  );
-  late final authorController = TextEditingController(
-    text: widget.existing?.author ?? '',
-  );
-  late final descriptionController = TextEditingController(
-    text: widget.existing?.description ?? '',
-  );
-
-  Uint8List? coverBytes;
-  String? coverFilename;
-  Uint8List? fileBytes;
-  String? fileFilename;
-
-  @override
-  void dispose() {
-    titleController.dispose();
-    authorController.dispose();
-    descriptionController.dispose();
-    super.dispose();
-  }
-
-  bool get isEditing => widget.existing != null;
-
-  Future<void> pickCover() async {
-    final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
-    if (picked == null) return;
-    final bytes = await picked.readAsBytes();
-    setState(() {
-      coverBytes = bytes;
-      coverFilename = picked.name;
-    });
-  }
-
-  Future<void> pickFile() async {
-    final result = await FilePicker.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['pdf', 'epub'],
-      withData: true,
-    );
-    if (result == null || result.files.isEmpty) return;
-    final picked = result.files.first;
-    if (picked.bytes == null) return;
-    setState(() {
-      fileBytes = picked.bytes;
-      fileFilename = picked.name;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      title: Text(isEditing ? 'Edit Book' : 'Add Book'),
-      content: SizedBox(
-        width: 420,
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              TextField(
-                controller: titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              TextField(
-                controller: authorController,
-                decoration: const InputDecoration(
-                  labelText: 'Author (optional)',
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              TextField(
-                controller: descriptionController,
-                maxLines: 3,
-                minLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'Description (optional)',
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              OutlinedButton.icon(
-                onPressed: pickCover,
-                icon: const Icon(Icons.image_outlined),
-                label: Text(
-                  coverFilename ??
-                      (isEditing
-                          ? 'Replace cover image (optional)'
-                          : 'Cover image (optional)'),
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              if (!isEditing) ...[
-                const SizedBox(height: AppSpacing.sm),
-                OutlinedButton.icon(
-                  onPressed: pickFile,
-                  icon: const Icon(Icons.attach_file),
-                  label: Text(
-                    fileFilename ?? 'PDF or EPUB file',
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-              ],
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
-        ),
-        FilledButton(
-          onPressed: () {
-            final title = titleController.text.trim();
-            if (title.isEmpty) return;
-            if (!isEditing && fileBytes == null) return;
-
-            Navigator.pop(
-              context,
-              _BookFormResult(
-                title: title,
-                author: authorController.text.trim(),
-                description: descriptionController.text.trim(),
-                coverBytes: coverBytes,
-                coverFilename: coverFilename,
-                fileBytes: fileBytes,
-                fileFilename: fileFilename,
-              ),
-            );
-          },
-          child: Text(isEditing ? 'Save' : 'Add'),
-        ),
-      ],
     );
   }
 }

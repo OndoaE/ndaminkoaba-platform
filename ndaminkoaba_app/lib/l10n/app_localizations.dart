@@ -566,6 +566,18 @@ abstract class AppLocalizations {
   /// **'No favorites yet. Bookmark a lesson to see it here.'**
   String get learnerFavoritesEmptyMessage;
 
+  /// No description provided for @learnerFavoritesLessonsSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons'**
+  String get learnerFavoritesLessonsSection;
+
+  /// No description provided for @learnerFavoritesBooksSection.
+  ///
+  /// In en, this message translates to:
+  /// **'Books'**
+  String get learnerFavoritesBooksSection;
+
   /// No description provided for @lessonsHubTitle.
   ///
   /// In en, this message translates to:
@@ -1217,13 +1229,13 @@ abstract class AppLocalizations {
   /// No description provided for @booksTitle.
   ///
   /// In en, this message translates to:
-  /// **'Books'**
+  /// **'Book Library'**
   String get booksTitle;
 
   /// No description provided for @booksSubtitle.
   ///
   /// In en, this message translates to:
-  /// **'Read Ewondo books as PDF or EPUB, right in the app.'**
+  /// **'Discover and read Ewondo books.'**
   String get booksSubtitle;
 
   /// No description provided for @noBooksTitle.
@@ -1243,6 +1255,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Could not load this book. Please try again.'**
   String get bookLoadError;
+
+  /// No description provided for @booksHubCategoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get booksHubCategoryAll;
+
+  /// No description provided for @booksHubSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search a book...'**
+  String get booksHubSearchHint;
+
+  /// No description provided for @booksHubSelectBookMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a book to see its details.'**
+  String get booksHubSelectBookMessage;
+
+  /// No description provided for @booksHubReadButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Read the book'**
+  String get booksHubReadButton;
+
+  /// No description provided for @booksHubAddToFavoritesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add to favorites'**
+  String get booksHubAddToFavoritesButton;
+
+  /// No description provided for @booksHubRemoveFromFavoritesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from favorites'**
+  String get booksHubRemoveFromFavoritesButton;
+
+  /// No description provided for @booksHubNewBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'New'**
+  String get booksHubNewBadge;
+
+  /// No description provided for @booksHubCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get booksHubCategoryLabel;
+
+  /// No description provided for @booksHubLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get booksHubLevelLabel;
+
+  /// No description provided for @booksHubLanguageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get booksHubLanguageLabel;
+
+  /// No description provided for @booksHubPagesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get booksHubPagesLabel;
+
+  /// No description provided for @booksHubPublishedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get booksHubPublishedLabel;
+
+  /// No description provided for @booksHubMinutesShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{minutes} min'**
+  String booksHubMinutesShort(int minutes);
+
+  /// No description provided for @booksHubRecommendedAgeShort.
+  ///
+  /// In en, this message translates to:
+  /// **'{age}+ years'**
+  String booksHubRecommendedAgeShort(int age);
 
   /// No description provided for @certificateNotFoundTitle.
   ///

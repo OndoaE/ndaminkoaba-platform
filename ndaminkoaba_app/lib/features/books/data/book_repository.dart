@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import '../../../config/app_config.dart';
 import '../../../core/network/api_client.dart';
 import '../domain/book.dart';
+import '../domain/book_page.dart';
 
 class BookRepository {
   Future<List<Book>> getBooks({String? search, String? languageId}) async {
@@ -24,6 +25,13 @@ class BookRepository {
     final response = await ApiClient.dio.get('/books/$id');
     final data = response.data as Map<String, dynamic>;
     return Book.fromJson((data['data'] ?? data) as Map<String, dynamic>);
+  }
+
+  Future<List<BookPage>> getPages(String bookId) async {
+    final response = await ApiClient.dio.get('/book-pages', queryParameters: {'bookId': bookId});
+    final data = response.data as Map<String, dynamic>;
+    final items = (data['data'] ?? data) as List;
+    return items.map((e) => BookPage.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   /// Downloads the book's PDF/EPUB file bytes directly, so readers can pass

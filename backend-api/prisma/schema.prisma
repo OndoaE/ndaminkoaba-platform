@@ -109,6 +109,8 @@ model User {
   pronunciationAttempts PronunciationAttempt[]
   userBadges            UserBadge[]
   lessonViewHistory     LessonViewHistory[]
+  bookProgress          BookProgress[]
+  bookBookmarks         BookBookmark[]
 
   // Admin content-workflow relations: a user can be assigned as the
   // reviewer on courses/lessons (separate from "TeacherCourses", which is
@@ -423,24 +425,110 @@ model SyllabaryEntry {
 }
 
 /// A book (PDF or EPUB) admins upload for learners to read in-app.
+enum BookCategory {
+  CONTES
+  HISTOIRES
+  CULTURE
+  VIE_QUOTIDIENNE
+  PROVERBES
+  EDUCATION
+  AUTRE
+}
+
 model Book {
-  id          String   @id @default(uuid())
+  id          String  @id @default(uuid())
   title       String
   author      String?
   description String?
   coverUrl    String?
-  fileUrl     String
-  fileType    String
+  // A book is either an uploaded file (fileUrl/fileType, below) or a set of
+  // authored BookPage rows (see `pages`) — both optional, mutually
+  // additive, chosen per book by the admin. Neither is required at create
+  // time, mirroring how a Lesson starts with zero blocks.
+  fileUrl     String?
+  fileType    String?
   languageId  String
   // Plain text extracted server-side from the uploaded PDF/EPUB, so Nnanga
   // can search and quote from the book's actual content — null until
   // extraction runs (on create/update, or via POST /books/:id/reextract),
   // and stays null if extraction fails (e.g. a scanned/image-only PDF).
   content     String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
 
-  language Language @relation(fields: [languageId], references: [id])
+  category           BookCategory?
+  level              Level?
+  readingTimeMinutes Int?
+  // Minimum recommended age, displayed as "{age}+ ans"/"{age}+ years".
+  recommendedAge     Int?
+  hasImages          Boolean       @default(false)
+  // Auto-maintained from BookPage rows for a pages-mode book (recomputed
+  // after every page create/delete/reorder); manually admin-entered for a
+  // file-mode book.
+  pageCount          Int?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  language  Language       @relation(fields: [languageId], references: [id])
+  pages     BookPage[]
+  progress  BookProgress[]
+  bookmarks BookBookmark[]
+}
+
+/// One page of an admin-authored illustrated book (illustration + original
+/// Ewondo text + French translation, optionally narrated) — the structured
+/// alternative to an uploaded PDF/EPUB file on `Book`. No derive-to-flat-
+/// field step is needed the way LessonBlock has for Lesson.content: the
+/// learner-facing reader reads these rows directly.
+model BookPage {
+  id              String   @id @default(uuid())
+  bookId          String
+  orderNumber     Int
+  illustrationUrl String?
+  ewondoText      String
+  frenchText      String?
+  audioUrl        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@index([bookId, orderNumber])
+}
+
+/// A learner's reading position in a book — the Book-scoped equivalent of
+/// Progress (lesson completion), kept as its own model rather than
+/// overloading Progress since a book isn't part of a Course/Module/
+/// Enrollment tree and shouldn't trigger Progress's streak/badge/
+/// enrollment-percentage side effects.
+model BookProgress {
+  id             String   @id @default(uuid())
+  userId         String
+  bookId         String
+  lastPageNumber Int      @default(1)
+  completed      Boolean  @default(false)
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
+}
+
+/// Book-scoped favorite, mirroring Bookmark's shape with bookId instead of
+/// lessonId — kept as a separate model rather than making Bookmark
+/// polymorphic: Postgres unique indexes treat NULL as distinct-from-itself,
+/// so a nullable lessonId/bookId pair on one table would silently allow
+/// duplicate book bookmarks past `@@unique([userId, lessonId, bookId])`.
+model BookBookmark {
+  id        String   @id @default(uuid())
+  userId    String
+  bookId    String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+  book Book @relation(fields: [bookId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, bookId])
 }
 
 model Category {

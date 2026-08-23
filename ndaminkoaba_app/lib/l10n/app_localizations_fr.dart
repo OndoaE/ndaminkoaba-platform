@@ -265,6 +265,12 @@ class AppLocalizationsFr extends AppLocalizations {
       'Aucun favori pour le moment. Ajoutez une leçon à vos favoris pour la voir ici.';
 
   @override
+  String get learnerFavoritesLessonsSection => 'Leçons';
+
+  @override
+  String get learnerFavoritesBooksSection => 'Livres';
+
+  @override
   String get lessonsHubTitle => 'Leçons';
 
   @override
@@ -633,11 +639,10 @@ class AppLocalizationsFr extends AppLocalizations {
       'Terminez toutes les leçons et tous les quiz d\'un cours pour obtenir votre premier certificat.';
 
   @override
-  String get booksTitle => 'Livres';
+  String get booksTitle => 'Bibliothèque de Livres';
 
   @override
-  String get booksSubtitle =>
-      'Lisez des livres en Ewondo au format PDF ou EPUB, directement dans l\'application.';
+  String get booksSubtitle => 'Découvrez et lisez des livres en Ewondo.';
 
   @override
   String get noBooksTitle => 'Aucun livre pour le moment';
@@ -649,6 +654,53 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bookLoadError =>
       'Impossible de charger ce livre. Veuillez réessayer.';
+
+  @override
+  String get booksHubCategoryAll => 'Tous';
+
+  @override
+  String get booksHubSearchHint => 'Rechercher un livre...';
+
+  @override
+  String get booksHubSelectBookMessage =>
+      'Sélectionnez un livre pour voir ses détails.';
+
+  @override
+  String get booksHubReadButton => 'Lire le livre';
+
+  @override
+  String get booksHubAddToFavoritesButton => 'Ajouter aux favoris';
+
+  @override
+  String get booksHubRemoveFromFavoritesButton => 'Retirer des favoris';
+
+  @override
+  String get booksHubNewBadge => 'Nouveau';
+
+  @override
+  String get booksHubCategoryLabel => 'Catégorie';
+
+  @override
+  String get booksHubLevelLabel => 'Niveau';
+
+  @override
+  String get booksHubLanguageLabel => 'Langue';
+
+  @override
+  String get booksHubPagesLabel => 'Pages';
+
+  @override
+  String get booksHubPublishedLabel => 'Publié le';
+
+  @override
+  String booksHubMinutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String booksHubRecommendedAgeShort(int age) {
+    return '$age+ ans';
+  }
 
   @override
   String get certificateNotFoundTitle => 'Certificat introuvable';

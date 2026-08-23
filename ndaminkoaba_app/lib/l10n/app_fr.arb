@@ -88,6 +88,8 @@
     "placeholders": { "date": { "type": "String" } }
   },
   "learnerFavoritesEmptyMessage": "Aucun favori pour le moment. Ajoutez une leçon à vos favoris pour la voir ici.",
+  "learnerFavoritesLessonsSection": "Leçons",
+  "learnerFavoritesBooksSection": "Livres",
   "lessonsHubTitle": "Leçons",
   "lessonsHubSubtitle": "Parcourez toutes les leçons d'un cours",
   "lessonsHubSelectLessonMessage": "Sélectionnez une leçon pour voir ses détails.",
@@ -212,11 +214,31 @@
   "myCertificatesSubtitle": "Terminez un cours et réussissez ses quiz pour obtenir un certificat.",
   "noCertificatesTitle": "Aucun certificat pour le moment",
   "noCertificatesMessage": "Terminez toutes les leçons et tous les quiz d'un cours pour obtenir votre premier certificat.",
-  "booksTitle": "Livres",
-  "booksSubtitle": "Lisez des livres en Ewondo au format PDF ou EPUB, directement dans l'application.",
+  "booksTitle": "Bibliothèque de Livres",
+  "booksSubtitle": "Découvrez et lisez des livres en Ewondo.",
   "noBooksTitle": "Aucun livre pour le moment",
   "noBooksMessage": "Revenez bientôt — de nouveaux livres apparaîtront ici.",
   "bookLoadError": "Impossible de charger ce livre. Veuillez réessayer.",
+  "booksHubCategoryAll": "Tous",
+  "booksHubSearchHint": "Rechercher un livre...",
+  "booksHubSelectBookMessage": "Sélectionnez un livre pour voir ses détails.",
+  "booksHubReadButton": "Lire le livre",
+  "booksHubAddToFavoritesButton": "Ajouter aux favoris",
+  "booksHubRemoveFromFavoritesButton": "Retirer des favoris",
+  "booksHubNewBadge": "Nouveau",
+  "booksHubCategoryLabel": "Catégorie",
+  "booksHubLevelLabel": "Niveau",
+  "booksHubLanguageLabel": "Langue",
+  "booksHubPagesLabel": "Pages",
+  "booksHubPublishedLabel": "Publié le",
+  "booksHubMinutesShort": "{minutes} min",
+  "@booksHubMinutesShort": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "booksHubRecommendedAgeShort": "{age}+ ans",
+  "@booksHubRecommendedAgeShort": {
+    "placeholders": { "age": { "type": "int" } }
+  },
 
   "certificateNotFoundTitle": "Certificat introuvable",
   "certificateNotFoundMessage": "Ce certificat n'a pas pu être chargé. Veuillez revenir en arrière et réessayer.",

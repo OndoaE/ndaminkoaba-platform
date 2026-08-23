@@ -97,6 +97,8 @@
     "placeholders": { "date": { "type": "String" } }
   },
   "learnerFavoritesEmptyMessage": "No favorites yet. Bookmark a lesson to see it here.",
+  "learnerFavoritesLessonsSection": "Lessons",
+  "learnerFavoritesBooksSection": "Books",
   "lessonsHubTitle": "Lessons",
   "lessonsHubSubtitle": "Browse every lesson in a course",
   "lessonsHubSelectLessonMessage": "Select a lesson to see its details.",
@@ -252,11 +254,31 @@
   "myCertificatesSubtitle": "Complete a course and pass its quizzes to earn a certificate.",
   "noCertificatesTitle": "No certificates yet",
   "noCertificatesMessage": "Finish all lessons and quizzes in a course to earn your first certificate.",
-  "booksTitle": "Books",
-  "booksSubtitle": "Read Ewondo books as PDF or EPUB, right in the app.",
+  "booksTitle": "Book Library",
+  "booksSubtitle": "Discover and read Ewondo books.",
   "noBooksTitle": "No books yet",
   "noBooksMessage": "Check back soon — new books will appear here.",
   "bookLoadError": "Could not load this book. Please try again.",
+  "booksHubCategoryAll": "All",
+  "booksHubSearchHint": "Search a book...",
+  "booksHubSelectBookMessage": "Select a book to see its details.",
+  "booksHubReadButton": "Read the book",
+  "booksHubAddToFavoritesButton": "Add to favorites",
+  "booksHubRemoveFromFavoritesButton": "Remove from favorites",
+  "booksHubNewBadge": "New",
+  "booksHubCategoryLabel": "Category",
+  "booksHubLevelLabel": "Level",
+  "booksHubLanguageLabel": "Language",
+  "booksHubPagesLabel": "Pages",
+  "booksHubPublishedLabel": "Published",
+  "booksHubMinutesShort": "{minutes} min",
+  "@booksHubMinutesShort": {
+    "placeholders": { "minutes": { "type": "int" } }
+  },
+  "booksHubRecommendedAgeShort": "{age}+ years",
+  "@booksHubRecommendedAgeShort": {
+    "placeholders": { "age": { "type": "int" } }
+  },
 
   "certificateNotFoundTitle": "Certificate not found",
   "certificateNotFoundMessage": "This certificate could not be loaded. Please go back and try again.",

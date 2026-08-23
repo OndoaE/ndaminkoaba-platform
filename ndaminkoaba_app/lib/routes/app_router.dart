@@ -2,6 +2,7 @@ import 'package:go_router/go_router.dart';
 
 import '../core/navigation/navigator_key.dart';
 import '../features/admin/presentation/admin_bible_chapter_screen.dart';
+import '../features/admin/presentation/admin_book_editor_screen.dart';
 import '../features/admin/presentation/admin_book_management_screen.dart';
 import '../features/admin/presentation/admin_certificates_screen.dart';
 import '../features/admin/presentation/admin_content_hub_screen.dart';
@@ -402,6 +403,14 @@ final appRouter = GoRouter(
         final languageId = state.pathParameters['languageId']!;
         final languageName = state.extra as String?;
         return AdminBookManagementScreen(languageId: languageId, languageName: languageName);
+      },
+    ),
+    GoRoute(
+      path: '/admin/books/:bookId/edit',
+      builder: (context, state) {
+        final bookId = state.pathParameters['bookId']!;
+        final bookTitle = state.extra as String?;
+        return AdminBookEditorScreen(bookId: bookId, bookTitle: bookTitle);
       },
     ),
     GoRoute(

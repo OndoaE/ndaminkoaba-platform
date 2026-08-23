@@ -259,6 +259,12 @@ class AppLocalizationsEn extends AppLocalizations {
       'No favorites yet. Bookmark a lesson to see it here.';
 
   @override
+  String get learnerFavoritesLessonsSection => 'Lessons';
+
+  @override
+  String get learnerFavoritesBooksSection => 'Books';
+
+  @override
   String get lessonsHubTitle => 'Lessons';
 
   @override
@@ -619,11 +625,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Finish all lessons and quizzes in a course to earn your first certificate.';
 
   @override
-  String get booksTitle => 'Books';
+  String get booksTitle => 'Book Library';
 
   @override
-  String get booksSubtitle =>
-      'Read Ewondo books as PDF or EPUB, right in the app.';
+  String get booksSubtitle => 'Discover and read Ewondo books.';
 
   @override
   String get noBooksTitle => 'No books yet';
@@ -633,6 +638,52 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get bookLoadError => 'Could not load this book. Please try again.';
+
+  @override
+  String get booksHubCategoryAll => 'All';
+
+  @override
+  String get booksHubSearchHint => 'Search a book...';
+
+  @override
+  String get booksHubSelectBookMessage => 'Select a book to see its details.';
+
+  @override
+  String get booksHubReadButton => 'Read the book';
+
+  @override
+  String get booksHubAddToFavoritesButton => 'Add to favorites';
+
+  @override
+  String get booksHubRemoveFromFavoritesButton => 'Remove from favorites';
+
+  @override
+  String get booksHubNewBadge => 'New';
+
+  @override
+  String get booksHubCategoryLabel => 'Category';
+
+  @override
+  String get booksHubLevelLabel => 'Level';
+
+  @override
+  String get booksHubLanguageLabel => 'Language';
+
+  @override
+  String get booksHubPagesLabel => 'Pages';
+
+  @override
+  String get booksHubPublishedLabel => 'Published';
+
+  @override
+  String booksHubMinutesShort(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String booksHubRecommendedAgeShort(int age) {
+    return '$age+ years';
+  }
 
   @override
   String get certificateNotFoundTitle => 'Certificate not found';
