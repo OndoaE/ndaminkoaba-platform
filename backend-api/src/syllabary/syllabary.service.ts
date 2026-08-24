@@ -112,8 +112,7 @@ export class SyllabaryService {
     const language = await this.prisma.language.findUnique({ where: { id: dto.languageId } });
     if (!language) {
       return {
-        consonant: null,
-        rows: [],
+        letters: [],
         warnings: ['Invalid languageId.'],
       };
     }
@@ -127,8 +126,7 @@ export class SyllabaryService {
       const text = await extractDocumentText(buffer, dto.mimeType);
       if (!text) {
         return {
-          consonant: null,
-          rows: [],
+          letters: [],
           warnings: [
             'Could not read any text from this file — try a different file, or paste the content directly.',
           ],
@@ -142,8 +140,7 @@ export class SyllabaryService {
     }
 
     return {
-      consonant: null,
-      rows: [],
+      letters: [],
       warnings: ['No content provided to analyze.'],
     };
   }

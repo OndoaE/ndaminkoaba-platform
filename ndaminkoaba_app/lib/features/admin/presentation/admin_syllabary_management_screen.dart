@@ -314,8 +314,10 @@ class _AdminSyllabaryManagementScreenState
         phase = _Phase.review;
         isExtracting = false;
       });
-      if (result.rows.isEmpty) {
+      if (result.letters.every((g) => g.rows.isEmpty)) {
         _showMessage('No rows detected — check the notes on the review screen.');
+      } else if (result.letters.length > 1) {
+        _showMessage('Detected ${result.letters.length} letters — review each below.');
       }
     } on DioException catch (e) {
       if (!mounted) return;
@@ -359,31 +361,33 @@ class _AdminSyllabaryManagementScreenState
 
   Future<void> approveAndImport() async {
     final current = draft;
-    if (current == null || current.rows.isEmpty) return;
+    if (current == null || current.letters.every((g) => g.rows.isEmpty)) return;
 
     setState(() => isImporting = true);
     var succeeded = 0;
     var failed = 0;
     String? firstError;
-    for (final row in current.rows) {
-      try {
-        await repository.createEntry(
-          consonant: current.consonant,
-          vowel: row.vowel,
-          syllable: row.syllable,
-          exampleWord: row.exampleWord,
-          translation: row.translation,
-          exampleSentence: row.exampleSentence,
-          orderNumber: row.orderNumber,
-          languageId: widget.languageId,
-        );
-        succeeded++;
-      } on DioException catch (e) {
-        failed++;
-        firstError ??= extractErrorMessage(e, fallback: 'Unknown server error.');
-      } catch (e) {
-        failed++;
-        firstError ??= e.toString();
+    for (final group in current.letters) {
+      for (final row in group.rows) {
+        try {
+          await repository.createEntry(
+            consonant: group.consonant,
+            vowel: row.vowel,
+            syllable: row.syllable,
+            exampleWord: row.exampleWord,
+            translation: row.translation,
+            exampleSentence: row.exampleSentence,
+            orderNumber: row.orderNumber,
+            languageId: widget.languageId,
+          );
+          succeeded++;
+        } on DioException catch (e) {
+          failed++;
+          firstError ??= extractErrorMessage(e, fallback: 'Unknown server error.');
+        } catch (e) {
+          failed++;
+          firstError ??= e.toString();
+        }
       }
     }
 
@@ -658,6 +662,8 @@ class _AdminSyllabaryManagementScreenState
     final current = draft;
     if (current == null) return const SizedBox.shrink();
 
+    final totalRows = current.letters.fold<int>(0, (sum, g) => sum + g.rows.length);
+
     return Column(
       children: [
         Expanded(
@@ -698,42 +704,32 @@ class _AdminSyllabaryManagementScreenState
                     ],
                   ),
                 ),
-              PremiumCard(
-                child: Row(
-                  children: [
-                    Text('Letter', style: AppTypography.title),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: TextFormField(
-                        key: ValueKey('letter-${current.hashCode}'),
-                        initialValue: current.consonant ?? '',
-                        decoration: const InputDecoration(
-                          hintText: 'e.g. L (blank = vowel-only)',
-                        ),
-                        onChanged: (v) =>
-                            current.consonant = v.trim().isEmpty ? null : v.trim(),
-                      ),
-                    ),
-                  ],
-                ),
+              SectionTitle(
+                title: 'Letters',
+                subtitle: current.letters.isEmpty
+                    ? 'None detected'
+                    : '${current.letters.length} letter(s), $totalRows row(s) total',
               ),
-              const SizedBox(height: AppSpacing.lg),
-              SectionTitle(title: 'Rows', subtitle: '${current.rows.length} detected'),
               const SizedBox(height: AppSpacing.md),
-              if (current.rows.isEmpty)
+              if (current.letters.isEmpty)
                 PremiumCard(
                   child: Text(
-                    'No rows were detected. Try Re-analyze with a clearer photo, '
-                    'or go back and upload a different one.',
+                    'No syllabary charts were detected. Try Re-analyze with a '
+                    'clearer photo or document, or go back and upload a '
+                    'different one.',
                     style: AppTypography.caption,
                   ),
                 ),
-              ...current.rows.asMap().entries.map(
-                (entry) => _EditableRowCard(
-                  key: ValueKey(entry.value),
-                  row: entry.value,
-                  lowConfidence: entry.value.confidence == 'low',
-                  onDelete: () => setState(() => current.rows.removeAt(entry.key)),
+              ...current.letters.asMap().entries.map(
+                (groupEntry) => _LetterGroupSection(
+                  key: ValueKey(groupEntry.value),
+                  group: groupEntry.value,
+                  onDeleteGroup: () =>
+                      setState(() => current.letters.removeAt(groupEntry.key)),
+                  onDeleteRow: (rowIndex) =>
+                      setState(() => groupEntry.value.rows.removeAt(rowIndex)),
+                  onLetterChanged: (v) => groupEntry.value.consonant =
+                      v.trim().isEmpty ? null : v.trim(),
                 ),
               ),
             ],
@@ -774,7 +770,7 @@ class _AdminSyllabaryManagementScreenState
                   label: 'Approve & Import',
                   icon: Icons.check,
                   isLoading: isImporting,
-                  onPressed: current.rows.isEmpty ? null : approveAndImport,
+                  onPressed: totalRows == 0 ? null : approveAndImport,
                 ),
               ),
             ],
@@ -872,6 +868,87 @@ class _ContentPreviewCard extends StatelessWidget {
               ],
             ),
           ),
+        ],
+      ),
+    );
+  }
+}
+
+/// One consonant chart's review card: an editable "Letter" field, a delete
+/// button for the whole group, and its rows below (reusing
+/// [_EditableRowCard]) — one of these is rendered per entry in
+/// [SyllabaryExtractionResult.letters], since a single extraction can
+/// contain several separate charts (e.g. a page with "F", "H", and "K"
+/// charts on it).
+class _LetterGroupSection extends StatelessWidget {
+  const _LetterGroupSection({
+    super.key,
+    required this.group,
+    required this.onDeleteGroup,
+    required this.onDeleteRow,
+    required this.onLetterChanged,
+  });
+
+  final SyllabaryLetterGroup group;
+  final VoidCallback onDeleteGroup;
+  final ValueChanged<int> onDeleteRow;
+  final ValueChanged<String> onLetterChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PremiumCard(
+            child: Row(
+              children: [
+                Text('Letter', style: AppTypography.title),
+                const SizedBox(width: AppSpacing.md),
+                Expanded(
+                  child: TextFormField(
+                    key: ValueKey('letter-${group.hashCode}'),
+                    initialValue: group.consonant ?? '',
+                    decoration: const InputDecoration(
+                      hintText: 'e.g. L (blank = vowel-only)',
+                    ),
+                    onChanged: onLetterChanged,
+                  ),
+                ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                  tooltip: 'Remove this letter and its rows',
+                  onPressed: onDeleteGroup,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          Padding(
+            padding: const EdgeInsets.only(left: AppSpacing.xs),
+            child: Text(
+              '${group.rows.length} row(s)',
+              style: AppTypography.caption,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          if (group.rows.isEmpty)
+            PremiumCard(
+              child: Text(
+                'No rows detected for this letter.',
+                style: AppTypography.caption,
+              ),
+            )
+          else
+            ...group.rows.asMap().entries.map(
+              (rowEntry) => _EditableRowCard(
+                key: ValueKey(rowEntry.value),
+                row: rowEntry.value,
+                lowConfidence: rowEntry.value.confidence == 'low',
+                onDelete: () => onDeleteRow(rowEntry.key),
+              ),
+            ),
         ],
       ),
     );

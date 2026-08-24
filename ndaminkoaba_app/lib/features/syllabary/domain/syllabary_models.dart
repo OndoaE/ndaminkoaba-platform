@@ -76,22 +76,42 @@ class SyllabaryExtractionRow {
   }
 }
 
-class SyllabaryExtractionResult {
-  SyllabaryExtractionResult({
+/// One consonant chart's worth of extracted rows, before review/approval.
+/// A single extraction can contain several of these (e.g. a page with
+/// separate "F", "H", and "K" charts on it) — [consonant] is mutable so
+/// the admin review screen can correct it per group.
+class SyllabaryLetterGroup {
+  SyllabaryLetterGroup({
     required this.consonant,
     required this.rows,
-    required this.warnings,
   });
 
   String? consonant;
   List<SyllabaryExtractionRow> rows;
+
+  factory SyllabaryLetterGroup.fromJson(Map<String, dynamic> json) {
+    return SyllabaryLetterGroup(
+      consonant: json['consonant'] as String?,
+      rows: ((json['rows'] as List?) ?? [])
+          .map((r) => SyllabaryExtractionRow.fromJson(r as Map<String, dynamic>))
+          .toList(),
+    );
+  }
+}
+
+class SyllabaryExtractionResult {
+  SyllabaryExtractionResult({
+    required this.letters,
+    required this.warnings,
+  });
+
+  List<SyllabaryLetterGroup> letters;
   List<String> warnings;
 
   factory SyllabaryExtractionResult.fromJson(Map<String, dynamic> json) {
     return SyllabaryExtractionResult(
-      consonant: json['consonant'] as String?,
-      rows: ((json['rows'] as List?) ?? [])
-          .map((r) => SyllabaryExtractionRow.fromJson(r as Map<String, dynamic>))
+      letters: ((json['letters'] as List?) ?? [])
+          .map((g) => SyllabaryLetterGroup.fromJson(g as Map<String, dynamic>))
           .toList(),
       warnings: ((json['warnings'] as List?) ?? []).whereType<String>().toList(),
     );

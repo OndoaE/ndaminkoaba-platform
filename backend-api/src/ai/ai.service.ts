@@ -32,9 +32,13 @@ export interface SyllabaryExtractionRow {
   confidence: 'high' | 'low';
 }
 
-export interface SyllabaryExtractionResult {
+export interface SyllabaryLetterGroup {
   consonant: string | null;
   rows: SyllabaryExtractionRow[];
+}
+
+export interface SyllabaryExtractionResult {
+  letters: SyllabaryLetterGroup[];
   warnings: string[];
 }
 
@@ -349,8 +353,7 @@ Conversation memory:
     languageName: string,
   ): Promise<SyllabaryExtractionResult> {
     const empty = (warning: string): SyllabaryExtractionResult => ({
-      consonant: null,
-      rows: [],
+      letters: [],
       warnings: [warning],
     });
 
@@ -358,38 +361,43 @@ Conversation memory:
       return empty('Nnanga AI is not configured yet. Please add OPENROUTER_API_KEY to the .env file.');
     }
 
-    const prompt = `You are extracting a hand-drawn or printed syllabics teaching chart for ${languageName} into structured JSON. These charts follow a standard literacy-teaching convention: one consonant letter, with arrows fanning out to each of the language's vowels, forming a syllable per vowel (e.g. consonant "L" + vowel "a" -> syllable "la"). Some charts instead show a single standalone vowel with no consonant. Each row typically also shows an example word containing that syllable, a French translation of that word, and an example sentence using the word — though any of these may be missing or illegible.
+    const prompt = `You are extracting a hand-drawn or printed syllabics teaching chart for ${languageName} into structured JSON. These charts follow a standard literacy-teaching convention: one consonant letter, with arrows fanning out to each of the language's vowels, forming a syllable per vowel (e.g. consonant "L" + vowel "a" -> syllable "la"). A single image or page commonly contains SEVERAL such charts side by side or stacked — one per consonant (e.g. "F", "H", "K" each with their own 8-row block) — so you must find and extract EVERY consonant chart visible in the image, not just the first or largest one. Some charts instead show a single standalone vowel with no consonant. Each row typically also shows an example word containing that syllable, a French translation of that word, and an example sentence using the word — though any of these may be missing or illegible.
 
 Read the image and respond with ONLY a JSON object (no markdown fences, no prose outside it) matching exactly this shape:
 {
-  "consonant": string | null,
-  "rows": [
+  "letters": [
     {
-      "vowel": string,
-      "syllable": string,
-      "exampleWord": string | null,
-      "translation": string | null,
-      "exampleSentence": string | null,
-      "orderNumber": number,
-      "confidence": "high" | "low"
+      "consonant": string | null,
+      "rows": [
+        {
+          "vowel": string,
+          "syllable": string,
+          "exampleWord": string | null,
+          "translation": string | null,
+          "exampleSentence": string | null,
+          "orderNumber": number,
+          "confidence": "high" | "low"
+        }
+      ]
     }
   ],
   "warnings": string[]
 }
 
 Rules:
-- "consonant" is the single big letter the chart is built around (e.g. "L"); null if the chart is a standalone vowel with nothing combined with it.
-- "rows" has one entry per vowel row you can see, in the same top-to-bottom order as the chart — "orderNumber" is that 0-based position.
+- "letters" has one entry per DISTINCT consonant chart you can find in the image — if the image contains four charts (e.g. F, H, g, K), "letters" must have four entries, each with its own "rows". Do not merge separate charts into one entry, and do not stop after the first chart you find.
+- Within each entry, "consonant" is the single big letter that chart is built around (e.g. "L"); null if that particular chart is a standalone vowel with nothing combined with it.
+- Within each entry, "rows" has one row per vowel you can see for that specific chart, in the same top-to-bottom order as the chart — "orderNumber" is that 0-based position within the chart.
 - If a field is not legible or not present for a row, use null for that field — do NOT guess or invent content to fill it in.
 - Set "confidence" to "low" on any row where you are unsure of what you read (blurry, ambiguous handwriting, cut off) rather than silently guessing "high".
-- Add an entry to "warnings" for anything that affected extraction quality: the photo is angled/rotated, blurry, poorly lit, handwriting was hard to read, the chart appears cropped or incomplete, or you found fewer/more rows than the language's usual vowel count would suggest.
-- If the image doesn't look like a syllabics chart at all, return empty "rows" and say so in "warnings".`;
+- Add an entry to "warnings" for anything that affected extraction quality: the photo is angled/rotated, blurry, poorly lit, handwriting was hard to read, a chart appears cropped or incomplete, or a chart had fewer/more rows than the language's usual vowel count would suggest.
+- If the image doesn't look like a syllabics chart at all, return an empty "letters" array and say so in "warnings".`;
 
     try {
       const completion = await this.client.chat.completions.create({
         model: process.env.OPENROUTER_VISION_MODEL || 'openai/gpt-4o-mini',
         temperature: 0,
-        max_tokens: 2000,
+        max_tokens: 4000,
         response_format: { type: 'json_object' },
         messages: [
           {
@@ -424,8 +432,7 @@ Rules:
     languageName: string,
   ): Promise<SyllabaryExtractionResult> {
     const empty = (warning: string): SyllabaryExtractionResult => ({
-      consonant: null,
-      rows: [],
+      letters: [],
       warnings: [warning],
     });
 
@@ -433,7 +440,7 @@ Rules:
       return empty('Nnanga AI is not configured yet. Please add OPENROUTER_API_KEY to the .env file.');
     }
 
-    const prompt = `You are extracting a ${languageName} syllabics teaching chart from pasted or typed content (this may be a plain-text description, a table copy-pasted from a spreadsheet or document, or a plain list) into structured JSON. These charts follow a standard literacy-teaching convention: one consonant letter combined with each of the language's vowels to form a syllable per vowel (e.g. consonant "L" + vowel "a" -> syllable "la"). Some content instead describes a single standalone vowel with no consonant. Each row typically also lists an example word containing that syllable, a French translation of that word, and an example sentence — though any of these may be missing.
+    const prompt = `You are extracting a ${languageName} syllabics teaching chart from pasted or typed content (this may be a plain-text description, a table copy-pasted from a spreadsheet or document, or a plain list) into structured JSON. These charts follow a standard literacy-teaching convention: one consonant letter combined with each of the language's vowels to form a syllable per vowel (e.g. consonant "L" + vowel "a" -> syllable "la"). The source content commonly contains SEVERAL such charts one after another — one per consonant (e.g. "F", "H", "K" each with their own block of rows) — so you must find and extract EVERY consonant chart present, not just the first one. Some content instead describes a single standalone vowel with no consonant. Each row typically also lists an example word containing that syllable, a French translation of that word, and an example sentence — though any of these may be missing.
 
 Here is the pasted/typed content:
 """
@@ -442,34 +449,39 @@ ${text}
 
 Respond with ONLY a JSON object (no markdown fences, no prose outside it) matching exactly this shape:
 {
-  "consonant": string | null,
-  "rows": [
+  "letters": [
     {
-      "vowel": string,
-      "syllable": string,
-      "exampleWord": string | null,
-      "translation": string | null,
-      "exampleSentence": string | null,
-      "orderNumber": number,
-      "confidence": "high" | "low"
+      "consonant": string | null,
+      "rows": [
+        {
+          "vowel": string,
+          "syllable": string,
+          "exampleWord": string | null,
+          "translation": string | null,
+          "exampleSentence": string | null,
+          "orderNumber": number,
+          "confidence": "high" | "low"
+        }
+      ]
     }
   ],
   "warnings": string[]
 }
 
 Rules:
-- "consonant" is the single letter the content is built around (e.g. "L"); null if it describes a standalone vowel with nothing combined with it.
-- "rows" has one entry per vowel row you can identify, in the same order as the source content — "orderNumber" is that 0-based position.
+- "letters" has one entry per DISTINCT consonant chart present in the content — if the content contains four charts (e.g. F, H, g, K), "letters" must have four entries, each with its own "rows". Do not merge separate charts into one entry, and do not stop after the first chart you find.
+- Within each entry, "consonant" is the single letter that chart is built around (e.g. "L"); null if that particular chart describes a standalone vowel with nothing combined with it.
+- Within each entry, "rows" has one row per vowel you can identify for that specific chart, in the same order as the source content — "orderNumber" is that 0-based position within the chart.
 - If a field is missing or unclear for a row, use null for that field — do NOT guess or invent content to fill it in.
 - Set "confidence" to "low" on any row where the content is ambiguous or you had to infer structure, rather than silently guessing "high".
-- Add an entry to "warnings" for anything that affected extraction: the content seemed truncated or malformed, formatting was inconsistent, or you found fewer/more rows than the language's usual vowel count would suggest.
-- If the pasted content doesn't look like a syllabics chart at all, return empty "rows" and say so in "warnings".`;
+- Add an entry to "warnings" for anything that affected extraction: the content seemed truncated or malformed, formatting was inconsistent, or a chart had fewer/more rows than the language's usual vowel count would suggest.
+- If the pasted content doesn't look like a syllabics chart at all, return an empty "letters" array and say so in "warnings".`;
 
     try {
       const completion = await this.client.chat.completions.create({
         model: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini',
         temperature: 0,
-        max_tokens: 2000,
+        max_tokens: 4000,
         response_format: { type: 'json_object' },
         messages: [{ role: 'user', content: prompt }],
       });
@@ -482,33 +494,56 @@ Rules:
     }
   }
 
+  private parseSyllabaryRows(rawRows: unknown): SyllabaryExtractionRow[] {
+    const list = Array.isArray(rawRows) ? rawRows : [];
+    return list
+      .filter((r: unknown) => typeof r === 'object' && r !== null)
+      .map((r: any, index: number): SyllabaryExtractionRow => ({
+        vowel: typeof r.vowel === 'string' ? r.vowel : '',
+        syllable: typeof r.syllable === 'string' ? r.syllable : '',
+        exampleWord: typeof r.exampleWord === 'string' ? r.exampleWord : null,
+        translation: typeof r.translation === 'string' ? r.translation : null,
+        exampleSentence: typeof r.exampleSentence === 'string' ? r.exampleSentence : null,
+        orderNumber: typeof r.orderNumber === 'number' ? r.orderNumber : index,
+        confidence: r.confidence === 'low' ? 'low' : 'high',
+      }))
+      .filter((r: SyllabaryExtractionRow) => r.vowel !== '' || r.syllable !== '');
+  }
+
   private parseSyllabaryExtractionResponse(
     raw: string,
     empty: (warning: string) => SyllabaryExtractionResult,
   ): SyllabaryExtractionResult {
     try {
       const parsed = JSON.parse(raw);
-      const rawRows = Array.isArray(parsed.rows) ? parsed.rows : [];
-      const rows: SyllabaryExtractionRow[] = rawRows
-        .filter((r: unknown) => typeof r === 'object' && r !== null)
-        .map((r: any, index: number) => ({
-          vowel: typeof r.vowel === 'string' ? r.vowel : '',
-          syllable: typeof r.syllable === 'string' ? r.syllable : '',
-          exampleWord: typeof r.exampleWord === 'string' ? r.exampleWord : null,
-          translation: typeof r.translation === 'string' ? r.translation : null,
-          exampleSentence: typeof r.exampleSentence === 'string' ? r.exampleSentence : null,
-          orderNumber: typeof r.orderNumber === 'number' ? r.orderNumber : index,
-          confidence: r.confidence === 'low' ? 'low' : 'high',
-        }))
-        .filter((r: SyllabaryExtractionRow) => r.vowel !== '' || r.syllable !== '');
+      const warnings: string[] = Array.isArray(parsed.warnings)
+        ? parsed.warnings.filter((w: unknown) => typeof w === 'string')
+        : [];
 
-      return {
-        consonant: typeof parsed.consonant === 'string' ? parsed.consonant : null,
-        rows,
-        warnings: Array.isArray(parsed.warnings)
-          ? parsed.warnings.filter((w: unknown) => typeof w === 'string')
-          : [],
-      };
+      // The model is instructed to return a "letters" array (one entry per
+      // consonant chart found), but response_format: json_object has no
+      // schema enforcement -- if it ever falls back to the older single-group
+      // shape ({ consonant, rows }), coerce that into a one-entry "letters"
+      // array instead of discarding the whole response.
+      const rawLetters = Array.isArray(parsed.letters)
+        ? parsed.letters
+        : Array.isArray(parsed.rows) || parsed.consonant !== undefined
+          ? [{ consonant: parsed.consonant, rows: parsed.rows }]
+          : [];
+
+      const letters: SyllabaryLetterGroup[] = rawLetters
+        .filter((g: unknown) => typeof g === 'object' && g !== null)
+        .map((g: any) => ({
+          consonant: typeof g.consonant === 'string' ? g.consonant : null,
+          rows: this.parseSyllabaryRows(g.rows),
+        }))
+        .filter((g: SyllabaryLetterGroup) => g.rows.length > 0);
+
+      if (letters.length === 0 && warnings.length === 0) {
+        warnings.push('Nnanga could not find any syllabary chart in this content. Try Re-analyze.');
+      }
+
+      return { letters, warnings };
     } catch (parseError) {
       this.logger.warn(`Syllabary extraction response was not valid JSON: ${parseError}`);
       return empty('Could not read the AI response — try Re-analyze.');
