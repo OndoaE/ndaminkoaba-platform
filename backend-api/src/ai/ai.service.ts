@@ -397,7 +397,7 @@ Rules:
       const completion = await this.client.chat.completions.create({
         model: process.env.OPENROUTER_VISION_MODEL || 'openai/gpt-4o-mini',
         temperature: 0,
-        max_tokens: 4000,
+        max_tokens: 12000,
         response_format: { type: 'json_object' },
         messages: [
           {
@@ -481,7 +481,7 @@ Rules:
       const completion = await this.client.chat.completions.create({
         model: process.env.OPENROUTER_MODEL || 'openai/gpt-4o-mini',
         temperature: 0,
-        max_tokens: 4000,
+        max_tokens: 12000,
         response_format: { type: 'json_object' },
         messages: [{ role: 'user', content: prompt }],
       });

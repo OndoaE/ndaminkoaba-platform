@@ -2,12 +2,23 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
-import { AiService } from '../ai/ai.service';
+import { AiService, SyllabaryExtractionResult } from '../ai/ai.service';
 import { CreateSyllabaryEntryDto } from './dto/create-syllabary-entry.dto';
 import { UpdateSyllabaryEntryDto } from './dto/update-syllabary-entry.dto';
 import { QuerySyllabaryDto } from './dto/query-syllabary.dto';
 import { ExtractSyllabaryDto } from './dto/extract-syllabary.dto';
 import { extractDocumentText } from './document-text-extractor';
+
+// A full reference syllabary document can hold 15-20+ consonant charts,
+// which produces far more output JSON than a single AI call's max_tokens
+// budget can safely hold (verified directly against a real reference file
+// during development: a 13.4k-character document made the model hit its
+// token cap mid-response, corrupting the JSON and losing every letter,
+// not just the ones past the cutoff). Rather than raising max_tokens
+// indefinitely -- which only postpones the same failure for an even
+// larger document -- the text is split into chunks the model can safely
+// complete in one call, extracted independently, and the results merged.
+const MAX_CHARS_PER_EXTRACTION_CHUNK = 3000;
 
 @Injectable()
 export class SyllabaryService {
@@ -118,7 +129,7 @@ export class SyllabaryService {
     }
 
     if (dto.text && dto.text.trim().length > 0) {
-      return this.aiService.extractSyllabaryChartFromText(dto.text, language.name);
+      return this.extractFromTextInChunks(dto.text, language.name);
     }
 
     if (dto.documentBase64 && dto.mimeType) {
@@ -132,7 +143,7 @@ export class SyllabaryService {
           ],
         };
       }
-      return this.aiService.extractSyllabaryChartFromText(text, language.name);
+      return this.extractFromTextInChunks(text, language.name);
     }
 
     if (dto.imageBase64 && dto.mimeType) {
@@ -142,6 +153,46 @@ export class SyllabaryService {
     return {
       letters: [],
       warnings: ['No content provided to analyze.'],
+    };
+  }
+
+  /// Splits `text` into chunks of whole blank-line-separated blocks (each
+  /// block already being one chart or paragraph, per
+  /// `document-text-extractor.ts`), extracts each chunk independently, and
+  /// merges the results -- see MAX_CHARS_PER_EXTRACTION_CHUNK for why.
+  /// A single chunk (the common case: a pasted table or a short document)
+  /// is sent as one call, unchanged from before this existed.
+  private async extractFromTextInChunks(
+    text: string,
+    languageName: string,
+  ): Promise<SyllabaryExtractionResult> {
+    const blocks = text.split(/\n{2,}/).filter((b) => b.trim().length > 0);
+    const chunks: string[] = [];
+    let current: string[] = [];
+    let currentLength = 0;
+
+    for (const block of blocks) {
+      if (current.length > 0 && currentLength + block.length > MAX_CHARS_PER_EXTRACTION_CHUNK) {
+        chunks.push(current.join('\n\n'));
+        current = [];
+        currentLength = 0;
+      }
+      current.push(block);
+      currentLength += block.length + 2;
+    }
+    if (current.length > 0) chunks.push(current.join('\n\n'));
+
+    if (chunks.length <= 1) {
+      return this.aiService.extractSyllabaryChartFromText(text, languageName);
+    }
+
+    const results = await Promise.all(
+      chunks.map((chunk) => this.aiService.extractSyllabaryChartFromText(chunk, languageName)),
+    );
+
+    return {
+      letters: results.flatMap((r) => r.letters),
+      warnings: [...new Set(results.flatMap((r) => r.warnings))],
     };
   }
 }
