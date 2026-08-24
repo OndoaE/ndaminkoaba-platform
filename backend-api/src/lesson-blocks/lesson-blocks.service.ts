@@ -30,28 +30,32 @@ type Tx = Prisma.TransactionClient;
 export class LessonBlocksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /// First read of a lesson's blocks materializes any legacy flat content
+  /// Reading a lesson's blocks materializes any legacy flat content
   /// (content/frenchContent/conversationJson/audioUrl/videoUrl, authored
   /// before the block editor existed) into real blocks, so the Content tab
-  /// shows what the lesson actually has instead of appearing empty. This
-  /// only runs once per lesson — once blocks exist, they're the source of
-  /// truth and this is skipped entirely. Non-destructive: the flat fields
-  /// are read, never cleared, and stay in sync afterward via
-  /// deriveAndPersist on every future block save.
+  /// shows what the lesson actually has instead of appearing empty.
+  /// Checked per block-type rather than "any block exists" — a lesson can
+  /// already have e.g. an EXERCISE or IMAGE block an admin added while
+  /// exploring the editor, with its original TEXT content never migrated;
+  /// gating on "any block exists" would skip that lesson forever. Once a
+  /// given type exists it's never re-created, so this is safe to run on
+  /// every read. Non-destructive: the flat fields are read, never cleared,
+  /// and stay in sync afterward via deriveAndPersist on every block save.
   async findAllForLesson(lessonId: string) {
     const existing = await this.prisma.lessonBlock.findMany({
       where: { lessonId },
       orderBy: { orderNumber: 'asc' },
     });
-    if (existing.length > 0) return existing;
 
     const lesson = await this.prisma.lesson.findUnique({ where: { id: lessonId } });
-    if (!lesson) return [];
+    if (!lesson) return existing;
 
+    const hasType = (type: LessonBlockType) => existing.some((b) => b.type === type);
     const toCreate: Prisma.LessonBlockCreateManyInput[] = [];
-    let orderNumber = 1;
+    let orderNumber =
+      existing.length > 0 ? Math.max(...existing.map((b) => b.orderNumber)) + 1 : 1;
 
-    if (lesson.content?.trim()) {
+    if (!hasType(LessonBlockType.TEXT) && lesson.content?.trim()) {
       toCreate.push({
         lessonId,
         orderNumber: orderNumber++,
@@ -61,7 +65,11 @@ export class LessonBlocksService {
       });
     }
 
-    if (Array.isArray(lesson.conversationJson) && (lesson.conversationJson as unknown[]).length > 0) {
+    if (
+      !hasType(LessonBlockType.DIALOGUE) &&
+      Array.isArray(lesson.conversationJson) &&
+      (lesson.conversationJson as unknown[]).length > 0
+    ) {
       toCreate.push({
         lessonId,
         orderNumber: orderNumber++,
@@ -70,7 +78,7 @@ export class LessonBlocksService {
       });
     }
 
-    if (lesson.audioUrl) {
+    if (!hasType(LessonBlockType.AUDIO) && lesson.audioUrl) {
       toCreate.push({
         lessonId,
         orderNumber: orderNumber++,
@@ -79,7 +87,7 @@ export class LessonBlocksService {
       });
     }
 
-    if (lesson.videoUrl) {
+    if (!hasType(LessonBlockType.VIDEO) && lesson.videoUrl) {
       toCreate.push({
         lessonId,
         orderNumber: orderNumber++,
@@ -88,7 +96,7 @@ export class LessonBlocksService {
       });
     }
 
-    if (toCreate.length === 0) return [];
+    if (toCreate.length === 0) return existing;
 
     await this.prisma.lessonBlock.createMany({ data: toCreate });
     return this.prisma.lessonBlock.findMany({
