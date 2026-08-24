@@ -75,6 +75,14 @@ class BookRepository {
     return body['id'] as String;
   }
 
+  /// [coverUrl]/[fileUrl]/[fileType]/[category]/[level] are always included
+  /// in the request, sent as JSON `null` when unset — the book editor
+  /// always saves the form's complete current state (e.g. clearing the
+  /// file when switching a book to pages-mode), unlike the other fields
+  /// here which are only sent when actually provided. The backend DTO's
+  /// `@IsOptional()` only skips validation for `null`/absent values, not
+  /// empty strings, so this distinction matters: sending `''` instead of
+  /// `null` for `fileType` fails its `@IsIn(['pdf','epub'])` check.
   Future<void> updateBook(
     String id, {
     String? title,
@@ -94,11 +102,11 @@ class BookRepository {
       if (title != null) 'title': title,
       if (author != null) 'author': author,
       if (description != null) 'description': description,
-      if (coverUrl != null) 'coverUrl': coverUrl,
-      if (fileUrl != null) 'fileUrl': fileUrl,
-      if (fileType != null) 'fileType': fileType,
-      if (category != null) 'category': category,
-      if (level != null) 'level': level,
+      'coverUrl': coverUrl,
+      'fileUrl': fileUrl,
+      'fileType': fileType,
+      'category': category,
+      'level': level,
       if (readingTimeMinutes != null) 'readingTimeMinutes': readingTimeMinutes,
       if (recommendedAge != null) 'recommendedAge': recommendedAge,
       if (hasImages != null) 'hasImages': hasImages,
