@@ -30,7 +30,67 @@ type Tx = Prisma.TransactionClient;
 export class LessonBlocksService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /// First read of a lesson's blocks materializes any legacy flat content
+  /// (content/frenchContent/conversationJson/audioUrl/videoUrl, authored
+  /// before the block editor existed) into real blocks, so the Content tab
+  /// shows what the lesson actually has instead of appearing empty. This
+  /// only runs once per lesson — once blocks exist, they're the source of
+  /// truth and this is skipped entirely. Non-destructive: the flat fields
+  /// are read, never cleared, and stay in sync afterward via
+  /// deriveAndPersist on every future block save.
   async findAllForLesson(lessonId: string) {
+    const existing = await this.prisma.lessonBlock.findMany({
+      where: { lessonId },
+      orderBy: { orderNumber: 'asc' },
+    });
+    if (existing.length > 0) return existing;
+
+    const lesson = await this.prisma.lesson.findUnique({ where: { id: lessonId } });
+    if (!lesson) return [];
+
+    const toCreate: Prisma.LessonBlockCreateManyInput[] = [];
+    let orderNumber = 1;
+
+    if (lesson.content?.trim()) {
+      toCreate.push({
+        lessonId,
+        orderNumber: orderNumber++,
+        type: LessonBlockType.TEXT,
+        textContent: lesson.content,
+        frenchTextContent: lesson.frenchContent?.trim() ? lesson.frenchContent : null,
+      });
+    }
+
+    if (Array.isArray(lesson.conversationJson) && (lesson.conversationJson as unknown[]).length > 0) {
+      toCreate.push({
+        lessonId,
+        orderNumber: orderNumber++,
+        type: LessonBlockType.DIALOGUE,
+        dialogueJson: lesson.conversationJson as Prisma.InputJsonValue,
+      });
+    }
+
+    if (lesson.audioUrl) {
+      toCreate.push({
+        lessonId,
+        orderNumber: orderNumber++,
+        type: LessonBlockType.AUDIO,
+        mediaUrl: lesson.audioUrl,
+      });
+    }
+
+    if (lesson.videoUrl) {
+      toCreate.push({
+        lessonId,
+        orderNumber: orderNumber++,
+        type: LessonBlockType.VIDEO,
+        mediaUrl: lesson.videoUrl,
+      });
+    }
+
+    if (toCreate.length === 0) return [];
+
+    await this.prisma.lessonBlock.createMany({ data: toCreate });
     return this.prisma.lessonBlock.findMany({
       where: { lessonId },
       orderBy: { orderNumber: 'asc' },
