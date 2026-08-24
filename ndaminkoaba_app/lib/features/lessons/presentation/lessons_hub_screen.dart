@@ -63,7 +63,10 @@ class _LessonsHubScreenState extends ConsumerState<LessonsHubScreen> {
       final languageId = ref.read(currentLearningLanguageProvider);
       final userId = await StorageService.getUserId();
       final results = await Future.wait([
-        courseRepository.getCourses(level: selectedLevel, languageId: languageId),
+        courseRepository.getCourses(
+          level: selectedLevel,
+          languageId: languageId,
+        ),
         if (userId != null) progressRepository.getCompletedLessonIds(userId),
       ]);
       if (!mounted) return;
@@ -95,12 +98,16 @@ class _LessonsHubScreenState extends ConsumerState<LessonsHubScreen> {
       selectedLesson = null;
     });
     try {
-      final fetchedLessons = await lessonRepository.getLessonsByCourse(course.id);
+      final fetchedLessons = await lessonRepository.getLessonsByCourse(
+        course.id,
+      );
       fetchedLessons.sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
       if (!mounted) return;
       setState(() {
         lessons = fetchedLessons;
-        selectedLesson = fetchedLessons.isNotEmpty ? fetchedLessons.first : null;
+        selectedLesson = fetchedLessons.isNotEmpty
+            ? fetchedLessons.first
+            : null;
         isLoadingLessons = false;
       });
     } catch (_) {
@@ -119,17 +126,21 @@ class _LessonsHubScreenState extends ConsumerState<LessonsHubScreen> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: SafeArea(
-          child: Padding(
+          child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.xl),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                AppHeader(title: l10n.lessonsHubTitle, subtitle: l10n.lessonsHubSubtitle),
+                AppHeader(
+                  title: l10n.lessonsHubTitle,
+                  subtitle: l10n.lessonsHubSubtitle,
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 LayoutBuilder(
                   builder: (context, constraints) {
                     final wide = constraints.maxWidth >= 760;
                     final left = _LeftPane(
+                      compact: !wide,
                       isLoadingCourses: isLoadingCourses,
                       isLoadingLessons: isLoadingLessons,
                       courses: courses,
@@ -144,7 +155,8 @@ class _LessonsHubScreenState extends ConsumerState<LessonsHubScreen> {
                         _loadCourses();
                       },
                       onCourseChanged: _selectCourse,
-                      onLessonSelected: (lesson) => setState(() => selectedLesson = lesson),
+                      onLessonSelected: (lesson) =>
+                          setState(() => selectedLesson = lesson),
                     );
                     final right = _DetailPane(
                       lesson: selectedLesson,
@@ -187,6 +199,7 @@ class _LessonsHubScreenState extends ConsumerState<LessonsHubScreen> {
 
 class _LeftPane extends StatelessWidget {
   const _LeftPane({
+    required this.compact,
     required this.isLoadingCourses,
     required this.isLoadingLessons,
     required this.courses,
@@ -201,6 +214,11 @@ class _LeftPane extends StatelessWidget {
     required this.onLessonSelected,
   });
 
+  /// True in the narrow/stacked layout, where this pane sits inside a
+  /// scrolling page Column instead of a height-bounded Row — its lesson
+  /// list must size itself to content instead of using Expanded, which
+  /// silently collapses to zero height with no bounded ancestor to fill.
+  final bool compact;
   final bool isLoadingCourses;
   final bool isLoadingLessons;
   final List<Course> courses;
@@ -227,7 +245,10 @@ class _LeftPane extends StatelessWidget {
                 initialValue: selectedLevel,
                 decoration: const InputDecoration(isDense: true),
                 items: _kLevels
-                    .map((level) => DropdownMenuItem(value: level, child: Text(level)))
+                    .map(
+                      (level) =>
+                          DropdownMenuItem(value: level, child: Text(level)),
+                    )
                     .toList(),
                 onChanged: (value) {
                   if (value != null) onLevelChanged(value);
@@ -259,79 +280,105 @@ class _LeftPane extends StatelessWidget {
             },
           ),
         const SizedBox(height: AppSpacing.md),
-        Expanded(
-          child: isLoadingCourses || isLoadingLessons
-              ? const ShimmerListLoader(itemCount: 3, itemHeight: 84)
-              : lessons.isEmpty
-                  ? EmptyState(
-                      icon: Icons.menu_book_outlined,
-                      title: l10n.lessonsHubTitle,
-                      message: l10n.lessonsHubEmptyMessage,
-                    )
-                  : ListView.separated(
-                      itemCount: lessons.length,
-                      separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                      itemBuilder: (context, index) {
-                        final lesson = lessons[index];
-                        final selected = lesson.id == selectedLesson?.id;
-                        final completed = completedLessonIds.contains(lesson.id);
-                        return InkWell(
-                          borderRadius: AppRadius.medium,
-                          onTap: () => onLessonSelected(lesson),
-                          child: Container(
-                            padding: const EdgeInsets.all(AppSpacing.sm),
-                            decoration: BoxDecoration(
-                              color: selected ? AppColors.primary.withValues(alpha: 0.08) : AppColors.surface,
-                              borderRadius: AppRadius.medium,
-                              border: Border.all(
-                                color: selected ? AppColors.primary : AppColors.divider,
-                              ),
-                            ),
-                            child: Row(
-                              children: [
-                                Container(
-                                  width: 32,
-                                  height: 32,
-                                  decoration: BoxDecoration(
-                                    color: AppColors.secondary.withValues(alpha: 0.15),
-                                    shape: BoxShape.circle,
-                                  ),
-                                  alignment: Alignment.center,
-                                  child: Text(
-                                    '${lesson.orderNumber}',
-                                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12),
-                                  ),
-                                ),
-                                const SizedBox(width: AppSpacing.sm),
-                                Expanded(
-                                  child: Text(
-                                    localizedText(lesson.title, lesson.frenchTitle, isFrench),
-                                    style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                if (completed)
-                                  const Icon(Icons.check_circle, color: AppColors.success, size: 18)
-                                else if (lesson.estimatedMinutes != null)
-                                  Text(
-                                    l10n.lessonsHubMinutesShort(lesson.estimatedMinutes!),
-                                    style: AppTypography.caption,
-                                  ),
-                              ],
-                            ),
-                          ),
-                        );
-                      },
-                    ),
-        ),
+        _buildList(context, l10n),
       ],
     );
+  }
+
+  Widget _buildList(BuildContext context, AppLocalizations l10n) {
+    final Widget list = isLoadingCourses || isLoadingLessons
+        ? const ShimmerListLoader(itemCount: 3, itemHeight: 84)
+        : lessons.isEmpty
+        ? EmptyState(
+            icon: Icons.menu_book_outlined,
+            title: l10n.lessonsHubTitle,
+            message: l10n.lessonsHubEmptyMessage,
+          )
+        : ListView.separated(
+            shrinkWrap: compact,
+            physics: compact ? const NeverScrollableScrollPhysics() : null,
+            itemCount: lessons.length,
+            separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+            itemBuilder: (context, index) {
+              final lesson = lessons[index];
+              final selected = lesson.id == selectedLesson?.id;
+              final completed = completedLessonIds.contains(lesson.id);
+              return InkWell(
+                borderRadius: AppRadius.medium,
+                onTap: () => onLessonSelected(lesson),
+                child: Container(
+                  padding: const EdgeInsets.all(AppSpacing.sm),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? AppColors.primary.withValues(alpha: 0.08)
+                        : AppColors.surface,
+                    borderRadius: AppRadius.medium,
+                    border: Border.all(
+                      color: selected ? AppColors.primary : AppColors.divider,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary.withValues(alpha: 0.15),
+                          shape: BoxShape.circle,
+                        ),
+                        alignment: Alignment.center,
+                        child: Text(
+                          '${lesson.orderNumber}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: AppSpacing.sm),
+                      Expanded(
+                        child: Text(
+                          localizedText(
+                            lesson.title,
+                            lesson.frenchTitle,
+                            isFrench,
+                          ),
+                          style: AppTypography.body.copyWith(
+                            fontWeight: FontWeight.w600,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      if (completed)
+                        const Icon(
+                          Icons.check_circle,
+                          color: AppColors.success,
+                          size: 18,
+                        )
+                      else if (lesson.estimatedMinutes != null)
+                        Text(
+                          l10n.lessonsHubMinutesShort(lesson.estimatedMinutes!),
+                          style: AppTypography.caption,
+                        ),
+                    ],
+                  ),
+                ),
+              );
+            },
+          );
+
+    if (compact) return list;
+    return Expanded(child: list);
   }
 }
 
 class _DetailPane extends StatelessWidget {
-  const _DetailPane({required this.lesson, required this.course, required this.isFrench});
+  const _DetailPane({
+    required this.lesson,
+    required this.course,
+    required this.isFrench,
+  });
 
   final Lesson? lesson;
   final Course? course;
@@ -344,22 +391,32 @@ class _DetailPane extends StatelessWidget {
 
     if (current == null || course == null) {
       return Container(
-        decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.large),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.large,
+        ),
         alignment: Alignment.center,
         padding: const EdgeInsets.all(AppSpacing.xl),
-        child: Text(l10n.lessonsHubSelectLessonMessage, style: AppTypography.caption),
+        child: Text(
+          l10n.lessonsHubSelectLessonMessage,
+          style: AppTypography.caption,
+        ),
       );
     }
 
     return SingleChildScrollView(
       child: Container(
         width: double.infinity,
-        decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.large),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.large,
+        ),
         padding: const EdgeInsets.all(AppSpacing.xl),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (current.coverImageUrl != null && current.coverImageUrl!.isNotEmpty)
+            if (current.coverImageUrl != null &&
+                current.coverImageUrl!.isNotEmpty)
               ClipRRect(
                 borderRadius: AppRadius.medium,
                 child: Image.network(
@@ -370,11 +427,15 @@ class _DetailPane extends StatelessWidget {
                   errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                 ),
               ),
-            if (current.coverImageUrl != null && current.coverImageUrl!.isNotEmpty)
+            if (current.coverImageUrl != null &&
+                current.coverImageUrl!.isNotEmpty)
               const SizedBox(height: AppSpacing.lg),
             Text(
               'Leçon ${current.orderNumber}',
-              style: AppTypography.caption.copyWith(color: AppColors.primary, fontWeight: FontWeight.w700),
+              style: AppTypography.caption.copyWith(
+                color: AppColors.primary,
+                fontWeight: FontWeight.w700,
+              ),
             ),
             Text(
               localizedText(current.title, current.frenchTitle, isFrench),
@@ -384,9 +445,15 @@ class _DetailPane extends StatelessWidget {
             Wrap(
               spacing: AppSpacing.sm,
               children: [
-                Text(course!.level.replaceAll('_', ' '), style: AppTypography.caption),
+                Text(
+                  course!.level.replaceAll('_', ' '),
+                  style: AppTypography.caption,
+                ),
                 if (current.estimatedMinutes != null)
-                  Text('· ${l10n.lessonsHubMinutesShort(current.estimatedMinutes!)}', style: AppTypography.caption),
+                  Text(
+                    '· ${l10n.lessonsHubMinutesShort(current.estimatedMinutes!)}',
+                    style: AppTypography.caption,
+                  ),
               ],
             ),
             const SizedBox(height: AppSpacing.md),
@@ -397,9 +464,11 @@ class _DetailPane extends StatelessWidget {
             const SizedBox(height: AppSpacing.lg),
             PrimaryButton(
               label: l10n.lessonsHubStartLessonButton,
-              onPressed: () => context.push('/courses/${course!.id}/lessons/${current.id}'),
+              onPressed: () =>
+                  context.push('/courses/${course!.id}/lessons/${current.id}'),
             ),
-            if (current.learningObjectives.isNotEmpty || current.outcomes.isNotEmpty) ...[
+            if (current.learningObjectives.isNotEmpty ||
+                current.outcomes.isNotEmpty) ...[
               const SizedBox(height: AppSpacing.xl),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,7 +480,8 @@ class _DetailPane extends StatelessWidget {
                         items: current.learningObjectives,
                       ),
                     ),
-                  if (current.learningObjectives.isNotEmpty && current.outcomes.isNotEmpty)
+                  if (current.learningObjectives.isNotEmpty &&
+                      current.outcomes.isNotEmpty)
                     const SizedBox(width: AppSpacing.lg),
                   if (current.outcomes.isNotEmpty)
                     Expanded(
