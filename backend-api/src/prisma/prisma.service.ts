@@ -17,7 +17,7 @@ import { PrismaClient } from '@prisma/client';
 function withPoolTuning(url: string | undefined): string | undefined {
   if (!url) return url;
   const separator = url.includes('?') ? '&' : '?';
-  return `${url}${separator}connection_limit=50&pool_timeout=20`;
+  return `${url}${separator}connection_limit=120&pool_timeout=20`;
 }
 
 @Injectable()
