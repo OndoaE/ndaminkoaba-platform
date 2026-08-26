@@ -6,7 +6,7 @@ on:
       api_base_url:
         description: "Backend API base URL baked into the build (include /api)"
         required: false
-        default: "https://physiology-vegetables-bible-racial.trycloudflare.com/api"
+        default: "https://api.ndaminkoaba.com/api"
   push:
     branches: [main]
     paths:
@@ -39,7 +39,7 @@ jobs:
       # sideload testing today, not yet suitable for Play Store upload.
       - run: >
           flutter build apk --release
-          --dart-define=API_BASE_URL=${{ github.event.inputs.api_base_url || 'https://physiology-vegetables-bible-racial.trycloudflare.com/api' }}
+          --dart-define=API_BASE_URL=${{ github.event.inputs.api_base_url || 'https://api.ndaminkoaba.com/api' }}
 
       - uses: actions/upload-artifact@v4
         with:
