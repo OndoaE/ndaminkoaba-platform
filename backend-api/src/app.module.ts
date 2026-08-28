@@ -37,6 +37,7 @@ import { LessonHistoryModule } from './lesson-history/lesson-history.module';
 import { BookPagesModule } from './book-pages/book-pages.module';
 import { BookProgressModule } from './book-progress/book-progress.module';
 import { BookBookmarksModule } from './book-bookmarks/book-bookmarks.module';
+import { ChatbotKnowledgeModule } from './chatbot-knowledge/chatbot-knowledge.module';
 import { AiModule } from './ai/ai.module';
 import { AuditLogModule } from './audit-log/audit-log.module';
 import { BooksModule } from './books/books.module';
@@ -88,6 +89,7 @@ import { ContentWorkflowModule } from './content-workflow/content-workflow.modul
     BookPagesModule,
     BookProgressModule,
     BookBookmarksModule,
+    ChatbotKnowledgeModule,
     AiModule,
     AuditLogModule,
     BooksModule,
