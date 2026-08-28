@@ -145,145 +145,99 @@ const FAQ = [
   },
 ];
 
-type Row = [string, string];
+export type Row = [string, string];
+
+function toCsv(rows: Row[]): string {
+  const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
+  const header = 'question,answer';
+  const body = rows.map(([q, a]) => `${escape(q)},${escape(a)}`).join('\n');
+  return `${header}\n${body}`;
+}
 
 @Injectable()
 export class ChatbotKnowledgeService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /// Pulls the platform's real, current content -- not just marketing
-  /// copy -- so a chatbot syncing this endpoint can answer questions
-  /// about specific lessons, words, books, syllables, and Bible verses.
-  /// Lessons are NOT filtered by workflow status: that field exists for
-  /// the admin review pipeline but the learner app itself renders a
-  /// lesson's content regardless of status (a disclosed, pre-existing
-  /// gap), so filtering here would silently hide real, live content.
-  private async getRealContent() {
-    const [lessons, vocabulary, books, syllabary, bibleVerses] =
-      await Promise.all([
-        this.prisma.lesson.findMany({
-          select: {
-            title: true,
-            summary: true,
-            content: true,
-            frenchContent: true,
-            orderNumber: true,
-            module: {
-              select: {
-                title: true,
-                course: {
-                  select: {
-                    title: true,
-                    level: true,
-                    language: { select: { name: true } },
-                  },
-                },
-              },
-            },
-          },
-        }),
-        this.prisma.vocabulary.findMany({
-          select: {
-            word: true,
-            frenchMeaning: true,
-            englishMeaning: true,
-            exampleSentence: true,
-            exampleTranslation: true,
-            difficulty: true,
-            language: { select: { name: true } },
-          },
-        }),
-        this.prisma.book.findMany({
-          select: {
-            title: true,
-            author: true,
-            description: true,
-            category: true,
-            level: true,
-            content: true,
-            language: { select: { name: true } },
-            pages: {
-              select: { ewondoText: true, frenchText: true },
-              orderBy: { orderNumber: 'asc' },
-            },
-          },
-        }),
-        this.prisma.syllabaryEntry.findMany({
-          select: {
-            consonant: true,
-            vowel: true,
-            syllable: true,
-            exampleWord: true,
-            translation: true,
-            exampleSentence: true,
-            language: { select: { name: true } },
-          },
-          orderBy: [{ consonant: 'asc' }, { orderNumber: 'asc' }],
-        }),
-        this.prisma.bibleVerse.findMany({
-          select: {
-            book: true,
-            chapter: true,
-            verse: true,
-            text: true,
-            englishText: true,
-            frenchText: true,
-            language: { select: { name: true } },
-          },
-          orderBy: [{ book: 'asc' }, { chapter: 'asc' }, { verse: 'asc' }],
-        }),
-      ]);
+  // ---------- Overview (static copy, always tiny) ----------
 
-    return { lessons, vocabulary, books, syllabary, bibleVerses };
+  getOverview() {
+    return { app: APP_OVERVIEW, platforms: PLATFORMS, features: FEATURES, faq: FAQ };
   }
 
-  async getKnowledgeBase() {
-    const content = await this.getRealContent();
-
-    return {
-      app: APP_OVERVIEW,
-      platforms: PLATFORMS,
-      features: FEATURES,
-      faq: FAQ,
-      content,
-      counts: {
-        lessons: content.lessons.length,
-        vocabulary: content.vocabulary.length,
-        books: content.books.length,
-        syllabaryEntries: content.syllabary.length,
-        bibleVerses: content.bibleVerses.length,
-      },
-      lastSyncedAt: new Date().toISOString(),
-    };
-  }
-
-  /// Flattens everything -- marketing copy AND real app content -- into
-  /// simple question,answer rows for chatbot tools that ingest a CSV
-  /// knowledge source instead of JSON. One row per lesson, vocabulary
-  /// word, book, syllabary entry, and Bible verse, so the chatbot can
-  /// answer specific content questions, not just "what is this app".
-  async getKnowledgeBaseAsCsv(): Promise<string> {
-    const content = await this.getRealContent();
+  getOverviewRows(): Row[] {
     const rows: Row[] = [];
-
     rows.push(['What is NdaMinkoaba?', APP_OVERVIEW.description]);
     rows.push(["What is NdaMinkoaba's mission?", APP_OVERVIEW.mission]);
     for (const f of FEATURES) {
       rows.push([`What is the "${f.name}" feature?`, f.description]);
     }
     for (const f of FAQ) rows.push([f.question, f.answer]);
+    return rows;
+  }
 
-    for (const l of content.lessons) {
+  // ---------- Lessons ----------
+  // Deliberately NOT filtered by workflow status: that field exists for
+  // the admin review pipeline, but the learner app renders a lesson's
+  // content regardless of status (a disclosed, pre-existing gap) --
+  // confirmed directly against production, where 0 of 87 lessons are
+  // marked PUBLISHED despite all being visible to learners. Filtering
+  // here would silently hide real, live content.
+
+  async getLessons() {
+    return this.prisma.lesson.findMany({
+      select: {
+        title: true,
+        summary: true,
+        content: true,
+        frenchContent: true,
+        orderNumber: true,
+        module: {
+          select: {
+            title: true,
+            course: {
+              select: {
+                title: true,
+                level: true,
+                language: { select: { name: true } },
+              },
+            },
+          },
+        },
+      },
+    });
+  }
+
+  async getLessonRows(): Promise<Row[]> {
+    const lessons = await this.getLessons();
+    return lessons.map((l) => {
       const course = l.module.course;
-      const q = `What does the lesson "${l.title}" (${course.title}, ` +
-        `${course.level}) teach?`;
+      const q = `What does the lesson "${l.title}" (${course.title}, ${course.level}) teach?`;
       const parts = [l.summary, l.content, l.frenchContent].filter(
         (p): p is string => !!p && p.trim().length > 0,
       );
-      rows.push([q, parts.join('\n\n')]);
-    }
+      return [q, parts.join('\n\n')] as Row;
+    });
+  }
 
-    for (const v of content.vocabulary) {
+  // ---------- Vocabulary ----------
+
+  async getVocabulary() {
+    return this.prisma.vocabulary.findMany({
+      select: {
+        word: true,
+        frenchMeaning: true,
+        englishMeaning: true,
+        exampleSentence: true,
+        exampleTranslation: true,
+        difficulty: true,
+        language: { select: { name: true } },
+      },
+    });
+  }
+
+  async getVocabularyRows(): Promise<Row[]> {
+    const vocabulary = await this.getVocabulary();
+    return vocabulary.map((v) => {
       const meanings = [v.englishMeaning, v.frenchMeaning]
         .filter((m): m is string => !!m)
         .join(' / ');
@@ -293,47 +247,173 @@ export class ChatbotKnowledgeService {
       const answer = [meanings, example && `Example: ${example}`]
         .filter(Boolean)
         .join('. ');
-      rows.push([
+      return [
         `What does "${v.word}" mean in ${v.language.name}?`,
         answer || meanings,
-      ]);
-    }
+      ] as Row;
+    });
+  }
 
-    for (const b of content.books) {
+  // ---------- Books ----------
+
+  async getBooks() {
+    return this.prisma.book.findMany({
+      select: {
+        title: true,
+        author: true,
+        description: true,
+        category: true,
+        level: true,
+        content: true,
+        language: { select: { name: true } },
+        pages: {
+          select: { ewondoText: true, frenchText: true },
+          orderBy: { orderNumber: 'asc' },
+        },
+      },
+    });
+  }
+
+  async getBookRows(): Promise<Row[]> {
+    const books = await this.getBooks();
+    return books.map((b) => {
       const pageText = b.pages
         .map((p) => [p.ewondoText, p.frenchText].filter(Boolean).join(' — '))
         .join('\n');
       const answer = [b.description, b.content, pageText]
         .filter((p): p is string => !!p && p.trim().length > 0)
         .join('\n\n');
-      rows.push([`What is the book "${b.title}" about?`, answer || (b.description ?? '')]);
-    }
+      return [`What is the book "${b.title}" about?`, answer || (b.description ?? '')] as Row;
+    });
+  }
 
-    for (const s of content.syllabary) {
+  // ---------- Syllabary ----------
+
+  async getSyllabary() {
+    return this.prisma.syllabaryEntry.findMany({
+      select: {
+        consonant: true,
+        vowel: true,
+        syllable: true,
+        exampleWord: true,
+        translation: true,
+        exampleSentence: true,
+        language: { select: { name: true } },
+      },
+      orderBy: [{ consonant: 'asc' }, { orderNumber: 'asc' }],
+    });
+  }
+
+  async getSyllabaryRows(): Promise<Row[]> {
+    const syllabary = await this.getSyllabary();
+    return syllabary.map((s) => {
       const letter = s.consonant ?? s.vowel;
       const answer = [
         `The syllable is "${s.syllable}".`,
-        s.exampleWord && `Example word: ${s.exampleWord}${s.translation ? ` (${s.translation})` : ''}.`,
+        s.exampleWord &&
+          `Example word: ${s.exampleWord}${s.translation ? ` (${s.translation})` : ''}.`,
         s.exampleSentence && `Example sentence: ${s.exampleSentence}`,
       ]
         .filter(Boolean)
         .join(' ');
-      rows.push([
+      return [
         `How do you combine "${letter}" and "${s.vowel}" in ${s.language.name}?`,
         answer,
-      ]);
-    }
+      ] as Row;
+    });
+  }
 
-    for (const v of content.bibleVerses) {
+  // ---------- Bible ----------
+
+  async getBibleVerses() {
+    return this.prisma.bibleVerse.findMany({
+      select: {
+        book: true,
+        chapter: true,
+        verse: true,
+        text: true,
+        englishText: true,
+        frenchText: true,
+        language: { select: { name: true } },
+      },
+      orderBy: [{ book: 'asc' }, { chapter: 'asc' }, { verse: 'asc' }],
+    });
+  }
+
+  async getBibleRows(): Promise<Row[]> {
+    const verses = await this.getBibleVerses();
+    return verses.map((v) => {
       const answer = [v.text, v.frenchText, v.englishText]
         .filter((t): t is string => !!t)
         .join(' / ');
-      rows.push([`What does ${v.book} ${v.chapter}:${v.verse} say?`, answer]);
-    }
+      return [`What does ${v.book} ${v.chapter}:${v.verse} say?`, answer] as Row;
+    });
+  }
 
-    const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
-    const header = 'question,answer';
-    const body = rows.map(([q, a]) => `${escape(q)},${escape(a)}`).join('\n');
-    return `${header}\n${body}`;
+  // ---------- Combined (everything in one call -- may be too large for
+  // some chatbot tools' sync-from-URL size limits; the per-section
+  // methods above exist so a large source can be split into several
+  // smaller ones instead) ----------
+
+  async getKnowledgeBase() {
+    const [lessons, vocabulary, books, syllabary, bibleVerses] = await Promise.all([
+      this.getLessons(),
+      this.getVocabulary(),
+      this.getBooks(),
+      this.getSyllabary(),
+      this.getBibleVerses(),
+    ]);
+    const content = { lessons, vocabulary, books, syllabary, bibleVerses };
+
+    return {
+      ...this.getOverview(),
+      content,
+      counts: {
+        lessons: lessons.length,
+        vocabulary: vocabulary.length,
+        books: books.length,
+        syllabaryEntries: syllabary.length,
+        bibleVerses: bibleVerses.length,
+      },
+      lastSyncedAt: new Date().toISOString(),
+    };
+  }
+
+  async getKnowledgeBaseAsCsv(): Promise<string> {
+    const [overview, lessons, vocabulary, books, syllabary, bible] = await Promise.all([
+      this.getOverviewRows(),
+      this.getLessonRows(),
+      this.getVocabularyRows(),
+      this.getBookRows(),
+      this.getSyllabaryRows(),
+      this.getBibleRows(),
+    ]);
+    return toCsv([...overview, ...lessons, ...vocabulary, ...books, ...syllabary, ...bible]);
+  }
+
+  // ---------- Per-section CSV builders (small, single-purpose files) ----------
+
+  async getOverviewCsv(): Promise<string> {
+    return toCsv(this.getOverviewRows());
+  }
+
+  async getLessonsCsv(): Promise<string> {
+    return toCsv(await this.getLessonRows());
+  }
+
+  async getVocabularyCsv(): Promise<string> {
+    return toCsv(await this.getVocabularyRows());
+  }
+
+  async getBooksCsv(): Promise<string> {
+    return toCsv(await this.getBookRows());
+  }
+
+  async getSyllabaryCsv(): Promise<string> {
+    return toCsv(await this.getSyllabaryRows());
+  }
+
+  async getBibleCsv(): Promise<string> {
+    return toCsv(await this.getBibleRows());
   }
 }
