@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
-import { CourseStatus } from '@prisma/client';
 
 import { PrismaService } from '../prisma/prisma.service';
 
-/// Static, hand-written descriptive content about the platform, kept
-/// separate from the live counts pulled in getKnowledgeBase() below. This
-/// is content a marketing/download site's chatbot widget can point its
-/// "sync from URL" feature at -- re-fetching this endpoint is the entire
-/// resync mechanism, so nothing here needs a database table or an admin
-/// screen of its own; editing this file and redeploying is the update
-/// path, exactly like any other static copy in the app.
+/// Static, hand-written descriptive content about the platform itself
+/// (distinct from the real app CONTENT pulled live below) -- overview,
+/// platforms, features, FAQ. Editing this file and redeploying is the
+/// update path for this part, same as any other static copy in the app.
 const APP_OVERVIEW = {
   name: 'NdaMinkoaba',
   tagline: 'Learn • Preserve • Transmit',
@@ -57,59 +53,51 @@ const FEATURES = [
       'broken into modules and lessons that build on one another.',
   },
   {
-    name: 'Rich lesson content',
-    description:
-      'Lessons combine text, example dialogues, audio, and images, with ' +
-      'an embedded quiz to check understanding before moving on.',
-  },
-  {
     name: 'Vocabulary review (spaced repetition)',
     description:
-      'A dedicated vocabulary review feature uses the SM-2 spaced-' +
-      'repetition algorithm so words you are close to forgetting come ' +
-      'back at the right time to keep them in long-term memory.',
+      'Uses the SM-2 spaced-repetition algorithm so words you are close ' +
+      'to forgetting come back at the right time.',
   },
   {
     name: 'Pronunciation practice',
-    description:
-      'Learners record themselves saying a word or phrase and get ' +
-      'feedback on their pronunciation.',
+    description: 'Record yourself saying a word or phrase and get feedback.',
   },
   {
     name: 'Nnanga, the AI tutor',
     description:
-      'A conversational AI tutor whose answers are grounded in the ' +
-      "platform's own curated vocabulary and knowledge content rather " +
-      'than an ungrounded general model, with corrections, translations, ' +
-      'and suggested replies alongside the main response.',
+      'A conversational AI tutor grounded in the ' +
+      "platform's own curated content, with corrections, translations, " +
+      'and suggested replies.',
   },
   {
     name: 'Gamification and certificates',
     description:
-      'Daily learning streaks, badges for milestones, and automatically ' +
-      'generated, level-themed, QR-verifiable PDF certificates on course ' +
-      'completion (green/one star for Beginner, red/two stars for ' +
-      'Intermediate, yellow/three stars for Advanced).',
+      'Daily streaks, badges, and automatically generated, level-themed, ' +
+      'QR-verifiable PDF certificates on course completion.',
   },
   {
     name: 'Illustrated book library',
     description:
-      'A library of readable books, some as uploaded PDF/EPUB files and ' +
-      'some authored as illustrated, page-by-page stories with Ewondo ' +
-      'and French text side by side.',
+      'Readable books, both uploaded PDF/EPUB files and illustrated, ' +
+      'page-by-page stories.',
   },
   {
     name: 'Syllabary / alphabet chart',
     description:
-      'A browsable consonant-vowel syllable chart (the traditional ' +
-      'literacy-teaching format) with example words, translations, and ' +
-      'example sentences per syllable.',
+      'A browsable consonant-vowel syllable chart with example words, ' +
+      'translations, and example sentences.',
+  },
+  {
+    name: 'Ewondo Bible',
+    description:
+      'A searchable collection of Bible verses translated into Ewondo, ' +
+      'alongside English/French text.',
   },
   {
     name: 'Offline mode',
     description:
-      'A course can be downloaded for offline access to its lessons, ' +
-      'vocabulary, and images when there is no connectivity.',
+      'Download a course for offline access to its lessons, vocabulary, ' +
+      'and images.',
   },
   {
     name: 'Bilingual interface',
@@ -126,12 +114,6 @@ const FAQ = [
       'AI tutor, vocabulary practice, and gamification.',
   },
   {
-    question: 'What languages can I learn right now?',
-    answer:
-      'Ewondo has a complete course catalogue today. The platform is ' +
-      'built to support additional Cameroonian languages over time.',
-  },
-  {
     question: 'Is NdaMinkoaba free to use?',
     answer: 'Yes, the platform is currently free to use.',
   },
@@ -144,98 +126,210 @@ const FAQ = [
   {
     question: 'Can I use the app without internet access?',
     answer:
-      'Yes. You can download a course for offline use, which makes its ' +
-      'lessons, vocabulary, and images available without a connection. ' +
-      'A few features (like the AI tutor and scored quizzes) still need ' +
-      'connectivity.',
-  },
-  {
-    question: 'What is Nnanga?',
-    answer:
-      "Nnanga is NdaMinkoaba's built-in AI conversation tutor. Its " +
-      'answers are grounded in the app’s own curated Ewondo content, ' +
-      'and it can correct, translate, and suggest replies as you chat.',
+      'Yes. You can download a course for offline use. A few features ' +
+      '(the AI tutor and scored quizzes) still need connectivity.',
   },
   {
     question: 'How do I get a certificate?',
     answer:
       'Certificates are issued automatically once you complete every ' +
-      'lesson and pass every quiz in a course. Each certificate is a ' +
-      'downloadable PDF with a QR code that publicly verifies it.',
+      'lesson and pass every quiz in a course, as a downloadable, ' +
+      'QR-verifiable PDF.',
   },
   {
     question: 'Where can I download the app?',
     answer:
-      'The web app works in any browser at ' +
-      'https://ndaminkoaba-c31d8.web.app. An Android build is available ' +
-      'for direct installation, with a Play Store listing on the way. ' +
+      'Web: https://ndaminkoaba-c31d8.web.app (any browser). Android: a ' +
+      'direct-install build is available, Play Store listing coming. ' +
       'iOS is not available yet.',
   },
-  {
-    question: 'How is NdaMinkoaba different from apps like Duolingo?',
-    answer:
-      'Mainstream language apps like Duolingo do not support Cameroonian ' +
-      'languages. NdaMinkoaba was purpose-built for that gap, pairing a ' +
-      'structured, gamified learning experience with an AI tutor and a ' +
-      'book library specific to a heritage language.',
-  },
 ];
+
+type Row = [string, string];
 
 @Injectable()
 export class ChatbotKnowledgeService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /// Pulls the platform's real, current content -- not just marketing
+  /// copy -- so a chatbot syncing this endpoint can answer questions
+  /// about specific lessons, words, books, syllables, and Bible verses.
+  /// Lessons are NOT filtered by workflow status: that field exists for
+  /// the admin review pipeline but the learner app itself renders a
+  /// lesson's content regardless of status (a disclosed, pre-existing
+  /// gap), so filtering here would silently hide real, live content.
+  private async getRealContent() {
+    const [lessons, vocabulary, books, syllabary, bibleVerses] =
+      await Promise.all([
+        this.prisma.lesson.findMany({
+          select: {
+            title: true,
+            summary: true,
+            content: true,
+            frenchContent: true,
+            orderNumber: true,
+            module: {
+              select: {
+                title: true,
+                course: {
+                  select: {
+                    title: true,
+                    level: true,
+                    language: { select: { name: true } },
+                  },
+                },
+              },
+            },
+          },
+        }),
+        this.prisma.vocabulary.findMany({
+          select: {
+            word: true,
+            frenchMeaning: true,
+            englishMeaning: true,
+            exampleSentence: true,
+            exampleTranslation: true,
+            difficulty: true,
+            language: { select: { name: true } },
+          },
+        }),
+        this.prisma.book.findMany({
+          select: {
+            title: true,
+            author: true,
+            description: true,
+            category: true,
+            level: true,
+            content: true,
+            language: { select: { name: true } },
+            pages: {
+              select: { ewondoText: true, frenchText: true },
+              orderBy: { orderNumber: 'asc' },
+            },
+          },
+        }),
+        this.prisma.syllabaryEntry.findMany({
+          select: {
+            consonant: true,
+            vowel: true,
+            syllable: true,
+            exampleWord: true,
+            translation: true,
+            exampleSentence: true,
+            language: { select: { name: true } },
+          },
+          orderBy: [{ consonant: 'asc' }, { orderNumber: 'asc' }],
+        }),
+        this.prisma.bibleVerse.findMany({
+          select: {
+            book: true,
+            chapter: true,
+            verse: true,
+            text: true,
+            englishText: true,
+            frenchText: true,
+            language: { select: { name: true } },
+          },
+          orderBy: [{ book: 'asc' }, { chapter: 'asc' }, { verse: 'asc' }],
+        }),
+      ]);
+
+    return { lessons, vocabulary, books, syllabary, bibleVerses };
+  }
+
   async getKnowledgeBase() {
-    const [languages, publishedCourses, totalLessons] = await Promise.all([
-      this.prisma.language.findMany({
-        where: { isActive: true },
-        select: { name: true },
-        orderBy: { name: 'asc' },
-      }),
-      this.prisma.course.count({ where: { status: CourseStatus.PUBLISHED } }),
-      this.prisma.lesson.count(),
-    ]);
+    const content = await this.getRealContent();
 
     return {
       app: APP_OVERVIEW,
       platforms: PLATFORMS,
       features: FEATURES,
       faq: FAQ,
-      liveStats: {
-        activeLanguages: languages.length,
-        languageNames: languages.map((l) => l.name),
-        publishedCourses,
-        totalLessons,
+      content,
+      counts: {
+        lessons: content.lessons.length,
+        vocabulary: content.vocabulary.length,
+        books: content.books.length,
+        syllabaryEntries: content.syllabary.length,
+        bibleVerses: content.bibleVerses.length,
       },
       lastSyncedAt: new Date().toISOString(),
     };
   }
 
-  /// Same content as getKnowledgeBase(), flattened into simple
-  /// question,answer rows for chatbot tools that expect a CSV knowledge
-  /// source instead of JSON.
+  /// Flattens everything -- marketing copy AND real app content -- into
+  /// simple question,answer rows for chatbot tools that ingest a CSV
+  /// knowledge source instead of JSON. One row per lesson, vocabulary
+  /// word, book, syllabary entry, and Bible verse, so the chatbot can
+  /// answer specific content questions, not just "what is this app".
   async getKnowledgeBaseAsCsv(): Promise<string> {
-    const data = await this.getKnowledgeBase();
-    const rows: [string, string][] = [
-      ['What is NdaMinkoaba?', data.app.description],
-      ['What is NdaMinkoaba’s mission?', data.app.mission],
-      ...data.features.map(
-        (f): [string, string] => [`What is "${f.name}"?`, f.description],
-      ),
-      ...data.faq.map((f): [string, string] => [f.question, f.answer]),
-      [
-        'How many languages are currently active?',
-        String(data.liveStats.activeLanguages),
-      ],
-      [
-        'Which languages are active?',
-        data.liveStats.languageNames.join(', '),
-      ],
-      [
-        'How many published courses are there?',
-        String(data.liveStats.publishedCourses),
-      ],
-    ];
+    const content = await this.getRealContent();
+    const rows: Row[] = [];
+
+    rows.push(['What is NdaMinkoaba?', APP_OVERVIEW.description]);
+    rows.push(["What is NdaMinkoaba's mission?", APP_OVERVIEW.mission]);
+    for (const f of FEATURES) {
+      rows.push([`What is the "${f.name}" feature?`, f.description]);
+    }
+    for (const f of FAQ) rows.push([f.question, f.answer]);
+
+    for (const l of content.lessons) {
+      const course = l.module.course;
+      const q = `What does the lesson "${l.title}" (${course.title}, ` +
+        `${course.level}) teach?`;
+      const parts = [l.summary, l.content, l.frenchContent].filter(
+        (p): p is string => !!p && p.trim().length > 0,
+      );
+      rows.push([q, parts.join('\n\n')]);
+    }
+
+    for (const v of content.vocabulary) {
+      const meanings = [v.englishMeaning, v.frenchMeaning]
+        .filter((m): m is string => !!m)
+        .join(' / ');
+      const example = [v.exampleSentence, v.exampleTranslation]
+        .filter((e): e is string => !!e)
+        .join(' — ');
+      const answer = [meanings, example && `Example: ${example}`]
+        .filter(Boolean)
+        .join('. ');
+      rows.push([
+        `What does "${v.word}" mean in ${v.language.name}?`,
+        answer || meanings,
+      ]);
+    }
+
+    for (const b of content.books) {
+      const pageText = b.pages
+        .map((p) => [p.ewondoText, p.frenchText].filter(Boolean).join(' — '))
+        .join('\n');
+      const answer = [b.description, b.content, pageText]
+        .filter((p): p is string => !!p && p.trim().length > 0)
+        .join('\n\n');
+      rows.push([`What is the book "${b.title}" about?`, answer || (b.description ?? '')]);
+    }
+
+    for (const s of content.syllabary) {
+      const letter = s.consonant ?? s.vowel;
+      const answer = [
+        `The syllable is "${s.syllable}".`,
+        s.exampleWord && `Example word: ${s.exampleWord}${s.translation ? ` (${s.translation})` : ''}.`,
+        s.exampleSentence && `Example sentence: ${s.exampleSentence}`,
+      ]
+        .filter(Boolean)
+        .join(' ');
+      rows.push([
+        `How do you combine "${letter}" and "${s.vowel}" in ${s.language.name}?`,
+        answer,
+      ]);
+    }
+
+    for (const v of content.bibleVerses) {
+      const answer = [v.text, v.frenchText, v.englishText]
+        .filter((t): t is string => !!t)
+        .join(' / ');
+      rows.push([`What does ${v.book} ${v.chapter}:${v.verse} say?`, answer]);
+    }
 
     const escape = (s: string) => `"${s.replace(/"/g, '""')}"`;
     const header = 'question,answer';
