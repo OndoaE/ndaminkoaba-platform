@@ -42,6 +42,8 @@ export class CoursesController {
   }
 
   @Get(':id/readiness')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   getReadiness(@Param('id') id: string) {
     return this.coursesService.getReadiness(id);
   }

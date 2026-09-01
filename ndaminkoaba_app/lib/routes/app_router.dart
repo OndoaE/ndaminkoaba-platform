@@ -1,6 +1,8 @@
+import 'package:flutter/widgets.dart';
 import 'package:go_router/go_router.dart';
 
 import '../core/navigation/navigator_key.dart';
+import '../core/services/storage_service.dart';
 import '../features/admin/presentation/admin_bible_chapter_screen.dart';
 import '../features/admin/presentation/admin_book_editor_screen.dart';
 import '../features/admin/presentation/admin_book_management_screen.dart';
@@ -59,9 +61,41 @@ import '../features/vocabulary/presentation/vocabulary_screen.dart';
 import '../features/syllabary/presentation/syllabary_alphabet_screen.dart';
 import '../features/syllabary/presentation/syllabary_chart_screen.dart';
 
+/// Every admin screen was previously reachable by any logged-in account
+/// simply by navigating (typing the URL, a deep link, browser back/forward
+/// on web) to an `/admin/**` path -- nothing in this router, `AdminShell`,
+/// or the individual admin screens checked the caller's role before
+/// rendering, so a LEARNER account could open real admin screens, and many
+/// populated with real data since several of the underlying GET endpoints
+/// are intentionally public reads (courses/lessons/vocabulary/etc.), not
+/// role-guarded. This redirect closes that: every `/admin/**` navigation
+/// is checked against the signed-in account's role (cached at login by
+/// `StorageService.saveRole`, the same value `post_login.dart`/
+/// `splash_screen.dart` already use to decide whether to route an admin
+/// there in the first place) before GoRouter lets it through.
+///
+/// Deliberately one-directional: an ADMIN account is never blocked from a
+/// learner-facing route (e.g. the Lesson Editor's "Preview (Learner
+/// View)" button pushes the real learner `LessonScreen`) -- only
+/// `/admin/**` itself is gated, matching exactly what was asked: a learner
+/// must never reach the admin dashboard, not that an admin can never look
+/// at a learner screen.
+Future<String?> _adminRouteGuard(BuildContext context, GoRouterState state) async {
+  if (!state.matchedLocation.startsWith('/admin')) return null;
+
+  final token = await StorageService.getToken();
+  if (token == null) return '/login';
+
+  final role = await StorageService.getRole();
+  if (role != 'ADMIN') return '/dashboard';
+
+  return null;
+}
+
 final appRouter = GoRouter(
   navigatorKey: rootNavigatorKey,
   initialLocation: '/',
+  redirect: _adminRouteGuard,
   routes: [
     GoRoute(path: '/', builder: (context, state) => const SplashScreen()),
     GoRoute(
