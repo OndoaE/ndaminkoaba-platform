@@ -9,6 +9,1956 @@ class AppLocalizationsFr extends AppLocalizations {
   AppLocalizationsFr([String locale = 'fr']) : super(locale);
 
   @override
+  String get adminQuizBuilderDefaultTitle => 'Quiz de la leçon';
+
+  @override
+  String get adminQuizBuilderCreateError => 'Impossible de créer le quiz.';
+
+  @override
+  String get adminQuizBuilderEditQuizTitle => 'Modifier le quiz';
+
+  @override
+  String get adminQuizBuilderTitleLabel => 'Titre';
+
+  @override
+  String get adminQuizBuilderDescriptionLabel => 'Description';
+
+  @override
+  String get adminQuizBuilderFrenchTitleLabel =>
+      'Titre en français (facultatif)';
+
+  @override
+  String get adminQuizBuilderFrenchDescriptionLabel =>
+      'Description en français (facultatif)';
+
+  @override
+  String get adminQuizBuilderPassingScoreLabel => 'Score de réussite (%)';
+
+  @override
+  String get adminQuizBuilderCancel => 'Annuler';
+
+  @override
+  String get adminQuizBuilderSave => 'Enregistrer';
+
+  @override
+  String get adminQuizBuilderQuizUpdated => 'Quiz mis à jour.';
+
+  @override
+  String get adminQuizBuilderUpdateQuizError =>
+      'Impossible de mettre à jour le quiz.';
+
+  @override
+  String get adminQuizBuilderDeleteQuizTitle => 'Supprimer le quiz';
+
+  @override
+  String adminQuizBuilderDeleteQuizConfirm(String title, int count) {
+    return 'Supprimer « $title » et ses $count question(s) ? Les apprenants ne pourront plus valider cette leçon via le quiz.';
+  }
+
+  @override
+  String get adminQuizBuilderDelete => 'Supprimer';
+
+  @override
+  String get adminQuizBuilderDeleteQuizError =>
+      'Impossible de supprimer le quiz.';
+
+  @override
+  String get adminQuizBuilderQuestionAdded => 'Question ajoutée.';
+
+  @override
+  String get adminQuizBuilderAddQuestionError =>
+      'Impossible d\'ajouter la question.';
+
+  @override
+  String get adminQuizBuilderUnknownServerError => 'Erreur serveur inconnue.';
+
+  @override
+  String adminQuizBuilderImportSuccess(int count) {
+    return '$count question(s) importée(s).';
+  }
+
+  @override
+  String adminQuizBuilderImportPartial(
+    int succeeded,
+    int failed,
+    String errorSuffix,
+  ) {
+    return '$succeeded question(s) importée(s), $failed échouée(s)$errorSuffix.';
+  }
+
+  @override
+  String get adminQuizBuilderQuestionUpdated => 'Question mise à jour.';
+
+  @override
+  String get adminQuizBuilderUpdateQuestionError =>
+      'Impossible de mettre à jour la question.';
+
+  @override
+  String get adminQuizBuilderDeleteQuestionError =>
+      'Impossible de supprimer la question.';
+
+  @override
+  String get adminQuizBuilderUpdateAnswerKeyError =>
+      'Impossible de mettre à jour la bonne réponse.';
+
+  @override
+  String adminQuizBuilderAppBarTitle(String lessonTitle) {
+    return 'Quiz — $lessonTitle';
+  }
+
+  @override
+  String get adminQuizBuilderDefaultLessonTitle => 'Leçon';
+
+  @override
+  String get adminQuizBuilderNoQuizYetTitle =>
+      'Cette leçon n\'a pas encore de quiz';
+
+  @override
+  String get adminQuizBuilderNoQuizYetDescription =>
+      'Créez-en un pour que les apprenants puissent valider cette leçon en le réussissant.';
+
+  @override
+  String get adminQuizBuilderQuizTitleLabel => 'Titre du quiz';
+
+  @override
+  String get adminQuizBuilderCreateQuizButton => 'Créer le quiz';
+
+  @override
+  String adminQuizBuilderPassMarkSummary(int score, int count) {
+    return 'Score de réussite : $score % • $count questions';
+  }
+
+  @override
+  String get adminQuizBuilderEditQuizInfoTooltip =>
+      'Modifier les infos du quiz';
+
+  @override
+  String get adminQuizBuilderDeleteQuizTooltip => 'Supprimer le quiz';
+
+  @override
+  String get adminQuizBuilderQuestionsHeading => 'Questions';
+
+  @override
+  String get adminQuizBuilderPasteQuizButton => 'Coller un quiz';
+
+  @override
+  String get adminQuizBuilderAddQuestionButton => 'Ajouter une question';
+
+  @override
+  String get adminQuizBuilderNoQuestionsYet =>
+      'Pas encore de questions. Un quiz doit contenir au moins une question pour qu\'un apprenant puisse le passer.';
+
+  @override
+  String get adminQuizBuilderPasteQuizHint =>
+      'Vous avez déjà un quiz rédigé ailleurs ? Utilisez « Coller un quiz » ci-dessus pour le copier-coller et créer automatiquement les questions et les choix.';
+
+  @override
+  String get adminQuizBuilderEditQuestionTooltip => 'Modifier la question';
+
+  @override
+  String get adminQuizBuilderDeleteQuestionTooltip => 'Supprimer la question';
+
+  @override
+  String get adminQuizBuilderNoCorrectAnswerSet =>
+      'Aucune bonne réponse définie — touchez un choix ci-dessus pour le marquer.';
+
+  @override
+  String get adminQuizBuilderQuestionTooShortError =>
+      'Le texte de la question doit comporter au moins 5 caractères.';
+
+  @override
+  String get adminQuizBuilderTooFewChoicesError =>
+      'Ajoutez au moins 2 choix de réponse.';
+
+  @override
+  String get adminQuizBuilderEditQuestionDialogTitle => 'Modifier la question';
+
+  @override
+  String get adminQuizBuilderQuestionLabel => 'Question';
+
+  @override
+  String get adminQuizBuilderExplanationLabel => 'Explication (facultatif)';
+
+  @override
+  String get adminQuizBuilderFrenchQuestionLabel =>
+      'Question en français (facultatif)';
+
+  @override
+  String get adminQuizBuilderFrenchExplanationLabel =>
+      'Explication en français (facultatif)';
+
+  @override
+  String get adminQuizBuilderChoicesHelper => 'Choix — sélectionnez le bon';
+
+  @override
+  String adminQuizBuilderChoiceHint(int number) {
+    return 'Choix $number';
+  }
+
+  @override
+  String get adminQuizBuilderFrenchOptionalHint => 'Français (facultatif)';
+
+  @override
+  String get adminQuizBuilderAddAnotherChoiceButton => 'Ajouter un autre choix';
+
+  @override
+  String get adminQuizBuilderPreviewImportTitle => 'Aperçu de l\'import';
+
+  @override
+  String get adminQuizBuilderParseButton => 'Analyser';
+
+  @override
+  String get adminQuizBuilderBackButton => 'Retour';
+
+  @override
+  String adminQuizBuilderImportButton(int count) {
+    return 'Importer $count question(s)';
+  }
+
+  @override
+  String get adminQuizBuilderPasteInstructions =>
+      'Collez une ou plusieurs questions, avec une ligne vide entre chaque question.';
+
+  @override
+  String get adminQuizBuilderPasteExample =>
+      '1. Quel est le mot ewondo pour « eau » ?\nA) Mendim *\nB) Ayong\nC) Nti\nExplication : Mendim signifie eau.\n\n2. Question suivante...\nA) Choix un\nB) Choix deux\nRéponse : B';
+
+  @override
+  String get adminQuizBuilderPasteFormatHelp =>
+      'Marquez la bonne réponse avec un * à la fin, ou ajoutez une ligne \"Answer: B\" / \"Réponse : B\". Ajoutez \"FR: ...\" sur sa propre ligne juste après une question ou un choix pour la traduction en français. Les questions numérotées dont toutes les réponses sont listées séparément en bas sous un titre \"Answer Key\" (par ex. \"7. B) Parents\") fonctionnent aussi.';
+
+  @override
+  String get adminQuizBuilderPasteHint => 'Collez le texte de votre quiz ici…';
+
+  @override
+  String adminQuizBuilderDetectedCount(int total, int valid) {
+    return '$total question(s) détectée(s) — $valid prête(s) à être importée(s).';
+  }
+
+  @override
+  String get adminQuizBuilderNothingToPreview =>
+      'Rien à prévisualiser — revenez en arrière et ajustez le texte collé.';
+
+  @override
+  String get adminQuizMgmtEditQuizTitle => 'Modifier le quiz';
+
+  @override
+  String get adminQuizMgmtTitleLabel => 'Titre';
+
+  @override
+  String get adminQuizMgmtDescriptionLabel => 'Description';
+
+  @override
+  String get adminQuizMgmtFrenchTitleLabel => 'Titre en français (facultatif)';
+
+  @override
+  String get adminQuizMgmtFrenchDescriptionLabel =>
+      'Description en français (facultatif)';
+
+  @override
+  String get adminQuizMgmtPassingScoreLabel => 'Score de réussite (%)';
+
+  @override
+  String get adminQuizMgmtCancel => 'Annuler';
+
+  @override
+  String get adminQuizMgmtSave => 'Enregistrer';
+
+  @override
+  String get adminQuizMgmtQuizUpdated => 'Quiz mis à jour.';
+
+  @override
+  String get adminQuizMgmtUpdateQuizError =>
+      'Impossible de mettre à jour le quiz.';
+
+  @override
+  String get adminQuizMgmtDeleteQuizTitle => 'Supprimer le quiz';
+
+  @override
+  String adminQuizMgmtDeleteQuizConfirm(String title, int count) {
+    return 'Supprimer « $title » et ses $count question(s) ? Cette action est irréversible.';
+  }
+
+  @override
+  String get adminQuizMgmtDelete => 'Supprimer';
+
+  @override
+  String get adminQuizMgmtQuizDeleted => 'Quiz supprimé.';
+
+  @override
+  String get adminQuizMgmtDeleteQuizError => 'Impossible de supprimer le quiz.';
+
+  @override
+  String get adminQuizMgmtAppBarTitle => 'Gestion des quiz';
+
+  @override
+  String get adminQuizMgmtNewQuizButton => 'Nouveau quiz';
+
+  @override
+  String get adminQuizMgmtSearchHint => 'Rechercher des quiz...';
+
+  @override
+  String get adminQuizMgmtAllCoursesFilter => 'Tous les cours';
+
+  @override
+  String get adminQuizMgmtNoQuizzesFound => 'Aucun quiz trouvé.';
+
+  @override
+  String adminQuizMgmtQuestionsSummary(int count, int passingScore) {
+    return '$count questions • réussite à $passingScore %';
+  }
+
+  @override
+  String get adminBibleChapterDefaultVersion => 'ESV';
+
+  @override
+  String get adminBibleChapterFileReadError => 'Impossible de lire ce fichier.';
+
+  @override
+  String adminBibleChapterFileLoaded(String fileName) {
+    return '$fileName chargé.';
+  }
+
+  @override
+  String get adminBibleChapterInvalidChapterError =>
+      'Entrez un numéro de chapitre valide.';
+
+  @override
+  String get adminBibleChapterNoVersesFoundError =>
+      'Aucun verset numéroté trouvé. Collez un verset par ligne, chacun commençant par son numéro.';
+
+  @override
+  String get adminBibleChapterNoUsfmMarkersError =>
+      'Aucun marqueur de verset \\v trouvé. Assurez-vous d\'avoir collé du texte USFM valide (ex. \"\\c 1 \\v 1 Au commencement...\").';
+
+  @override
+  String get adminBibleChapterEnterBookNameError =>
+      'Entrez le nom d\'un livre.';
+
+  @override
+  String get adminBibleChapterNoEwondoVersesError =>
+      'Aucun verset avec du texte ewondo à enregistrer — prévisualisez d\'abord la comparaison.';
+
+  @override
+  String adminBibleChapterSavedMultiChapters(
+    int count,
+    int chapterCount,
+    String book,
+  ) {
+    return '$count verset(s) enregistré(s) sur $chapterCount chapitres de $book.';
+  }
+
+  @override
+  String adminBibleChapterSavedSingleChapter(int count, String book) {
+    return '$count verset(s) enregistré(s) pour $book.';
+  }
+
+  @override
+  String get adminBibleChapterSaveError =>
+      'Impossible d\'enregistrer le chapitre.';
+
+  @override
+  String get adminBibleChapterDeleteChapterTitle => 'Supprimer le chapitre';
+
+  @override
+  String adminBibleChapterDeleteChapterConfirm(
+    int count,
+    String book,
+    int chapter,
+    String version,
+  ) {
+    return 'Supprimer les $count verset(s) de $book $chapter ($version) ?';
+  }
+
+  @override
+  String get adminBibleChapterCancel => 'Annuler';
+
+  @override
+  String get adminBibleChapterDelete => 'Supprimer';
+
+  @override
+  String get adminBibleChapterDeleteError =>
+      'Impossible de supprimer le chapitre.';
+
+  @override
+  String get adminBibleChapterUploadFileButton => 'Importer un fichier';
+
+  @override
+  String adminBibleChapterChapterHeading(int chapter) {
+    return 'Chapitre $chapter';
+  }
+
+  @override
+  String adminBibleChapterVerseCount(int count) {
+    return '$count versets';
+  }
+
+  @override
+  String get adminBibleChapterMissingEwondoText => 'Texte ewondo manquant';
+
+  @override
+  String get adminBibleChapterMissingEnglishText => 'Texte anglais manquant';
+
+  @override
+  String get adminBibleChapterMissingFrenchText => 'Texte français manquant';
+
+  @override
+  String get adminBibleChapterDefaultLanguageName => 'Langue';
+
+  @override
+  String get adminBibleChapterTitle => 'Gestion de la Bible';
+
+  @override
+  String adminBibleChapterSubtitle(String title) {
+    return 'Chapitres et versets bibliques pour $title';
+  }
+
+  @override
+  String get adminBibleChapterUsfmModeInstructions =>
+      'Importez (ou collez) le fichier USFM complet d\'un livre en ewondo, accompagné de sa version USFM en anglais (ESV). Les chapitres et versets sont détectés automatiquement à partir des marqueurs \\c et \\v et associés verset par verset.';
+
+  @override
+  String get adminBibleChapterManualModeInstructions =>
+      'Collez un chapitre complet en ewondo (Nouveau Testament) accompagné de sa traduction anglaise (ESV). Chaque verset est associé afin que Nnanga apprenne des traductions précises, mises côte à côte.';
+
+  @override
+  String get adminBibleChapterSingleChapterOption => 'Chapitre unique';
+
+  @override
+  String get adminBibleChapterUsfmWholeBookOption => 'USFM (livre entier)';
+
+  @override
+  String get adminBibleChapterBookDetailsTitle => 'Détails du livre';
+
+  @override
+  String get adminBibleChapterChapterDetailsTitle => 'Détails du chapitre';
+
+  @override
+  String get adminBibleChapterAutoFilledHint =>
+      'Rempli automatiquement à partir du titre USFM \\h/\\mt1 une fois prévisualisé — modifiez si nécessaire.';
+
+  @override
+  String get adminBibleChapterBookLabel => 'Livre';
+
+  @override
+  String get adminBibleChapterChapterLabel => 'Chapitre';
+
+  @override
+  String get adminBibleChapterVersionLabel => 'Version';
+
+  @override
+  String get adminBibleChapterEwondoUsfmLabel => 'USFM ewondo (livre entier)';
+
+  @override
+  String get adminBibleChapterEwondoChapterLabel =>
+      'Texte du chapitre en ewondo';
+
+  @override
+  String get adminBibleChapterUploadOrPasteHelper =>
+      'Importez un fichier .usfm/.sfm/.txt, ou collez le texte directement.';
+
+  @override
+  String get adminBibleChapterOneVersePerLineHelper =>
+      'Un verset par ligne, chacun commençant par son numéro.';
+
+  @override
+  String get adminBibleChapterEwondoUsfmHintExample =>
+      '\\id JHN\n\\h John\n\\c 1\n\\v 1 Kiki avele, Nkobo a nga bo...\n\\v 2 ...';
+
+  @override
+  String get adminBibleChapterManualHintExample =>
+      '1 In the beginning was the Word...\n2 He was in the beginning with God...';
+
+  @override
+  String get adminBibleChapterEnglishUsfmLabel =>
+      'USFM anglais (livre entier, ESV)';
+
+  @override
+  String get adminBibleChapterEnglishChapterLabel =>
+      'Texte du chapitre en anglais (ESV)';
+
+  @override
+  String get adminBibleChapterEnglishUsfmHintExample =>
+      '\\id JHN\n\\h John\n\\c 1\n\\v 1 In the beginning was the Word...\n\\v 2 ...';
+
+  @override
+  String get adminBibleChapterFrenchUsfmLabel =>
+      'USFM français (livre entier, facultatif)';
+
+  @override
+  String get adminBibleChapterFrenchChapterLabel =>
+      'Texte du chapitre en français (facultatif)';
+
+  @override
+  String get adminBibleChapterFrenchUsfmHintExample =>
+      '\\id JHN\n\\h Jean\n\\c 1\n\\v 1 Au commencement était la Parole...\n\\v 2 ...';
+
+  @override
+  String get adminBibleChapterFrenchManualHintExample =>
+      '1 Au commencement était la Parole...\n2 Elle était au commencement avec Dieu...';
+
+  @override
+  String get adminBibleChapterPreviewButton =>
+      'Aperçu de la comparaison verset par verset';
+
+  @override
+  String get adminBibleChapterComparisonTitle =>
+      'Comparaison verset par verset';
+
+  @override
+  String adminBibleChapterVersesAcrossChapters(
+    int verseCount,
+    int chapterCount,
+  ) {
+    return '$verseCount versets sur $chapterCount chapitre(s)';
+  }
+
+  @override
+  String get adminBibleChapterSaveBookButton => 'Enregistrer le livre';
+
+  @override
+  String get adminBibleChapterSaveChapterButton => 'Enregistrer le chapitre';
+
+  @override
+  String get adminBibleChapterSavedChaptersHeading => 'Chapitres enregistrés';
+
+  @override
+  String get adminBibleChapterEmptyTitle => 'Pas encore de chapitres';
+
+  @override
+  String get adminBibleChapterEmptyMessage =>
+      'Collez et enregistrez un chapitre ci-dessus pour le voir apparaître ici.';
+
+  @override
+  String get adminBibleChapterDeleteChapterTooltip => 'Supprimer le chapitre';
+
+  @override
+  String get adminLessonEditorTabInfo => 'Infos de la leçon';
+
+  @override
+  String get adminLessonEditorTabContent => 'Contenu';
+
+  @override
+  String get adminLessonEditorTabActivities => 'Activités';
+
+  @override
+  String get adminLessonEditorTabQuiz => 'Quiz';
+
+  @override
+  String get adminLessonEditorTabResources => 'Ressources';
+
+  @override
+  String get adminLessonEditorTabSettings => 'Paramètres';
+
+  @override
+  String get adminLessonEditorSavedInfoMessage =>
+      'Informations de la leçon enregistrées.';
+
+  @override
+  String get adminLessonEditorCouldNotSaveInfo =>
+      'Impossible d\'enregistrer les informations de la leçon.';
+
+  @override
+  String get adminLessonEditorDraftSavedMessage => 'Brouillon enregistré.';
+
+  @override
+  String get adminLessonEditorCouldNotSaveDraft =>
+      'Impossible d\'enregistrer le brouillon.';
+
+  @override
+  String get adminLessonEditorPublishedMessage => 'Leçon publiée.';
+
+  @override
+  String get adminLessonEditorCouldNotPublish =>
+      'Impossible de publier la leçon.';
+
+  @override
+  String get adminLessonEditorAppBarTitle => 'Modifier la leçon';
+
+  @override
+  String get adminLessonEditorPreviewLearnerViewButton =>
+      'Aperçu (vue apprenant)';
+
+  @override
+  String get adminLessonEditorSaveDraftButton => 'Enregistrer le brouillon';
+
+  @override
+  String get adminLessonEditorPublishingLabel => 'Publication…';
+
+  @override
+  String get adminLessonEditorPublishLessonButton => 'Publier la leçon';
+
+  @override
+  String get adminLessonEditorLessonInfoSectionTitle =>
+      'Informations sur la leçon';
+
+  @override
+  String get adminLessonEditorLessonTitleLabel => 'Titre de la leçon';
+
+  @override
+  String get adminLessonEditorShortDescriptionLabel => 'Description courte';
+
+  @override
+  String get adminLessonEditorLessonCategoryLabel => 'Catégorie de la leçon';
+
+  @override
+  String get adminLessonEditorLevelLabel => 'Niveau';
+
+  @override
+  String get adminLessonEditorEstimatedTimeLabel => 'Durée estimée (min)';
+
+  @override
+  String get adminLessonEditorOrderLabel => 'Ordre';
+
+  @override
+  String get adminLessonEditorCoverImageSectionTitle =>
+      'Couverture / image de la leçon';
+
+  @override
+  String get adminLessonEditorCoverImageHint =>
+      'Cette image apparaîtra dans la vue apprenant.';
+
+  @override
+  String get adminLessonEditorChangeImageButton => 'Changer l\'image';
+
+  @override
+  String get adminLessonEditorRemoveImageButton => 'Supprimer l\'image';
+
+  @override
+  String get adminLessonEditorLearningObjectivesLabel =>
+      'Objectifs d\'apprentissage (un par ligne)';
+
+  @override
+  String get adminLessonEditorOutcomesLabel =>
+      'Ce que les apprenants vont apprendre (un par ligne)';
+
+  @override
+  String get adminLessonEditorNoActivitiesYetMessage =>
+      'Aucune activité pour le moment.';
+
+  @override
+  String get adminLessonEditorNoQuizYetMessage =>
+      'Cette leçon n\'a pas encore de quiz.';
+
+  @override
+  String get adminLessonEditorHasQuizMessage =>
+      'Cette leçon est liée à un quiz.';
+
+  @override
+  String get adminLessonEditorResourcesDescription =>
+      'Images illustrées associées à cette leçon. Ajoutez ou retirez des images par mot depuis l\'écran Images dédié.';
+
+  @override
+  String get adminLessonEditorManageLessonImagesButton =>
+      'Gérer les images de la leçon';
+
+  @override
+  String get adminLessonEditorSettingsDescription =>
+      'L\'attribution du relecteur et les commentaires se trouvent dans le panneau de droite.';
+
+  @override
+  String get adminLessonEditorLessonSummaryCardTitle => 'Résumé de la leçon';
+
+  @override
+  String get adminLessonEditorLessonIdLabel => 'ID de la leçon';
+
+  @override
+  String get adminLessonEditorCreatedLabel => 'Créée le';
+
+  @override
+  String get adminLessonEditorLastUpdatedLabel => 'Dernière mise à jour';
+
+  @override
+  String get adminLessonEditorImagePreviewCardTitle =>
+      'Aperçu de l\'image de la leçon (vue apprenant)';
+
+  @override
+  String get adminLessonEditorTipsCardTitle => 'Astuces';
+
+  @override
+  String get adminLessonEditorTip1 =>
+      'Utilisez des images de bonne qualité (1280x720 recommandé)';
+
+  @override
+  String get adminLessonEditorTip2 =>
+      'Les images rendent les leçons plus attrayantes';
+
+  @override
+  String get adminLessonEditorTip3 =>
+      'Vous pouvez ajouter plusieurs images dans le contenu';
+
+  @override
+  String get adminLessonEditorTip4 =>
+      'Gardez les leçons ciblées et interactives';
+
+  @override
+  String get adminLessonEditorUrlHint => 'https://...';
+
+  @override
+  String get adminLessonEditorInsertButton => 'Insérer';
+
+  @override
+  String get adminLessonEditorEmbedUrlDialogTitle => 'URL d\'intégration';
+
+  @override
+  String get adminLessonMgmtFrenchSummaryOptionalLabel =>
+      'Résumé en français (optionnel)';
+
+  @override
+  String get adminLessonMgmtFrenchContentOptionalLabel =>
+      'Contenu en français (optionnel)';
+
+  @override
+  String get adminLessonMgmtConversationHelpText =>
+      'En conversation (optionnel) — une ligne par réplique : « Locuteur : Texte || Texte en français »';
+
+  @override
+  String get adminLessonMgmtConversationLabel => 'Conversation';
+
+  @override
+  String get adminLessonMgmtConversationHint =>
+      'Amina: Mbolo, wa nga zu na? || Bonjour, comment vas-tu ?';
+
+  @override
+  String get adminLessonMgmtDeleteLessonTitle => 'Supprimer la leçon';
+
+  @override
+  String adminLessonMgmtDeleteConfirm(String title) {
+    return 'Supprimer « $title » ?';
+  }
+
+  @override
+  String adminLessonMgmtDeleteConfirmWithQuiz(String title) {
+    return 'Supprimer « $title » ? Son quiz doit d\'abord être supprimé (depuis la gestion des quiz).';
+  }
+
+  @override
+  String get adminLessonMgmtUpdatedMessage => 'Leçon mise à jour.';
+
+  @override
+  String get adminLessonMgmtMovedMessage => 'Leçon déplacée.';
+
+  @override
+  String get adminLessonMgmtReorderedMessage => 'Leçon réorganisée.';
+
+  @override
+  String get adminLessonMgmtDeletedMessage => 'Leçon supprimée.';
+
+  @override
+  String get adminLessonMgmtAppBarTitle => 'Gestion des leçons';
+
+  @override
+  String get adminLessonMgmtSearchHint => 'Rechercher des leçons...';
+
+  @override
+  String get adminLessonMgmtAllCoursesFilter => 'Tous les cours';
+
+  @override
+  String get adminLessonMgmtNoLessonsFoundMessage => 'Aucune leçon trouvée.';
+
+  @override
+  String adminLessonMgmtLessonRowTitle(int number, String title) {
+    return 'Leçon $number : $title';
+  }
+
+  @override
+  String get moveLessonDialogTitle => 'Déplacer la leçon';
+
+  @override
+  String get moveLessonDialogDestinationCourseLabel => 'Cours de destination';
+
+  @override
+  String get moveLessonDialogDestinationModuleLabel => 'Module de destination';
+
+  @override
+  String get moveLessonDialogAlreadyInModuleMessage =>
+      'Cette leçon se trouve déjà dans ce module.';
+
+  @override
+  String get moveLessonDialogMoveButton => 'Déplacer';
+
+  @override
+  String get reorderLessonDialogTitle => 'Modifier la position de la leçon';
+
+  @override
+  String reorderLessonDialogNewPositionLabel(int currentPosition) {
+    return 'Nouvelle position (actuellement Leçon $currentPosition)';
+  }
+
+  @override
+  String get reorderLessonDialogMoveButton => 'Déplacer';
+
+  @override
+  String get adminUsersCouldNotUpdateUser =>
+      'Impossible de mettre à jour l\'utilisateur.';
+
+  @override
+  String get adminUsersCouldNotUpdateRole =>
+      'Impossible de mettre à jour le rôle.';
+
+  @override
+  String get adminUsersDeleteUserTitle => 'Supprimer l\'utilisateur';
+
+  @override
+  String adminUsersDeleteConfirm(String name) {
+    return 'Supprimer $name définitivement ? Cette action est irréversible. Les utilisateurs ayant des cours, une progression ou d\'autres données liées ne peuvent pas être supprimés — désactivez-les à la place.';
+  }
+
+  @override
+  String get adminUsersCancel => 'Annuler';
+
+  @override
+  String get adminUsersDelete => 'Supprimer';
+
+  @override
+  String get adminUsersCouldNotDeleteUser =>
+      'Impossible de supprimer l\'utilisateur.';
+
+  @override
+  String get adminUsersTitle => 'Utilisateurs';
+
+  @override
+  String adminUsersSubtitle(int count) {
+    return '$count au total';
+  }
+
+  @override
+  String get adminUsersNewUser => 'Nouvel utilisateur';
+
+  @override
+  String get adminUsersSearchHint => 'Rechercher par nom ou e-mail...';
+
+  @override
+  String get adminUsersActive => 'Actif';
+
+  @override
+  String get adminUsersDeactivated => 'Désactivé';
+
+  @override
+  String get adminUsersDeactivateAction => 'Désactiver';
+
+  @override
+  String get adminUsersActivateAction => 'Activer';
+
+  @override
+  String get adminUsersMakeAdminAction => 'Nommer administrateur';
+
+  @override
+  String get adminUsersMakeTeacherAction => 'Nommer enseignant';
+
+  @override
+  String get adminUsersMakeLearnerAction => 'Nommer apprenant';
+
+  @override
+  String get adminUsersThisIsYourAccount => 'Ceci est votre compte';
+
+  @override
+  String get adminVocabMgmtTitle => 'Gestion du vocabulaire';
+
+  @override
+  String get adminVocabMgmtCouldNotDeleteWord =>
+      'Impossible de supprimer le mot.';
+
+  @override
+  String get adminVocabMgmtWordAdded => 'Entrée de connaissance ajoutée.';
+
+  @override
+  String get adminVocabMgmtCouldNotAddWord => 'Impossible d\'ajouter le mot.';
+
+  @override
+  String get adminVocabMgmtUnknownServerError => 'Erreur serveur inconnue.';
+
+  @override
+  String adminVocabMgmtImportedWords(int count) {
+    return '$count mot(s) importé(s).';
+  }
+
+  @override
+  String adminVocabMgmtImportedWordsWithFailures(int succeeded, int failed) {
+    return '$succeeded mot(s) importé(s), $failed échec(s)';
+  }
+
+  @override
+  String get adminVocabMgmtWordUpdated => 'Entrée de connaissance mise à jour.';
+
+  @override
+  String get adminVocabMgmtCouldNotUpdateWord =>
+      'Impossible de mettre à jour le mot.';
+
+  @override
+  String get adminVocabMgmtCouldNotDeleteText =>
+      'Impossible de supprimer le texte.';
+
+  @override
+  String get adminVocabMgmtTextAdded => 'Texte et traduction ajoutés.';
+
+  @override
+  String get adminVocabMgmtCouldNotAddText => 'Impossible d\'ajouter le texte.';
+
+  @override
+  String get adminVocabMgmtTextUpdated => 'Texte et traduction mis à jour.';
+
+  @override
+  String get adminVocabMgmtCouldNotUpdateText =>
+      'Impossible de mettre à jour le texte.';
+
+  @override
+  String get adminVocabMgmtAddTextAction => 'Ajouter texte et traduction';
+
+  @override
+  String get adminVocabMgmtPasteVocabularyAction => 'Coller du vocabulaire';
+
+  @override
+  String get adminVocabMgmtAddKnowledgeAction => 'Ajouter une connaissance';
+
+  @override
+  String get adminVocabMgmtKnowledgeBaseDescription =>
+      'Ceci est la base de connaissances de Nnanga. Elle recherche parmi ces mots et leurs leçons pour répondre aux apprenants — plus vous en ajoutez, mieux elle répond.';
+
+  @override
+  String get adminVocabMgmtSearchHint => 'Rechercher dans les connaissances...';
+
+  @override
+  String get adminVocabMgmtAllLevels => 'Tous les niveaux';
+
+  @override
+  String get adminVocabMgmtEmptyState =>
+      'Aucune connaissance trouvée. Utilisez « Coller du vocabulaire » ci-dessous pour ajouter toute une liste de mots à la fois, ou « Ajouter une connaissance » pour un seul mot.';
+
+  @override
+  String get adminVocabMgmtTextsSectionTitle => 'Textes et traductions';
+
+  @override
+  String adminVocabMgmtEntriesCount(int count) {
+    return '$count entrées';
+  }
+
+  @override
+  String get adminVocabMgmtEditTooltip => 'Modifier';
+
+  @override
+  String get adminVocabMgmtDeleteTooltip => 'Supprimer';
+
+  @override
+  String get adminVocabMgmtVocabularySectionTitle => 'Vocabulaire';
+
+  @override
+  String adminVocabMgmtWordsCount(int count) {
+    return '$count mots';
+  }
+
+  @override
+  String get adminVocabMgmtEditAction => 'Modifier';
+
+  @override
+  String get adminVocabMgmtDeleteAction => 'Supprimer';
+
+  @override
+  String get adminVocabMgmtEditKnowledgeEntryTitle =>
+      'Modifier l\'entrée de connaissance';
+
+  @override
+  String get adminVocabMgmtAddKnowledgeEntryTitle =>
+      'Ajouter une entrée de connaissance';
+
+  @override
+  String get adminVocabMgmtEwondoWordLabel => 'Mot ou expression en ewondo';
+
+  @override
+  String get adminVocabMgmtExampleSentenceLabel => 'Phrase d\'exemple';
+
+  @override
+  String get adminVocabMgmtPhoneticLabel =>
+      'Transcription phonétique (facultatif)';
+
+  @override
+  String get adminVocabMgmtPhoneticHint =>
+      'ex. mbɔ́lɔ́ — affiché sous le mot sur l\'écran de la leçon';
+
+  @override
+  String get adminVocabMgmtPronunciationAudioLabel =>
+      'Audio de prononciation (aide la lecture « écouter » de Nnanga pour les apprenants)';
+
+  @override
+  String get adminVocabMgmtEnglishMeaningLabel => 'Signification en anglais';
+
+  @override
+  String get adminVocabMgmtEnglishTranslationLabel => 'Traduction en anglais';
+
+  @override
+  String get adminVocabMgmtFrenchMeaningLabel => 'Signification en français';
+
+  @override
+  String get adminVocabMgmtFrenchTranslationLabel => 'Traduction en français';
+
+  @override
+  String get adminVocabMgmtDifficultyLabel => 'Difficulté';
+
+  @override
+  String get adminVocabMgmtCancel => 'Annuler';
+
+  @override
+  String get adminVocabMgmtSave => 'Enregistrer';
+
+  @override
+  String get adminVocabMgmtAdd => 'Ajouter';
+
+  @override
+  String get adminVocabMgmtEditTextEntryTitle =>
+      'Modifier le texte et la traduction';
+
+  @override
+  String get adminVocabMgmtAddTextEntryTitle => 'Ajouter texte et traduction';
+
+  @override
+  String get adminVocabMgmtEwondoTextLabel => 'Texte en ewondo';
+
+  @override
+  String get adminVocabMgmtTranslationLabel => 'Traduction';
+
+  @override
+  String get adminVocabMgmtPasteVocabularyTitle => 'Coller du vocabulaire';
+
+  @override
+  String get adminVocabMgmtPreviewImportTitle => 'Aperçu de l\'importation';
+
+  @override
+  String get adminVocabMgmtParseAction => 'Analyser';
+
+  @override
+  String get adminVocabMgmtBackAction => 'Retour';
+
+  @override
+  String adminVocabMgmtImportWordsAction(int count) {
+    return 'Importer $count mot(s)';
+  }
+
+  @override
+  String get adminVocabMgmtPasteInstructions =>
+      'Collez une liste de mots — un par ligne, ou une ligne vide entre des entrées plus détaillées.';
+
+  @override
+  String get adminVocabMgmtPasteFormatHelp =>
+      'Lignes simples : « mot | signification en anglais | signification en français » (significations facultatives). Ou détaillez sur plusieurs lignes avec EN:, FR:, Example:, Example EN:, Example FR:, Phonetic: et Level: — seul le mot est obligatoire.';
+
+  @override
+  String get adminVocabMgmtPasteFieldHint => 'Collez votre liste de mots ici…';
+
+  @override
+  String adminVocabMgmtWordsDetectedSummary(int total, int validCount) {
+    return '$total mot(s) détecté(s) — $validCount prêt(s) à être importé(s).';
+  }
+
+  @override
+  String get adminVocabMgmtNothingToPreview =>
+      'Rien à prévisualiser — revenez en arrière et ajustez le texte collé.';
+
+  @override
+  String get adminDailyMgmtDailyWordAdded => 'Mot du jour ajouté.';
+
+  @override
+  String get adminDailyMgmtCouldNotAddDailyWord =>
+      'Impossible d\'ajouter le mot du jour.';
+
+  @override
+  String get adminDailyMgmtDailyWordUpdated => 'Mot du jour mis à jour.';
+
+  @override
+  String get adminDailyMgmtCouldNotUpdateDailyWord =>
+      'Impossible de mettre à jour le mot du jour.';
+
+  @override
+  String get adminDailyMgmtCouldNotDeleteDailyWord =>
+      'Impossible de supprimer le mot du jour.';
+
+  @override
+  String get adminDailyMgmtDailyVerseAdded => 'Verset du jour ajouté.';
+
+  @override
+  String get adminDailyMgmtCouldNotAddDailyVerse =>
+      'Impossible d\'ajouter le verset du jour.';
+
+  @override
+  String get adminDailyMgmtDailyVerseUpdated => 'Verset du jour mis à jour.';
+
+  @override
+  String get adminDailyMgmtCouldNotUpdateDailyVerse =>
+      'Impossible de mettre à jour le verset du jour.';
+
+  @override
+  String get adminDailyMgmtCouldNotDeleteDailyVerse =>
+      'Impossible de supprimer le verset du jour.';
+
+  @override
+  String get adminDailyMgmtLanguageFallback => 'Langue';
+
+  @override
+  String get adminDailyMgmtTitle => 'Phrase et verset du jour';
+
+  @override
+  String adminDailyMgmtSubtitle(String language) {
+    return 'Réserves rotatives de mots/versets du jour pour $language';
+  }
+
+  @override
+  String get adminDailyMgmtAddDailyWordAction => 'Ajouter un mot du jour';
+
+  @override
+  String get adminDailyMgmtAddDailyVerseAction => 'Ajouter un verset du jour';
+
+  @override
+  String get adminDailyMgmtDescription =>
+      'Une entrée différente de chaque réserve est affichée automatiquement chaque jour sur le tableau de bord de l\'apprenant — pas besoin de choisir manuellement l\'élément « du jour ».';
+
+  @override
+  String get adminDailyMgmtDailyWordsChip => 'Mots du jour';
+
+  @override
+  String get adminDailyMgmtDailyVersesChip => 'Versets du jour';
+
+  @override
+  String get adminDailyMgmtSearchWordsHint => 'Rechercher des mots ewondo...';
+
+  @override
+  String get adminDailyMgmtSearchVersesHint =>
+      'Rechercher des versets ou une référence...';
+
+  @override
+  String get adminDailyMgmtNoDailyWordsTitle =>
+      'Aucun mot du jour pour l\'instant';
+
+  @override
+  String get adminDailyMgmtNoDailyWordsMessage =>
+      'Ajoutez des mots ewondo à faire défiler sur le tableau de bord de l\'apprenant.';
+
+  @override
+  String get adminDailyMgmtEditAction => 'Modifier';
+
+  @override
+  String get adminDailyMgmtDeleteAction => 'Supprimer';
+
+  @override
+  String get adminDailyMgmtNoDailyVersesTitle =>
+      'Aucun verset du jour pour l\'instant';
+
+  @override
+  String get adminDailyMgmtNoDailyVersesMessage =>
+      'Ajoutez des versets bibliques ewondo à faire défiler sur le tableau de bord de l\'apprenant.';
+
+  @override
+  String get adminDailyMgmtEditDailyWordTitle => 'Modifier le mot du jour';
+
+  @override
+  String get adminDailyMgmtAddDailyWordTitle => 'Ajouter un mot du jour';
+
+  @override
+  String get adminDailyMgmtEwondoWordLabel => 'Mot ewondo';
+
+  @override
+  String get adminDailyMgmtEnglishMeaningLabel => 'Signification en anglais';
+
+  @override
+  String get adminDailyMgmtFrenchMeaningLabel => 'Signification en français';
+
+  @override
+  String get adminDailyMgmtUsageHintLabel =>
+      'Astuce d\'utilisation (facultatif)';
+
+  @override
+  String get adminDailyMgmtCancel => 'Annuler';
+
+  @override
+  String get adminDailyMgmtSave => 'Enregistrer';
+
+  @override
+  String get adminDailyMgmtAdd => 'Ajouter';
+
+  @override
+  String get adminDailyMgmtEditDailyVerseTitle => 'Modifier le verset du jour';
+
+  @override
+  String get adminDailyMgmtAddDailyVerseTitle => 'Ajouter un verset du jour';
+
+  @override
+  String get adminDailyMgmtReferenceLabel => 'Référence (ex. Yoannes 3:16)';
+
+  @override
+  String get adminDailyMgmtEwondoTextLabel => 'Texte en ewondo';
+
+  @override
+  String get adminDailyMgmtEnglishTranslationLabel => 'Traduction en anglais';
+
+  @override
+  String get adminDailyMgmtFrenchTranslationLabel => 'Traduction en français';
+
+  @override
+  String get adminDailyMgmtCouldNotLoadVocabulary =>
+      'Impossible de charger le vocabulaire.';
+
+  @override
+  String get adminDailyMgmtPickVocabularyWordTitle =>
+      'Choisir un mot du vocabulaire';
+
+  @override
+  String get adminDailyMgmtSearchLabel => 'Rechercher';
+
+  @override
+  String get adminDailyMgmtSomethingWentWrong => 'Une erreur s\'est produite';
+
+  @override
+  String get adminDailyMgmtNoVocabularyYetTitle =>
+      'Aucun vocabulaire pour l\'instant';
+
+  @override
+  String get adminDailyMgmtNoVocabularyYetMessage =>
+      'Ajoutez d\'abord des mots dans la gestion du vocabulaire.';
+
+  @override
+  String get adminDailyMgmtCouldNotLoadBibleChapters =>
+      'Impossible de charger les chapitres bibliques.';
+
+  @override
+  String get adminDailyMgmtCouldNotLoadVerses =>
+      'Impossible de charger les versets.';
+
+  @override
+  String get adminDailyMgmtPickChapterTitle => 'Choisir un chapitre';
+
+  @override
+  String get adminDailyMgmtNoBibleContentYetTitle =>
+      'Aucun contenu biblique pour l\'instant';
+
+  @override
+  String get adminDailyMgmtNoBibleContentYetMessage =>
+      'Ajoutez d\'abord des chapitres dans la gestion biblique.';
+
+  @override
+  String get adminDailyMgmtNoVersesYetTitle => 'Aucun verset pour l\'instant';
+
+  @override
+  String get adminDailyMgmtNoVersesYetMessage =>
+      'Ce chapitre ne contient aucun verset.';
+
+  @override
+  String get adminDailyMgmtBackAction => 'Retour';
+
+  @override
+  String adminDailyMgmtVerseCount(int count) {
+    return '$count versets';
+  }
+
+  @override
+  String adminDailyMgmtVerseNumber(int number) {
+    return 'Verset $number';
+  }
+
+  @override
+  String get adminBookMgmtAddBook => 'Ajouter un livre';
+
+  @override
+  String get adminBookMgmtAddError => 'Impossible d\'ajouter le livre.';
+
+  @override
+  String get adminBookMgmtCancel => 'Annuler';
+
+  @override
+  String get adminBookMgmtCategoryAll => 'Tout';
+
+  @override
+  String get adminBookMgmtCreate => 'Créer';
+
+  @override
+  String get adminBookMgmtDelete => 'Supprimer';
+
+  @override
+  String adminBookMgmtDeleteBody(String title) {
+    return '« $title » sera retiré pour tous les apprenants.';
+  }
+
+  @override
+  String get adminBookMgmtDeleteError => 'Impossible de supprimer le livre.';
+
+  @override
+  String get adminBookMgmtDeleteTitle => 'Supprimer le livre ?';
+
+  @override
+  String get adminBookMgmtDeletedMessage => 'Livre supprimé.';
+
+  @override
+  String get adminBookMgmtEdit => 'Modifier';
+
+  @override
+  String get adminBookMgmtEmptyMessage =>
+      'Appuyez sur « Ajouter un livre » pour créer le premier.';
+
+  @override
+  String get adminBookMgmtEmptyTitle => 'Aucun livre pour l\'instant';
+
+  @override
+  String get adminBookMgmtErrorTitle => 'Une erreur s\'est produite';
+
+  @override
+  String get adminBookMgmtLanguageFallback => 'Langue';
+
+  @override
+  String get adminBookMgmtLoadError => 'Impossible de charger les livres.';
+
+  @override
+  String get adminBookMgmtNoContent => 'Pas encore de contenu';
+
+  @override
+  String adminBookMgmtPagesCount(int count) {
+    return '$count pages';
+  }
+
+  @override
+  String get adminBookMgmtSearchLabel => 'Rechercher des livres';
+
+  @override
+  String adminBookMgmtSubtitle(String title) {
+    return 'Livres pour $title';
+  }
+
+  @override
+  String get adminBookMgmtTitle => 'Gestion des livres';
+
+  @override
+  String get adminBookMgmtTitleLabel => 'Titre';
+
+  @override
+  String get adminLangMgmtAdd => 'Ajouter';
+
+  @override
+  String get adminLangMgmtAddError => 'Impossible d\'ajouter la langue.';
+
+  @override
+  String get adminLangMgmtAddTitle => 'Ajouter une langue';
+
+  @override
+  String get adminLangMgmtAddedMessage =>
+      'Langue ajoutée. Elle démarre en brouillon — publiez-la une fois son contenu prêt.';
+
+  @override
+  String get adminLangMgmtCancel => 'Annuler';
+
+  @override
+  String get adminLangMgmtCodeLabel => 'Code (ex. bas)';
+
+  @override
+  String get adminLangMgmtCountryLabel => 'Pays (facultatif)';
+
+  @override
+  String get adminLangMgmtDelete => 'Supprimer';
+
+  @override
+  String adminLangMgmtDeleteBody(String name) {
+    return '« $name » sera définitivement supprimée. Cela ne fonctionne que si elle n\'a pas encore de cours.';
+  }
+
+  @override
+  String get adminLangMgmtDeleteError => 'Impossible de supprimer la langue.';
+
+  @override
+  String get adminLangMgmtDeleteTitle => 'Supprimer la langue ?';
+
+  @override
+  String get adminLangMgmtDeletedMessage => 'Langue supprimée.';
+
+  @override
+  String get adminLangMgmtDraft => 'Brouillon';
+
+  @override
+  String get adminLangMgmtEmptyMessage =>
+      'Appuyez sur « Ajouter une langue » pour créer la première.';
+
+  @override
+  String get adminLangMgmtEmptyTitle => 'Aucune langue pour l\'instant';
+
+  @override
+  String get adminLangMgmtErrorTitle => 'Une erreur s\'est produite';
+
+  @override
+  String get adminLangMgmtLoadError => 'Impossible de charger les langues.';
+
+  @override
+  String get adminLangMgmtNameLabel => 'Nom (ex. Bassa)';
+
+  @override
+  String get adminLangMgmtPublished => 'Publié';
+
+  @override
+  String adminLangMgmtSubtitleCount(int count) {
+    return '$count au total';
+  }
+
+  @override
+  String get adminLangMgmtTitle => 'Langues';
+
+  @override
+  String get adminLangMgmtUpdateError =>
+      'Impossible de mettre à jour la langue.';
+
+  @override
+  String get adminLessonImagesAdd => 'Ajouter';
+
+  @override
+  String get adminLessonImagesAddError => 'Impossible d\'ajouter l\'image.';
+
+  @override
+  String get adminLessonImagesAddImage => 'Ajouter une image';
+
+  @override
+  String get adminLessonImagesAddedMessage => 'Image ajoutée.';
+
+  @override
+  String get adminLessonImagesCancel => 'Annuler';
+
+  @override
+  String get adminLessonImagesCaptionLabel => 'Légende (facultatif)';
+
+  @override
+  String get adminLessonImagesDelete => 'Supprimer';
+
+  @override
+  String adminLessonImagesDeleteBody(String word) {
+    return 'Retirer l\'image pour « $word » ?';
+  }
+
+  @override
+  String get adminLessonImagesDeleteTitle => 'Supprimer l\'image';
+
+  @override
+  String get adminLessonImagesDialogTitle => 'Illustrer un mot';
+
+  @override
+  String get adminLessonImagesEmptyMessage =>
+      'Ajoutez une image pour illustrer un mot de cette leçon.';
+
+  @override
+  String get adminLessonImagesEmptyTitle => 'Aucune image pour l\'instant';
+
+  @override
+  String get adminLessonImagesIntro =>
+      'Ajoutez des images pour illustrer les mots de cette leçon. Ajoutez-en autant que vous le souhaitez.';
+
+  @override
+  String get adminLessonImagesRemoveError => 'Impossible de retirer l\'image.';
+
+  @override
+  String get adminLessonImagesRemovedMessage => 'Image retirée.';
+
+  @override
+  String get adminLessonImagesTitleFallback => 'Images de la leçon';
+
+  @override
+  String adminLessonImagesTitleWithLesson(String lesson) {
+    return 'Images — $lesson';
+  }
+
+  @override
+  String get adminLessonImagesWordLabel => 'Mot illustré';
+
+  @override
+  String get adminModuleMgmtAllCourses => 'Tous les cours';
+
+  @override
+  String get adminModuleMgmtAppBarTitle => 'Gestion des modules';
+
+  @override
+  String get adminModuleMgmtCancel => 'Annuler';
+
+  @override
+  String get adminModuleMgmtCourseLabel => 'Cours';
+
+  @override
+  String adminModuleMgmtCourseLessonsSummary(String course, int count) {
+    return '$course • $count leçons';
+  }
+
+  @override
+  String get adminModuleMgmtCreate => 'Créer';
+
+  @override
+  String get adminModuleMgmtCreateCourseFirst => 'Créez d\'abord un cours.';
+
+  @override
+  String get adminModuleMgmtCreateError => 'Impossible de créer le module.';
+
+  @override
+  String get adminModuleMgmtCreatedMessage => 'Module créé.';
+
+  @override
+  String get adminModuleMgmtDelete => 'Supprimer';
+
+  @override
+  String adminModuleMgmtDeleteBody(String title) {
+    return 'Supprimer « $title » ?';
+  }
+
+  @override
+  String get adminModuleMgmtDeleteError => 'Impossible de supprimer le module.';
+
+  @override
+  String adminModuleMgmtDeleteLessonsFirst(int count) {
+    return 'Supprimez d\'abord les $count leçon(s) de ce module.';
+  }
+
+  @override
+  String get adminModuleMgmtDeleteTitle => 'Supprimer le module';
+
+  @override
+  String get adminModuleMgmtDeletedMessage => 'Module supprimé.';
+
+  @override
+  String get adminModuleMgmtDescriptionLabel => 'Description';
+
+  @override
+  String get adminModuleMgmtEditTitle => 'Modifier le module';
+
+  @override
+  String get adminModuleMgmtFrenchDescriptionLabel =>
+      'Description en français (facultatif)';
+
+  @override
+  String get adminModuleMgmtFrenchTitleLabel =>
+      'Titre en français (facultatif)';
+
+  @override
+  String get adminModuleMgmtNewModule => 'Nouveau module';
+
+  @override
+  String get adminModuleMgmtNoModulesFound => 'Aucun module trouvé.';
+
+  @override
+  String get adminModuleMgmtSave => 'Enregistrer';
+
+  @override
+  String get adminModuleMgmtSearchHint => 'Rechercher des modules...';
+
+  @override
+  String get adminModuleMgmtTitleLabel => 'Titre';
+
+  @override
+  String get adminModuleMgmtUpdateError =>
+      'Impossible de mettre à jour le module.';
+
+  @override
+  String get adminModuleMgmtUpdatedMessage => 'Module mis à jour.';
+
+  @override
+  String get adminProfileAccountDetails => 'Détails du compte';
+
+  @override
+  String get adminProfileAccountStatus => 'Statut du compte';
+
+  @override
+  String get adminProfileActive => 'Actif';
+
+  @override
+  String get adminProfileAdministratorRole => 'Administrateur';
+
+  @override
+  String get adminProfileDeactivated => 'Désactivé';
+
+  @override
+  String get adminProfileEditProfileLabel => 'Modifier le profil';
+
+  @override
+  String get adminProfileFullNameLabel => 'Nom complet';
+
+  @override
+  String get adminProfileLastLogin => 'Dernière connexion';
+
+  @override
+  String get adminProfileLogOut => 'Déconnexion';
+
+  @override
+  String get adminProfileMemberSince => 'Membre depuis';
+
+  @override
+  String get adminProfileNewPasswordHint =>
+      'Laissez vide pour conserver le mot de passe actuel';
+
+  @override
+  String get adminProfileNewPasswordLabel => 'Nouveau mot de passe';
+
+  @override
+  String get adminProfileSaveChanges => 'Enregistrer les modifications';
+
+  @override
+  String get adminProfileSubtitle => 'Gérez votre compte administrateur';
+
+  @override
+  String get adminProfileThisSession => 'Cette session';
+
+  @override
+  String get adminProfileTitle => 'Mon profil';
+
+  @override
+  String get adminProfileUpdateError =>
+      'Impossible de mettre à jour le profil.';
+
+  @override
+  String get adminProfileUpdatedMessage => 'Profil mis à jour.';
+
+  @override
+  String get adminProfileUploadError => 'Impossible de téléverser la photo.';
+
+  @override
+  String get adminBookEditorAddPageError => 'Impossible d\'ajouter la page.';
+
+  @override
+  String get adminBookEditorAddPageLabel => 'Ajouter une page';
+
+  @override
+  String get adminBookEditorAudioOptionalLabel => 'Audio (optionnel)';
+
+  @override
+  String get adminBookEditorAuthorFieldLabel => 'Auteur (optionnel)';
+
+  @override
+  String get adminBookEditorAuthoredPagesSegmentLabel => 'Pages rédigées';
+
+  @override
+  String get adminBookEditorBookSavedMessage => 'Livre enregistré.';
+
+  @override
+  String get adminBookEditorCategoryLabel => 'Catégorie';
+
+  @override
+  String get adminBookEditorChangeCoverLabel => 'Changer la couverture';
+
+  @override
+  String get adminBookEditorContainsIllustrationsLabel =>
+      'Contient des illustrations';
+
+  @override
+  String get adminBookEditorContentTitle => 'Contenu';
+
+  @override
+  String get adminBookEditorCoverImageLabel => 'Image de couverture';
+
+  @override
+  String adminBookEditorCurrentFileLabel(String fileType, String fileUrl) {
+    return 'Fichier actuel : $fileType — $fileUrl';
+  }
+
+  @override
+  String get adminBookEditorDeletePageError =>
+      'Impossible de supprimer la page.';
+
+  @override
+  String get adminBookEditorDescriptionFieldLabel => 'Description (optionnel)';
+
+  @override
+  String get adminBookEditorDetailsTitle => 'Détails';
+
+  @override
+  String get adminBookEditorEnglishTranslationLabel =>
+      'Traduction anglaise (optionnel)';
+
+  @override
+  String get adminBookEditorEwondoTextLabel => 'Texte en ewondo';
+
+  @override
+  String get adminBookEditorFrenchDescriptionLabel =>
+      'Description en français (optionnel)';
+
+  @override
+  String get adminBookEditorFrenchTranslationLabel =>
+      'Traduction française (optionnel)';
+
+  @override
+  String get adminBookEditorIllustrationLabel => 'Illustration';
+
+  @override
+  String get adminBookEditorLevelLabel => 'Niveau';
+
+  @override
+  String get adminBookEditorNoFileUploadedMessage =>
+      'Aucun fichier téléversé pour le moment.';
+
+  @override
+  String get adminBookEditorNoPagesMessage =>
+      'Aucune page pour le moment. Ajoutez la première ci-dessous.';
+
+  @override
+  String adminBookEditorPageNumberLabel(int number) {
+    return 'Page $number';
+  }
+
+  @override
+  String get adminBookEditorReadingTimeLabel => 'Temps de lecture (min)';
+
+  @override
+  String get adminBookEditorRecommendedAgeLabel =>
+      'Âge recommandé (années min.)';
+
+  @override
+  String get adminBookEditorReorderPagesError =>
+      'Impossible de réorganiser les pages.';
+
+  @override
+  String get adminBookEditorReplaceAudioLabel => 'Remplacer l\'audio';
+
+  @override
+  String get adminBookEditorReplaceFileLabel => 'Remplacer le fichier';
+
+  @override
+  String get adminBookEditorSaveBookError =>
+      'Impossible d\'enregistrer le livre.';
+
+  @override
+  String get adminBookEditorSavePageError =>
+      'Impossible d\'enregistrer la page.';
+
+  @override
+  String get adminBookEditorSavePageLabel => 'Enregistrer la page';
+
+  @override
+  String get adminBookEditorSavingEllipsisLabel => 'Enregistrement…';
+
+  @override
+  String get adminBookEditorTitle => 'Modifier le livre';
+
+  @override
+  String get adminBookEditorTitleFieldLabel => 'Titre';
+
+  @override
+  String get adminBookEditorUploadAudioError =>
+      'Impossible de téléverser l\'audio.';
+
+  @override
+  String get adminBookEditorUploadCoverError =>
+      'Impossible de téléverser l\'image de couverture.';
+
+  @override
+  String get adminBookEditorUploadFileError =>
+      'Impossible de téléverser le fichier.';
+
+  @override
+  String get adminBookEditorUploadFileLabel => 'Téléverser un PDF ou EPUB';
+
+  @override
+  String get adminBookEditorUploadIllustrationError =>
+      'Impossible de téléverser l\'illustration.';
+
+  @override
+  String get adminBookEditorUploadedFileSegmentLabel => 'Fichier téléversé';
+
+  @override
+  String get adminSyllabaryMgmtAnalyzeError =>
+      'Impossible d\'analyser ce contenu.';
+
+  @override
+  String get adminSyllabaryMgmtAnalyzeWithAiLabel => 'Analyser avec l\'IA';
+
+  @override
+  String get adminSyllabaryMgmtAnalyzingMessage =>
+      'Analyse de la photo du tableau…';
+
+  @override
+  String get adminSyllabaryMgmtApproveImportLabel => 'Approuver et importer';
+
+  @override
+  String get adminSyllabaryMgmtChooseFileLabel => 'Choisir un fichier';
+
+  @override
+  String get adminSyllabaryMgmtClearLabel => 'Effacer';
+
+  @override
+  String get adminSyllabaryMgmtClipboardEmptyMessage =>
+      'Rien d\'utilisable trouvé dans le presse-papiers.';
+
+  @override
+  String get adminSyllabaryMgmtContentPreviewTitle => 'Aperçu du contenu';
+
+  @override
+  String get adminSyllabaryMgmtDeleteEntryError =>
+      'Impossible de supprimer l\'entrée.';
+
+  @override
+  String adminSyllabaryMgmtDeleteLetterDialogContent(int count, String letter) {
+    return 'Supprimer les $count ligne(s) pour « $letter » ?';
+  }
+
+  @override
+  String adminSyllabaryMgmtDeleteLetterDialogTitle(String letter) {
+    return 'Supprimer « $letter »';
+  }
+
+  @override
+  String get adminSyllabaryMgmtDeleteLetterError =>
+      'Impossible de supprimer la lettre.';
+
+  @override
+  String adminSyllabaryMgmtDeleteLetterTooltip(String letter) {
+    return 'Supprimer toutes les lignes pour « $letter »';
+  }
+
+  @override
+  String adminSyllabaryMgmtDimensionsLabel(int width, int height) {
+    return 'Dimensions : $width × $height';
+  }
+
+  @override
+  String get adminSyllabaryMgmtDropZoneText =>
+      'Collez une image, un tableau ou du texte ici\nou déposez un fichier';
+
+  @override
+  String get adminSyllabaryMgmtEmptyStateMessage =>
+      'Aucun contenu du syllabaire pour le moment. Appuyez sur « Importer un tableau » ci-dessous — collez, déposez ou choisissez une photo, un PDF, un fichier Word, Excel ou texte d\'un tableau, et l\'IA l\'extraira pour que vous le vérifiiez avant l\'enregistrement.';
+
+  @override
+  String get adminSyllabaryMgmtEnglishTranslationLabel =>
+      'Traduction anglaise (optionnel)';
+
+  @override
+  String get adminSyllabaryMgmtExampleSentenceLabel => 'Phrase d\'exemple';
+
+  @override
+  String get adminSyllabaryMgmtExampleWordLabel => 'Mot d\'exemple';
+
+  @override
+  String get adminSyllabaryMgmtExtractionNotesLabel =>
+      'Notes d\'extraction de l\'IA';
+
+  @override
+  String get adminSyllabaryMgmtFrenchTranslationLabel => 'Traduction française';
+
+  @override
+  String adminSyllabaryMgmtImportedMessage(int count) {
+    return '$count ligne(s) importée(s).';
+  }
+
+  @override
+  String adminSyllabaryMgmtImportedWithFailuresMessage(
+    int succeeded,
+    int failed,
+    String errorSuffix,
+  ) {
+    return '$succeeded ligne(s) importée(s), $failed échouée(s)$errorSuffix.';
+  }
+
+  @override
+  String adminSyllabaryMgmtLetterDeletedMessage(String letter) {
+    return '« $letter » supprimée.';
+  }
+
+  @override
+  String get adminSyllabaryMgmtLetterFieldHint =>
+      'ex. L (vide = voyelle seule)';
+
+  @override
+  String get adminSyllabaryMgmtLetterFieldLabel => 'Lettre';
+
+  @override
+  String adminSyllabaryMgmtLettersDetectedMessage(int count) {
+    return '$count lettres détectées — vérifiez chacune ci-dessous.';
+  }
+
+  @override
+  String adminSyllabaryMgmtLettersSummary(int letterCount, int rowCount) {
+    return '$letterCount lettre(s), $rowCount ligne(s) au total';
+  }
+
+  @override
+  String get adminSyllabaryMgmtLettersTitle => 'Lettres';
+
+  @override
+  String get adminSyllabaryMgmtListTitle => 'Gestion du syllabaire';
+
+  @override
+  String get adminSyllabaryMgmtNoChartsDetectedMessage =>
+      'Aucun tableau du syllabaire n\'a été détecté. Essayez de relancer l\'analyse avec une photo ou un document plus net, ou revenez en arrière pour en importer un autre.';
+
+  @override
+  String get adminSyllabaryMgmtNoRowsDetectedMessage =>
+      'Aucune ligne détectée — consultez les notes sur l\'écran de vérification.';
+
+  @override
+  String get adminSyllabaryMgmtNoRowsForLetterMessage =>
+      'Aucune ligne détectée pour cette lettre.';
+
+  @override
+  String get adminSyllabaryMgmtNoneDetectedLabel => 'Aucune détectée';
+
+  @override
+  String get adminSyllabaryMgmtPasteFromClipboardLabel =>
+      'Coller depuis le presse-papiers';
+
+  @override
+  String get adminSyllabaryMgmtPastedTextLabel => 'Texte collé';
+
+  @override
+  String get adminSyllabaryMgmtReanalyzeAction => 'Réanalyser';
+
+  @override
+  String get adminSyllabaryMgmtReanalyzeDialogContent =>
+      'Cela remplace le brouillon actuel, y compris toutes les modifications que vous avez apportées.';
+
+  @override
+  String get adminSyllabaryMgmtReanalyzeDialogTitle => 'Réanalyser ?';
+
+  @override
+  String get adminSyllabaryMgmtRemoveLetterTooltip =>
+      'Supprimer cette lettre et ses lignes';
+
+  @override
+  String get adminSyllabaryMgmtRemoveRowTooltip => 'Supprimer cette ligne';
+
+  @override
+  String get adminSyllabaryMgmtReviewTitle => 'Vérifier le tableau';
+
+  @override
+  String adminSyllabaryMgmtRowCountLabel(int count) {
+    return '$count ligne(s)';
+  }
+
+  @override
+  String adminSyllabaryMgmtRowNumberLabel(int number) {
+    return 'Ligne $number';
+  }
+
+  @override
+  String adminSyllabaryMgmtSizeLabel(String size) {
+    return 'Taille : $size';
+  }
+
+  @override
+  String get adminSyllabaryMgmtStep1Subtitle =>
+      'Une photo, un tableau ou du texte — choisissez ce qui est le plus simple.';
+
+  @override
+  String get adminSyllabaryMgmtStep1Title => '1. Coller ou importer du contenu';
+
+  @override
+  String get adminSyllabaryMgmtSupportedFormatsText =>
+      'Formats pris en charge : PNG, JPG, PDF, Word, Excel, TXT';
+
+  @override
+  String adminSyllabaryMgmtSyllableCountLabel(int count) {
+    return '$count syllabe(s)';
+  }
+
+  @override
+  String get adminSyllabaryMgmtSyllableLabel => 'Syllabe';
+
+  @override
+  String adminSyllabaryMgmtTypeLabel(String type) {
+    return 'Type : $type';
+  }
+
+  @override
+  String get adminSyllabaryMgmtUnknownServerError => 'Erreur serveur inconnue.';
+
+  @override
+  String get adminSyllabaryMgmtUploadChartLabel => 'Importer un tableau';
+
+  @override
+  String get adminSyllabaryMgmtVowelLabel => 'Voyelle';
+
+  @override
   String get appTitle => 'NdaMinkoaba';
 
   @override
@@ -816,7 +2766,13 @@ class AppLocalizationsFr extends AppLocalizations {
   String get logOutButton => 'Déconnexion';
 
   @override
-  String get switchLanguageTitle => 'Changer de langue';
+  String get switchLanguageTitle => 'Langue d\'apprentissage';
+
+  @override
+  String get appLanguageTitle => 'Langue de l\'application';
+
+  @override
+  String get bookReaderTextSizeTooltip => 'Taille du texte';
 
   @override
   String get uploadPhotoTooltip => 'Téléverser une photo';

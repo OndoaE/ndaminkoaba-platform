@@ -8,6 +8,7 @@ class AdminBook {
   final String title;
   final String? author;
   final String? description;
+  final String? frenchDescription;
   final String? coverUrl;
   final String? fileUrl;
   final String? fileType;
@@ -25,6 +26,7 @@ class AdminBook {
     required this.title,
     this.author,
     this.description,
+    this.frenchDescription,
     this.coverUrl,
     this.fileUrl,
     this.fileType,
@@ -44,6 +46,7 @@ class AdminBook {
       title: json['title'] ?? '',
       author: json['author'],
       description: json['description'],
+      frenchDescription: json['frenchDescription'],
       coverUrl: json['coverUrl'],
       fileUrl: json['fileUrl'],
       fileType: json['fileType'],
@@ -69,6 +72,7 @@ class AdminBookPage {
     required this.orderNumber,
     this.illustrationUrl,
     required this.ewondoText,
+    this.englishText,
     this.frenchText,
     this.audioUrl,
   });
@@ -78,6 +82,7 @@ class AdminBookPage {
   int orderNumber;
   String? illustrationUrl;
   String ewondoText;
+  String? englishText;
   String? frenchText;
   String? audioUrl;
 
@@ -88,6 +93,7 @@ class AdminBookPage {
       orderNumber: (json['orderNumber'] as num?)?.toInt() ?? 0,
       illustrationUrl: json['illustrationUrl'],
       ewondoText: json['ewondoText'] ?? '',
+      englishText: json['englishText'],
       frenchText: json['frenchText'],
       audioUrl: json['audioUrl'],
     );

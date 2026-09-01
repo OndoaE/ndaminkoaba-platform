@@ -18,6 +18,10 @@ export class CreateBookPageDto {
 
   @IsOptional()
   @IsString()
+  englishText?: string;
+
+  @IsOptional()
+  @IsString()
   frenchText?: string;
 
   @IsOptional()

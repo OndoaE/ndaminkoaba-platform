@@ -2,6 +2,7 @@ class Certificate {
   final String id;
   final String certificateCode;
   final String courseTitle;
+  final String? frenchCourseTitle;
   final String courseId;
   final String level;
   final DateTime issuedAt;
@@ -11,6 +12,7 @@ class Certificate {
     required this.id,
     required this.certificateCode,
     required this.courseTitle,
+    this.frenchCourseTitle,
     required this.courseId,
     required this.level,
     required this.issuedAt,
@@ -24,6 +26,7 @@ class Certificate {
       id: json['id'] ?? '',
       certificateCode: json['certificateCode'] ?? '',
       courseTitle: course?['title'] ?? '',
+      frenchCourseTitle: course?['frenchTitle'],
       courseId: json['courseId'] ?? course?['id'] ?? '',
       level: (course?['level'] ?? '').toString(),
       issuedAt: DateTime.tryParse(json['issuedAt'] ?? '') ?? DateTime.now(),

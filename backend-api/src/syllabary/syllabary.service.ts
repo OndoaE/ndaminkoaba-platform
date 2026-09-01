@@ -76,7 +76,8 @@ export class SyllabaryService {
       and.push({
         OR: [
           { exampleWord: { contains: search, mode: Prisma.QueryMode.insensitive } },
-          { translation: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { englishTranslation: { contains: search, mode: Prisma.QueryMode.insensitive } },
+          { frenchTranslation: { contains: search, mode: Prisma.QueryMode.insensitive } },
           { syllable: { contains: search, mode: Prisma.QueryMode.insensitive } },
         ],
       });

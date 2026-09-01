@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/language/learning_language_provider.dart';
+import '../../../core/locale/locale_provider.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
@@ -67,8 +68,20 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
     }
   }
 
+  /// Prefers the translation matching the UI locale, falling back to the
+  /// other language when the preferred one hasn't been authored yet
+  /// (many existing rows only have a French translation from AI
+  /// extraction; English is filled in later by an admin, if at all) —
+  /// showing something beats showing nothing.
+  String? _translationFor(SyllabaryEntry row, bool isFrench) {
+    final preferred = isFrench ? row.frenchTranslation : row.englishTranslation;
+    final fallback = isFrench ? row.englishTranslation : row.frenchTranslation;
+    return (preferred != null && preferred.isNotEmpty) ? preferred : fallback;
+  }
+
   @override
   Widget build(BuildContext context) {
+    final isFrench = ref.watch(localeProvider).languageCode == 'fr';
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: GradientAppBar(title: '"${widget.letter}"'),
@@ -94,7 +107,9 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
                       ),
                       const SizedBox(height: AppSpacing.xl),
                       ...rows.map(
-                        (row) => Padding(
+                        (row) {
+                          final translation = _translationFor(row, isFrench);
+                          return Padding(
                           padding: const EdgeInsets.only(bottom: AppSpacing.md),
                           child: PremiumCard(
                             child: Row(
@@ -118,11 +133,11 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
                                     children: [
                                       if (row.exampleWord != null)
                                         Text(row.exampleWord!, style: AppTypography.title),
-                                      if (row.translation != null)
+                                      if (translation != null)
                                         Padding(
                                           padding: const EdgeInsets.only(top: 2),
                                           child: Text(
-                                            row.translation!,
+                                            translation,
                                             style: AppTypography.caption,
                                           ),
                                         ),
@@ -142,7 +157,8 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
                               ],
                             ),
                           ),
-                        ),
+                        );
+                        },
                       ),
                     ],
                   ),

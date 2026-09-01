@@ -19,7 +19,11 @@ export class CreateSyllabaryEntryDto {
 
   @IsOptional()
   @IsString()
-  translation?: string;
+  englishTranslation?: string;
+
+  @IsOptional()
+  @IsString()
+  frenchTranslation?: string;
 
   @IsOptional()
   @IsString()

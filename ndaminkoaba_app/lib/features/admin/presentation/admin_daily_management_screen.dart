@@ -9,6 +9,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/knowledge_repository.dart';
 import '../domain/knowledge_models.dart';
 
@@ -127,10 +128,12 @@ class _AdminDailyManagementScreenState
       // added word out of view — see the same fix on the Vocabulary screen.
       searchController.clear();
       load();
-      _showMessage('Daily word added.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminDailyMgmtDailyWordAdded);
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not add daily word.'),
+        extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotAddDailyWord),
       );
     }
   }
@@ -151,10 +154,12 @@ class _AdminDailyManagementScreenState
         usageHint: result.usageHint,
       );
       load();
-      _showMessage('Daily word updated.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminDailyMgmtDailyWordUpdated);
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not update daily word.'),
+        extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotUpdateDailyWord),
       );
     }
   }
@@ -164,8 +169,9 @@ class _AdminDailyManagementScreenState
       await repository.deleteDailyWord(word.id);
       load();
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not delete daily word.'),
+        extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotDeleteDailyWord),
       );
     }
   }
@@ -201,10 +207,12 @@ class _AdminDailyManagementScreenState
       // added verse out of view — see the same fix on the Vocabulary screen.
       searchController.clear();
       load();
-      _showMessage('Daily verse added.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminDailyMgmtDailyVerseAdded);
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not add daily verse.'),
+        extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotAddDailyVerse),
       );
     }
   }
@@ -225,10 +233,12 @@ class _AdminDailyManagementScreenState
         reference: result.reference,
       );
       load();
-      _showMessage('Daily verse updated.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminDailyMgmtDailyVerseUpdated);
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not update daily verse.'),
+        extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotUpdateDailyVerse),
       );
     }
   }
@@ -238,35 +248,36 @@ class _AdminDailyManagementScreenState
       await repository.deleteDailyVerse(verse.id);
       load();
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not delete daily verse.'),
+        extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotDeleteDailyVerse),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.languageName ?? 'Language';
+    final l10n = AppLocalizations.of(context);
+    final title = widget.languageName ?? l10n.adminDailyMgmtLanguageFallback;
     return AdminShell(
       activeNavKey: 'daily',
       languageId: widget.languageId,
       languageName: title,
-      title: 'Phrase & Verse of the Day',
-      subtitle: 'Rotating daily word/verse pools for $title',
+      title: l10n.adminDailyMgmtTitle,
+      subtitle: l10n.adminDailyMgmtSubtitle(title),
       actions: [
         FilledButton.icon(
           style: FilledButton.styleFrom(backgroundColor: _dailyAccent),
           onPressed: isWordsMode ? addWord : addVerse,
           icon: const Icon(Icons.add, size: 18),
-          label: Text(isWordsMode ? 'Add Daily Word' : 'Add Daily Verse'),
+          label: Text(isWordsMode ? l10n.adminDailyMgmtAddDailyWordAction : l10n.adminDailyMgmtAddDailyVerseAction),
         ),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'A different entry from each pool is shown automatically every day on '
-            'the learner dashboard — no need to pick "today\'s" item by hand.',
+            l10n.adminDailyMgmtDescription,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -274,7 +285,7 @@ class _AdminDailyManagementScreenState
             spacing: AppSpacing.sm,
             children: [
               ChoiceChip(
-                label: const Text('Daily Words'),
+                label: Text(l10n.adminDailyMgmtDailyWordsChip),
                 selected: isWordsMode,
                 onSelected: (_) => setState(() => isWordsMode = true),
                 selectedColor: _dailyAccent,
@@ -283,7 +294,7 @@ class _AdminDailyManagementScreenState
                 ),
               ),
               ChoiceChip(
-                label: const Text('Daily Verses'),
+                label: Text(l10n.adminDailyMgmtDailyVersesChip),
                 selected: !isWordsMode,
                 onSelected: (_) => setState(() => isWordsMode = false),
                 selectedColor: _dailyAccent,
@@ -299,8 +310,8 @@ class _AdminDailyManagementScreenState
             onChanged: (_) => setState(() {}),
             decoration: InputDecoration(
               hintText: isWordsMode
-                  ? 'Search Ewondo words...'
-                  : 'Search verses or reference...',
+                  ? l10n.adminDailyMgmtSearchWordsHint
+                  : l10n.adminDailyMgmtSearchVersesHint,
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: AppColors.surface,
@@ -323,13 +334,14 @@ class _AdminDailyManagementScreenState
   }
 
   Widget _buildWordsList() {
+    final l10n = AppLocalizations.of(context);
     final visible = _visibleWords;
     if (visible.isEmpty) {
       return EmptyState(
         icon: Icons.auto_awesome,
         iconColor: _dailyAccent,
-        title: 'No daily words yet',
-        message: 'Add Ewondo words to rotate through on the learner dashboard.',
+        title: l10n.adminDailyMgmtNoDailyWordsTitle,
+        message: l10n.adminDailyMgmtNoDailyWordsMessage,
       );
     }
 
@@ -381,13 +393,13 @@ class _AdminDailyManagementScreenState
                         deleteWord(word);
                       }
                     },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(value: 'edit', child: Text(l10n.adminDailyMgmtEditAction)),
                       PopupMenuItem(
                         value: 'delete',
                         child: Text(
-                          'Delete',
-                          style: TextStyle(color: AppColors.error),
+                          l10n.adminDailyMgmtDeleteAction,
+                          style: const TextStyle(color: AppColors.error),
                         ),
                       ),
                     ],
@@ -402,14 +414,14 @@ class _AdminDailyManagementScreenState
   }
 
   Widget _buildVersesList() {
+    final l10n = AppLocalizations.of(context);
     final visible = _visibleVerses;
     if (visible.isEmpty) {
       return EmptyState(
         icon: Icons.auto_stories,
         iconColor: _dailyAccent,
-        title: 'No daily verses yet',
-        message:
-            'Add Ewondo Bible verses to rotate through on the learner dashboard.',
+        title: l10n.adminDailyMgmtNoDailyVersesTitle,
+        message: l10n.adminDailyMgmtNoDailyVersesMessage,
       );
     }
 
@@ -466,13 +478,13 @@ class _AdminDailyManagementScreenState
                         deleteVerse(verse);
                       }
                     },
-                    itemBuilder: (context) => const [
-                      PopupMenuItem(value: 'edit', child: Text('Edit')),
+                    itemBuilder: (context) => [
+                      PopupMenuItem(value: 'edit', child: Text(l10n.adminDailyMgmtEditAction)),
                       PopupMenuItem(
                         value: 'delete',
                         child: Text(
-                          'Delete',
-                          style: TextStyle(color: AppColors.error),
+                          l10n.adminDailyMgmtDeleteAction,
+                          style: const TextStyle(color: AppColors.error),
                         ),
                       ),
                     ],
@@ -553,9 +565,10 @@ class _DailyWordFormDialogState extends State<DailyWordFormDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.initial != null;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Daily Word' : 'Add Daily Word'),
+      title: Text(isEditing ? l10n.adminDailyMgmtEditDailyWordTitle : l10n.adminDailyMgmtAddDailyWordTitle),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: SingleChildScrollView(
@@ -565,25 +578,25 @@ class _DailyWordFormDialogState extends State<DailyWordFormDialog> {
             children: [
               TextField(
                 controller: ewondoController,
-                decoration: const InputDecoration(labelText: 'Ewondo word'),
+                decoration: InputDecoration(labelText: l10n.adminDailyMgmtEwondoWordLabel),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: englishController,
-                decoration: const InputDecoration(labelText: 'English meaning'),
+                decoration: InputDecoration(labelText: l10n.adminDailyMgmtEnglishMeaningLabel),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: frenchController,
-                decoration: const InputDecoration(labelText: 'French meaning'),
+                decoration: InputDecoration(labelText: l10n.adminDailyMgmtFrenchMeaningLabel),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: usageController,
                 maxLines: 3,
                 minLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'Usage hint (optional)',
+                decoration: InputDecoration(
+                  labelText: l10n.adminDailyMgmtUsageHintLabel,
                 ),
               ),
             ],
@@ -593,7 +606,7 @@ class _DailyWordFormDialogState extends State<DailyWordFormDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.adminDailyMgmtCancel),
         ),
         FilledButton(
           onPressed: () {
@@ -608,7 +621,7 @@ class _DailyWordFormDialogState extends State<DailyWordFormDialog> {
               ),
             );
           },
-          child: Text(isEditing ? 'Save' : 'Add'),
+          child: Text(isEditing ? l10n.adminDailyMgmtSave : l10n.adminDailyMgmtAdd),
         ),
       ],
     );
@@ -681,9 +694,10 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.initial != null;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Daily Verse' : 'Add Daily Verse'),
+      title: Text(isEditing ? l10n.adminDailyMgmtEditDailyVerseTitle : l10n.adminDailyMgmtAddDailyVerseTitle),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: SingleChildScrollView(
@@ -693,8 +707,8 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
             children: [
               TextField(
                 controller: referenceController,
-                decoration: const InputDecoration(
-                  labelText: 'Reference (e.g. Yoannes 3:16)',
+                decoration: InputDecoration(
+                  labelText: l10n.adminDailyMgmtReferenceLabel,
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -702,15 +716,15 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
                 controller: ewondoController,
                 maxLines: 4,
                 minLines: 2,
-                decoration: const InputDecoration(labelText: 'Ewondo text'),
+                decoration: InputDecoration(labelText: l10n.adminDailyMgmtEwondoTextLabel),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: englishController,
                 maxLines: 4,
                 minLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'English translation',
+                decoration: InputDecoration(
+                  labelText: l10n.adminDailyMgmtEnglishTranslationLabel,
                 ),
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -718,8 +732,8 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
                 controller: frenchController,
                 maxLines: 4,
                 minLines: 2,
-                decoration: const InputDecoration(
-                  labelText: 'French translation',
+                decoration: InputDecoration(
+                  labelText: l10n.adminDailyMgmtFrenchTranslationLabel,
                 ),
               ),
             ],
@@ -729,7 +743,7 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.adminDailyMgmtCancel),
         ),
         FilledButton(
           onPressed: () {
@@ -746,7 +760,7 @@ class _DailyVerseFormDialogState extends State<DailyVerseFormDialog> {
               ),
             );
           },
-          child: Text(isEditing ? 'Save' : 'Add'),
+          child: Text(isEditing ? l10n.adminDailyMgmtSave : l10n.adminDailyMgmtAdd),
         ),
       ],
     );
@@ -800,8 +814,9 @@ class _VocabularyPickerDialogState extends State<_VocabularyPickerDialog> {
         isLoading = false;
       });
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       setState(() {
-        error = extractErrorMessage(e, fallback: 'Could not load vocabulary.');
+        error = extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotLoadVocabulary);
         isLoading = false;
       });
     }
@@ -809,8 +824,9 @@ class _VocabularyPickerDialogState extends State<_VocabularyPickerDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('Pick a Vocabulary word'),
+      title: Text(l10n.adminDailyMgmtPickVocabularyWordTitle),
       content: SizedBox(
         width: 420,
         height: 480,
@@ -819,9 +835,9 @@ class _VocabularyPickerDialogState extends State<_VocabularyPickerDialog> {
           children: [
             TextField(
               controller: searchController,
-              decoration: const InputDecoration(
-                labelText: 'Search',
-                prefixIcon: Icon(Icons.search),
+              decoration: InputDecoration(
+                labelText: l10n.adminDailyMgmtSearchLabel,
+                prefixIcon: const Icon(Icons.search),
               ),
               onSubmitted: (_) => load(),
             ),
@@ -832,14 +848,14 @@ class _VocabularyPickerDialogState extends State<_VocabularyPickerDialog> {
                   : error != null
                   ? EmptyState(
                       icon: Icons.error_outline,
-                      title: 'Something went wrong',
+                      title: l10n.adminDailyMgmtSomethingWentWrong,
                       message: error,
                     )
                   : words.isEmpty
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.menu_book_outlined,
-                      title: 'No vocabulary yet',
-                      message: 'Add words in Vocabulary Management first.',
+                      title: l10n.adminDailyMgmtNoVocabularyYetTitle,
+                      message: l10n.adminDailyMgmtNoVocabularyYetMessage,
                     )
                   : ListView.separated(
                       itemCount: words.length,
@@ -871,7 +887,7 @@ class _VocabularyPickerDialogState extends State<_VocabularyPickerDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.adminDailyMgmtCancel),
         ),
       ],
     );
@@ -920,10 +936,11 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
         isLoading = false;
       });
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       setState(() {
         error = extractErrorMessage(
           e,
-          fallback: 'Could not load Bible chapters.',
+          fallback: l10n.adminDailyMgmtCouldNotLoadBibleChapters,
         );
         isLoading = false;
       });
@@ -947,8 +964,9 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
         isLoading = false;
       });
     } on DioException catch (e) {
+      final l10n = AppLocalizations.of(context);
       setState(() {
-        error = extractErrorMessage(e, fallback: 'Could not load verses.');
+        error = extractErrorMessage(e, fallback: l10n.adminDailyMgmtCouldNotLoadVerses);
         isLoading = false;
       });
     }
@@ -965,10 +983,11 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
   @override
   Widget build(BuildContext context) {
     final chapter = selectedChapter;
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
       title: Text(
         chapter == null
-            ? 'Pick a chapter'
+            ? l10n.adminDailyMgmtPickChapterTitle
             : '${chapter.book} ${chapter.chapter}',
       ),
       content: SizedBox(
@@ -979,15 +998,15 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
             : error != null
             ? EmptyState(
                 icon: Icons.error_outline,
-                title: 'Something went wrong',
+                title: l10n.adminDailyMgmtSomethingWentWrong,
                 message: error,
               )
             : chapter == null
             ? (chapters.isEmpty
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.menu_book_outlined,
-                      title: 'No Bible content yet',
-                      message: 'Add chapters in Bible Management first.',
+                      title: l10n.adminDailyMgmtNoBibleContentYetTitle,
+                      message: l10n.adminDailyMgmtNoBibleContentYetMessage,
                     )
                   : ListView.separated(
                       itemCount: chapters.length,
@@ -1001,17 +1020,17 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
                               fontWeight: FontWeight.w700,
                             ),
                           ),
-                          subtitle: Text('${c.verseCount} verses'),
+                          subtitle: Text(l10n.adminDailyMgmtVerseCount(c.verseCount)),
                           trailing: const Icon(Icons.chevron_right),
                           onTap: () => selectChapter(c),
                         );
                       },
                     ))
             : (verses.isEmpty
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.menu_book_outlined,
-                      title: 'No verses yet',
-                      message: 'This chapter has no verses.',
+                      title: l10n.adminDailyMgmtNoVersesYetTitle,
+                      message: l10n.adminDailyMgmtNoVersesYetMessage,
                     )
                   : ListView.separated(
                       itemCount: verses.length,
@@ -1020,7 +1039,7 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
                         final verse = verses[index];
                         return ListTile(
                           title: Text(
-                            'Verse ${verse.verse}',
+                            l10n.adminDailyMgmtVerseNumber(verse.verse),
                             style: AppTypography.body.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
@@ -1037,10 +1056,10 @@ class _BibleVersePickerDialogState extends State<_BibleVersePickerDialog> {
       ),
       actions: [
         if (chapter != null)
-          TextButton(onPressed: backToChapters, child: const Text('Back')),
+          TextButton(onPressed: backToChapters, child: Text(l10n.adminDailyMgmtBackAction)),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.adminDailyMgmtCancel),
         ),
       ],
     );

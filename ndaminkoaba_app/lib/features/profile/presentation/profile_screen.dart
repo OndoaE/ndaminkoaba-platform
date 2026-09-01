@@ -390,6 +390,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                           const Divider(height: 1, color: AppColors.divider),
                           _MenuRow(
+                            icon: Icons.g_translate,
+                            label: l10n.appLanguageTitle,
+                            onTap: () => context.push('/app-language'),
+                          ),
+                          const Divider(height: 1, color: AppColors.divider),
+                          _MenuRow(
                             icon: Icons.edit_outlined,
                             label: l10n.editProfileTitle,
                             onTap: () => setState(() => isEditing = !isEditing),

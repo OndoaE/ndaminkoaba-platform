@@ -11,6 +11,7 @@ import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/lesson_content_preview.dart';
 import '../../../design_system/widgets/markdown_formatting_toolbar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/content_repository.dart';
 import '../domain/management_models.dart';
 import 'widgets/move_lesson_dialog.dart';
@@ -128,6 +129,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
   }
 
   Future<void> editLesson(ManagedLesson lesson) async {
+    final l10n = AppLocalizations.of(context);
     final titleController = TextEditingController(text: lesson.title);
     final summaryController = TextEditingController(text: lesson.summary);
     final contentController = SmartListTextEditingController(text: lesson.content);
@@ -141,20 +143,20 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text('Edit "${lesson.title}"'),
+          title: Text(l10n.adminEditLessonTitle(lesson.title)),
           content: SingleChildScrollView(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+                TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.adminFieldTitle)),
                 const SizedBox(height: AppSpacing.md),
-                TextField(controller: summaryController, decoration: const InputDecoration(labelText: 'Summary')),
+                TextField(controller: summaryController, decoration: InputDecoration(labelText: l10n.adminFieldSummary)),
                 const SizedBox(height: AppSpacing.md),
                 const MarkdownHint(),
                 TextField(
                   controller: contentController,
                   maxLines: 5,
-                  decoration: const InputDecoration(labelText: 'Content'),
+                  decoration: InputDecoration(labelText: l10n.adminFieldContent),
                   onChanged: (_) => setDialogState(() {}),
                   contextMenuBuilder: markdownFormattingContextMenuBuilder(contentController),
                 ),
@@ -163,19 +165,19 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                 const SizedBox(height: AppSpacing.md),
                 TextField(
                   controller: frenchTitleController,
-                  decoration: const InputDecoration(labelText: 'French Title (optional)'),
+                  decoration: InputDecoration(labelText: l10n.adminFrenchTitleOptionalLabel),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 TextField(
                   controller: frenchSummaryController,
-                  decoration: const InputDecoration(labelText: 'French Summary (optional)'),
+                  decoration: InputDecoration(labelText: l10n.adminLessonMgmtFrenchSummaryOptionalLabel),
                 ),
                 const SizedBox(height: AppSpacing.md),
                 const MarkdownHint(),
                 TextField(
                   controller: frenchContentController,
                   maxLines: 5,
-                  decoration: const InputDecoration(labelText: 'French Content (optional)'),
+                  decoration: InputDecoration(labelText: l10n.adminLessonMgmtFrenchContentOptionalLabel),
                   onChanged: (_) => setDialogState(() {}),
                   contextMenuBuilder: markdownFormattingContextMenuBuilder(frenchContentController),
                 ),
@@ -183,24 +185,24 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                 LessonContentPreview(text: frenchContentController.text),
                 const SizedBox(height: AppSpacing.md),
                 Text(
-                  'In Conversation (optional) — one line per turn: "Speaker: Text || French text"',
+                  l10n.adminLessonMgmtConversationHelpText,
                   style: AppTypography.caption,
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 TextField(
                   controller: conversationController,
                   maxLines: 4,
-                  decoration: const InputDecoration(
-                    labelText: 'Conversation',
-                    hintText: 'Amina: Mbolo, wa nga zu na? || Bonjour, comment vas-tu ?',
+                  decoration: InputDecoration(
+                    labelText: l10n.adminLessonMgmtConversationLabel,
+                    hintText: l10n.adminLessonMgmtConversationHint,
                   ),
                 ),
               ],
             ),
           ),
           actions: [
-            TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-            FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.commonCancel)),
+            FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.commonSave)),
           ],
         ),
       ),
@@ -208,7 +210,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
     if (confirmed != true) return;
 
     if (contentController.text.trim().length < 10) {
-      _showMessage('Lesson content must be at least 10 characters.');
+      _showMessage(l10n.adminLessonContentMinLengthError);
       return;
     }
 
@@ -224,13 +226,14 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
         conversationJson: linesToConversation(conversationController.text),
       );
       load();
-      _showMessage('Lesson updated.');
+      _showMessage(l10n.adminLessonMgmtUpdatedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update lesson.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminCouldNotUpdateLesson));
     }
   }
 
   Future<void> moveLesson(ManagedLesson lesson) async {
+    final l10n = AppLocalizations.of(context);
     final result = await showMoveLessonDialog(
       context: context,
       modules: modules,
@@ -245,9 +248,9 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
         orderNumber: result.orderNumber,
       );
       load();
-      _showMessage('Lesson moved.');
+      _showMessage(l10n.adminLessonMgmtMovedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not move lesson.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminCouldNotMoveLesson));
     }
   }
 
@@ -256,6 +259,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
         ..sort((a, b) => a.orderNumber.compareTo(b.orderNumber));
 
   Future<void> reorderLesson(ManagedLesson lesson) async {
+    final l10n = AppLocalizations.of(context);
     final siblings = _siblings(lesson);
     final currentIndex = siblings.indexWhere((l) => l.id == lesson.id);
 
@@ -279,28 +283,29 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
         await contentRepository.updateLesson(entry.key, orderNumber: entry.value);
       }
       load();
-      _showMessage('Lesson reordered.');
+      _showMessage(l10n.adminLessonMgmtReorderedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not reorder lesson.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminCouldNotReorderLesson));
     }
   }
 
   Future<void> deleteLesson(ManagedLesson lesson) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Lesson'),
+        title: Text(l10n.adminLessonMgmtDeleteLessonTitle),
         content: Text(
           lesson.hasQuiz
-              ? 'Delete "${lesson.title}"? Its quiz must be deleted first (from Quiz Management).'
-              : 'Delete "${lesson.title}"?',
+              ? l10n.adminLessonMgmtDeleteConfirmWithQuiz(lesson.title)
+              : l10n.adminLessonMgmtDeleteConfirm(lesson.title),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.commonCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.commonDelete),
           ),
         ],
       ),
@@ -310,21 +315,22 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
     try {
       await contentRepository.deleteLesson(lesson.id);
       load();
-      _showMessage('Lesson deleted.');
+      _showMessage(l10n.adminLessonMgmtDeletedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete lesson.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminCouldNotDeleteLesson));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'Lesson Management', colors: [Color(0xFF3D6BE0), AppColors.primary]),
+      appBar: GradientAppBar(title: l10n.adminLessonMgmtAppBarTitle, colors: const [Color(0xFF3D6BE0), AppColors.primary]),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF3D6BE0),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('New Lesson', style: TextStyle(color: Colors.white)),
+        label: Text(l10n.adminQuickActionNewLesson, style: const TextStyle(color: Colors.white)),
         onPressed: () async {
           await context.push(
             '/admin/languages/${widget.languageId}/lessons/new',
@@ -343,7 +349,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                 controller: searchController,
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  hintText: 'Search lessons...',
+                  hintText: l10n.adminLessonMgmtSearchHint,
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   fillColor: AppColors.surface,
@@ -358,7 +364,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                     scrollDirection: Axis.horizontal,
                     children: [
                       _FilterChip(
-                        label: 'All Courses',
+                        label: l10n.adminLessonMgmtAllCoursesFilter,
                         selected: courseFilter == null,
                         onTap: () => setState(() => courseFilter = null),
                       ),
@@ -380,7 +386,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                 child: isLoading
                     ? const ShimmerListLoader()
                     : _visible.isEmpty
-                        ? Center(child: Text('No lessons found.', style: AppTypography.caption))
+                        ? Center(child: Text(l10n.adminLessonMgmtNoLessonsFoundMessage, style: AppTypography.caption))
                         : ListView.separated(
                             padding: const EdgeInsets.only(bottom: 80),
                             itemCount: _visible.length,
@@ -413,7 +419,7 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
                                             Text(
-                                              'Lesson ${lesson.orderNumber}: ${lesson.title}',
+                                              l10n.adminLessonMgmtLessonRowTitle(lesson.orderNumber, lesson.title),
                                               style: AppTypography.title,
                                             ),
                                             Text(
@@ -448,15 +454,15 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                                               deleteLesson(lesson);
                                           }
                                         },
-                                        itemBuilder: (context) => const [
-                                          PopupMenuItem(value: 'edit', child: Text('Edit')),
-                                          PopupMenuItem(value: 'move', child: Text('Move to another module')),
-                                          PopupMenuItem(value: 'reorder', child: Text('Change position')),
-                                          PopupMenuItem(value: 'images', child: Text('Manage images')),
-                                          PopupMenuDivider(),
+                                        itemBuilder: (context) => [
+                                          PopupMenuItem(value: 'edit', child: Text(l10n.commonEdit)),
+                                          PopupMenuItem(value: 'move', child: Text(l10n.adminMenuMoveToAnotherModule)),
+                                          PopupMenuItem(value: 'reorder', child: Text(l10n.adminMenuChangePosition)),
+                                          PopupMenuItem(value: 'images', child: Text(l10n.adminMenuManageImages)),
+                                          const PopupMenuDivider(),
                                           PopupMenuItem(
                                             value: 'delete',
-                                            child: Text('Delete', style: TextStyle(color: AppColors.error)),
+                                            child: Text(l10n.commonDelete, style: const TextStyle(color: AppColors.error)),
                                           ),
                                         ],
                                       ),

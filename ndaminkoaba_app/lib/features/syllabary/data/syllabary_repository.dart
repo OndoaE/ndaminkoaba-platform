@@ -60,7 +60,8 @@ class SyllabaryRepository {
     required String vowel,
     required String syllable,
     String? exampleWord,
-    String? translation,
+    String? englishTranslation,
+    String? frenchTranslation,
     String? exampleSentence,
     required int orderNumber,
     required String languageId,
@@ -70,7 +71,10 @@ class SyllabaryRepository {
       'vowel': vowel,
       'syllable': syllable,
       if (exampleWord != null && exampleWord.isNotEmpty) 'exampleWord': exampleWord,
-      if (translation != null && translation.isNotEmpty) 'translation': translation,
+      if (englishTranslation != null && englishTranslation.isNotEmpty)
+        'englishTranslation': englishTranslation,
+      if (frenchTranslation != null && frenchTranslation.isNotEmpty)
+        'frenchTranslation': frenchTranslation,
       if (exampleSentence != null && exampleSentence.isNotEmpty)
         'exampleSentence': exampleSentence,
       'orderNumber': orderNumber,
@@ -84,7 +88,8 @@ class SyllabaryRepository {
     required String vowel,
     required String syllable,
     String? exampleWord,
-    String? translation,
+    String? englishTranslation,
+    String? frenchTranslation,
     String? exampleSentence,
     required int orderNumber,
   }) async {
@@ -93,7 +98,8 @@ class SyllabaryRepository {
       'vowel': vowel,
       'syllable': syllable,
       'exampleWord': exampleWord ?? '',
-      'translation': translation ?? '',
+      'englishTranslation': englishTranslation ?? '',
+      'frenchTranslation': frenchTranslation ?? '',
       'exampleSentence': exampleSentence ?? '',
       'orderNumber': orderNumber,
     });

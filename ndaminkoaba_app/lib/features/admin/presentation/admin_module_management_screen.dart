@@ -8,6 +8,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/admin_repository.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_models.dart';
@@ -79,8 +80,9 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
   }
 
   Future<void> addModule() async {
+    final l10n = AppLocalizations.of(context);
     if (courses.isEmpty) {
-      _showMessage('Create a course first.');
+      _showMessage(l10n.adminModuleMgmtCreateCourseFirst);
       return;
     }
 
@@ -102,13 +104,14 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
         orderNumber: orderNumber,
       );
       load();
-      _showMessage('Module created.');
+      _showMessage(l10n.adminModuleMgmtCreatedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not create module.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminModuleMgmtCreateError));
     }
   }
 
   Future<void> editModule(ManagedModule module) async {
+    final l10n = AppLocalizations.of(context);
     final result = await showDialog<_ModuleFormResult>(
       context: context,
       builder: (context) => _ModuleFormDialog(courses: courses, initial: module),
@@ -124,53 +127,58 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
         frenchDescription: result.frenchDescription,
       );
       load();
-      _showMessage('Module updated.');
+      _showMessage(l10n.adminModuleMgmtUpdatedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update module.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminModuleMgmtUpdateError));
     }
   }
 
   Future<void> deleteModule(ManagedModule module) async {
+    final l10n = AppLocalizations.of(context);
     if (module.lessonCount > 0) {
-      _showMessage('Delete this module\'s ${module.lessonCount} lesson(s) first.');
+      _showMessage(l10n.adminModuleMgmtDeleteLessonsFirst(module.lessonCount));
       return;
     }
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Module'),
-        content: Text('Delete "${module.title}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminModuleMgmtDeleteTitle),
+          content: Text(l10n.adminModuleMgmtDeleteBody(module.title)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.adminModuleMgmtCancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.adminModuleMgmtDelete),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true) return;
 
     try {
       await contentRepository.deleteModule(module.id);
       load();
-      _showMessage('Module deleted.');
+      _showMessage(l10n.adminModuleMgmtDeletedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete module.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminModuleMgmtDeleteError));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'Module Management', colors: [Color(0xFF0D7A4C), AppColors.primary]),
+      appBar: GradientAppBar(title: l10n.adminModuleMgmtAppBarTitle, colors: const [Color(0xFF0D7A4C), AppColors.primary]),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF0D7A4C),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('New Module', style: TextStyle(color: Colors.white)),
+        label: Text(l10n.adminModuleMgmtNewModule, style: const TextStyle(color: Colors.white)),
         onPressed: addModule,
       ),
       body: SafeArea(
@@ -183,7 +191,7 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
                 controller: searchController,
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  hintText: 'Search modules...',
+                  hintText: l10n.adminModuleMgmtSearchHint,
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   fillColor: AppColors.surface,
@@ -198,7 +206,7 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
                     scrollDirection: Axis.horizontal,
                     children: [
                       _FilterChip(
-                        label: 'All Courses',
+                        label: l10n.adminModuleMgmtAllCourses,
                         selected: courseFilter == null,
                         onTap: () => setState(() => courseFilter = null),
                       ),
@@ -220,7 +228,7 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
                 child: isLoading
                     ? const ShimmerListLoader()
                     : _visible.isEmpty
-                        ? Center(child: Text('No modules found.', style: AppTypography.caption))
+                        ? Center(child: Text(l10n.adminModuleMgmtNoModulesFound, style: AppTypography.caption))
                         : ListView.separated(
                             padding: const EdgeInsets.only(bottom: 80),
                             itemCount: _visible.length,
@@ -250,7 +258,7 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
                                           children: [
                                             Text(module.title, style: AppTypography.title),
                                             Text(
-                                              '${module.courseTitle} • ${module.lessonCount} lessons',
+                                              l10n.adminModuleMgmtCourseLessonsSummary(module.courseTitle, module.lessonCount),
                                               style: AppTypography.caption,
                                               maxLines: 1,
                                               overflow: TextOverflow.ellipsis,
@@ -345,17 +353,18 @@ class _ModuleFormDialogState extends State<_ModuleFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isEditing = widget.initial != null;
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Module' : 'New Module'),
+      title: Text(isEditing ? l10n.adminModuleMgmtEditTitle : l10n.adminModuleMgmtNewModule),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             if (!isEditing) ...[
-              Text('Course', style: AppTypography.caption),
+              Text(l10n.adminModuleMgmtCourseLabel, style: AppTypography.caption),
               DropdownButton<String>(
                 value: courseId,
                 isExpanded: true,
@@ -364,24 +373,24 @@ class _ModuleFormDialogState extends State<_ModuleFormDialog> {
               ),
               const SizedBox(height: AppSpacing.md),
             ],
-            TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+            TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.adminModuleMgmtTitleLabel)),
             const SizedBox(height: AppSpacing.md),
-            TextField(controller: descriptionController, decoration: const InputDecoration(labelText: 'Description')),
+            TextField(controller: descriptionController, decoration: InputDecoration(labelText: l10n.adminModuleMgmtDescriptionLabel)),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: frenchTitleController,
-              decoration: const InputDecoration(labelText: 'French Title (optional)'),
+              decoration: InputDecoration(labelText: l10n.adminModuleMgmtFrenchTitleLabel),
             ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: frenchDescriptionController,
-              decoration: const InputDecoration(labelText: 'French Description (optional)'),
+              decoration: InputDecoration(labelText: l10n.adminModuleMgmtFrenchDescriptionLabel),
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.adminModuleMgmtCancel)),
         FilledButton(
           onPressed: () {
             if (titleController.text.trim().length < 3) return;
@@ -396,7 +405,7 @@ class _ModuleFormDialogState extends State<_ModuleFormDialog> {
               ),
             );
           },
-          child: Text(isEditing ? 'Save' : 'Create'),
+          child: Text(isEditing ? l10n.adminModuleMgmtSave : l10n.adminModuleMgmtCreate),
         ),
       ],
     );

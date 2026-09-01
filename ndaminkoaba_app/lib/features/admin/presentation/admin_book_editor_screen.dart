@@ -13,12 +13,22 @@ import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/book_repository.dart';
 import '../data/content_repository.dart';
 import '../domain/book_models.dart';
 
 const _bookAccent = [Color(0xFF5D4037), Color(0xFF8D6E63)];
 const _kLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
+
+String _levelLabel(AppLocalizations l10n, String level) {
+  return switch (level) {
+    'BEGINNER' => l10n.adminLevelBeginner,
+    'INTERMEDIATE' => l10n.adminLevelIntermediate,
+    'ADVANCED' => l10n.adminLevelAdvanced,
+    _ => level,
+  };
+}
 
 class AdminBookEditorScreen extends StatefulWidget {
   const AdminBookEditorScreen({super.key, required this.bookId, this.bookTitle});
@@ -42,6 +52,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
   final titleController = TextEditingController();
   final authorController = TextEditingController();
   final descriptionController = TextEditingController();
+  final frenchDescriptionController = TextEditingController();
   final readingTimeController = TextEditingController();
   final recommendedAgeController = TextEditingController();
 
@@ -69,6 +80,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
     titleController.dispose();
     authorController.dispose();
     descriptionController.dispose();
+    frenchDescriptionController.dispose();
     readingTimeController.dispose();
     recommendedAgeController.dispose();
     super.dispose();
@@ -90,6 +102,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
         titleController.text = fetchedBook.title;
         authorController.text = fetchedBook.author ?? '';
         descriptionController.text = fetchedBook.description ?? '';
+        frenchDescriptionController.text = fetchedBook.frenchDescription ?? '';
         readingTimeController.text = fetchedBook.readingTimeMinutes?.toString() ?? '';
         recommendedAgeController.text = fetchedBook.recommendedAge?.toString() ?? '';
         category = fetchedBook.category;
@@ -123,7 +136,9 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
       if (!mounted) return;
       setState(() => coverUrl = url);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not upload cover image.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorUploadCoverError));
     } finally {
       if (mounted) setState(() => isUploadingCover = false);
     }
@@ -146,7 +161,9 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
         fileType = uploaded.fileType;
       });
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not upload file.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorUploadFileError));
     } finally {
       if (mounted) setState(() => isUploadingFile = false);
     }
@@ -160,6 +177,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
         title: titleController.text.trim(),
         author: authorController.text.trim(),
         description: descriptionController.text.trim(),
+        frenchDescription: frenchDescriptionController.text.trim(),
         coverUrl: coverUrl,
         fileUrl: contentMode == 'file' ? fileUrl : null,
         fileType: contentMode == 'file' ? fileType : null,
@@ -170,9 +188,13 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
         hasImages: hasImages,
       );
       await load();
-      _showMessage('Book saved.');
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminBookEditorBookSavedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not save book.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorSaveBookError));
     } finally {
       if (mounted) setState(() => isSaving = false);
     }
@@ -187,7 +209,9 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
       );
       await load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add page.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorAddPageError));
     }
   }
 
@@ -196,7 +220,9 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
       await repository.deletePage(page.id);
       await load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete page.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorDeletePageError));
     }
   }
 
@@ -210,22 +236,25 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
       await repository.reorderPages(widget.bookId, ids);
       await load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not reorder pages.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorReorderPagesError));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AdminShell(
       activeNavKey: 'books',
       languageId: book?.languageId,
-      title: 'Edit Book',
+      title: l10n.adminBookEditorTitle,
       subtitle: book?.title ?? widget.bookTitle ?? '',
       actions: [
         FilledButton(
           style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
           onPressed: isSaving ? null : _save,
-          child: Text(isSaving ? 'Saving…' : 'Save'),
+          child: Text(isSaving ? l10n.adminBookEditorSavingEllipsisLabel : l10n.commonSave),
         ),
       ],
       child: isLoading
@@ -242,6 +271,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
   }
 
   Widget _buildDetailsCard() {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -249,23 +279,32 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Details', style: AppTypography.title),
+          Text(l10n.adminBookEditorDetailsTitle, style: AppTypography.title),
           const SizedBox(height: AppSpacing.md),
-          TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+          TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.adminBookEditorTitleFieldLabel)),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: authorController,
-            decoration: const InputDecoration(labelText: 'Author (optional)'),
+            decoration: InputDecoration(labelText: l10n.adminBookEditorAuthorFieldLabel),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: descriptionController,
             maxLines: 3,
             minLines: 2,
-            decoration: const InputDecoration(labelText: 'Description (optional)'),
+            decoration: InputDecoration(labelText: l10n.adminBookEditorDescriptionFieldLabel),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          TextField(
+            controller: frenchDescriptionController,
+            maxLines: 3,
+            minLines: 2,
+            decoration: InputDecoration(
+              labelText: l10n.adminBookEditorFrenchDescriptionLabel,
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Cover Image', style: AppTypography.caption),
+          Text(l10n.adminBookEditorCoverImageLabel, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.sm),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -285,12 +324,12 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
               OutlinedButton.icon(
                 onPressed: isUploadingCover ? null : _uploadCover,
                 icon: const Icon(Icons.image_outlined, size: 16),
-                label: Text(isUploadingCover ? '…' : 'Change Cover'),
+                label: Text(isUploadingCover ? '…' : l10n.adminBookEditorChangeCoverLabel),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Category', style: AppTypography.caption),
+          Text(l10n.adminBookEditorCategoryLabel, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: AppSpacing.sm,
@@ -307,14 +346,14 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Level', style: AppTypography.caption),
+          Text(l10n.adminBookEditorLevelLabel, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: AppSpacing.sm,
             children: [
               for (final l in _kLevels)
                 ChoiceChip(
-                  label: Text(l),
+                  label: Text(_levelLabel(l10n, l)),
                   selected: level == l,
                   onSelected: (_) => setState(() => level = l),
                   selectedColor: AppColors.primary,
@@ -329,7 +368,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
                 child: TextField(
                   controller: readingTimeController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Reading Time (min)'),
+                  decoration: InputDecoration(labelText: l10n.adminBookEditorReadingTimeLabel),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -337,7 +376,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
                 child: TextField(
                   controller: recommendedAgeController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Recommended Age (min. years)'),
+                  decoration: InputDecoration(labelText: l10n.adminBookEditorRecommendedAgeLabel),
                 ),
               ),
             ],
@@ -346,7 +385,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
           CheckboxListTile(
             value: hasImages,
             onChanged: (v) => setState(() => hasImages = v ?? false),
-            title: const Text('Contains illustrations'),
+            title: Text(l10n.adminBookEditorContainsIllustrationsLabel),
             contentPadding: EdgeInsets.zero,
             controlAffinity: ListTileControlAffinity.leading,
           ),
@@ -356,6 +395,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
   }
 
   Widget _buildContentCard() {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -363,12 +403,12 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Content', style: AppTypography.title),
+          Text(l10n.adminBookEditorContentTitle, style: AppTypography.title),
           const SizedBox(height: AppSpacing.md),
           SegmentedButton<String>(
-            segments: const [
-              ButtonSegment(value: 'file', label: Text('Uploaded File'), icon: Icon(Icons.attach_file, size: 16)),
-              ButtonSegment(value: 'pages', label: Text('Authored Pages'), icon: Icon(Icons.auto_stories_outlined, size: 16)),
+            segments: [
+              ButtonSegment(value: 'file', label: Text(l10n.adminBookEditorUploadedFileSegmentLabel), icon: const Icon(Icons.attach_file, size: 16)),
+              ButtonSegment(value: 'pages', label: Text(l10n.adminBookEditorAuthoredPagesSegmentLabel), icon: const Icon(Icons.auto_stories_outlined, size: 16)),
             ],
             selected: {contentMode},
             onSelectionChanged: (s) => setState(() => contentMode = s.first),
@@ -381,29 +421,31 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
   }
 
   Widget _buildFileMode() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (fileUrl != null && fileUrl!.isNotEmpty)
-          Text('Current file: ${fileType?.toUpperCase()} — $fileUrl', style: AppTypography.caption)
+          Text(l10n.adminBookEditorCurrentFileLabel(fileType?.toUpperCase() ?? '', fileUrl!), style: AppTypography.caption)
         else
-          Text('No file uploaded yet.', style: AppTypography.caption),
+          Text(l10n.adminBookEditorNoFileUploadedMessage, style: AppTypography.caption),
         const SizedBox(height: AppSpacing.sm),
         OutlinedButton.icon(
           onPressed: isUploadingFile ? null : _uploadFile,
           icon: const Icon(Icons.attach_file, size: 16),
-          label: Text(isUploadingFile ? '…' : (fileUrl != null ? 'Replace File' : 'Upload PDF or EPUB')),
+          label: Text(isUploadingFile ? '…' : (fileUrl != null ? l10n.adminBookEditorReplaceFileLabel : l10n.adminBookEditorUploadFileLabel)),
         ),
       ],
     );
   }
 
   Widget _buildPagesMode() {
+    final l10n = AppLocalizations.of(context);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (pages.isEmpty)
-          Text('No pages yet. Add the first one below.', style: AppTypography.caption)
+          Text(l10n.adminBookEditorNoPagesMessage, style: AppTypography.caption)
         else
           for (var i = 0; i < pages.length; i++)
             Padding(
@@ -423,7 +465,7 @@ class _AdminBookEditorScreenState extends State<AdminBookEditorScreen> {
         OutlinedButton.icon(
           onPressed: _addPage,
           icon: const Icon(Icons.add, size: 16),
-          label: const Text('Add Page'),
+          label: Text(l10n.adminBookEditorAddPageLabel),
         ),
       ],
     );
@@ -456,6 +498,7 @@ class _BookPageCard extends StatefulWidget {
 
 class _BookPageCardState extends State<_BookPageCard> {
   late final ewondoController = TextEditingController(text: widget.page.ewondoText);
+  late final englishController = TextEditingController(text: widget.page.englishText);
   late final frenchController = TextEditingController(text: widget.page.frenchText);
   late String? illustrationUrl = widget.page.illustrationUrl;
   late String? audioUrl = widget.page.audioUrl;
@@ -466,6 +509,7 @@ class _BookPageCardState extends State<_BookPageCard> {
   @override
   void dispose() {
     ewondoController.dispose();
+    englishController.dispose();
     frenchController.dispose();
     super.dispose();
   }
@@ -481,7 +525,9 @@ class _BookPageCardState extends State<_BookPageCard> {
       if (!mounted) return;
       setState(() => illustrationUrl = url);
     } on DioException catch (e) {
-      widget.onShowMessage(extractErrorMessage(e, fallback: 'Could not upload illustration.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      widget.onShowMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorUploadIllustrationError));
     } finally {
       if (mounted) setState(() => isUploadingImage = false);
     }
@@ -501,7 +547,9 @@ class _BookPageCardState extends State<_BookPageCard> {
       if (!mounted) return;
       setState(() => audioUrl = url);
     } on DioException catch (e) {
-      widget.onShowMessage(extractErrorMessage(e, fallback: 'Could not upload audio.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      widget.onShowMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorUploadAudioError));
     } finally {
       if (mounted) setState(() => isUploadingAudio = false);
     }
@@ -513,13 +561,16 @@ class _BookPageCardState extends State<_BookPageCard> {
       await BookRepository().updatePage(
         widget.page.id,
         ewondoText: ewondoController.text.trim(),
+        englishText: englishController.text.trim(),
         frenchText: frenchController.text.trim(),
         illustrationUrl: illustrationUrl ?? '',
         audioUrl: audioUrl ?? '',
       );
       widget.onSaved();
     } on DioException catch (e) {
-      widget.onShowMessage(extractErrorMessage(e, fallback: 'Could not save page.'));
+      if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
+      widget.onShowMessage(extractErrorMessage(e, fallback: l10n.adminBookEditorSavePageError));
     } finally {
       if (mounted) setState(() => isSaving = false);
     }
@@ -527,6 +578,7 @@ class _BookPageCardState extends State<_BookPageCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
       decoration: BoxDecoration(
@@ -540,7 +592,7 @@ class _BookPageCardState extends State<_BookPageCard> {
           Row(
             children: [
               Expanded(
-                child: Text('Page ${widget.index + 1}', style: AppTypography.title.copyWith(fontSize: 14)),
+                child: Text(l10n.adminBookEditorPageNumberLabel(widget.index + 1), style: AppTypography.title.copyWith(fontSize: 14)),
               ),
               IconButton(
                 icon: const Icon(Icons.arrow_upward, size: 18),
@@ -579,14 +631,14 @@ class _BookPageCardState extends State<_BookPageCard> {
                     OutlinedButton.icon(
                       onPressed: isUploadingImage ? null : _uploadIllustration,
                       icon: const Icon(Icons.image_outlined, size: 14),
-                      label: Text(isUploadingImage ? '…' : 'Illustration', style: const TextStyle(fontSize: 12)),
+                      label: Text(isUploadingImage ? '…' : l10n.adminBookEditorIllustrationLabel, style: const TextStyle(fontSize: 12)),
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     OutlinedButton.icon(
                       onPressed: isUploadingAudio ? null : _uploadAudio,
                       icon: const Icon(Icons.graphic_eq, size: 14),
                       label: Text(
-                        isUploadingAudio ? '…' : (audioUrl != null ? 'Replace Audio' : 'Audio (optional)'),
+                        isUploadingAudio ? '…' : (audioUrl != null ? l10n.adminBookEditorReplaceAudioLabel : l10n.adminBookEditorAudioOptionalLabel),
                         style: const TextStyle(fontSize: 12),
                       ),
                     ),
@@ -599,20 +651,26 @@ class _BookPageCardState extends State<_BookPageCard> {
           TextField(
             controller: ewondoController,
             maxLines: 2,
-            decoration: const InputDecoration(labelText: 'Ewondo Text'),
+            decoration: InputDecoration(labelText: l10n.adminBookEditorEwondoTextLabel),
+          ),
+          const SizedBox(height: AppSpacing.sm),
+          TextField(
+            controller: englishController,
+            maxLines: 2,
+            decoration: InputDecoration(labelText: l10n.adminBookEditorEnglishTranslationLabel),
           ),
           const SizedBox(height: AppSpacing.sm),
           TextField(
             controller: frenchController,
             maxLines: 2,
-            decoration: const InputDecoration(labelText: 'French Translation (optional)'),
+            decoration: InputDecoration(labelText: l10n.adminBookEditorFrenchTranslationLabel),
           ),
           const SizedBox(height: AppSpacing.sm),
           Align(
             alignment: Alignment.centerRight,
             child: FilledButton(
               onPressed: isSaving ? null : _save,
-              child: Text(isSaving ? 'Saving…' : 'Save Page'),
+              child: Text(isSaving ? l10n.adminBookEditorSavingEllipsisLabel : l10n.adminBookEditorSavePageLabel),
             ),
           ),
         ],

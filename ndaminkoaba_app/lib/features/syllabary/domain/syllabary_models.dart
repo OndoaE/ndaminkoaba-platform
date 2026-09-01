@@ -8,7 +8,8 @@ class SyllabaryEntry {
     required this.vowel,
     required this.syllable,
     this.exampleWord,
-    this.translation,
+    this.englishTranslation,
+    this.frenchTranslation,
     this.exampleSentence,
     required this.orderNumber,
     required this.languageId,
@@ -19,7 +20,8 @@ class SyllabaryEntry {
   final String vowel;
   final String syllable;
   final String? exampleWord;
-  final String? translation;
+  final String? englishTranslation;
+  final String? frenchTranslation;
   final String? exampleSentence;
   final int orderNumber;
   final String languageId;
@@ -34,7 +36,8 @@ class SyllabaryEntry {
       vowel: json['vowel'] ?? '',
       syllable: json['syllable'] ?? '',
       exampleWord: json['exampleWord'] as String?,
-      translation: json['translation'] as String?,
+      englishTranslation: json['englishTranslation'] as String?,
+      frenchTranslation: json['frenchTranslation'] as String?,
       exampleSentence: json['exampleSentence'] as String?,
       orderNumber: (json['orderNumber'] as num?)?.toInt() ?? 0,
       languageId: json['languageId'] ?? '',
@@ -49,7 +52,8 @@ class SyllabaryExtractionRow {
     required this.vowel,
     required this.syllable,
     this.exampleWord,
-    this.translation,
+    this.englishTranslation,
+    this.frenchTranslation,
     this.exampleSentence,
     required this.orderNumber,
     this.confidence = 'high',
@@ -58,7 +62,12 @@ class SyllabaryExtractionRow {
   String vowel;
   String syllable;
   String? exampleWord;
-  String? translation;
+  // AI extraction only ever fills in frenchTranslation (charts are
+  // photographed/pasted from French-language source material) —
+  // englishTranslation starts null and is filled in manually by the admin
+  // during review, same split as SyllabaryEntry itself.
+  String? englishTranslation;
+  String? frenchTranslation;
   String? exampleSentence;
   int orderNumber;
   String confidence;
@@ -68,7 +77,8 @@ class SyllabaryExtractionRow {
       vowel: json['vowel'] ?? '',
       syllable: json['syllable'] ?? '',
       exampleWord: json['exampleWord'] as String?,
-      translation: json['translation'] as String?,
+      englishTranslation: json['englishTranslation'] as String?,
+      frenchTranslation: json['frenchTranslation'] as String?,
       exampleSentence: json['exampleSentence'] as String?,
       orderNumber: (json['orderNumber'] as num?)?.toInt() ?? 0,
       confidence: json['confidence'] == 'low' ? 'low' : 'high',

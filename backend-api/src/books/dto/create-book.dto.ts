@@ -18,6 +18,10 @@ export class CreateBookDto {
 
   @IsOptional()
   @IsString()
+  frenchDescription?: string;
+
+  @IsOptional()
+  @IsString()
   coverUrl?: string;
 
   /// A book can be created with neither a file nor pages — pages are added

@@ -19,6 +19,7 @@ import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../profile/data/profile_repository.dart';
 import '../../profile/domain/user_profile.dart';
 
@@ -78,6 +79,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
   }
 
   Future<void> save() async {
+    final l10n = AppLocalizations.of(context);
     setState(() => isSaving = true);
     try {
       final updated = await repository.updateMe(
@@ -93,18 +95,19 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
         isEditing = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated.')),
+        SnackBar(content: Text(l10n.adminProfileUpdatedMessage)),
       );
     } on DioException catch (e) {
       if (!mounted) return;
       setState(() => isSaving = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not update profile.'))),
+        SnackBar(content: Text(extractErrorMessage(e, fallback: l10n.adminProfileUpdateError))),
       );
     }
   }
 
   Future<void> pickAndUploadAvatar() async {
+    final l10n = AppLocalizations.of(context);
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery, maxWidth: 800);
     if (picked == null) return;
     if (!mounted) return;
@@ -123,7 +126,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
       if (!mounted) return;
       setState(() => isUploadingAvatar = false);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not upload photo.'))),
+        SnackBar(content: Text(extractErrorMessage(e, fallback: l10n.adminProfileUploadError))),
       );
     }
   }
@@ -136,21 +139,22 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AdminShell(
       activeNavKey: '',
-      title: 'My Profile',
-      subtitle: 'Manage your administrator account',
+      title: l10n.adminProfileTitle,
+      subtitle: l10n.adminProfileSubtitle,
       child: isLoading
           ? const ShimmerListLoader(itemCount: 3, itemHeight: 100)
           : Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildIdentityCard(),
+                _buildIdentityCard(context),
                 const SizedBox(height: AppSpacing.lg),
-                _buildAccountDetailsCard(),
+                _buildAccountDetailsCard(context),
                 if (isEditing) ...[
                   const SizedBox(height: AppSpacing.lg),
-                  _buildEditCard(),
+                  _buildEditCard(context),
                 ],
                 const SizedBox(height: AppSpacing.xl),
                 SizedBox(
@@ -158,7 +162,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                   child: OutlinedButton.icon(
                     onPressed: logout,
                     icon: const Icon(Icons.logout, color: AppColors.error),
-                    label: const Text('Log Out', style: TextStyle(color: AppColors.error)),
+                    label: Text(l10n.adminProfileLogOut, style: const TextStyle(color: AppColors.error)),
                     style: OutlinedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
                       side: const BorderSide(color: AppColors.error),
@@ -171,7 +175,8 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     );
   }
 
-  Widget _buildIdentityCard() {
+  Widget _buildIdentityCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final avatarUrl = profile?.profileImage;
     return Container(
       width: double.infinity,
@@ -255,7 +260,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                       const Icon(Icons.shield_outlined, size: 14, color: Colors.white),
                       const SizedBox(width: 4),
                       Text(
-                        profile?.role == 'ADMIN' ? 'Administrator' : (profile?.role ?? ''),
+                        profile?.role == 'ADMIN' ? l10n.adminProfileAdministratorRole : (profile?.role ?? ''),
                         style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
                       ),
                     ],
@@ -267,28 +272,29 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
           IconButton(
             onPressed: () => setState(() => isEditing = !isEditing),
             icon: const Icon(Icons.edit_outlined, color: Colors.white),
-            tooltip: 'Edit Profile',
+            tooltip: l10n.adminProfileEditProfileLabel,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildAccountDetailsCard() {
+  Widget _buildAccountDetailsCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final cert = profile;
     return PremiumCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Account Details', style: AppTypography.title.copyWith(fontSize: 16)),
+          Text(l10n.adminProfileAccountDetails, style: AppTypography.title.copyWith(fontSize: 16)),
           const SizedBox(height: AppSpacing.md),
-          _DetailRow(label: 'Member Since', value: cert?.createdAt != null ? DateFormat.yMMMMd().format(cert!.createdAt!) : '—'),
+          _DetailRow(label: l10n.adminProfileMemberSince, value: cert?.createdAt != null ? DateFormat.yMMMMd().format(cert!.createdAt!) : '—'),
           const Divider(height: AppSpacing.lg),
-          _DetailRow(label: 'Last Login', value: cert?.lastLogin != null ? DateFormat.yMMMd().add_jm().format(cert!.lastLogin!) : 'This session'),
+          _DetailRow(label: l10n.adminProfileLastLogin, value: cert?.lastLogin != null ? DateFormat.yMMMd().add_jm().format(cert!.lastLogin!) : l10n.adminProfileThisSession),
           const Divider(height: AppSpacing.lg),
           Row(
             children: [
-              Text('Account Status', style: AppTypography.caption),
+              Text(l10n.adminProfileAccountStatus, style: AppTypography.caption),
               const Spacer(),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
@@ -297,7 +303,7 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
                   borderRadius: AppRadius.circle,
                 ),
                 child: Text(
-                  (cert?.isActive ?? true) ? 'Active' : 'Deactivated',
+                  (cert?.isActive ?? true) ? l10n.adminProfileActive : l10n.adminProfileDeactivated,
                   style: TextStyle(
                     color: (cert?.isActive ?? true) ? AppColors.success : AppColors.error,
                     fontWeight: FontWeight.w700,
@@ -312,28 +318,29 @@ class _AdminProfileScreenState extends State<AdminProfileScreen> {
     );
   }
 
-  Widget _buildEditCard() {
+  Widget _buildEditCard(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return PremiumCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Edit Profile', style: AppTypography.title.copyWith(fontSize: 16)),
+          Text(l10n.adminProfileEditProfileLabel, style: AppTypography.title.copyWith(fontSize: 16)),
           const SizedBox(height: AppSpacing.lg),
           PremiumTextField(
-            label: 'Full Name',
+            label: l10n.adminProfileFullNameLabel,
             controller: fullNameController,
             prefixIcon: Icons.person_outline,
           ),
           const SizedBox(height: AppSpacing.lg),
           PremiumTextField(
-            label: 'New Password',
-            hint: 'Leave blank to keep current password',
+            label: l10n.adminProfileNewPasswordLabel,
+            hint: l10n.adminProfileNewPasswordHint,
             controller: passwordController,
             prefixIcon: Icons.lock_outline,
             obscureText: true,
           ),
           const SizedBox(height: AppSpacing.xl),
-          PrimaryButton(label: 'Save Changes', isLoading: isSaving, onPressed: save),
+          PrimaryButton(label: l10n.adminProfileSaveChanges, isLoading: isSaving, onPressed: save),
         ],
       ),
     );

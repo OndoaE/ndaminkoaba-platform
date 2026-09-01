@@ -262,12 +262,13 @@ export class ChatbotKnowledgeService {
         title: true,
         author: true,
         description: true,
+        frenchDescription: true,
         category: true,
         level: true,
         content: true,
         language: { select: { name: true } },
         pages: {
-          select: { ewondoText: true, frenchText: true },
+          select: { ewondoText: true, englishText: true, frenchText: true },
           orderBy: { orderNumber: 'asc' },
         },
       },
@@ -278,9 +279,11 @@ export class ChatbotKnowledgeService {
     const books = await this.getBooks();
     return books.map((b) => {
       const pageText = b.pages
-        .map((p) => [p.ewondoText, p.frenchText].filter(Boolean).join(' — '))
+        .map((p) =>
+          [p.ewondoText, p.englishText, p.frenchText].filter(Boolean).join(' — '),
+        )
         .join('\n');
-      const answer = [b.description, b.content, pageText]
+      const answer = [b.description, b.frenchDescription, b.content, pageText]
         .filter((p): p is string => !!p && p.trim().length > 0)
         .join('\n\n');
       return [`What is the book "${b.title}" about?`, answer || (b.description ?? '')] as Row;
@@ -296,7 +299,8 @@ export class ChatbotKnowledgeService {
         vowel: true,
         syllable: true,
         exampleWord: true,
-        translation: true,
+        englishTranslation: true,
+        frenchTranslation: true,
         exampleSentence: true,
         language: { select: { name: true } },
       },
@@ -308,10 +312,11 @@ export class ChatbotKnowledgeService {
     const syllabary = await this.getSyllabary();
     return syllabary.map((s) => {
       const letter = s.consonant ?? s.vowel;
+      const translation = s.englishTranslation ?? s.frenchTranslation;
       const answer = [
         `The syllable is "${s.syllable}".`,
         s.exampleWord &&
-          `Example word: ${s.exampleWord}${s.translation ? ` (${s.translation})` : ''}.`,
+          `Example word: ${s.exampleWord}${translation ? ` (${translation})` : ''}.`,
         s.exampleSentence && `Example sentence: ${s.exampleSentence}`,
       ]
         .filter(Boolean)

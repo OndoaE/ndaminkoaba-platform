@@ -31,7 +31,24 @@ import '../domain/knowledge_models.dart';
 import '../domain/lesson_editor_models.dart';
 
 const _kLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
-const _kTabLabels = ['Lesson Info', 'Content', 'Activities', 'Quiz', 'Resources', 'Settings'];
+
+List<String> _tabLabels(AppLocalizations l10n) => [
+      l10n.adminLessonEditorTabInfo,
+      l10n.adminLessonEditorTabContent,
+      l10n.adminLessonEditorTabActivities,
+      l10n.adminLessonEditorTabQuiz,
+      l10n.adminLessonEditorTabResources,
+      l10n.adminLessonEditorTabSettings,
+    ];
+
+String _levelLabel(AppLocalizations l10n, String level) {
+  return switch (level) {
+    'BEGINNER' => l10n.adminLevelBeginner,
+    'INTERMEDIATE' => l10n.adminLevelIntermediate,
+    'ADVANCED' => l10n.adminLevelAdvanced,
+    _ => level,
+  };
+}
 
 /// Ordered block-type palette — TEXT/DIALOGUE/AUDIO/IMAGE map cleanly onto
 /// existing Lesson/LessonImage fields; VOCABULARY/QUIZ/PRONUNCIATION are
@@ -178,6 +195,7 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
     final picked = await ImagePicker().pickImage(source: ImageSource.gallery);
     if (picked == null) return;
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
     final bytes = await picked.readAsBytes();
     setState(() => isUploadingCover = true);
     try {
@@ -185,13 +203,14 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       if (!mounted) return;
       setState(() => infoCoverImageUrl = url);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not upload image.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminCouldNotUploadImage));
     } finally {
       if (mounted) setState(() => isUploadingCover = false);
     }
   }
 
   Future<void> _saveLessonInfo() async {
+    final l10n = AppLocalizations.of(context);
     setState(() => isSavingInfo = true);
     try {
       await contentRepository.updateLesson(
@@ -207,15 +226,16 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
         outcomes: _linesToList(infoOutcomesController.text),
       );
       await load();
-      _showMessage('Lesson info saved.');
+      _showMessage(l10n.adminLessonEditorSavedInfoMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not save lesson info.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLessonEditorCouldNotSaveInfo));
     } finally {
       if (mounted) setState(() => isSavingInfo = false);
     }
   }
 
   Future<void> _saveDraft() async {
+    final l10n = AppLocalizations.of(context);
     setState(() => isSavingDraft = true);
     try {
       await contentRepository.updateLesson(
@@ -232,22 +252,23 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
         status: (lesson?.status == 'PUBLISHED') ? null : 'DRAFT',
       );
       await load();
-      _showMessage('Draft saved.');
+      _showMessage(l10n.adminLessonEditorDraftSavedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not save draft.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLessonEditorCouldNotSaveDraft));
     } finally {
       if (mounted) setState(() => isSavingDraft = false);
     }
   }
 
   Future<void> _publish() async {
+    final l10n = AppLocalizations.of(context);
     setState(() => isPublishing = true);
     try {
       await contentRepository.updateLesson(widget.lessonId, status: 'PUBLISHED');
       await load();
-      _showMessage('Lesson published.');
+      _showMessage(l10n.adminLessonEditorPublishedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not publish lesson.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLessonEditorCouldNotPublish));
     } finally {
       if (mounted) setState(() => isPublishing = false);
     }
@@ -418,25 +439,25 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       activeNavKey: 'lessons',
       languageId: lesson?.languageId,
       languageName: lesson?.courseTitle,
-      title: 'Edit Lesson',
+      title: l10n.adminLessonEditorAppBarTitle,
       subtitle: lesson?.courseTitle ?? widget.lessonTitle ?? '',
       actions: [
         OutlinedButton.icon(
           onPressed: lesson == null ? null : _previewAsLearner,
           icon: const Icon(Icons.visibility_outlined, size: 16),
-          label: const Text('Preview (Learner View)'),
+          label: Text(l10n.adminLessonEditorPreviewLearnerViewButton),
         ),
         const SizedBox(width: AppSpacing.sm),
         OutlinedButton(
           onPressed: isSavingDraft ? null : _saveDraft,
-          child: Text(isSavingDraft ? 'Saving…' : 'Save Draft'),
+          child: Text(isSavingDraft ? l10n.adminSavingLabel : l10n.adminLessonEditorSaveDraftButton),
         ),
         const SizedBox(width: AppSpacing.sm),
         FilledButton.icon(
           style: FilledButton.styleFrom(backgroundColor: AppColors.success),
           onPressed: isPublishing ? null : _publish,
           icon: const Icon(Icons.publish_outlined, size: 16),
-          label: Text(isPublishing ? 'Publishing…' : 'Publish Lesson'),
+          label: Text(isPublishing ? l10n.adminLessonEditorPublishingLabel : l10n.adminLessonEditorPublishLessonButton),
         ),
       ],
       child: isLoading
@@ -452,7 +473,7 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
                 ),
                 const SizedBox(height: AppSpacing.md),
                 _TabSelector(
-                  labels: _kTabLabels,
+                  labels: _tabLabels(l10n),
                   selected: selectedTab,
                   onSelect: (i) => setState(() => selectedTab = i),
                 ),
@@ -513,23 +534,23 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
   Widget _buildTabBody(AppLocalizations l10n) {
     switch (selectedTab) {
       case 0:
-        return _buildLessonInfoTab();
+        return _buildLessonInfoTab(l10n);
       case 1:
         return _buildBlocksTab(l10n, forActivities: false);
       case 2:
         return _buildBlocksTab(l10n, forActivities: true);
       case 3:
-        return _buildQuizTab();
+        return _buildQuizTab(l10n);
       case 4:
         return _buildResourcesTab(l10n);
       case 5:
-        return _buildSettingsTab();
+        return _buildSettingsTab(l10n);
       default:
         return const SizedBox.shrink();
     }
   }
 
-  Widget _buildLessonInfoTab() {
+  Widget _buildLessonInfoTab(AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -537,32 +558,32 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Lesson Information', style: AppTypography.title),
+          Text(l10n.adminLessonEditorLessonInfoSectionTitle, style: AppTypography.title),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: infoTitleController,
-            decoration: const InputDecoration(labelText: 'Lesson Title'),
+            decoration: InputDecoration(labelText: l10n.adminLessonEditorLessonTitleLabel),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: infoSummaryController,
             maxLines: 2,
-            decoration: const InputDecoration(labelText: 'Short Description'),
+            decoration: InputDecoration(labelText: l10n.adminLessonEditorShortDescriptionLabel),
           ),
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: infoCategoryController,
-            decoration: const InputDecoration(labelText: 'Lesson Category'),
+            decoration: InputDecoration(labelText: l10n.adminLessonEditorLessonCategoryLabel),
           ),
           const SizedBox(height: AppSpacing.md),
-          Text('Level', style: AppTypography.caption),
+          Text(l10n.adminLessonEditorLevelLabel, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.xs),
           Wrap(
             spacing: AppSpacing.sm,
             children: [
               for (final level in _kLevels)
                 ChoiceChip(
-                  label: Text(level),
+                  label: Text(_levelLabel(l10n, level)),
                   selected: infoLevel == level,
                   onSelected: (_) => setState(() => infoLevel = level),
                 ),
@@ -575,7 +596,7 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
                 child: TextField(
                   controller: infoEstimatedMinutesController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Estimated Time (min)'),
+                  decoration: InputDecoration(labelText: l10n.adminLessonEditorEstimatedTimeLabel),
                 ),
               ),
               const SizedBox(width: AppSpacing.md),
@@ -583,15 +604,15 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
                 child: TextField(
                   controller: infoOrderController,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(labelText: 'Order'),
+                  decoration: InputDecoration(labelText: l10n.adminLessonEditorOrderLabel),
                 ),
               ),
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Lesson Cover / Image', style: AppTypography.caption),
+          Text(l10n.adminLessonEditorCoverImageSectionTitle, style: AppTypography.caption),
           Text(
-            'This image will appear on the learner view.',
+            l10n.adminLessonEditorCoverImageHint,
             style: AppTypography.caption.copyWith(fontSize: 11),
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -612,24 +633,24 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
               OutlinedButton.icon(
                 onPressed: isUploadingCover ? null : _uploadCoverImage,
                 icon: const Icon(Icons.upload_outlined, size: 16),
-                label: Text(isUploadingCover ? '…' : 'Change Image'),
+                label: Text(isUploadingCover ? '…' : l10n.adminLessonEditorChangeImageButton),
               ),
               if (infoCoverImageUrl != null && infoCoverImageUrl!.isNotEmpty) ...[
                 const SizedBox(width: AppSpacing.sm),
                 TextButton.icon(
                   onPressed: () => setState(() => infoCoverImageUrl = null),
                   icon: const Icon(Icons.delete_outline, size: 16, color: AppColors.error),
-                  label: const Text('Remove Image', style: TextStyle(color: AppColors.error)),
+                  label: Text(l10n.adminLessonEditorRemoveImageButton, style: const TextStyle(color: AppColors.error)),
                 ),
               ],
             ],
           ),
           const SizedBox(height: AppSpacing.lg),
-          Text('Learning Objectives (one per line)', style: AppTypography.caption),
+          Text(l10n.adminLessonEditorLearningObjectivesLabel, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.xs),
           TextField(controller: infoObjectivesController, maxLines: 3),
           const SizedBox(height: AppSpacing.md),
-          Text("What Learners Will Learn (one per line)", style: AppTypography.caption),
+          Text(l10n.adminLessonEditorOutcomesLabel, style: AppTypography.caption),
           const SizedBox(height: AppSpacing.xs),
           TextField(controller: infoOutcomesController, maxLines: 3),
           const SizedBox(height: AppSpacing.lg),
@@ -638,7 +659,7 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
             child: FilledButton(
               style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
               onPressed: isSavingInfo ? null : _saveLessonInfo,
-              child: Text(isSavingInfo ? 'Saving…' : 'Save'),
+              child: Text(isSavingInfo ? l10n.adminSavingLabel : l10n.commonSave),
             ),
           ),
         ],
@@ -666,7 +687,7 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
                   padding: const EdgeInsets.all(AppSpacing.xl),
                   decoration: BoxDecoration(color: AppColors.surface, borderRadius: AppRadius.medium),
                   child: Text(
-                    forActivities ? 'No activities yet.' : l10n.adminNoBlocksYetMessage,
+                    forActivities ? l10n.adminLessonEditorNoActivitiesYetMessage : l10n.adminNoBlocksYetMessage,
                     style: AppTypography.caption,
                   ),
                 )
@@ -697,7 +718,7 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
     );
   }
 
-  Widget _buildQuizTab() {
+  Widget _buildQuizTab(AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.xl),
@@ -705,12 +726,12 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Quiz', style: AppTypography.title),
+          Text(l10n.adminLessonEditorTabQuiz, style: AppTypography.title),
           const SizedBox(height: AppSpacing.sm),
           Text(
             existingQuizId == null
-                ? 'This lesson has no quiz yet.'
-                : 'This lesson has a quiz linked to it.',
+                ? l10n.adminLessonEditorNoQuizYetMessage
+                : l10n.adminLessonEditorHasQuizMessage,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -720,7 +741,7 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
               extra: lesson?.title ?? widget.lessonTitle,
             ),
             icon: const Icon(Icons.quiz_outlined, size: 18),
-            label: const Text('Manage Quiz'),
+            label: Text(l10n.adminManageQuizButton),
           ),
         ],
       ),
@@ -735,11 +756,10 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Resources', style: AppTypography.title),
+          Text(l10n.adminLessonEditorTabResources, style: AppTypography.title),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Illustrated word images attached to this lesson. Add or remove '
-            'per-word images from the dedicated Images screen.',
+            l10n.adminLessonEditorResourcesDescription,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -749,14 +769,14 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
               extra: lesson?.title ?? widget.lessonTitle,
             ),
             icon: const Icon(Icons.photo_library_outlined, size: 18),
-            label: const Text('Manage Lesson Images'),
+            label: Text(l10n.adminLessonEditorManageLessonImagesButton),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSettingsTab() {
+  Widget _buildSettingsTab(AppLocalizations l10n) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.xl),
@@ -764,10 +784,10 @@ class _AdminLessonEditorScreenState extends State<AdminLessonEditorScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Settings', style: AppTypography.title),
+          Text(l10n.adminLessonEditorTabSettings, style: AppTypography.title),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Reviewer assignment and comments are in the panel on the right.',
+            l10n.adminLessonEditorSettingsDescription,
             style: AppTypography.caption,
           ),
         ],
@@ -828,6 +848,7 @@ class _LessonSummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final current = lesson;
     return Container(
       width: double.infinity,
@@ -836,20 +857,20 @@ class _LessonSummaryCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Lesson Summary', style: AppTypography.title.copyWith(fontSize: 15)),
+          Text(l10n.adminLessonEditorLessonSummaryCardTitle, style: AppTypography.title.copyWith(fontSize: 15)),
           const SizedBox(height: AppSpacing.md),
-          _row('Lesson ID', current?.id.isNotEmpty == true ? '${current!.id.substring(0, 8)}…' : '—'),
+          _row(l10n.adminLessonEditorLessonIdLabel, current?.id.isNotEmpty == true ? '${current!.id.substring(0, 8)}…' : '—'),
           Padding(
             padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
             child: Row(
               children: [
-                Expanded(child: Text('Status', style: AppTypography.caption)),
+                Expanded(child: Text(l10n.adminColStatus, style: AppTypography.caption)),
                 StatusPill(status: current?.status ?? 'DRAFT'),
               ],
             ),
           ),
-          _row('Created', current?.createdAt != null ? DateFormat.yMMMd().format(current!.createdAt!) : '—'),
-          _row('Last Updated', current?.updatedAt != null ? DateFormat.yMMMd().format(current!.updatedAt!) : '—'),
+          _row(l10n.adminLessonEditorCreatedLabel, current?.createdAt != null ? DateFormat.yMMMd().format(current!.createdAt!) : '—'),
+          _row(l10n.adminLessonEditorLastUpdatedLabel, current?.updatedAt != null ? DateFormat.yMMMd().format(current!.updatedAt!) : '—'),
         ],
       ),
     );
@@ -875,6 +896,7 @@ class _LessonImagePreviewCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -882,7 +904,7 @@ class _LessonImagePreviewCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Lesson Image Preview (Learner View)', style: AppTypography.title.copyWith(fontSize: 13)),
+          Text(l10n.adminLessonEditorImagePreviewCardTitle, style: AppTypography.title.copyWith(fontSize: 13)),
           const SizedBox(height: AppSpacing.sm),
           ClipRRect(
             borderRadius: AppRadius.small,
@@ -916,15 +938,16 @@ class _LessonImagePreviewCard extends StatelessWidget {
 class _TipsCard extends StatelessWidget {
   const _TipsCard();
 
-  static const _tips = [
-    'Use high quality images (1280x720 recommended)',
-    'Images make lessons more engaging',
-    'You can add multiple images in the content',
-    'Keep lessons focused and interactive',
-  ];
+  List<String> _tips(AppLocalizations l10n) => [
+        l10n.adminLessonEditorTip1,
+        l10n.adminLessonEditorTip2,
+        l10n.adminLessonEditorTip3,
+        l10n.adminLessonEditorTip4,
+      ];
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.lg),
@@ -932,9 +955,9 @@ class _TipsCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Tips', style: AppTypography.title.copyWith(fontSize: 15)),
+          Text(l10n.adminLessonEditorTipsCardTitle, style: AppTypography.title.copyWith(fontSize: 15)),
           const SizedBox(height: AppSpacing.sm),
-          for (final tip in _tips)
+          for (final tip in _tips(l10n))
             Padding(
               padding: const EdgeInsets.only(bottom: AppSpacing.xs),
               child: Row(
@@ -1230,11 +1253,11 @@ class _BlockCardState extends State<_BlockCard> {
                 final url = await showDialog<String>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Video URL'),
-                    content: TextField(controller: urlController, decoration: const InputDecoration(hintText: 'https://...')),
+                    title: Text(l10n.adminVideoUrlLabel),
+                    content: TextField(controller: urlController, decoration: InputDecoration(hintText: l10n.adminLessonEditorUrlHint)),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-                      FilledButton(onPressed: () => Navigator.pop(context, urlController.text.trim()), child: const Text('Insert')),
+                      TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
+                      FilledButton(onPressed: () => Navigator.pop(context, urlController.text.trim()), child: Text(l10n.adminLessonEditorInsertButton)),
                     ],
                   ),
                 );
@@ -1246,11 +1269,11 @@ class _BlockCardState extends State<_BlockCard> {
                 final url = await showDialog<String>(
                   context: context,
                   builder: (context) => AlertDialog(
-                    title: const Text('Embed URL'),
-                    content: TextField(controller: urlController, decoration: const InputDecoration(hintText: 'https://...')),
+                    title: Text(l10n.adminLessonEditorEmbedUrlDialogTitle),
+                    content: TextField(controller: urlController, decoration: InputDecoration(hintText: l10n.adminLessonEditorUrlHint)),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-                      FilledButton(onPressed: () => Navigator.pop(context, urlController.text.trim()), child: const Text('Insert')),
+                      TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
+                      FilledButton(onPressed: () => Navigator.pop(context, urlController.text.trim()), child: Text(l10n.adminLessonEditorInsertButton)),
                     ],
                   ),
                 );

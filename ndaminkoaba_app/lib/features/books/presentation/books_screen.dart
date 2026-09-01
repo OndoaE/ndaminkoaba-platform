@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../../config/app_config.dart';
 import '../../../core/language/learning_language_provider.dart';
+import '../../../core/locale/locale_provider.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/colors/app_colors.dart';
@@ -394,7 +395,7 @@ class _BookGrid extends StatelessWidget {
   }
 }
 
-class _DetailPane extends StatelessWidget {
+class _DetailPane extends ConsumerWidget {
   const _DetailPane({
     required this.book,
     required this.isFavorited,
@@ -408,9 +409,13 @@ class _DetailPane extends StatelessWidget {
   final VoidCallback? onRead;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final current = book;
+    final isFrench = ref.watch(localeProvider).languageCode == 'fr';
+    final description = isFrench
+        ? current?.frenchDescription ?? current?.description
+        : current?.description;
 
     if (current == null) {
       return Container(
@@ -444,8 +449,8 @@ class _DetailPane extends StatelessWidget {
             if (current.author != null && current.author!.isNotEmpty)
               Text(current.author!, style: AppTypography.caption),
             const SizedBox(height: AppSpacing.md),
-            if (current.description != null && current.description!.isNotEmpty) ...[
-              Text(current.description!, style: AppTypography.body),
+            if (description != null && description.isNotEmpty) ...[
+              Text(description, style: AppTypography.body),
               const SizedBox(height: AppSpacing.md),
             ],
             if (current.category != null)

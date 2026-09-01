@@ -26,7 +26,12 @@ export interface SyllabaryExtractionRow {
   vowel: string;
   syllable: string;
   exampleWord: string | null;
-  translation: string | null;
+  // These charts are photographed/pasted from French-language literacy
+  // materials (per the extraction prompt below), so the AI only ever
+  // extracts a French translation -- an English one, if wanted, is added
+  // manually by the admin during review, matching SyllabaryEntry's
+  // englishTranslation/frenchTranslation split.
+  frenchTranslation: string | null;
   exampleSentence: string | null;
   orderNumber: number;
   confidence: 'high' | 'low';
@@ -373,7 +378,7 @@ Read the image and respond with ONLY a JSON object (no markdown fences, no prose
           "vowel": string,
           "syllable": string,
           "exampleWord": string | null,
-          "translation": string | null,
+          "frenchTranslation": string | null,
           "exampleSentence": string | null,
           "orderNumber": number,
           "confidence": "high" | "low"
@@ -457,7 +462,7 @@ Respond with ONLY a JSON object (no markdown fences, no prose outside it) matchi
           "vowel": string,
           "syllable": string,
           "exampleWord": string | null,
-          "translation": string | null,
+          "frenchTranslation": string | null,
           "exampleSentence": string | null,
           "orderNumber": number,
           "confidence": "high" | "low"
@@ -502,7 +507,7 @@ Rules:
         vowel: typeof r.vowel === 'string' ? r.vowel : '',
         syllable: typeof r.syllable === 'string' ? r.syllable : '',
         exampleWord: typeof r.exampleWord === 'string' ? r.exampleWord : null,
-        translation: typeof r.translation === 'string' ? r.translation : null,
+        frenchTranslation: typeof r.frenchTranslation === 'string' ? r.frenchTranslation : null,
         exampleSentence: typeof r.exampleSentence === 'string' ? r.exampleSentence : null,
         orderNumber: typeof r.orderNumber === 'number' ? r.orderNumber : index,
         confidence: r.confidence === 'low' ? 'low' : 'high',

@@ -10,10 +10,16 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/logo_header.dart';
 import '../../../l10n/app_localizations.dart';
 
-/// Shown once, on the very first app launch on this device, before the
-/// learner ever sees the Login screen — see `SplashScreen.decideDestination`.
+/// Shown on the very first app launch on this device, before the learner
+/// ever sees the Login screen (see `SplashScreen.decideDestination`), and
+/// reused later from Profile > App Language to change the UI language at
+/// any time — [fromSettings] switches which of those two contexts this is,
+/// since the two need different post-selection navigation: first launch
+/// continues on to Login, Settings just pops back to Profile.
 class LanguageSelectionScreen extends ConsumerWidget {
-  const LanguageSelectionScreen({super.key});
+  const LanguageSelectionScreen({super.key, this.fromSettings = false});
+
+  final bool fromSettings;
 
   Future<void> _select(
     BuildContext context,
@@ -22,7 +28,11 @@ class LanguageSelectionScreen extends ConsumerWidget {
   ) async {
     await setAppLocale(ref, locale);
     if (!context.mounted) return;
-    context.go('/login');
+    if (fromSettings) {
+      context.pop();
+    } else {
+      context.go('/login');
+    }
   }
 
   @override
@@ -30,6 +40,13 @@ class LanguageSelectionScreen extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
+      appBar: fromSettings
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              foregroundColor: AppColors.textPrimary,
+            )
+          : null,
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(

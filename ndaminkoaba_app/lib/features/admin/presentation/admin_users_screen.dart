@@ -10,6 +10,7 @@ import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/admin_repository.dart';
 import '../domain/admin_models.dart';
 
@@ -66,14 +67,16 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       load();
     } on DioException catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not update user.'))),
+        SnackBar(content: Text(extractErrorMessage(e, fallback: l10n.adminUsersCouldNotUpdateUser))),
       );
     } catch (_) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Could not update user.')));
+      ).showSnackBar(SnackBar(content: Text(l10n.adminUsersCouldNotUpdateUser)));
     }
   }
 
@@ -83,34 +86,38 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
       load();
     } on DioException catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not update role.'))),
+        SnackBar(content: Text(extractErrorMessage(e, fallback: l10n.adminUsersCouldNotUpdateRole))),
       );
     } catch (_) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context);
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Could not update role.')));
+      ).showSnackBar(SnackBar(content: Text(l10n.adminUsersCouldNotUpdateRole)));
     }
   }
 
   Future<void> deleteUser(AdminUser user) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete User'),
-        content: Text(
-          'Permanently delete ${user.fullName}? This cannot be undone. Users with existing courses, progress, or other linked records cannot be deleted — deactivate them instead.',
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminUsersDeleteUserTitle),
+          content: Text(l10n.adminUsersDeleteConfirm(user.fullName)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.adminUsersCancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.adminUsersDelete),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true) return;
     if (!mounted) return;
@@ -120,17 +127,18 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
     } on DioException catch (e) {
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(extractErrorMessage(e, fallback: 'Could not delete user.'))),
+        SnackBar(content: Text(extractErrorMessage(e, fallback: l10n.adminUsersCouldNotDeleteUser))),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AdminShell(
       activeNavKey: 'users',
-      title: 'Users',
-      subtitle: '${users.length} total',
+      title: l10n.adminUsersTitle,
+      subtitle: l10n.adminUsersSubtitle(users.length),
       actions: [
         FilledButton.icon(
           onPressed: () async {
@@ -139,7 +147,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
           },
           style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
           icon: const Icon(Icons.person_add, size: 18),
-          label: const Text('New User'),
+          label: Text(l10n.adminUsersNewUser),
         ),
       ],
       child: Column(
@@ -149,7 +157,7 @@ class _AdminUsersScreenState extends State<AdminUsersScreen> {
             controller: searchController,
             onSubmitted: (_) => load(),
             decoration: InputDecoration(
-              hintText: 'Search by name or email...',
+              hintText: l10n.adminUsersSearchHint,
               prefixIcon: const Icon(Icons.search),
               filled: true,
               fillColor: AppColors.surface,
@@ -211,6 +219,7 @@ class _UserRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final roleColor = _roleColor();
+    final l10n = AppLocalizations.of(context);
 
     return PremiumCard(
       child: Row(
@@ -270,7 +279,7 @@ class _UserRow extends StatelessWidget {
                     const SizedBox(width: AppSpacing.xs),
                     Flexible(
                       child: Text(
-                        user.isActive ? 'Active' : 'Deactivated',
+                        user.isActive ? l10n.adminUsersActive : l10n.adminUsersDeactivated,
                         overflow: TextOverflow.ellipsis,
                         style: TextStyle(
                           fontSize: 12,
@@ -299,32 +308,32 @@ class _UserRow extends StatelessWidget {
               if (!isSelf)
                 PopupMenuItem(
                   value: 'toggle',
-                  child: Text(user.isActive ? 'Deactivate' : 'Activate'),
+                  child: Text(user.isActive ? l10n.adminUsersDeactivateAction : l10n.adminUsersActivateAction),
                 ),
               if (!isSelf && user.role != 'ADMIN')
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'ADMIN',
-                  child: Text('Make Administrator'),
+                  child: Text(l10n.adminUsersMakeAdminAction),
                 ),
               if (!isSelf && user.role != 'TEACHER')
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'TEACHER',
-                  child: Text('Make Teacher'),
+                  child: Text(l10n.adminUsersMakeTeacherAction),
                 ),
               if (!isSelf && user.role != 'LEARNER')
-                const PopupMenuItem(
+                PopupMenuItem(
                   value: 'LEARNER',
-                  child: Text('Make Learner'),
+                  child: Text(l10n.adminUsersMakeLearnerAction),
                 ),
               if (!isSelf)
                 PopupMenuItem(
                   value: 'delete',
-                  child: Text('Delete', style: TextStyle(color: AppColors.error)),
+                  child: Text(l10n.adminUsersDelete, style: TextStyle(color: AppColors.error)),
                 ),
               if (isSelf)
-                const PopupMenuItem(
+                PopupMenuItem(
                   enabled: false,
-                  child: Text('This is your account'),
+                  child: Text(l10n.adminUsersThisIsYourAccount),
                 ),
             ],
           ),

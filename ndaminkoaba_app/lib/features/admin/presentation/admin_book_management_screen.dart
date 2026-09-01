@@ -12,6 +12,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/book_repository.dart';
 import '../domain/book_models.dart';
 
@@ -53,6 +54,7 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
   }
 
   Future<void> load() async {
+    final l10n = AppLocalizations.of(context);
     setState(() {
       isLoading = true;
       error = null;
@@ -65,7 +67,7 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
       });
     } on DioException catch (e) {
       setState(() {
-        error = extractErrorMessage(e, fallback: 'Could not load books.');
+        error = extractErrorMessage(e, fallback: l10n.adminBookMgmtLoadError);
         isLoading = false;
       });
     }
@@ -83,25 +85,29 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
   }
 
   Future<void> addBook() async {
+    final l10n = AppLocalizations.of(context);
     final titleController = TextEditingController();
     final title = await showDialog<String>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Book'),
-        content: TextField(
-          controller: titleController,
-          autofocus: true,
-          decoration: const InputDecoration(labelText: 'Title'),
-          onSubmitted: (v) => Navigator.pop(context, v.trim()),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-          FilledButton(
-            onPressed: () => Navigator.pop(context, titleController.text.trim()),
-            child: const Text('Create'),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminBookMgmtAddBook),
+          content: TextField(
+            controller: titleController,
+            autofocus: true,
+            decoration: InputDecoration(labelText: l10n.adminBookMgmtTitleLabel),
+            onSubmitted: (v) => Navigator.pop(context, v.trim()),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.adminBookMgmtCancel)),
+            FilledButton(
+              onPressed: () => Navigator.pop(context, titleController.text.trim()),
+              child: Text(l10n.adminBookMgmtCreate),
+            ),
+          ],
+        );
+      },
     );
     titleController.dispose();
     if (title == null || title.isEmpty) return;
@@ -114,7 +120,7 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
       // creation — mirrors the Lesson Management redirect pattern.
       context.pushReplacement('/admin/books/$bookId/edit', extra: title);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add book.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookMgmtAddError));
     }
   }
 
@@ -123,34 +129,38 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
   }
 
   Future<void> deleteBook(AdminBook book) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete book?'),
-        content: Text('"${book.title}" will be removed for every learner.'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: AppColors.error),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminBookMgmtDeleteTitle),
+          content: Text(l10n.adminBookMgmtDeleteBody(book.title)),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.adminBookMgmtCancel),
             ),
-          ),
-        ],
-      ),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(
+                l10n.adminBookMgmtDelete,
+                style: const TextStyle(color: AppColors.error),
+              ),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true) return;
 
     try {
       await repository.deleteBook(book.id);
       load();
-      _showMessage('Book deleted.');
+      _showMessage(l10n.adminBookMgmtDeletedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete book.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBookMgmtDeleteError));
     }
   }
 
@@ -163,20 +173,21 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.languageName ?? 'Language';
+    final l10n = AppLocalizations.of(context);
+    final title = widget.languageName ?? l10n.adminBookMgmtLanguageFallback;
     final visible = _visible;
     return AdminShell(
       activeNavKey: 'books',
       languageId: widget.languageId,
       languageName: title,
-      title: 'Book Management',
-      subtitle: 'Books for $title',
+      title: l10n.adminBookMgmtTitle,
+      subtitle: l10n.adminBookMgmtSubtitle(title),
       actions: [
         FilledButton.icon(
           style: FilledButton.styleFrom(backgroundColor: _bookAccent[0]),
           onPressed: addBook,
           icon: const Icon(Icons.add, size: 18),
-          label: const Text('Add Book'),
+          label: Text(l10n.adminBookMgmtAddBook),
         ),
       ],
       child: Column(
@@ -184,9 +195,9 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
         children: [
           TextField(
             controller: searchController,
-            decoration: const InputDecoration(
-              labelText: 'Search books',
-              prefixIcon: Icon(Icons.search),
+            decoration: InputDecoration(
+              labelText: l10n.adminBookMgmtSearchLabel,
+              prefixIcon: const Icon(Icons.search),
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -197,7 +208,7 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
               scrollDirection: Axis.horizontal,
               children: [
                 _CategoryChip(
-                  label: 'All',
+                  label: l10n.adminBookMgmtCategoryAll,
                   selected: categoryFilter == null,
                   onTap: () => setState(() => categoryFilter = null),
                 ),
@@ -219,14 +230,14 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
           else if (error != null)
             EmptyState(
               icon: Icons.error_outline,
-              title: 'Something went wrong',
+              title: l10n.adminBookMgmtErrorTitle,
               message: error,
             )
           else if (visible.isEmpty)
-            const EmptyState(
+            EmptyState(
               icon: Icons.menu_book_outlined,
-              title: 'No books yet',
-              message: 'Tap "Add Book" to create the first one.',
+              title: l10n.adminBookMgmtEmptyTitle,
+              message: l10n.adminBookMgmtEmptyMessage,
             )
           else
             Column(
@@ -270,8 +281,8 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
                                       label: book.fileType != null
                                           ? book.fileType!.toUpperCase()
                                           : (book.pageCount != null
-                                              ? '${book.pageCount} pages'
-                                              : 'No content yet'),
+                                              ? l10n.adminBookMgmtPagesCount(book.pageCount!)
+                                              : l10n.adminBookMgmtNoContent),
                                     ),
                                     if (book.category != null)
                                       _Pill(label: bookCategoryLabel(book.category!)),
@@ -285,11 +296,11 @@ class _AdminBookManagementScreenState extends State<AdminBookManagementScreen> {
                               if (value == 'edit') editBook(book);
                               if (value == 'delete') deleteBook(book);
                             },
-                            itemBuilder: (context) => const [
-                              PopupMenuItem(value: 'edit', child: Text('Edit')),
+                            itemBuilder: (context) => [
+                              PopupMenuItem(value: 'edit', child: Text(l10n.adminBookMgmtEdit)),
                               PopupMenuItem(
                                 value: 'delete',
-                                child: Text('Delete'),
+                                child: Text(l10n.adminBookMgmtDelete),
                               ),
                             ],
                           ),

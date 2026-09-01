@@ -14,6 +14,7 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../lessons/domain/models/lesson_image.dart';
 import '../data/content_repository.dart';
 
@@ -62,6 +63,7 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
   }
 
   Future<void> addImage() async {
+    final l10n = AppLocalizations.of(context);
     final picked = await picker.pickImage(source: ImageSource.gallery);
     if (picked == null) return;
 
@@ -85,47 +87,54 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
         orderNumber: images.length + 1,
       );
       await load();
-      _showMessage('Image added.');
+      _showMessage(l10n.adminLessonImagesAddedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add image.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLessonImagesAddError));
     } finally {
       if (mounted) setState(() => isUploading = false);
     }
   }
 
   Future<void> deleteImage(LessonImage image) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Image'),
-        content: Text('Remove the image for "${image.word}"?'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: AppColors.error),
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminLessonImagesDeleteTitle),
+          content: Text(l10n.adminLessonImagesDeleteBody(image.word)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.adminLessonImagesCancel)),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.adminLessonImagesDelete),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true) return;
 
     try {
       await repository.deleteLessonImage(image.id);
       load();
-      _showMessage('Image removed.');
+      _showMessage(l10n.adminLessonImagesRemovedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not remove image.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLessonImagesRemoveError));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: GradientAppBar(
-        title: widget.lessonTitle != null ? 'Images — ${widget.lessonTitle}' : 'Lesson Images',
+        title: widget.lessonTitle != null
+            ? l10n.adminLessonImagesTitleWithLesson(widget.lessonTitle!)
+            : l10n.adminLessonImagesTitleFallback,
         colors: const [Color(0xFFB5312B), AppColors.primary],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -137,7 +146,7 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
               )
             : const Icon(Icons.add_photo_alternate_outlined, color: Colors.white),
-        label: const Text('Add Image', style: TextStyle(color: Colors.white)),
+        label: Text(l10n.adminLessonImagesAddImage, style: const TextStyle(color: Colors.white)),
         onPressed: isUploading ? null : addImage,
       ),
       body: SafeArea(
@@ -147,7 +156,7 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Add images to illustrate words from this lesson. Add as many as you like.',
+                l10n.adminLessonImagesIntro,
                 style: AppTypography.caption,
               ),
               const SizedBox(height: AppSpacing.lg),
@@ -157,8 +166,8 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
                     : images.isEmpty
                         ? EmptyState(
                             icon: Icons.image_outlined,
-                            title: 'No images yet',
-                            message: 'Add an image to illustrate a word in this lesson.',
+                            title: l10n.adminLessonImagesEmptyTitle,
+                            message: l10n.adminLessonImagesEmptyMessage,
                           )
                         : GridView.builder(
                             padding: const EdgeInsets.only(bottom: 80),
@@ -218,7 +227,7 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
                                           ),
                                           IconButton(
                                             icon: const Icon(Icons.delete_outline, color: AppColors.error, size: 20),
-                                            tooltip: 'Delete',
+                                            tooltip: l10n.adminLessonImagesDelete,
                                             onPressed: () => deleteImage(image),
                                           ),
                                         ],
@@ -267,8 +276,9 @@ class _ImageFormDialogState extends State<_ImageFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: const Text('Illustrate a Word'),
+      title: Text(l10n.adminLessonImagesDialogTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -281,18 +291,18 @@ class _ImageFormDialogState extends State<_ImageFormDialog> {
             const SizedBox(height: AppSpacing.lg),
             TextField(
               controller: wordController,
-              decoration: const InputDecoration(labelText: 'Word this illustrates'),
+              decoration: InputDecoration(labelText: l10n.adminLessonImagesWordLabel),
             ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: captionController,
-              decoration: const InputDecoration(labelText: 'Caption (optional)'),
+              decoration: InputDecoration(labelText: l10n.adminLessonImagesCaptionLabel),
             ),
           ],
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.adminLessonImagesCancel)),
         FilledButton(
           onPressed: () {
             if (wordController.text.trim().isEmpty) return;
@@ -304,7 +314,7 @@ class _ImageFormDialogState extends State<_ImageFormDialog> {
               ),
             );
           },
-          child: const Text('Add'),
+          child: Text(l10n.adminLessonImagesAdd),
         ),
       ],
     );

@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/locale/locale_provider.dart';
+import '../../../core/locale/localized_text.dart';
 import '../../../design_system/cards/featured_card.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
@@ -29,14 +32,14 @@ import 'vocabulary_review_screen.dart';
 /// Tab-root "Practice" screen (bottom nav index 2) — Smart Review queue,
 /// weekly activity calendar, and badge progress.
 /// Entirely new screen; no equivalent existed before this redesign.
-class PracticeScreen extends StatefulWidget {
+class PracticeScreen extends ConsumerStatefulWidget {
   const PracticeScreen({super.key});
 
   @override
-  State<PracticeScreen> createState() => _PracticeScreenState();
+  ConsumerState<PracticeScreen> createState() => _PracticeScreenState();
 }
 
-class _PracticeScreenState extends State<PracticeScreen> {
+class _PracticeScreenState extends ConsumerState<PracticeScreen> {
   final practiceRepository = PracticeRepository();
   final reviewRepository = VocabularyReviewRepository();
   final badgesRepository = BadgesRepository();
@@ -99,6 +102,7 @@ class _PracticeScreenState extends State<PracticeScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final isFrench = ref.watch(localeProvider).languageCode == 'fr';
     final nextBadge = badges.where((b) => !b.earned).isNotEmpty
         ? badges.where((b) => !b.earned).first
         : null;
@@ -360,7 +364,11 @@ class _PracticeScreenState extends State<PracticeScreen> {
                                     (nextBadge.criteriaValue -
                                             nextBadge.progress)
                                         .clamp(0, nextBadge.criteriaValue),
-                                    nextBadge.name,
+                                    localizedText(
+                                      nextBadge.name,
+                                      nextBadge.frenchName,
+                                      isFrench,
+                                    ),
                                   ),
                                   style: AppTypography.caption,
                                 ),
@@ -382,8 +390,12 @@ class _PracticeScreenState extends State<PracticeScreen> {
                       (badge) => Padding(
                         padding: const EdgeInsets.only(bottom: AppSpacing.md),
                         child: BadgeCardWidget(
-                          name: badge.name,
-                          description: badge.description,
+                          name: localizedText(badge.name, badge.frenchName, isFrench),
+                          description: localizedText(
+                            badge.description,
+                            badge.frenchDescription,
+                            isFrench,
+                          ),
                           earned: badge.earned,
                           progress: badge.progress,
                           criteriaValue: badge.criteriaValue,

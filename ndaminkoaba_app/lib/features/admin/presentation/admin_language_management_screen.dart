@@ -10,6 +10,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_content_models.dart';
 
@@ -39,6 +40,7 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
   }
 
   Future<void> load() async {
+    final l10n = AppLocalizations.of(context);
     setState(() {
       isLoading = true;
       error = null;
@@ -51,80 +53,89 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
       });
     } on DioException catch (e) {
       setState(() {
-        error = extractErrorMessage(e, fallback: 'Could not load languages.');
+        error = extractErrorMessage(e, fallback: l10n.adminLangMgmtLoadError);
         isLoading = false;
       });
     }
   }
 
   Future<void> _toggleActive(AdminLanguage language) async {
+    final l10n = AppLocalizations.of(context);
     try {
       await repository.setLanguageActive(language.id, !language.isActive);
       load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update language.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLangMgmtUpdateError));
     }
   }
 
   Future<void> _delete(AdminLanguage language) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete language?'),
-        content: Text('"${language.name}" will be permanently removed. This only works if it has no courses yet.'),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.error)),
-          ),
-        ],
-      ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminLangMgmtDeleteTitle),
+          content: Text(l10n.adminLangMgmtDeleteBody(language.name)),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.adminLangMgmtCancel)),
+            TextButton(
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.adminLangMgmtDelete, style: const TextStyle(color: AppColors.error)),
+            ),
+          ],
+        );
+      },
     );
     if (confirmed != true) return;
 
     try {
       await repository.deleteLanguage(language.id);
       load();
-      _showMessage('Language deleted.');
+      _showMessage(l10n.adminLangMgmtDeletedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete language.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLangMgmtDeleteError));
     }
   }
 
   Future<void> _openAddDialog() async {
+    final l10n = AppLocalizations.of(context);
     final nameController = TextEditingController();
     final codeController = TextEditingController();
     final countryController = TextEditingController();
 
     final confirmed = await showDialog<bool>(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add Language'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            TextField(
-              controller: nameController,
-              decoration: const InputDecoration(labelText: 'Name (e.g. Bassa)'),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: codeController,
-              decoration: const InputDecoration(labelText: 'Code (e.g. bas)'),
-            ),
-            const SizedBox(height: AppSpacing.md),
-            TextField(
-              controller: countryController,
-              decoration: const InputDecoration(labelText: 'Country (optional)'),
-            ),
+      builder: (context) {
+        final l10n = AppLocalizations.of(context);
+        return AlertDialog(
+          title: Text(l10n.adminLangMgmtAddTitle),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: InputDecoration(labelText: l10n.adminLangMgmtNameLabel),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: codeController,
+                decoration: InputDecoration(labelText: l10n.adminLangMgmtCodeLabel),
+              ),
+              const SizedBox(height: AppSpacing.md),
+              TextField(
+                controller: countryController,
+                decoration: InputDecoration(labelText: l10n.adminLangMgmtCountryLabel),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.adminLangMgmtCancel)),
+            FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.adminLangMgmtAdd)),
           ],
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Add')),
-        ],
-      ),
+        );
+      },
     );
 
     if (confirmed != true) return;
@@ -137,9 +148,9 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
         country: countryController.text.trim(),
       );
       load();
-      _showMessage('Language added. It starts as a draft — publish it once its content is ready.');
+      _showMessage(l10n.adminLangMgmtAddedMessage);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add language.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminLangMgmtAddError));
     }
   }
 
@@ -152,27 +163,28 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return AdminShell(
       activeNavKey: 'languages',
-      title: 'Languages',
-      subtitle: '${languages.length} total',
+      title: l10n.adminLangMgmtTitle,
+      subtitle: l10n.adminLangMgmtSubtitleCount(languages.length),
       actions: [
         FilledButton.icon(
           onPressed: _openAddDialog,
           style: FilledButton.styleFrom(backgroundColor: _languageAccent[0]),
           icon: const Icon(Icons.add, size: 18),
-          label: const Text('Add Language'),
+          label: Text(l10n.adminLangMgmtAddTitle),
         ),
       ],
       child: isLoading
           ? const ShimmerListLoader(itemCount: 5, itemHeight: 76)
           : error != null
-              ? EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
+              ? EmptyState(icon: Icons.error_outline, title: l10n.adminLangMgmtErrorTitle, message: error)
               : languages.isEmpty
-                  ? const EmptyState(
+                  ? EmptyState(
                       icon: Icons.language_outlined,
-                      title: 'No languages yet',
-                      message: 'Tap "Add Language" to create the first one.',
+                      title: l10n.adminLangMgmtEmptyTitle,
+                      message: l10n.adminLangMgmtEmptyMessage,
                     )
                   : ListView.separated(
                       shrinkWrap: true,
@@ -227,7 +239,7 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
                                           activeThumbColor: _languageAccent[0],
                                         ),
                                         Text(
-                                          language.isActive ? 'Published' : 'Draft',
+                                          language.isActive ? l10n.adminLangMgmtPublished : l10n.adminLangMgmtDraft,
                                           style: AppTypography.caption.copyWith(fontSize: 10),
                                         ),
                                       ],
@@ -235,7 +247,7 @@ class _AdminLanguageManagementScreenState extends State<AdminLanguageManagementS
                                     IconButton(
                                       onPressed: () => _delete(language),
                                       icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                                      tooltip: 'Delete',
+                                      tooltip: l10n.adminLangMgmtDelete,
                                     ),
                                   ],
                                 ),

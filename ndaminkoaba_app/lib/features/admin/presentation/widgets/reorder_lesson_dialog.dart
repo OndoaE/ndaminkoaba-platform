@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../../design_system/spacing/app_spacing.dart';
 import '../../../../design_system/typography/app_typography.dart';
+import '../../../../l10n/app_localizations.dart';
 
 /// Prompts for a new 1-indexed position among [totalLessons] siblings.
 /// Returns null if cancelled, or the chosen position (unchanged from
@@ -58,32 +59,36 @@ class _ReorderLessonDialogState extends State<_ReorderLessonDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isNoOp = selectedPosition == widget.currentPosition;
 
     return AlertDialog(
-      title: const Text('Change Lesson Position'),
+      title: Text(l10n.reorderLessonDialogTitle),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('New position (currently Lesson ${widget.currentPosition})', style: AppTypography.caption),
+          Text(
+            l10n.reorderLessonDialogNewPositionLabel(widget.currentPosition),
+            style: AppTypography.caption,
+          ),
           const SizedBox(height: AppSpacing.xs),
           DropdownButton<int>(
             value: selectedPosition,
             isExpanded: true,
             items: List.generate(
               widget.totalLessons,
-              (i) => DropdownMenuItem(value: i + 1, child: Text('Lesson ${i + 1}')),
+              (i) => DropdownMenuItem(value: i + 1, child: Text(l10n.lessonNumberLabel(i + 1))),
             ),
             onChanged: (value) => setState(() => selectedPosition = value ?? selectedPosition),
           ),
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
         FilledButton(
           onPressed: isNoOp ? null : () => Navigator.pop(context, selectedPosition),
-          child: const Text('Move'),
+          child: Text(l10n.reorderLessonDialogMoveButton),
         ),
       ],
     );

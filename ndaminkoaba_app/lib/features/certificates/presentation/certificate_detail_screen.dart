@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../config/app_config.dart';
+import '../../../core/locale/locale_provider.dart';
 import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
@@ -31,17 +33,18 @@ String _levelLabel(AppLocalizations l10n, String level) {
   }
 }
 
-class CertificateDetailScreen extends StatefulWidget {
+class CertificateDetailScreen extends ConsumerStatefulWidget {
   const CertificateDetailScreen({super.key, required this.certificateId});
 
   final String certificateId;
 
   @override
-  State<CertificateDetailScreen> createState() =>
+  ConsumerState<CertificateDetailScreen> createState() =>
       _CertificateDetailScreenState();
 }
 
-class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
+class _CertificateDetailScreenState
+    extends ConsumerState<CertificateDetailScreen> {
   final repository = CertificateRepository();
 
   Certificate? certificate;
@@ -106,6 +109,7 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final isFrench = ref.watch(localeProvider).languageCode == 'fr';
     return Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
@@ -196,7 +200,11 @@ class _CertificateDetailScreenState extends State<CertificateDetailScreen> {
                             ),
                             const SizedBox(height: AppSpacing.sm),
                             Text(
-                              cert.courseTitle,
+                              (isFrench &&
+                                      cert.frenchCourseTitle != null &&
+                                      cert.frenchCourseTitle!.isNotEmpty)
+                                  ? cert.frenchCourseTitle!
+                                  : cert.courseTitle,
                               style: const TextStyle(color: Colors.white70),
                               textAlign: TextAlign.center,
                             ),

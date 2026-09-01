@@ -7,6 +7,7 @@ class Book {
   final String title;
   final String? author;
   final String? description;
+  final String? frenchDescription;
   final String? coverUrl;
   final String? fileUrl;
   final String? fileType;
@@ -24,6 +25,7 @@ class Book {
     required this.title,
     this.author,
     this.description,
+    this.frenchDescription,
     this.coverUrl,
     this.fileUrl,
     this.fileType,
@@ -49,6 +51,7 @@ class Book {
       title: json['title'] ?? '',
       author: json['author'],
       description: json['description'],
+      frenchDescription: json['frenchDescription'],
       coverUrl: json['coverUrl'],
       fileUrl: json['fileUrl'],
       fileType: json['fileType'],

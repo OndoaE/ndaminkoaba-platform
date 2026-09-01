@@ -14,6 +14,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/knowledge_repository.dart';
 import '../data/usfm_parser.dart';
 import '../domain/knowledge_models.dart';
@@ -65,7 +66,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   final repository = KnowledgeRepository();
   final bookController = TextEditingController();
   final chapterController = TextEditingController();
-  final versionController = TextEditingController(text: 'ESV');
+  final versionController = TextEditingController();
   final ewondoController = TextEditingController();
   final englishController = TextEditingController();
   final frenchController = TextEditingController();
@@ -73,6 +74,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   bool isLoadingChapters = true;
   bool isSaving = false;
   bool isUsfmMode = false;
+  bool _defaultVersionSet = false;
   List<BibleChapterSummary> savedChapters = [];
   List<_VersePreview> preview = [];
 
@@ -80,6 +82,15 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   void initState() {
     super.initState();
     loadChapters();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_defaultVersionSet) {
+      _defaultVersionSet = true;
+      versionController.text = AppLocalizations.of(context).adminBibleChapterDefaultVersion;
+    }
   }
 
   @override
@@ -118,6 +129,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   }
 
   Future<void> _uploadUsfmFile(TextEditingController controller) async {
+    final l10n = AppLocalizations.of(context);
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['usfm', 'sfm', 'txt'],
@@ -127,12 +139,12 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
     final bytes = result.files.first.bytes;
     if (bytes == null) {
-      _showMessage('Could not read that file.');
+      _showMessage(l10n.adminBibleChapterFileReadError);
       return;
     }
 
     setState(() => controller.text = utf8.decode(bytes, allowMalformed: true));
-    _showMessage('Loaded ${result.files.first.name}.');
+    _showMessage(l10n.adminBibleChapterFileLoaded(result.files.first.name));
   }
 
   List<({int verse, String text})> _parseVerses(String raw) {
@@ -160,9 +172,10 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   }
 
   void _buildManualPreview() {
+    final l10n = AppLocalizations.of(context);
     final chapter = int.tryParse(chapterController.text.trim());
     if (chapter == null) {
-      _showMessage('Enter a valid chapter number.');
+      _showMessage(l10n.adminBibleChapterInvalidChapterError);
       return;
     }
 
@@ -172,7 +185,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
     if (ewondoVerses.isEmpty && englishVerses.isEmpty && frenchVerses.isEmpty) {
       _showMessage(
-        'No numbered verses found. Paste one verse per line, each starting with its verse number.',
+        l10n.adminBibleChapterNoVersesFoundError,
       );
       return;
     }
@@ -202,6 +215,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   }
 
   void _buildUsfmPreview() {
+    final l10n = AppLocalizations.of(context);
     final ewondoResult = UsfmParser.parse(ewondoController.text);
     final englishResult = UsfmParser.parse(englishController.text);
     final frenchResult = UsfmParser.parse(frenchController.text);
@@ -210,8 +224,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
         englishResult.verseCount == 0 &&
         frenchResult.verseCount == 0) {
       _showMessage(
-        'Could not find any \\v verse markers. Make sure you pasted valid USFM text '
-        '(e.g. "\\c 1 \\v 1 In the beginning...").',
+        l10n.adminBibleChapterNoUsfmMarkersError,
       );
       return;
     }
@@ -271,13 +284,14 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   }
 
   Future<void> saveChapter() async {
+    final l10n = AppLocalizations.of(context);
     final book = bookController.text.trim();
     final version = versionController.text.trim().isEmpty
-        ? 'ESV'
+        ? l10n.adminBibleChapterDefaultVersion
         : versionController.text.trim();
 
     if (book.isEmpty) {
-      _showMessage('Enter a book name.');
+      _showMessage(l10n.adminBibleChapterEnterBookNameError);
       return;
     }
 
@@ -286,7 +300,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
         .toList();
     if (versesToSave.isEmpty) {
       _showMessage(
-        'No verses with Ewondo text to save — preview the comparison first.',
+        l10n.adminBibleChapterNoEwondoVersesError,
       );
       return;
     }
@@ -324,34 +338,40 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       });
       _showMessage(
         chapterCount > 1
-            ? 'Saved ${versesToSave.length} verse(s) across $chapterCount chapters of $book.'
-            : 'Saved ${versesToSave.length} verse(s) for $book.',
+            ? l10n.adminBibleChapterSavedMultiChapters(versesToSave.length, chapterCount, book)
+            : l10n.adminBibleChapterSavedSingleChapter(versesToSave.length, book),
       );
       loadChapters();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not save chapter.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBibleChapterSaveError));
     } finally {
       if (mounted) setState(() => isSaving = false);
     }
   }
 
   Future<void> deleteChapter(BibleChapterSummary summary) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Chapter'),
+        title: Text(l10n.adminBibleChapterDeleteChapterTitle),
         content: Text(
-          'Delete all ${summary.verseCount} verse(s) of ${summary.book} ${summary.chapter} (${summary.version})?',
+          l10n.adminBibleChapterDeleteChapterConfirm(
+            summary.verseCount,
+            summary.book,
+            summary.chapter,
+            summary.version,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.adminBibleChapterCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.adminBibleChapterDelete),
           ),
         ],
       ),
@@ -368,7 +388,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       loadChapters();
     } on DioException catch (e) {
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not delete chapter.'),
+        extractErrorMessage(e, fallback: l10n.adminBibleChapterDeleteError),
       );
     }
   }
@@ -416,6 +436,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     TextEditingController controller, {
     VoidCallback? onUpload,
   }) {
+    final l10n = AppLocalizations.of(context);
     return PremiumCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -427,7 +448,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 TextButton.icon(
                   onPressed: onUpload,
                   icon: const Icon(Icons.upload_file, size: 18),
-                  label: const Text('Upload File'),
+                  label: Text(l10n.adminBibleChapterUploadFileButton),
                 ),
             ],
           ),
@@ -468,6 +489,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   }
 
   Widget _chapterPreviewSection(MapEntry<int, List<_VersePreview>> entry) {
+    final l10n = AppLocalizations.of(context);
     final chapter = entry.key;
     final verses = entry.value;
     final rows = verses.map(_verseRow).toList();
@@ -484,10 +506,10 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       child: ExpansionTile(
         tilePadding: EdgeInsets.zero,
         title: Text(
-          'Chapter $chapter',
+          l10n.adminBibleChapterChapterHeading(chapter),
           style: AppTypography.title.copyWith(fontSize: 15),
         ),
-        subtitle: Text('${verses.length} verses', style: AppTypography.caption),
+        subtitle: Text(l10n.adminBibleChapterVerseCount(verses.length), style: AppTypography.caption),
         children: rows,
       ),
     );
@@ -497,6 +519,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       preview.any((v) => v.frenchText != null && v.frenchText!.isNotEmpty);
 
   Widget _verseRow(_VersePreview item) {
+    final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
       decoration: const BoxDecoration(
@@ -531,7 +554,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                   Text(item.ewondoText!, style: AppTypography.body)
                 else
                   Text(
-                    'Missing Ewondo text',
+                    l10n.adminBibleChapterMissingEwondoText,
                     style: AppTypography.body.copyWith(
                       color: AppColors.error,
                       fontStyle: FontStyle.italic,
@@ -542,7 +565,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                   Text(item.englishText!, style: AppTypography.caption)
                 else
                   Text(
-                    'Missing English text',
+                    l10n.adminBibleChapterMissingEnglishText,
                     style: AppTypography.caption.copyWith(
                       color: AppColors.warning,
                       fontStyle: FontStyle.italic,
@@ -554,7 +577,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                     Text(item.frenchText!, style: AppTypography.caption)
                   else
                     Text(
-                      'Missing French text',
+                      l10n.adminBibleChapterMissingFrenchText,
                       style: AppTypography.caption.copyWith(
                         color: AppColors.warning,
                         fontStyle: FontStyle.italic,
@@ -571,24 +594,21 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final title = widget.languageName ?? 'Language';
+    final l10n = AppLocalizations.of(context);
+    final title = widget.languageName ?? l10n.adminBibleChapterDefaultLanguageName;
     return AdminShell(
       activeNavKey: 'bible',
       languageId: widget.languageId,
       languageName: title,
-      title: 'Bible Management',
-      subtitle: 'Bible chapters and verses for $title',
+      title: l10n.adminBibleChapterTitle,
+      subtitle: l10n.adminBibleChapterSubtitle(title),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             isUsfmMode
-                ? 'Upload (or paste) an entire book\'s USFM in Ewondo alongside its '
-                      'English (ESV) USFM. Chapters and verses are detected automatically '
-                      'from the \\c and \\v markers and matched verse by verse.'
-                : 'Paste a full chapter in Ewondo (New Testament) alongside its English '
-                      '(ESV) translation. Each is matched verse by verse so Nnanga learns '
-                      'accurate, side-by-side translations.',
+                ? l10n.adminBibleChapterUsfmModeInstructions
+                : l10n.adminBibleChapterManualModeInstructions,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -597,7 +617,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
             runSpacing: AppSpacing.sm,
             children: [
               ChoiceChip(
-                label: const Text('Single Chapter'),
+                label: Text(l10n.adminBibleChapterSingleChapterOption),
                 selected: !isUsfmMode,
                 onSelected: (_) => setState(() {
                   isUsfmMode = false;
@@ -609,7 +629,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 ),
               ),
               ChoiceChip(
-                label: const Text('USFM (Whole Book)'),
+                label: Text(l10n.adminBibleChapterUsfmWholeBookOption),
                 selected: isUsfmMode,
                 onSelected: (_) => setState(() {
                   isUsfmMode = true;
@@ -628,13 +648,13 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isUsfmMode ? 'Book Details' : 'Chapter Details',
+                  isUsfmMode ? l10n.adminBibleChapterBookDetailsTitle : l10n.adminBibleChapterChapterDetailsTitle,
                   style: AppTypography.title,
                 ),
                 if (isUsfmMode) ...[
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    'Auto-filled from the USFM \\h/\\mt1 title once previewed — edit if needed.',
+                    l10n.adminBibleChapterAutoFilledHint,
                     style: AppTypography.caption,
                   ),
                 ],
@@ -642,17 +662,17 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _field('Book', bookController),
+                    _field(l10n.adminBibleChapterBookLabel, bookController),
                     const SizedBox(width: AppSpacing.md),
                     if (!isUsfmMode) ...[
                       _field(
-                        'Chapter',
+                        l10n.adminBibleChapterChapterLabel,
                         chapterController,
                         keyboardType: TextInputType.number,
                       ),
                       const SizedBox(width: AppSpacing.md),
                     ],
-                    _field('Version', versionController),
+                    _field(l10n.adminBibleChapterVersionLabel, versionController),
                   ],
                 ),
               ],
@@ -660,13 +680,13 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
           ),
           const SizedBox(height: AppSpacing.lg),
           _pasteBox(
-            isUsfmMode ? 'Ewondo USFM (entire book)' : 'Ewondo Chapter Text',
+            isUsfmMode ? l10n.adminBibleChapterEwondoUsfmLabel : l10n.adminBibleChapterEwondoChapterLabel,
             isUsfmMode
-                ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
-                : 'One verse per line, each starting with its verse number.',
+                ? l10n.adminBibleChapterUploadOrPasteHelper
+                : l10n.adminBibleChapterOneVersePerLineHelper,
             isUsfmMode
-                ? '\\id JHN\n\\h John\n\\c 1\n\\v 1 Kiki avele, Nkobo a nga bo...\n\\v 2 ...'
-                : '1 In the beginning was the Word...\n2 He was in the beginning with God...',
+                ? l10n.adminBibleChapterEwondoUsfmHintExample
+                : l10n.adminBibleChapterManualHintExample,
             ewondoController,
             onUpload: isUsfmMode
                 ? () => _uploadUsfmFile(ewondoController)
@@ -675,14 +695,14 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
           const SizedBox(height: AppSpacing.lg),
           _pasteBox(
             isUsfmMode
-                ? 'English USFM (entire book, ESV)'
-                : 'English Chapter Text (ESV)',
+                ? l10n.adminBibleChapterEnglishUsfmLabel
+                : l10n.adminBibleChapterEnglishChapterLabel,
             isUsfmMode
-                ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
-                : 'One verse per line, each starting with its verse number.',
+                ? l10n.adminBibleChapterUploadOrPasteHelper
+                : l10n.adminBibleChapterOneVersePerLineHelper,
             isUsfmMode
-                ? '\\id JHN\n\\h John\n\\c 1\n\\v 1 In the beginning was the Word...\n\\v 2 ...'
-                : '1 In the beginning was the Word...\n2 He was in the beginning with God...',
+                ? l10n.adminBibleChapterEnglishUsfmHintExample
+                : l10n.adminBibleChapterManualHintExample,
             englishController,
             onUpload: isUsfmMode
                 ? () => _uploadUsfmFile(englishController)
@@ -691,14 +711,14 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
           const SizedBox(height: AppSpacing.lg),
           _pasteBox(
             isUsfmMode
-                ? 'French USFM (entire book, optional)'
-                : 'French Chapter Text (optional)',
+                ? l10n.adminBibleChapterFrenchUsfmLabel
+                : l10n.adminBibleChapterFrenchChapterLabel,
             isUsfmMode
-                ? 'Upload a .usfm/.sfm/.txt file, or paste the text directly.'
-                : 'One verse per line, each starting with its verse number.',
+                ? l10n.adminBibleChapterUploadOrPasteHelper
+                : l10n.adminBibleChapterOneVersePerLineHelper,
             isUsfmMode
-                ? '\\id JHN\n\\h Jean\n\\c 1\n\\v 1 Au commencement était la Parole...\n\\v 2 ...'
-                : '1 Au commencement était la Parole...\n2 Elle était au commencement avec Dieu...',
+                ? l10n.adminBibleChapterFrenchUsfmHintExample
+                : l10n.adminBibleChapterFrenchManualHintExample,
             frenchController,
             onUpload: isUsfmMode
                 ? () => _uploadUsfmFile(frenchController)
@@ -710,7 +730,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
             child: OutlinedButton.icon(
               onPressed: buildPreview,
               icon: const Icon(Icons.compare_arrows),
-              label: const Text('Preview Verse-by-Verse Comparison'),
+              label: Text(l10n.adminBibleChapterPreviewButton),
               style: OutlinedButton.styleFrom(
                 padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
                 shape: RoundedRectangleBorder(borderRadius: AppRadius.medium),
@@ -723,11 +743,10 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Verse-by-Verse Comparison', style: AppTypography.title),
+                  Text(l10n.adminBibleChapterComparisonTitle, style: AppTypography.title),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    '${preview.length} verses across ${_previewChapters.length} '
-                    '${_previewChapters.length == 1 ? 'chapter' : 'chapters'}',
+                    l10n.adminBibleChapterVersesAcrossChapters(preview.length, _previewChapters.length),
                     style: AppTypography.caption,
                   ),
                   const SizedBox(height: AppSpacing.md),
@@ -737,22 +756,22 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
             ),
             const SizedBox(height: AppSpacing.lg),
             PrimaryButton(
-              label: isUsfmMode ? 'Save Book' : 'Save Chapter',
+              label: isUsfmMode ? l10n.adminBibleChapterSaveBookButton : l10n.adminBibleChapterSaveChapterButton,
               icon: Icons.save_outlined,
               isLoading: isSaving,
               onPressed: saveChapter,
             ),
           ],
           const SizedBox(height: AppSpacing.xxl),
-          Text('Saved Chapters', style: AppTypography.title),
+          Text(l10n.adminBibleChapterSavedChaptersHeading, style: AppTypography.title),
           const SizedBox(height: AppSpacing.md),
           isLoadingChapters
               ? const ShimmerListLoader(itemCount: 2, itemHeight: 72)
               : savedChapters.isEmpty
               ? EmptyState(
                   icon: Icons.menu_book_outlined,
-                  title: 'No chapters yet',
-                  message: 'Paste and save a chapter above to see it here.',
+                  title: l10n.adminBibleChapterEmptyTitle,
+                  message: l10n.adminBibleChapterEmptyMessage,
                 )
               : Column(
                   children: savedChapters
@@ -800,7 +819,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                                     Icons.delete_outline,
                                     color: AppColors.error,
                                   ),
-                                  tooltip: 'Delete chapter',
+                                  tooltip: l10n.adminBibleChapterDeleteChapterTooltip,
                                   onPressed: () => deleteChapter(summary),
                                 ),
                               ],

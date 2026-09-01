@@ -7,6 +7,7 @@ class BookPage {
     required this.orderNumber,
     this.illustrationUrl,
     required this.ewondoText,
+    this.englishText,
     this.frenchText,
     this.audioUrl,
   });
@@ -15,6 +16,7 @@ class BookPage {
   final int orderNumber;
   final String? illustrationUrl;
   final String ewondoText;
+  final String? englishText;
   final String? frenchText;
   final String? audioUrl;
 
@@ -24,6 +26,7 @@ class BookPage {
       orderNumber: (json['orderNumber'] as num?)?.toInt() ?? 0,
       illustrationUrl: json['illustrationUrl'],
       ewondoText: json['ewondoText'] ?? '',
+      englishText: json['englishText'],
       frenchText: json['frenchText'],
       audioUrl: json['audioUrl'],
     );

@@ -9,6 +9,7 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/knowledge_repository.dart';
 import '../domain/knowledge_models.dart';
 import '../domain/vocabulary_paste_parser.dart';
@@ -25,9 +26,10 @@ class AdminVocabularyManagementScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'Vocabulary Management', colors: [AppColors.ai, Color(0xFF6B4CE0)]),
+      appBar: GradientAppBar(title: l10n.adminVocabMgmtTitle, colors: const [AppColors.ai, Color(0xFF6B4CE0)]),
       body: SafeArea(child: VocabularyManagerBody(languageId: languageId)),
     );
   }
@@ -122,7 +124,8 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
       await repository.deleteVocabulary(word.id);
       load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete word.'));
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminVocabMgmtCouldNotDeleteWord));
     }
   }
 
@@ -148,9 +151,11 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
       );
       _clearFilters();
       load();
-      _showMessage('Knowledge entry added.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminVocabMgmtWordAdded);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add word.'));
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminVocabMgmtCouldNotAddWord));
     }
   }
 
@@ -161,6 +166,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
     );
     if (parsedWords == null || parsedWords.isEmpty) return;
 
+    final l10n = AppLocalizations.of(context);
     var succeeded = 0;
     var failed = 0;
     String? firstError;
@@ -180,7 +186,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         succeeded++;
       } on DioException catch (e) {
         failed++;
-        firstError ??= extractErrorMessage(e, fallback: 'Unknown server error.');
+        firstError ??= extractErrorMessage(e, fallback: l10n.adminVocabMgmtUnknownServerError);
       } catch (e) {
         failed++;
         firstError ??= e.toString();
@@ -191,9 +197,10 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
     load();
     _showMessage(
       failed == 0
-          ? 'Imported $succeeded word(s).'
-          : 'Imported $succeeded word(s), $failed failed'
-                '${firstError != null ? ' — $firstError' : ''}.',
+          ? l10n.adminVocabMgmtImportedWords(succeeded)
+          : l10n.adminVocabMgmtImportedWordsWithFailures(succeeded, failed) +
+                (firstError != null ? ' — $firstError' : '') +
+                '.',
     );
   }
 
@@ -218,9 +225,11 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         audioUrl: result.audioUrl,
       );
       load();
-      _showMessage('Knowledge entry updated.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminVocabMgmtWordUpdated);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update word.'));
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminVocabMgmtCouldNotUpdateWord));
     }
   }
 
@@ -229,7 +238,8 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
       await repository.deleteKnowledgeText(text.id);
       load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete text.'));
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminVocabMgmtCouldNotDeleteText));
     }
   }
 
@@ -248,9 +258,11 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
       );
       _clearFilters();
       load();
-      _showMessage('Text & translation added.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminVocabMgmtTextAdded);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add text.'));
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminVocabMgmtCouldNotAddText));
     }
   }
 
@@ -268,14 +280,17 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
         translation: result.translation,
       );
       load();
-      _showMessage('Text & translation updated.');
+      final l10n = AppLocalizations.of(context);
+      _showMessage(l10n.adminVocabMgmtTextUpdated);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update text.'));
+      final l10n = AppLocalizations.of(context);
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminVocabMgmtCouldNotUpdateText));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: Colors.transparent,
       floatingActionButton: Column(
@@ -286,7 +301,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
             heroTag: 'addText',
             backgroundColor: const Color(0xFF6B4CE0),
             icon: const Icon(Icons.article_outlined, color: Colors.white),
-            label: const Text('Add Text & Translation', style: TextStyle(color: Colors.white)),
+            label: Text(l10n.adminVocabMgmtAddTextAction, style: const TextStyle(color: Colors.white)),
             onPressed: addText,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -294,7 +309,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
             heroTag: 'pasteVocabulary',
             backgroundColor: AppColors.secondary,
             icon: const Icon(Icons.content_paste, color: Colors.white),
-            label: const Text('Paste Vocabulary', style: TextStyle(color: Colors.white)),
+            label: Text(l10n.adminVocabMgmtPasteVocabularyAction, style: const TextStyle(color: Colors.white)),
             onPressed: pasteVocabulary,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -302,7 +317,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
             heroTag: 'addWord',
             backgroundColor: AppColors.ai,
             icon: const Icon(Icons.add, color: Colors.white),
-            label: const Text('Add Knowledge', style: TextStyle(color: Colors.white)),
+            label: Text(l10n.adminVocabMgmtAddKnowledgeAction, style: const TextStyle(color: Colors.white)),
             onPressed: addWord,
           ),
         ],
@@ -313,8 +328,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'This is Nnanga\'s knowledge base. It searches these words and their '
-              'lessons to answer learners — the more you add, the better it answers.',
+              l10n.adminVocabMgmtKnowledgeBaseDescription,
               style: AppTypography.caption,
             ),
             const SizedBox(height: AppSpacing.lg),
@@ -322,7 +336,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
               controller: searchController,
               onChanged: (_) => setState(() {}),
               decoration: InputDecoration(
-                hintText: 'Search knowledge...',
+                hintText: l10n.adminVocabMgmtSearchHint,
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
                 fillColor: AppColors.surface,
@@ -336,7 +350,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
                 scrollDirection: Axis.horizontal,
                 children: [
                   _FilterChip(
-                    label: 'All Levels',
+                    label: l10n.adminVocabMgmtAllLevels,
                     selected: difficultyFilter == null,
                     onTap: () => setState(() => difficultyFilter = null),
                   ),
@@ -362,8 +376,7 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
                             child: Text(
-                              'No knowledge found. Use "Paste Vocabulary" below to add a whole '
-                              'word list at once, or "Add Knowledge" for a single word.',
+                              l10n.adminVocabMgmtEmptyState,
                               style: AppTypography.caption,
                               textAlign: TextAlign.center,
                             ),
@@ -374,8 +387,8 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
                           children: [
                             if (_visibleTexts.isNotEmpty) ...[
                               SectionTitle(
-                                title: 'Texts & Translations',
-                                subtitle: '${_visibleTexts.length} entries',
+                                title: l10n.adminVocabMgmtTextsSectionTitle,
+                                subtitle: l10n.adminVocabMgmtEntriesCount(_visibleTexts.length),
                               ),
                               const SizedBox(height: AppSpacing.md),
                               ..._visibleTexts.map(
@@ -417,12 +430,12 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
                                           ),
                                           IconButton(
                                             icon: const Icon(Icons.edit_outlined),
-                                            tooltip: 'Edit',
+                                            tooltip: l10n.adminVocabMgmtEditTooltip,
                                             onPressed: () => editText(item),
                                           ),
                                           IconButton(
                                             icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                                            tooltip: 'Delete',
+                                            tooltip: l10n.adminVocabMgmtDeleteTooltip,
                                             onPressed: () => deleteText(item),
                                           ),
                                         ],
@@ -433,8 +446,8 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
                               ),
                               const SizedBox(height: AppSpacing.lg),
                               SectionTitle(
-                                title: 'Vocabulary',
-                                subtitle: '${_visibleWords.length} words',
+                                title: l10n.adminVocabMgmtVocabularySectionTitle,
+                                subtitle: l10n.adminVocabMgmtWordsCount(_visibleWords.length),
                               ),
                               const SizedBox(height: AppSpacing.md),
                             ],
@@ -481,14 +494,14 @@ class _VocabularyManagerBodyState extends State<VocabularyManagerBody> {
                                               deleteWord(word);
                                             }
                                           },
-                                          itemBuilder: (context) => const [
+                                          itemBuilder: (context) => [
                                             PopupMenuItem(
                                               value: 'edit',
-                                              child: Text('Edit'),
+                                              child: Text(l10n.adminVocabMgmtEditAction),
                                             ),
                                             PopupMenuItem(
                                               value: 'delete',
-                                              child: Text('Delete', style: TextStyle(color: AppColors.error)),
+                                              child: Text(l10n.adminVocabMgmtDeleteAction, style: const TextStyle(color: AppColors.error)),
                                             ),
                                           ],
                                         ),
@@ -622,9 +635,10 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.initial != null;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Knowledge Entry' : 'Add Knowledge Entry'),
+      title: Text(isEditing ? l10n.adminVocabMgmtEditKnowledgeEntryTitle : l10n.adminVocabMgmtAddKnowledgeEntryTitle),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 640),
         child: SingleChildScrollView(
@@ -635,14 +649,14 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _tableColumn('Ewondo word or phrase', wordController),
+                  _tableColumn(l10n.adminVocabMgmtEwondoWordLabel, wordController),
                   const SizedBox(width: AppSpacing.md),
-                  _tableColumn('Example sentence', exampleController),
+                  _tableColumn(l10n.adminVocabMgmtExampleSentenceLabel, exampleController),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
               Text(
-                'Phonetic transcription (optional)',
+                l10n.adminVocabMgmtPhoneticLabel,
                 style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: AppSpacing.xs),
@@ -652,7 +666,7 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
                   isDense: true,
                   filled: true,
                   fillColor: AppColors.surface,
-                  hintText: 'e.g. mbɔ́lɔ́ — shown under the word on the lesson screen',
+                  hintText: l10n.adminVocabMgmtPhoneticHint,
                   contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -664,28 +678,28 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
               AudioRecorderField(
                 initialUrl: audioUrl,
                 onChanged: (url) => audioUrl = url,
-                label: 'Pronunciation audio (helps Nnanga\'s "hear it" playback for learners)',
+                label: l10n.adminVocabMgmtPronunciationAudioLabel,
               ),
               const SizedBox(height: AppSpacing.md),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _tableColumn('English meaning', englishController),
+                  _tableColumn(l10n.adminVocabMgmtEnglishMeaningLabel, englishController),
                   const SizedBox(width: AppSpacing.md),
-                  _tableColumn('English translation', translationController),
+                  _tableColumn(l10n.adminVocabMgmtEnglishTranslationLabel, translationController),
                 ],
               ),
               const SizedBox(height: AppSpacing.md),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _tableColumn('French meaning', frenchController),
+                  _tableColumn(l10n.adminVocabMgmtFrenchMeaningLabel, frenchController),
                   const SizedBox(width: AppSpacing.md),
-                  _tableColumn('French translation', frenchTranslationController),
+                  _tableColumn(l10n.adminVocabMgmtFrenchTranslationLabel, frenchTranslationController),
                 ],
               ),
               const SizedBox(height: AppSpacing.lg),
-              Text('Difficulty', style: AppTypography.caption),
+              Text(l10n.adminVocabMgmtDifficultyLabel, style: AppTypography.caption),
               Wrap(
                 spacing: AppSpacing.sm,
                 children: _levels
@@ -701,7 +715,7 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.adminVocabMgmtCancel)),
         FilledButton(
           onPressed: () {
             if (wordController.text.trim().isEmpty) return;
@@ -720,7 +734,7 @@ class _VocabFormDialogState extends State<VocabFormDialog> {
               ),
             );
           },
-          child: Text(isEditing ? 'Save' : 'Add'),
+          child: Text(isEditing ? l10n.adminVocabMgmtSave : l10n.adminVocabMgmtAdd),
         ),
       ],
     );
@@ -763,9 +777,10 @@ class _TextEntryFormDialogState extends State<TextEntryFormDialog> {
   @override
   Widget build(BuildContext context) {
     final isEditing = widget.initial != null;
+    final l10n = AppLocalizations.of(context);
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Text & Translation' : 'Add Text & Translation'),
+      title: Text(isEditing ? l10n.adminVocabMgmtEditTextEntryTitle : l10n.adminVocabMgmtAddTextEntryTitle),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 480),
         child: SingleChildScrollView(
@@ -777,21 +792,21 @@ class _TextEntryFormDialogState extends State<TextEntryFormDialog> {
                 controller: textController,
                 maxLines: 5,
                 minLines: 3,
-                decoration: const InputDecoration(labelText: 'Ewondo text'),
+                decoration: InputDecoration(labelText: l10n.adminVocabMgmtEwondoTextLabel),
               ),
               const SizedBox(height: AppSpacing.lg),
               TextField(
                 controller: translationController,
                 maxLines: 5,
                 minLines: 3,
-                decoration: const InputDecoration(labelText: 'Translation'),
+                decoration: InputDecoration(labelText: l10n.adminVocabMgmtTranslationLabel),
               ),
             ],
           ),
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.adminVocabMgmtCancel)),
         FilledButton(
           onPressed: () {
             if (textController.text.trim().isEmpty) return;
@@ -803,7 +818,7 @@ class _TextEntryFormDialogState extends State<TextEntryFormDialog> {
               ),
             );
           },
-          child: Text(isEditing ? 'Save' : 'Add'),
+          child: Text(isEditing ? l10n.adminVocabMgmtSave : l10n.adminVocabMgmtAdd),
         ),
       ],
     );
@@ -842,25 +857,26 @@ class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
   @override
   Widget build(BuildContext context) {
     final current = result;
+    final l10n = AppLocalizations.of(context);
     return AlertDialog(
-      title: Text(current == null ? 'Paste Vocabulary' : 'Preview Import'),
+      title: Text(current == null ? l10n.adminVocabMgmtPasteVocabularyTitle : l10n.adminVocabMgmtPreviewImportTitle),
       content: SizedBox(
         width: 520,
-        child: current == null ? _buildPasteStep() : _buildPreviewStep(current),
+        child: current == null ? _buildPasteStep(l10n) : _buildPreviewStep(current, l10n),
       ),
       actions: current == null
           ? [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(l10n.adminVocabMgmtCancel),
               ),
               FilledButton(
                 onPressed: textController.text.trim().isEmpty ? null : parse,
-                child: const Text('Parse'),
+                child: Text(l10n.adminVocabMgmtParseAction),
               ),
             ]
           : [
-              TextButton(onPressed: backToPaste, child: const Text('Back')),
+              TextButton(onPressed: backToPaste, child: Text(l10n.adminVocabMgmtBackAction)),
               FilledButton(
                 onPressed: current.words.where((w) => w.isValid).isEmpty
                     ? null
@@ -869,21 +885,21 @@ class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
                         current.words.where((w) => w.isValid).toList(),
                       ),
                 child: Text(
-                  'Import ${current.words.where((w) => w.isValid).length} Word(s)',
+                  l10n.adminVocabMgmtImportWordsAction(current.words.where((w) => w.isValid).length),
                 ),
               ),
             ],
     );
   }
 
-  Widget _buildPasteStep() {
+  Widget _buildPasteStep(AppLocalizations l10n) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Paste a word list — one per line, or a blank line between richer entries.',
+            l10n.adminVocabMgmtPasteInstructions,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -910,10 +926,7 @@ class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Simple lines: "word | English meaning | French meaning" (meanings '
-            'optional). Or spell it out over several lines with EN:, FR:, '
-            'Example:, Example EN:, Example FR:, Phonetic:, and Level: — only '
-            'the word itself is required.',
+            l10n.adminVocabMgmtPasteFormatHelp,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -921,9 +934,9 @@ class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
             controller: textController,
             maxLines: 12,
             minLines: 8,
-            decoration: const InputDecoration(
-              hintText: 'Paste your word list here…',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.adminVocabMgmtPasteFieldHint,
+              border: const OutlineInputBorder(),
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -932,7 +945,7 @@ class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
     );
   }
 
-  Widget _buildPreviewStep(VocabularyPasteParseResult result) {
+  Widget _buildPreviewStep(VocabularyPasteParseResult result, AppLocalizations l10n) {
     final validCount = result.words.where((w) => w.isValid).length;
     return SizedBox(
       height: 420,
@@ -940,7 +953,7 @@ class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${result.words.length} word(s) detected — $validCount ready to import.',
+            l10n.adminVocabMgmtWordsDetectedSummary(result.words.length, validCount),
             style: AppTypography.caption,
           ),
           if (result.globalWarnings.isNotEmpty)
@@ -956,7 +969,7 @@ class _PasteVocabularyDialogState extends State<_PasteVocabularyDialog> {
             child: result.words.isEmpty
                 ? Center(
                     child: Text(
-                      'Nothing to preview — go back and adjust the pasted text.',
+                      l10n.adminVocabMgmtNothingToPreview,
                       style: AppTypography.caption,
                     ),
                   )

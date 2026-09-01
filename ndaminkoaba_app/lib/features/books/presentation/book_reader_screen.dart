@@ -2,10 +2,12 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_epub_viewer/flutter_epub_viewer.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:syncfusion_flutter_pdfviewer/pdfviewer.dart';
 
 import '../../../config/app_config.dart';
+import '../../../core/locale/locale_provider.dart';
 import '../../../core/services/storage_service.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/radius/app_radius.dart';
@@ -326,7 +328,7 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
         actions: [
           IconButton(
             icon: const Text('Aa', style: TextStyle(fontWeight: FontWeight.w700)),
-            tooltip: 'Text size',
+            tooltip: l10n.bookReaderTextSizeTooltip,
             onPressed: _cycleFontScale,
           ),
           if (pages.isNotEmpty && pages[currentIndex].audioUrl != null)
@@ -416,14 +418,21 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
   }
 }
 
-class _PageView extends StatelessWidget {
+class _PageView extends ConsumerWidget {
   const _PageView({required this.page, required this.fontScale});
 
   final BookPage page;
   final double fontScale;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isFrench = ref.watch(localeProvider).languageCode == 'fr';
+    // Prefer the support text matching the UI locale, falling back to
+    // whichever language IS populated when the preferred one isn't
+    // (most existing pages only have French text authored so far).
+    final supportText = isFrench
+        ? page.frenchText ?? page.englishText
+        : page.englishText ?? page.frenchText;
     return SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
@@ -447,10 +456,10 @@ class _PageView extends StatelessWidget {
               fontSize: (AppTypography.body.fontSize ?? 15) * fontScale,
             ),
           ),
-          if (page.frenchText != null && page.frenchText!.isNotEmpty) ...[
+          if (supportText != null && supportText.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.sm),
             Text(
-              page.frenchText!,
+              supportText,
               textAlign: TextAlign.center,
               style: AppTypography.caption.copyWith(
                 fontSize: (AppTypography.caption.fontSize ?? 13) * fontScale,

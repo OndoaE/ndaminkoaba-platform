@@ -57,6 +57,7 @@ class BookRepository {
     required String languageId,
     String? author,
     String? description,
+    String? frenchDescription,
     String? coverUrl,
     String? fileUrl,
     String? fileType,
@@ -66,6 +67,8 @@ class BookRepository {
       'languageId': languageId,
       if (author != null && author.isNotEmpty) 'author': author,
       if (description != null && description.isNotEmpty) 'description': description,
+      if (frenchDescription != null && frenchDescription.isNotEmpty)
+        'frenchDescription': frenchDescription,
       if (coverUrl != null) 'coverUrl': coverUrl,
       if (fileUrl != null) 'fileUrl': fileUrl,
       if (fileType != null) 'fileType': fileType,
@@ -88,6 +91,7 @@ class BookRepository {
     String? title,
     String? author,
     String? description,
+    String? frenchDescription,
     String? coverUrl,
     String? fileUrl,
     String? fileType,
@@ -102,6 +106,7 @@ class BookRepository {
       if (title != null) 'title': title,
       if (author != null) 'author': author,
       if (description != null) 'description': description,
+      if (frenchDescription != null) 'frenchDescription': frenchDescription,
       'coverUrl': coverUrl,
       'fileUrl': fileUrl,
       'fileType': fileType,
@@ -132,6 +137,7 @@ class BookRepository {
     required int orderNumber,
     required String ewondoText,
     String? illustrationUrl,
+    String? englishText,
     String? frenchText,
     String? audioUrl,
   }) async {
@@ -140,6 +146,7 @@ class BookRepository {
       'orderNumber': orderNumber,
       'ewondoText': ewondoText,
       if (illustrationUrl != null && illustrationUrl.isNotEmpty) 'illustrationUrl': illustrationUrl,
+      if (englishText != null && englishText.isNotEmpty) 'englishText': englishText,
       if (frenchText != null && frenchText.isNotEmpty) 'frenchText': frenchText,
       if (audioUrl != null && audioUrl.isNotEmpty) 'audioUrl': audioUrl,
     });
@@ -149,12 +156,14 @@ class BookRepository {
     String id, {
     String? ewondoText,
     String? illustrationUrl,
+    String? englishText,
     String? frenchText,
     String? audioUrl,
   }) async {
     await ApiClient.dio.patch('/book-pages/$id', data: {
       if (ewondoText != null) 'ewondoText': ewondoText,
       if (illustrationUrl != null) 'illustrationUrl': illustrationUrl,
+      if (englishText != null) 'englishText': englishText,
       if (frenchText != null) 'frenchText': frenchText,
       if (audioUrl != null) 'audioUrl': audioUrl,
     });

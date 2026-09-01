@@ -98,6 +98,3332 @@ abstract class AppLocalizations {
     Locale('fr'),
   ];
 
+  /// No description provided for @adminQuizBuilderDefaultTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Quiz'**
+  String get adminQuizBuilderDefaultTitle;
+
+  /// No description provided for @adminQuizBuilderCreateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create quiz.'**
+  String get adminQuizBuilderCreateError;
+
+  /// No description provided for @adminQuizBuilderEditQuizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Quiz'**
+  String get adminQuizBuilderEditQuizTitle;
+
+  /// No description provided for @adminQuizBuilderTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get adminQuizBuilderTitleLabel;
+
+  /// No description provided for @adminQuizBuilderDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get adminQuizBuilderDescriptionLabel;
+
+  /// No description provided for @adminQuizBuilderFrenchTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Title (optional)'**
+  String get adminQuizBuilderFrenchTitleLabel;
+
+  /// No description provided for @adminQuizBuilderFrenchDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Description (optional)'**
+  String get adminQuizBuilderFrenchDescriptionLabel;
+
+  /// No description provided for @adminQuizBuilderPassingScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Passing Score (%)'**
+  String get adminQuizBuilderPassingScoreLabel;
+
+  /// No description provided for @adminQuizBuilderCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminQuizBuilderCancel;
+
+  /// No description provided for @adminQuizBuilderSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminQuizBuilderSave;
+
+  /// No description provided for @adminQuizBuilderQuizUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz updated.'**
+  String get adminQuizBuilderQuizUpdated;
+
+  /// No description provided for @adminQuizBuilderUpdateQuizError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update quiz.'**
+  String get adminQuizBuilderUpdateQuizError;
+
+  /// No description provided for @adminQuizBuilderDeleteQuizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Quiz'**
+  String get adminQuizBuilderDeleteQuizTitle;
+
+  /// No description provided for @adminQuizBuilderDeleteQuizConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\" and all {count} question(s)? Learners will no longer be able to complete this lesson via quiz.'**
+  String adminQuizBuilderDeleteQuizConfirm(String title, int count);
+
+  /// No description provided for @adminQuizBuilderDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminQuizBuilderDelete;
+
+  /// No description provided for @adminQuizBuilderDeleteQuizError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete quiz.'**
+  String get adminQuizBuilderDeleteQuizError;
+
+  /// No description provided for @adminQuizBuilderQuestionAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Question added.'**
+  String get adminQuizBuilderQuestionAdded;
+
+  /// No description provided for @adminQuizBuilderAddQuestionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add question.'**
+  String get adminQuizBuilderAddQuestionError;
+
+  /// No description provided for @adminQuizBuilderUnknownServerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown server error.'**
+  String get adminQuizBuilderUnknownServerError;
+
+  /// No description provided for @adminQuizBuilderImportSuccess.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count} question(s).'**
+  String adminQuizBuilderImportSuccess(int count);
+
+  /// No description provided for @adminQuizBuilderImportPartial.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {succeeded} question(s), {failed} failed{errorSuffix}.'**
+  String adminQuizBuilderImportPartial(
+    int succeeded,
+    int failed,
+    String errorSuffix,
+  );
+
+  /// No description provided for @adminQuizBuilderQuestionUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Question updated.'**
+  String get adminQuizBuilderQuestionUpdated;
+
+  /// No description provided for @adminQuizBuilderUpdateQuestionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update question.'**
+  String get adminQuizBuilderUpdateQuestionError;
+
+  /// No description provided for @adminQuizBuilderDeleteQuestionError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete question.'**
+  String get adminQuizBuilderDeleteQuestionError;
+
+  /// No description provided for @adminQuizBuilderUpdateAnswerKeyError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update answer key.'**
+  String get adminQuizBuilderUpdateAnswerKeyError;
+
+  /// No description provided for @adminQuizBuilderAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz — {lessonTitle}'**
+  String adminQuizBuilderAppBarTitle(String lessonTitle);
+
+  /// No description provided for @adminQuizBuilderDefaultLessonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson'**
+  String get adminQuizBuilderDefaultLessonTitle;
+
+  /// No description provided for @adminQuizBuilderNoQuizYetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'This lesson has no quiz yet'**
+  String get adminQuizBuilderNoQuizYetTitle;
+
+  /// No description provided for @adminQuizBuilderNoQuizYetDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Create one so learners can complete this lesson by passing it.'**
+  String get adminQuizBuilderNoQuizYetDescription;
+
+  /// No description provided for @adminQuizBuilderQuizTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz Title'**
+  String get adminQuizBuilderQuizTitleLabel;
+
+  /// No description provided for @adminQuizBuilderCreateQuizButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Create Quiz'**
+  String get adminQuizBuilderCreateQuizButton;
+
+  /// No description provided for @adminQuizBuilderPassMarkSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'Pass mark: {score}% • {count} questions'**
+  String adminQuizBuilderPassMarkSummary(int score, int count);
+
+  /// No description provided for @adminQuizBuilderEditQuizInfoTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit quiz info'**
+  String get adminQuizBuilderEditQuizInfoTooltip;
+
+  /// No description provided for @adminQuizBuilderDeleteQuizTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete quiz'**
+  String get adminQuizBuilderDeleteQuizTooltip;
+
+  /// No description provided for @adminQuizBuilderQuestionsHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Questions'**
+  String get adminQuizBuilderQuestionsHeading;
+
+  /// No description provided for @adminQuizBuilderPasteQuizButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Quiz'**
+  String get adminQuizBuilderPasteQuizButton;
+
+  /// No description provided for @adminQuizBuilderAddQuestionButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Question'**
+  String get adminQuizBuilderAddQuestionButton;
+
+  /// No description provided for @adminQuizBuilderNoQuestionsYet.
+  ///
+  /// In en, this message translates to:
+  /// **'No questions yet. A quiz needs at least one question before a learner can take it.'**
+  String get adminQuizBuilderNoQuestionsYet;
+
+  /// No description provided for @adminQuizBuilderPasteQuizHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Already have a quiz written elsewhere? Use \"Paste Quiz\" above to copy and paste it in and have the questions and choices created for you.'**
+  String get adminQuizBuilderPasteQuizHint;
+
+  /// No description provided for @adminQuizBuilderEditQuestionTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit question'**
+  String get adminQuizBuilderEditQuestionTooltip;
+
+  /// No description provided for @adminQuizBuilderDeleteQuestionTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete question'**
+  String get adminQuizBuilderDeleteQuestionTooltip;
+
+  /// No description provided for @adminQuizBuilderNoCorrectAnswerSet.
+  ///
+  /// In en, this message translates to:
+  /// **'No correct answer set — tap a choice above to mark it.'**
+  String get adminQuizBuilderNoCorrectAnswerSet;
+
+  /// No description provided for @adminQuizBuilderQuestionTooShortError.
+  ///
+  /// In en, this message translates to:
+  /// **'Question text must be at least 5 characters.'**
+  String get adminQuizBuilderQuestionTooShortError;
+
+  /// No description provided for @adminQuizBuilderTooFewChoicesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Add at least 2 answer choices.'**
+  String get adminQuizBuilderTooFewChoicesError;
+
+  /// No description provided for @adminQuizBuilderEditQuestionDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Question'**
+  String get adminQuizBuilderEditQuestionDialogTitle;
+
+  /// No description provided for @adminQuizBuilderQuestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Question'**
+  String get adminQuizBuilderQuestionLabel;
+
+  /// No description provided for @adminQuizBuilderExplanationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Explanation (optional)'**
+  String get adminQuizBuilderExplanationLabel;
+
+  /// No description provided for @adminQuizBuilderFrenchQuestionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Question (optional)'**
+  String get adminQuizBuilderFrenchQuestionLabel;
+
+  /// No description provided for @adminQuizBuilderFrenchExplanationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Explanation (optional)'**
+  String get adminQuizBuilderFrenchExplanationLabel;
+
+  /// No description provided for @adminQuizBuilderChoicesHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Choices — select the correct one'**
+  String get adminQuizBuilderChoicesHelper;
+
+  /// No description provided for @adminQuizBuilderChoiceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Choice {number}'**
+  String adminQuizBuilderChoiceHint(int number);
+
+  /// No description provided for @adminQuizBuilderFrenchOptionalHint.
+  ///
+  /// In en, this message translates to:
+  /// **'French (optional)'**
+  String get adminQuizBuilderFrenchOptionalHint;
+
+  /// No description provided for @adminQuizBuilderAddAnotherChoiceButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Add another choice'**
+  String get adminQuizBuilderAddAnotherChoiceButton;
+
+  /// No description provided for @adminQuizBuilderPreviewImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview Import'**
+  String get adminQuizBuilderPreviewImportTitle;
+
+  /// No description provided for @adminQuizBuilderParseButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse'**
+  String get adminQuizBuilderParseButton;
+
+  /// No description provided for @adminQuizBuilderBackButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get adminQuizBuilderBackButton;
+
+  /// No description provided for @adminQuizBuilderImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Import {count} Question(s)'**
+  String adminQuizBuilderImportButton(int count);
+
+  /// No description provided for @adminQuizBuilderPasteInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste one or more questions, with a blank line between each question.'**
+  String get adminQuizBuilderPasteInstructions;
+
+  /// No description provided for @adminQuizBuilderPasteExample.
+  ///
+  /// In en, this message translates to:
+  /// **'1. What is the Ewondo word for \"water\"?\nA) Mendim *\nB) Ayong\nC) Nti\nExplanation: Mendim means water.\n\n2. Next question...\nA) Choice one\nB) Choice two\nAnswer: B'**
+  String get adminQuizBuilderPasteExample;
+
+  /// No description provided for @adminQuizBuilderPasteFormatHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark the correct choice with a trailing * or add an \"Answer: B\" / \"Réponse : B\" line. Add \"FR: ...\" on its own line right after a question or choice for the French translation. Numbered questions with all the answers listed separately at the bottom under a heading \"Answer Key\" (e.g. \"7. B) Parents\") also work.'**
+  String get adminQuizBuilderPasteFormatHelp;
+
+  /// No description provided for @adminQuizBuilderPasteHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste your quiz text here…'**
+  String get adminQuizBuilderPasteHint;
+
+  /// No description provided for @adminQuizBuilderDetectedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} question(s) detected — {valid} ready to import.'**
+  String adminQuizBuilderDetectedCount(int total, int valid);
+
+  /// No description provided for @adminQuizBuilderNothingToPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to preview — go back and adjust the pasted text.'**
+  String get adminQuizBuilderNothingToPreview;
+
+  /// No description provided for @adminQuizMgmtEditQuizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Quiz'**
+  String get adminQuizMgmtEditQuizTitle;
+
+  /// No description provided for @adminQuizMgmtTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get adminQuizMgmtTitleLabel;
+
+  /// No description provided for @adminQuizMgmtDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get adminQuizMgmtDescriptionLabel;
+
+  /// No description provided for @adminQuizMgmtFrenchTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Title (optional)'**
+  String get adminQuizMgmtFrenchTitleLabel;
+
+  /// No description provided for @adminQuizMgmtFrenchDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Description (optional)'**
+  String get adminQuizMgmtFrenchDescriptionLabel;
+
+  /// No description provided for @adminQuizMgmtPassingScoreLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Passing Score (%)'**
+  String get adminQuizMgmtPassingScoreLabel;
+
+  /// No description provided for @adminQuizMgmtCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminQuizMgmtCancel;
+
+  /// No description provided for @adminQuizMgmtSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminQuizMgmtSave;
+
+  /// No description provided for @adminQuizMgmtQuizUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz updated.'**
+  String get adminQuizMgmtQuizUpdated;
+
+  /// No description provided for @adminQuizMgmtUpdateQuizError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update quiz.'**
+  String get adminQuizMgmtUpdateQuizError;
+
+  /// No description provided for @adminQuizMgmtDeleteQuizTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Quiz'**
+  String get adminQuizMgmtDeleteQuizTitle;
+
+  /// No description provided for @adminQuizMgmtDeleteQuizConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\" and all {count} question(s)? This cannot be undone.'**
+  String adminQuizMgmtDeleteQuizConfirm(String title, int count);
+
+  /// No description provided for @adminQuizMgmtDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminQuizMgmtDelete;
+
+  /// No description provided for @adminQuizMgmtQuizDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz deleted.'**
+  String get adminQuizMgmtQuizDeleted;
+
+  /// No description provided for @adminQuizMgmtDeleteQuizError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete quiz.'**
+  String get adminQuizMgmtDeleteQuizError;
+
+  /// No description provided for @adminQuizMgmtAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz Management'**
+  String get adminQuizMgmtAppBarTitle;
+
+  /// No description provided for @adminQuizMgmtNewQuizButton.
+  ///
+  /// In en, this message translates to:
+  /// **'New Quiz'**
+  String get adminQuizMgmtNewQuizButton;
+
+  /// No description provided for @adminQuizMgmtSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search quizzes...'**
+  String get adminQuizMgmtSearchHint;
+
+  /// No description provided for @adminQuizMgmtAllCoursesFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All Courses'**
+  String get adminQuizMgmtAllCoursesFilter;
+
+  /// No description provided for @adminQuizMgmtNoQuizzesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No quizzes found.'**
+  String get adminQuizMgmtNoQuizzesFound;
+
+  /// No description provided for @adminQuizMgmtQuestionsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} questions • pass {passingScore}%'**
+  String adminQuizMgmtQuestionsSummary(int count, int passingScore);
+
+  /// No description provided for @adminBibleChapterDefaultVersion.
+  ///
+  /// In en, this message translates to:
+  /// **'ESV'**
+  String get adminBibleChapterDefaultVersion;
+
+  /// No description provided for @adminBibleChapterFileReadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not read that file.'**
+  String get adminBibleChapterFileReadError;
+
+  /// No description provided for @adminBibleChapterFileLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'Loaded {fileName}.'**
+  String adminBibleChapterFileLoaded(String fileName);
+
+  /// No description provided for @adminBibleChapterInvalidChapterError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid chapter number.'**
+  String get adminBibleChapterInvalidChapterError;
+
+  /// No description provided for @adminBibleChapterNoVersesFoundError.
+  ///
+  /// In en, this message translates to:
+  /// **'No numbered verses found. Paste one verse per line, each starting with its verse number.'**
+  String get adminBibleChapterNoVersesFoundError;
+
+  /// No description provided for @adminBibleChapterNoUsfmMarkersError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not find any \\v verse markers. Make sure you pasted valid USFM text (e.g. \"\\c 1 \\v 1 In the beginning...\").'**
+  String get adminBibleChapterNoUsfmMarkersError;
+
+  /// No description provided for @adminBibleChapterEnterBookNameError.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a book name.'**
+  String get adminBibleChapterEnterBookNameError;
+
+  /// No description provided for @adminBibleChapterNoEwondoVersesError.
+  ///
+  /// In en, this message translates to:
+  /// **'No verses with Ewondo text to save — preview the comparison first.'**
+  String get adminBibleChapterNoEwondoVersesError;
+
+  /// No description provided for @adminBibleChapterSavedMultiChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {count} verse(s) across {chapterCount} chapters of {book}.'**
+  String adminBibleChapterSavedMultiChapters(
+    int count,
+    int chapterCount,
+    String book,
+  );
+
+  /// No description provided for @adminBibleChapterSavedSingleChapter.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {count} verse(s) for {book}.'**
+  String adminBibleChapterSavedSingleChapter(int count, String book);
+
+  /// No description provided for @adminBibleChapterSaveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save chapter.'**
+  String get adminBibleChapterSaveError;
+
+  /// No description provided for @adminBibleChapterDeleteChapterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Chapter'**
+  String get adminBibleChapterDeleteChapterTitle;
+
+  /// No description provided for @adminBibleChapterDeleteChapterConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all {count} verse(s) of {book} {chapter} ({version})?'**
+  String adminBibleChapterDeleteChapterConfirm(
+    int count,
+    String book,
+    int chapter,
+    String version,
+  );
+
+  /// No description provided for @adminBibleChapterCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminBibleChapterCancel;
+
+  /// No description provided for @adminBibleChapterDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminBibleChapterDelete;
+
+  /// No description provided for @adminBibleChapterDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete chapter.'**
+  String get adminBibleChapterDeleteError;
+
+  /// No description provided for @adminBibleChapterUploadFileButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload File'**
+  String get adminBibleChapterUploadFileButton;
+
+  /// No description provided for @adminBibleChapterChapterHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter {chapter}'**
+  String adminBibleChapterChapterHeading(int chapter);
+
+  /// No description provided for @adminBibleChapterVerseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses'**
+  String adminBibleChapterVerseCount(int count);
+
+  /// No description provided for @adminBibleChapterMissingEwondoText.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing Ewondo text'**
+  String get adminBibleChapterMissingEwondoText;
+
+  /// No description provided for @adminBibleChapterMissingEnglishText.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing English text'**
+  String get adminBibleChapterMissingEnglishText;
+
+  /// No description provided for @adminBibleChapterMissingFrenchText.
+  ///
+  /// In en, this message translates to:
+  /// **'Missing French text'**
+  String get adminBibleChapterMissingFrenchText;
+
+  /// No description provided for @adminBibleChapterDefaultLanguageName.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get adminBibleChapterDefaultLanguageName;
+
+  /// No description provided for @adminBibleChapterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bible Management'**
+  String get adminBibleChapterTitle;
+
+  /// No description provided for @adminBibleChapterSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bible chapters and verses for {title}'**
+  String adminBibleChapterSubtitle(String title);
+
+  /// No description provided for @adminBibleChapterUsfmModeInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload (or paste) an entire book\'s USFM in Ewondo alongside its English (ESV) USFM. Chapters and verses are detected automatically from the \\c and \\v markers and matched verse by verse.'**
+  String get adminBibleChapterUsfmModeInstructions;
+
+  /// No description provided for @adminBibleChapterManualModeInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a full chapter in Ewondo (New Testament) alongside its English (ESV) translation. Each is matched verse by verse so Nnanga learns accurate, side-by-side translations.'**
+  String get adminBibleChapterManualModeInstructions;
+
+  /// No description provided for @adminBibleChapterSingleChapterOption.
+  ///
+  /// In en, this message translates to:
+  /// **'Single Chapter'**
+  String get adminBibleChapterSingleChapterOption;
+
+  /// No description provided for @adminBibleChapterUsfmWholeBookOption.
+  ///
+  /// In en, this message translates to:
+  /// **'USFM (Whole Book)'**
+  String get adminBibleChapterUsfmWholeBookOption;
+
+  /// No description provided for @adminBibleChapterBookDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Details'**
+  String get adminBibleChapterBookDetailsTitle;
+
+  /// No description provided for @adminBibleChapterChapterDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter Details'**
+  String get adminBibleChapterChapterDetailsTitle;
+
+  /// No description provided for @adminBibleChapterAutoFilledHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Auto-filled from the USFM \\h/\\mt1 title once previewed — edit if needed.'**
+  String get adminBibleChapterAutoFilledHint;
+
+  /// No description provided for @adminBibleChapterBookLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Book'**
+  String get adminBibleChapterBookLabel;
+
+  /// No description provided for @adminBibleChapterChapterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Chapter'**
+  String get adminBibleChapterChapterLabel;
+
+  /// No description provided for @adminBibleChapterVersionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get adminBibleChapterVersionLabel;
+
+  /// No description provided for @adminBibleChapterEwondoUsfmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo USFM (entire book)'**
+  String get adminBibleChapterEwondoUsfmLabel;
+
+  /// No description provided for @adminBibleChapterEwondoChapterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo Chapter Text'**
+  String get adminBibleChapterEwondoChapterLabel;
+
+  /// No description provided for @adminBibleChapterUploadOrPasteHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload a .usfm/.sfm/.txt file, or paste the text directly.'**
+  String get adminBibleChapterUploadOrPasteHelper;
+
+  /// No description provided for @adminBibleChapterOneVersePerLineHelper.
+  ///
+  /// In en, this message translates to:
+  /// **'One verse per line, each starting with its verse number.'**
+  String get adminBibleChapterOneVersePerLineHelper;
+
+  /// No description provided for @adminBibleChapterEwondoUsfmHintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'\\id JHN\n\\h John\n\\c 1\n\\v 1 Kiki avele, Nkobo a nga bo...\n\\v 2 ...'**
+  String get adminBibleChapterEwondoUsfmHintExample;
+
+  /// No description provided for @adminBibleChapterManualHintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'1 In the beginning was the Word...\n2 He was in the beginning with God...'**
+  String get adminBibleChapterManualHintExample;
+
+  /// No description provided for @adminBibleChapterEnglishUsfmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English USFM (entire book, ESV)'**
+  String get adminBibleChapterEnglishUsfmLabel;
+
+  /// No description provided for @adminBibleChapterEnglishChapterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English Chapter Text (ESV)'**
+  String get adminBibleChapterEnglishChapterLabel;
+
+  /// No description provided for @adminBibleChapterEnglishUsfmHintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'\\id JHN\n\\h John\n\\c 1\n\\v 1 In the beginning was the Word...\n\\v 2 ...'**
+  String get adminBibleChapterEnglishUsfmHintExample;
+
+  /// No description provided for @adminBibleChapterFrenchUsfmLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French USFM (entire book, optional)'**
+  String get adminBibleChapterFrenchUsfmLabel;
+
+  /// No description provided for @adminBibleChapterFrenchChapterLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Chapter Text (optional)'**
+  String get adminBibleChapterFrenchChapterLabel;
+
+  /// No description provided for @adminBibleChapterFrenchUsfmHintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'\\id JHN\n\\h Jean\n\\c 1\n\\v 1 Au commencement était la Parole...\n\\v 2 ...'**
+  String get adminBibleChapterFrenchUsfmHintExample;
+
+  /// No description provided for @adminBibleChapterFrenchManualHintExample.
+  ///
+  /// In en, this message translates to:
+  /// **'1 Au commencement était la Parole...\n2 Elle était au commencement avec Dieu...'**
+  String get adminBibleChapterFrenchManualHintExample;
+
+  /// No description provided for @adminBibleChapterPreviewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview Verse-by-Verse Comparison'**
+  String get adminBibleChapterPreviewButton;
+
+  /// No description provided for @adminBibleChapterComparisonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Verse-by-Verse Comparison'**
+  String get adminBibleChapterComparisonTitle;
+
+  /// No description provided for @adminBibleChapterVersesAcrossChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'{verseCount} verses across {chapterCount} chapter(s)'**
+  String adminBibleChapterVersesAcrossChapters(
+    int verseCount,
+    int chapterCount,
+  );
+
+  /// No description provided for @adminBibleChapterSaveBookButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Book'**
+  String get adminBibleChapterSaveBookButton;
+
+  /// No description provided for @adminBibleChapterSaveChapterButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Chapter'**
+  String get adminBibleChapterSaveChapterButton;
+
+  /// No description provided for @adminBibleChapterSavedChaptersHeading.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Chapters'**
+  String get adminBibleChapterSavedChaptersHeading;
+
+  /// No description provided for @adminBibleChapterEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No chapters yet'**
+  String get adminBibleChapterEmptyTitle;
+
+  /// No description provided for @adminBibleChapterEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste and save a chapter above to see it here.'**
+  String get adminBibleChapterEmptyMessage;
+
+  /// No description provided for @adminBibleChapterDeleteChapterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete chapter'**
+  String get adminBibleChapterDeleteChapterTooltip;
+
+  /// No description provided for @adminLessonEditorTabInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Info'**
+  String get adminLessonEditorTabInfo;
+
+  /// No description provided for @adminLessonEditorTabContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get adminLessonEditorTabContent;
+
+  /// No description provided for @adminLessonEditorTabActivities.
+  ///
+  /// In en, this message translates to:
+  /// **'Activities'**
+  String get adminLessonEditorTabActivities;
+
+  /// No description provided for @adminLessonEditorTabQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Quiz'**
+  String get adminLessonEditorTabQuiz;
+
+  /// No description provided for @adminLessonEditorTabResources.
+  ///
+  /// In en, this message translates to:
+  /// **'Resources'**
+  String get adminLessonEditorTabResources;
+
+  /// No description provided for @adminLessonEditorTabSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get adminLessonEditorTabSettings;
+
+  /// No description provided for @adminLessonEditorSavedInfoMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson info saved.'**
+  String get adminLessonEditorSavedInfoMessage;
+
+  /// No description provided for @adminLessonEditorCouldNotSaveInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save lesson info.'**
+  String get adminLessonEditorCouldNotSaveInfo;
+
+  /// No description provided for @adminLessonEditorDraftSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft saved.'**
+  String get adminLessonEditorDraftSavedMessage;
+
+  /// No description provided for @adminLessonEditorCouldNotSaveDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save draft.'**
+  String get adminLessonEditorCouldNotSaveDraft;
+
+  /// No description provided for @adminLessonEditorPublishedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson published.'**
+  String get adminLessonEditorPublishedMessage;
+
+  /// No description provided for @adminLessonEditorCouldNotPublish.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not publish lesson.'**
+  String get adminLessonEditorCouldNotPublish;
+
+  /// No description provided for @adminLessonEditorAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Lesson'**
+  String get adminLessonEditorAppBarTitle;
+
+  /// No description provided for @adminLessonEditorPreviewLearnerViewButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview (Learner View)'**
+  String get adminLessonEditorPreviewLearnerViewButton;
+
+  /// No description provided for @adminLessonEditorSaveDraftButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Draft'**
+  String get adminLessonEditorSaveDraftButton;
+
+  /// No description provided for @adminLessonEditorPublishingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Publishing…'**
+  String get adminLessonEditorPublishingLabel;
+
+  /// No description provided for @adminLessonEditorPublishLessonButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Publish Lesson'**
+  String get adminLessonEditorPublishLessonButton;
+
+  /// No description provided for @adminLessonEditorLessonInfoSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Information'**
+  String get adminLessonEditorLessonInfoSectionTitle;
+
+  /// No description provided for @adminLessonEditorLessonTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Title'**
+  String get adminLessonEditorLessonTitleLabel;
+
+  /// No description provided for @adminLessonEditorShortDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Short Description'**
+  String get adminLessonEditorShortDescriptionLabel;
+
+  /// No description provided for @adminLessonEditorLessonCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Category'**
+  String get adminLessonEditorLessonCategoryLabel;
+
+  /// No description provided for @adminLessonEditorLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get adminLessonEditorLevelLabel;
+
+  /// No description provided for @adminLessonEditorEstimatedTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Estimated Time (min)'**
+  String get adminLessonEditorEstimatedTimeLabel;
+
+  /// No description provided for @adminLessonEditorOrderLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get adminLessonEditorOrderLabel;
+
+  /// No description provided for @adminLessonEditorCoverImageSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Cover / Image'**
+  String get adminLessonEditorCoverImageSectionTitle;
+
+  /// No description provided for @adminLessonEditorCoverImageHint.
+  ///
+  /// In en, this message translates to:
+  /// **'This image will appear on the learner view.'**
+  String get adminLessonEditorCoverImageHint;
+
+  /// No description provided for @adminLessonEditorChangeImageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Image'**
+  String get adminLessonEditorChangeImageButton;
+
+  /// No description provided for @adminLessonEditorRemoveImageButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove Image'**
+  String get adminLessonEditorRemoveImageButton;
+
+  /// No description provided for @adminLessonEditorLearningObjectivesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Learning Objectives (one per line)'**
+  String get adminLessonEditorLearningObjectivesLabel;
+
+  /// No description provided for @adminLessonEditorOutcomesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'What Learners Will Learn (one per line)'**
+  String get adminLessonEditorOutcomesLabel;
+
+  /// No description provided for @adminLessonEditorNoActivitiesYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No activities yet.'**
+  String get adminLessonEditorNoActivitiesYetMessage;
+
+  /// No description provided for @adminLessonEditorNoQuizYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This lesson has no quiz yet.'**
+  String get adminLessonEditorNoQuizYetMessage;
+
+  /// No description provided for @adminLessonEditorHasQuizMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This lesson has a quiz linked to it.'**
+  String get adminLessonEditorHasQuizMessage;
+
+  /// No description provided for @adminLessonEditorResourcesDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Illustrated word images attached to this lesson. Add or remove per-word images from the dedicated Images screen.'**
+  String get adminLessonEditorResourcesDescription;
+
+  /// No description provided for @adminLessonEditorManageLessonImagesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage Lesson Images'**
+  String get adminLessonEditorManageLessonImagesButton;
+
+  /// No description provided for @adminLessonEditorSettingsDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Reviewer assignment and comments are in the panel on the right.'**
+  String get adminLessonEditorSettingsDescription;
+
+  /// No description provided for @adminLessonEditorLessonSummaryCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Summary'**
+  String get adminLessonEditorLessonSummaryCardTitle;
+
+  /// No description provided for @adminLessonEditorLessonIdLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson ID'**
+  String get adminLessonEditorLessonIdLabel;
+
+  /// No description provided for @adminLessonEditorCreatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get adminLessonEditorCreatedLabel;
+
+  /// No description provided for @adminLessonEditorLastUpdatedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Updated'**
+  String get adminLessonEditorLastUpdatedLabel;
+
+  /// No description provided for @adminLessonEditorImagePreviewCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Image Preview (Learner View)'**
+  String get adminLessonEditorImagePreviewCardTitle;
+
+  /// No description provided for @adminLessonEditorTipsCardTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Tips'**
+  String get adminLessonEditorTipsCardTitle;
+
+  /// No description provided for @adminLessonEditorTip1.
+  ///
+  /// In en, this message translates to:
+  /// **'Use high quality images (1280x720 recommended)'**
+  String get adminLessonEditorTip1;
+
+  /// No description provided for @adminLessonEditorTip2.
+  ///
+  /// In en, this message translates to:
+  /// **'Images make lessons more engaging'**
+  String get adminLessonEditorTip2;
+
+  /// No description provided for @adminLessonEditorTip3.
+  ///
+  /// In en, this message translates to:
+  /// **'You can add multiple images in the content'**
+  String get adminLessonEditorTip3;
+
+  /// No description provided for @adminLessonEditorTip4.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep lessons focused and interactive'**
+  String get adminLessonEditorTip4;
+
+  /// No description provided for @adminLessonEditorUrlHint.
+  ///
+  /// In en, this message translates to:
+  /// **'https://...'**
+  String get adminLessonEditorUrlHint;
+
+  /// No description provided for @adminLessonEditorInsertButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Insert'**
+  String get adminLessonEditorInsertButton;
+
+  /// No description provided for @adminLessonEditorEmbedUrlDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Embed URL'**
+  String get adminLessonEditorEmbedUrlDialogTitle;
+
+  /// No description provided for @adminLessonMgmtFrenchSummaryOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Summary (optional)'**
+  String get adminLessonMgmtFrenchSummaryOptionalLabel;
+
+  /// No description provided for @adminLessonMgmtFrenchContentOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Content (optional)'**
+  String get adminLessonMgmtFrenchContentOptionalLabel;
+
+  /// No description provided for @adminLessonMgmtConversationHelpText.
+  ///
+  /// In en, this message translates to:
+  /// **'In Conversation (optional) — one line per turn: \"Speaker: Text || French text\"'**
+  String get adminLessonMgmtConversationHelpText;
+
+  /// No description provided for @adminLessonMgmtConversationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Conversation'**
+  String get adminLessonMgmtConversationLabel;
+
+  /// No description provided for @adminLessonMgmtConversationHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Amina: Mbolo, wa nga zu na? || Bonjour, comment vas-tu ?'**
+  String get adminLessonMgmtConversationHint;
+
+  /// No description provided for @adminLessonMgmtDeleteLessonTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Lesson'**
+  String get adminLessonMgmtDeleteLessonTitle;
+
+  /// No description provided for @adminLessonMgmtDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String adminLessonMgmtDeleteConfirm(String title);
+
+  /// No description provided for @adminLessonMgmtDeleteConfirmWithQuiz.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"? Its quiz must be deleted first (from Quiz Management).'**
+  String adminLessonMgmtDeleteConfirmWithQuiz(String title);
+
+  /// No description provided for @adminLessonMgmtUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson updated.'**
+  String get adminLessonMgmtUpdatedMessage;
+
+  /// No description provided for @adminLessonMgmtMovedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson moved.'**
+  String get adminLessonMgmtMovedMessage;
+
+  /// No description provided for @adminLessonMgmtReorderedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson reordered.'**
+  String get adminLessonMgmtReorderedMessage;
+
+  /// No description provided for @adminLessonMgmtDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson deleted.'**
+  String get adminLessonMgmtDeletedMessage;
+
+  /// No description provided for @adminLessonMgmtAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Management'**
+  String get adminLessonMgmtAppBarTitle;
+
+  /// No description provided for @adminLessonMgmtSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search lessons...'**
+  String get adminLessonMgmtSearchHint;
+
+  /// No description provided for @adminLessonMgmtAllCoursesFilter.
+  ///
+  /// In en, this message translates to:
+  /// **'All Courses'**
+  String get adminLessonMgmtAllCoursesFilter;
+
+  /// No description provided for @adminLessonMgmtNoLessonsFoundMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No lessons found.'**
+  String get adminLessonMgmtNoLessonsFoundMessage;
+
+  /// No description provided for @adminLessonMgmtLessonRowTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson {number}: {title}'**
+  String adminLessonMgmtLessonRowTitle(int number, String title);
+
+  /// No description provided for @moveLessonDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Move Lesson'**
+  String get moveLessonDialogTitle;
+
+  /// No description provided for @moveLessonDialogDestinationCourseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination course'**
+  String get moveLessonDialogDestinationCourseLabel;
+
+  /// No description provided for @moveLessonDialogDestinationModuleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Destination module'**
+  String get moveLessonDialogDestinationModuleLabel;
+
+  /// No description provided for @moveLessonDialogAlreadyInModuleMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This lesson is already in that module.'**
+  String get moveLessonDialogAlreadyInModuleMessage;
+
+  /// No description provided for @moveLessonDialogMoveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get moveLessonDialogMoveButton;
+
+  /// No description provided for @reorderLessonDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Lesson Position'**
+  String get reorderLessonDialogTitle;
+
+  /// No description provided for @reorderLessonDialogNewPositionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New position (currently Lesson {currentPosition})'**
+  String reorderLessonDialogNewPositionLabel(int currentPosition);
+
+  /// No description provided for @reorderLessonDialogMoveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Move'**
+  String get reorderLessonDialogMoveButton;
+
+  /// No description provided for @adminUsersCouldNotUpdateUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update user.'**
+  String get adminUsersCouldNotUpdateUser;
+
+  /// No description provided for @adminUsersCouldNotUpdateRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update role.'**
+  String get adminUsersCouldNotUpdateRole;
+
+  /// No description provided for @adminUsersDeleteUserTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete User'**
+  String get adminUsersDeleteUserTitle;
+
+  /// No description provided for @adminUsersDeleteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Permanently delete {name}? This cannot be undone. Users with existing courses, progress, or other linked records cannot be deleted — deactivate them instead.'**
+  String adminUsersDeleteConfirm(String name);
+
+  /// No description provided for @adminUsersCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminUsersCancel;
+
+  /// No description provided for @adminUsersDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminUsersDelete;
+
+  /// No description provided for @adminUsersCouldNotDeleteUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete user.'**
+  String get adminUsersCouldNotDeleteUser;
+
+  /// No description provided for @adminUsersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Users'**
+  String get adminUsersTitle;
+
+  /// No description provided for @adminUsersSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} total'**
+  String adminUsersSubtitle(int count);
+
+  /// No description provided for @adminUsersNewUser.
+  ///
+  /// In en, this message translates to:
+  /// **'New User'**
+  String get adminUsersNewUser;
+
+  /// No description provided for @adminUsersSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search by name or email...'**
+  String get adminUsersSearchHint;
+
+  /// No description provided for @adminUsersActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminUsersActive;
+
+  /// No description provided for @adminUsersDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get adminUsersDeactivated;
+
+  /// No description provided for @adminUsersDeactivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivate'**
+  String get adminUsersDeactivateAction;
+
+  /// No description provided for @adminUsersActivateAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Activate'**
+  String get adminUsersActivateAction;
+
+  /// No description provided for @adminUsersMakeAdminAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Administrator'**
+  String get adminUsersMakeAdminAction;
+
+  /// No description provided for @adminUsersMakeTeacherAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Teacher'**
+  String get adminUsersMakeTeacherAction;
+
+  /// No description provided for @adminUsersMakeLearnerAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Make Learner'**
+  String get adminUsersMakeLearnerAction;
+
+  /// No description provided for @adminUsersThisIsYourAccount.
+  ///
+  /// In en, this message translates to:
+  /// **'This is your account'**
+  String get adminUsersThisIsYourAccount;
+
+  /// No description provided for @adminVocabMgmtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary Management'**
+  String get adminVocabMgmtTitle;
+
+  /// No description provided for @adminVocabMgmtCouldNotDeleteWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete word.'**
+  String get adminVocabMgmtCouldNotDeleteWord;
+
+  /// No description provided for @adminVocabMgmtWordAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowledge entry added.'**
+  String get adminVocabMgmtWordAdded;
+
+  /// No description provided for @adminVocabMgmtCouldNotAddWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add word.'**
+  String get adminVocabMgmtCouldNotAddWord;
+
+  /// No description provided for @adminVocabMgmtUnknownServerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown server error.'**
+  String get adminVocabMgmtUnknownServerError;
+
+  /// No description provided for @adminVocabMgmtImportedWords.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count} word(s).'**
+  String adminVocabMgmtImportedWords(int count);
+
+  /// No description provided for @adminVocabMgmtImportedWordsWithFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {succeeded} word(s), {failed} failed'**
+  String adminVocabMgmtImportedWordsWithFailures(int succeeded, int failed);
+
+  /// No description provided for @adminVocabMgmtWordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Knowledge entry updated.'**
+  String get adminVocabMgmtWordUpdated;
+
+  /// No description provided for @adminVocabMgmtCouldNotUpdateWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update word.'**
+  String get adminVocabMgmtCouldNotUpdateWord;
+
+  /// No description provided for @adminVocabMgmtCouldNotDeleteText.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete text.'**
+  String get adminVocabMgmtCouldNotDeleteText;
+
+  /// No description provided for @adminVocabMgmtTextAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Text & translation added.'**
+  String get adminVocabMgmtTextAdded;
+
+  /// No description provided for @adminVocabMgmtCouldNotAddText.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add text.'**
+  String get adminVocabMgmtCouldNotAddText;
+
+  /// No description provided for @adminVocabMgmtTextUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Text & translation updated.'**
+  String get adminVocabMgmtTextUpdated;
+
+  /// No description provided for @adminVocabMgmtCouldNotUpdateText.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update text.'**
+  String get adminVocabMgmtCouldNotUpdateText;
+
+  /// No description provided for @adminVocabMgmtAddTextAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Text & Translation'**
+  String get adminVocabMgmtAddTextAction;
+
+  /// No description provided for @adminVocabMgmtPasteVocabularyAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Vocabulary'**
+  String get adminVocabMgmtPasteVocabularyAction;
+
+  /// No description provided for @adminVocabMgmtAddKnowledgeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Knowledge'**
+  String get adminVocabMgmtAddKnowledgeAction;
+
+  /// No description provided for @adminVocabMgmtKnowledgeBaseDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'This is Nnanga\'s knowledge base. It searches these words and their lessons to answer learners — the more you add, the better it answers.'**
+  String get adminVocabMgmtKnowledgeBaseDescription;
+
+  /// No description provided for @adminVocabMgmtSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search knowledge...'**
+  String get adminVocabMgmtSearchHint;
+
+  /// No description provided for @adminVocabMgmtAllLevels.
+  ///
+  /// In en, this message translates to:
+  /// **'All Levels'**
+  String get adminVocabMgmtAllLevels;
+
+  /// No description provided for @adminVocabMgmtEmptyState.
+  ///
+  /// In en, this message translates to:
+  /// **'No knowledge found. Use \"Paste Vocabulary\" below to add a whole word list at once, or \"Add Knowledge\" for a single word.'**
+  String get adminVocabMgmtEmptyState;
+
+  /// No description provided for @adminVocabMgmtTextsSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Texts & Translations'**
+  String get adminVocabMgmtTextsSectionTitle;
+
+  /// No description provided for @adminVocabMgmtEntriesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} entries'**
+  String adminVocabMgmtEntriesCount(int count);
+
+  /// No description provided for @adminVocabMgmtEditTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get adminVocabMgmtEditTooltip;
+
+  /// No description provided for @adminVocabMgmtDeleteTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminVocabMgmtDeleteTooltip;
+
+  /// No description provided for @adminVocabMgmtVocabularySectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Vocabulary'**
+  String get adminVocabMgmtVocabularySectionTitle;
+
+  /// No description provided for @adminVocabMgmtWordsCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} words'**
+  String adminVocabMgmtWordsCount(int count);
+
+  /// No description provided for @adminVocabMgmtEditAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get adminVocabMgmtEditAction;
+
+  /// No description provided for @adminVocabMgmtDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminVocabMgmtDeleteAction;
+
+  /// No description provided for @adminVocabMgmtEditKnowledgeEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Knowledge Entry'**
+  String get adminVocabMgmtEditKnowledgeEntryTitle;
+
+  /// No description provided for @adminVocabMgmtAddKnowledgeEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Knowledge Entry'**
+  String get adminVocabMgmtAddKnowledgeEntryTitle;
+
+  /// No description provided for @adminVocabMgmtEwondoWordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo word or phrase'**
+  String get adminVocabMgmtEwondoWordLabel;
+
+  /// No description provided for @adminVocabMgmtExampleSentenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Example sentence'**
+  String get adminVocabMgmtExampleSentenceLabel;
+
+  /// No description provided for @adminVocabMgmtPhoneticLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Phonetic transcription (optional)'**
+  String get adminVocabMgmtPhoneticLabel;
+
+  /// No description provided for @adminVocabMgmtPhoneticHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. mbɔ́lɔ́ — shown under the word on the lesson screen'**
+  String get adminVocabMgmtPhoneticHint;
+
+  /// No description provided for @adminVocabMgmtPronunciationAudioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pronunciation audio (helps Nnanga\'s \"hear it\" playback for learners)'**
+  String get adminVocabMgmtPronunciationAudioLabel;
+
+  /// No description provided for @adminVocabMgmtEnglishMeaningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning'**
+  String get adminVocabMgmtEnglishMeaningLabel;
+
+  /// No description provided for @adminVocabMgmtEnglishTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English translation'**
+  String get adminVocabMgmtEnglishTranslationLabel;
+
+  /// No description provided for @adminVocabMgmtFrenchMeaningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French meaning'**
+  String get adminVocabMgmtFrenchMeaningLabel;
+
+  /// No description provided for @adminVocabMgmtFrenchTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French translation'**
+  String get adminVocabMgmtFrenchTranslationLabel;
+
+  /// No description provided for @adminVocabMgmtDifficultyLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Difficulty'**
+  String get adminVocabMgmtDifficultyLabel;
+
+  /// No description provided for @adminVocabMgmtCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminVocabMgmtCancel;
+
+  /// No description provided for @adminVocabMgmtSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminVocabMgmtSave;
+
+  /// No description provided for @adminVocabMgmtAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get adminVocabMgmtAdd;
+
+  /// No description provided for @adminVocabMgmtEditTextEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Text & Translation'**
+  String get adminVocabMgmtEditTextEntryTitle;
+
+  /// No description provided for @adminVocabMgmtAddTextEntryTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Text & Translation'**
+  String get adminVocabMgmtAddTextEntryTitle;
+
+  /// No description provided for @adminVocabMgmtEwondoTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo text'**
+  String get adminVocabMgmtEwondoTextLabel;
+
+  /// No description provided for @adminVocabMgmtTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Translation'**
+  String get adminVocabMgmtTranslationLabel;
+
+  /// No description provided for @adminVocabMgmtPasteVocabularyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste Vocabulary'**
+  String get adminVocabMgmtPasteVocabularyTitle;
+
+  /// No description provided for @adminVocabMgmtPreviewImportTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Preview Import'**
+  String get adminVocabMgmtPreviewImportTitle;
+
+  /// No description provided for @adminVocabMgmtParseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Parse'**
+  String get adminVocabMgmtParseAction;
+
+  /// No description provided for @adminVocabMgmtBackAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get adminVocabMgmtBackAction;
+
+  /// No description provided for @adminVocabMgmtImportWordsAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Import {count} Word(s)'**
+  String adminVocabMgmtImportWordsAction(int count);
+
+  /// No description provided for @adminVocabMgmtPasteInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste a word list — one per line, or a blank line between richer entries.'**
+  String get adminVocabMgmtPasteInstructions;
+
+  /// No description provided for @adminVocabMgmtPasteFormatHelp.
+  ///
+  /// In en, this message translates to:
+  /// **'Simple lines: \"word | English meaning | French meaning\" (meanings optional). Or spell it out over several lines with EN:, FR:, Example:, Example EN:, Example FR:, Phonetic:, and Level: — only the word itself is required.'**
+  String get adminVocabMgmtPasteFormatHelp;
+
+  /// No description provided for @adminVocabMgmtPasteFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste your word list here…'**
+  String get adminVocabMgmtPasteFieldHint;
+
+  /// No description provided for @adminVocabMgmtWordsDetectedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} word(s) detected — {validCount} ready to import.'**
+  String adminVocabMgmtWordsDetectedSummary(int total, int validCount);
+
+  /// No description provided for @adminVocabMgmtNothingToPreview.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to preview — go back and adjust the pasted text.'**
+  String get adminVocabMgmtNothingToPreview;
+
+  /// No description provided for @adminDailyMgmtDailyWordAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily word added.'**
+  String get adminDailyMgmtDailyWordAdded;
+
+  /// No description provided for @adminDailyMgmtCouldNotAddDailyWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add daily word.'**
+  String get adminDailyMgmtCouldNotAddDailyWord;
+
+  /// No description provided for @adminDailyMgmtDailyWordUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily word updated.'**
+  String get adminDailyMgmtDailyWordUpdated;
+
+  /// No description provided for @adminDailyMgmtCouldNotUpdateDailyWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update daily word.'**
+  String get adminDailyMgmtCouldNotUpdateDailyWord;
+
+  /// No description provided for @adminDailyMgmtCouldNotDeleteDailyWord.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete daily word.'**
+  String get adminDailyMgmtCouldNotDeleteDailyWord;
+
+  /// No description provided for @adminDailyMgmtDailyVerseAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily verse added.'**
+  String get adminDailyMgmtDailyVerseAdded;
+
+  /// No description provided for @adminDailyMgmtCouldNotAddDailyVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add daily verse.'**
+  String get adminDailyMgmtCouldNotAddDailyVerse;
+
+  /// No description provided for @adminDailyMgmtDailyVerseUpdated.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily verse updated.'**
+  String get adminDailyMgmtDailyVerseUpdated;
+
+  /// No description provided for @adminDailyMgmtCouldNotUpdateDailyVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update daily verse.'**
+  String get adminDailyMgmtCouldNotUpdateDailyVerse;
+
+  /// No description provided for @adminDailyMgmtCouldNotDeleteDailyVerse.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete daily verse.'**
+  String get adminDailyMgmtCouldNotDeleteDailyVerse;
+
+  /// No description provided for @adminDailyMgmtLanguageFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get adminDailyMgmtLanguageFallback;
+
+  /// No description provided for @adminDailyMgmtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Phrase & Verse of the Day'**
+  String get adminDailyMgmtTitle;
+
+  /// No description provided for @adminDailyMgmtSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rotating daily word/verse pools for {language}'**
+  String adminDailyMgmtSubtitle(String language);
+
+  /// No description provided for @adminDailyMgmtAddDailyWordAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Daily Word'**
+  String get adminDailyMgmtAddDailyWordAction;
+
+  /// No description provided for @adminDailyMgmtAddDailyVerseAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Daily Verse'**
+  String get adminDailyMgmtAddDailyVerseAction;
+
+  /// No description provided for @adminDailyMgmtDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'A different entry from each pool is shown automatically every day on the learner dashboard — no need to pick \"today\'s\" item by hand.'**
+  String get adminDailyMgmtDescription;
+
+  /// No description provided for @adminDailyMgmtDailyWordsChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Words'**
+  String get adminDailyMgmtDailyWordsChip;
+
+  /// No description provided for @adminDailyMgmtDailyVersesChip.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily Verses'**
+  String get adminDailyMgmtDailyVersesChip;
+
+  /// No description provided for @adminDailyMgmtSearchWordsHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search Ewondo words...'**
+  String get adminDailyMgmtSearchWordsHint;
+
+  /// No description provided for @adminDailyMgmtSearchVersesHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search verses or reference...'**
+  String get adminDailyMgmtSearchVersesHint;
+
+  /// No description provided for @adminDailyMgmtNoDailyWordsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No daily words yet'**
+  String get adminDailyMgmtNoDailyWordsTitle;
+
+  /// No description provided for @adminDailyMgmtNoDailyWordsMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Ewondo words to rotate through on the learner dashboard.'**
+  String get adminDailyMgmtNoDailyWordsMessage;
+
+  /// No description provided for @adminDailyMgmtEditAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get adminDailyMgmtEditAction;
+
+  /// No description provided for @adminDailyMgmtDeleteAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminDailyMgmtDeleteAction;
+
+  /// No description provided for @adminDailyMgmtNoDailyVersesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No daily verses yet'**
+  String get adminDailyMgmtNoDailyVersesTitle;
+
+  /// No description provided for @adminDailyMgmtNoDailyVersesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Ewondo Bible verses to rotate through on the learner dashboard.'**
+  String get adminDailyMgmtNoDailyVersesMessage;
+
+  /// No description provided for @adminDailyMgmtEditDailyWordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Daily Word'**
+  String get adminDailyMgmtEditDailyWordTitle;
+
+  /// No description provided for @adminDailyMgmtAddDailyWordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Daily Word'**
+  String get adminDailyMgmtAddDailyWordTitle;
+
+  /// No description provided for @adminDailyMgmtEwondoWordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo word'**
+  String get adminDailyMgmtEwondoWordLabel;
+
+  /// No description provided for @adminDailyMgmtEnglishMeaningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English meaning'**
+  String get adminDailyMgmtEnglishMeaningLabel;
+
+  /// No description provided for @adminDailyMgmtFrenchMeaningLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French meaning'**
+  String get adminDailyMgmtFrenchMeaningLabel;
+
+  /// No description provided for @adminDailyMgmtUsageHintLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Usage hint (optional)'**
+  String get adminDailyMgmtUsageHintLabel;
+
+  /// No description provided for @adminDailyMgmtCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminDailyMgmtCancel;
+
+  /// No description provided for @adminDailyMgmtSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminDailyMgmtSave;
+
+  /// No description provided for @adminDailyMgmtAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get adminDailyMgmtAdd;
+
+  /// No description provided for @adminDailyMgmtEditDailyVerseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Daily Verse'**
+  String get adminDailyMgmtEditDailyVerseTitle;
+
+  /// No description provided for @adminDailyMgmtAddDailyVerseTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Daily Verse'**
+  String get adminDailyMgmtAddDailyVerseTitle;
+
+  /// No description provided for @adminDailyMgmtReferenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reference (e.g. Yoannes 3:16)'**
+  String get adminDailyMgmtReferenceLabel;
+
+  /// No description provided for @adminDailyMgmtEwondoTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo text'**
+  String get adminDailyMgmtEwondoTextLabel;
+
+  /// No description provided for @adminDailyMgmtEnglishTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English translation'**
+  String get adminDailyMgmtEnglishTranslationLabel;
+
+  /// No description provided for @adminDailyMgmtFrenchTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French translation'**
+  String get adminDailyMgmtFrenchTranslationLabel;
+
+  /// No description provided for @adminDailyMgmtCouldNotLoadVocabulary.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load vocabulary.'**
+  String get adminDailyMgmtCouldNotLoadVocabulary;
+
+  /// No description provided for @adminDailyMgmtPickVocabularyWordTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a Vocabulary word'**
+  String get adminDailyMgmtPickVocabularyWordTitle;
+
+  /// No description provided for @adminDailyMgmtSearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get adminDailyMgmtSearchLabel;
+
+  /// No description provided for @adminDailyMgmtSomethingWentWrong.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get adminDailyMgmtSomethingWentWrong;
+
+  /// No description provided for @adminDailyMgmtNoVocabularyYetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No vocabulary yet'**
+  String get adminDailyMgmtNoVocabularyYetTitle;
+
+  /// No description provided for @adminDailyMgmtNoVocabularyYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add words in Vocabulary Management first.'**
+  String get adminDailyMgmtNoVocabularyYetMessage;
+
+  /// No description provided for @adminDailyMgmtCouldNotLoadBibleChapters.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load Bible chapters.'**
+  String get adminDailyMgmtCouldNotLoadBibleChapters;
+
+  /// No description provided for @adminDailyMgmtCouldNotLoadVerses.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load verses.'**
+  String get adminDailyMgmtCouldNotLoadVerses;
+
+  /// No description provided for @adminDailyMgmtPickChapterTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a chapter'**
+  String get adminDailyMgmtPickChapterTitle;
+
+  /// No description provided for @adminDailyMgmtNoBibleContentYetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No Bible content yet'**
+  String get adminDailyMgmtNoBibleContentYetTitle;
+
+  /// No description provided for @adminDailyMgmtNoBibleContentYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add chapters in Bible Management first.'**
+  String get adminDailyMgmtNoBibleContentYetMessage;
+
+  /// No description provided for @adminDailyMgmtNoVersesYetTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No verses yet'**
+  String get adminDailyMgmtNoVersesYetTitle;
+
+  /// No description provided for @adminDailyMgmtNoVersesYetMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'This chapter has no verses.'**
+  String get adminDailyMgmtNoVersesYetMessage;
+
+  /// No description provided for @adminDailyMgmtBackAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get adminDailyMgmtBackAction;
+
+  /// No description provided for @adminDailyMgmtVerseCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} verses'**
+  String adminDailyMgmtVerseCount(int count);
+
+  /// No description provided for @adminDailyMgmtVerseNumber.
+  ///
+  /// In en, this message translates to:
+  /// **'Verse {number}'**
+  String adminDailyMgmtVerseNumber(int number);
+
+  /// No description provided for @adminBookMgmtAddBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Book'**
+  String get adminBookMgmtAddBook;
+
+  /// No description provided for @adminBookMgmtAddError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add book.'**
+  String get adminBookMgmtAddError;
+
+  /// No description provided for @adminBookMgmtCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminBookMgmtCancel;
+
+  /// No description provided for @adminBookMgmtCategoryAll.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get adminBookMgmtCategoryAll;
+
+  /// No description provided for @adminBookMgmtCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get adminBookMgmtCreate;
+
+  /// No description provided for @adminBookMgmtDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminBookMgmtDelete;
+
+  /// No description provided for @adminBookMgmtDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{title}\" will be removed for every learner.'**
+  String adminBookMgmtDeleteBody(String title);
+
+  /// No description provided for @adminBookMgmtDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete book.'**
+  String get adminBookMgmtDeleteError;
+
+  /// No description provided for @adminBookMgmtDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete book?'**
+  String get adminBookMgmtDeleteTitle;
+
+  /// No description provided for @adminBookMgmtDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Book deleted.'**
+  String get adminBookMgmtDeletedMessage;
+
+  /// No description provided for @adminBookMgmtEdit.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit'**
+  String get adminBookMgmtEdit;
+
+  /// No description provided for @adminBookMgmtEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Add Book\" to create the first one.'**
+  String get adminBookMgmtEmptyMessage;
+
+  /// No description provided for @adminBookMgmtEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No books yet'**
+  String get adminBookMgmtEmptyTitle;
+
+  /// No description provided for @adminBookMgmtErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get adminBookMgmtErrorTitle;
+
+  /// No description provided for @adminBookMgmtLanguageFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get adminBookMgmtLanguageFallback;
+
+  /// No description provided for @adminBookMgmtLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load books.'**
+  String get adminBookMgmtLoadError;
+
+  /// No description provided for @adminBookMgmtNoContent.
+  ///
+  /// In en, this message translates to:
+  /// **'No content yet'**
+  String get adminBookMgmtNoContent;
+
+  /// No description provided for @adminBookMgmtPagesCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} pages'**
+  String adminBookMgmtPagesCount(int count);
+
+  /// No description provided for @adminBookMgmtSearchLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Search books'**
+  String get adminBookMgmtSearchLabel;
+
+  /// No description provided for @adminBookMgmtSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Books for {title}'**
+  String adminBookMgmtSubtitle(String title);
+
+  /// No description provided for @adminBookMgmtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Management'**
+  String get adminBookMgmtTitle;
+
+  /// No description provided for @adminBookMgmtTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get adminBookMgmtTitleLabel;
+
+  /// No description provided for @adminLangMgmtAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get adminLangMgmtAdd;
+
+  /// No description provided for @adminLangMgmtAddError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add language.'**
+  String get adminLangMgmtAddError;
+
+  /// No description provided for @adminLangMgmtAddTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Language'**
+  String get adminLangMgmtAddTitle;
+
+  /// No description provided for @adminLangMgmtAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language added. It starts as a draft — publish it once its content is ready.'**
+  String get adminLangMgmtAddedMessage;
+
+  /// No description provided for @adminLangMgmtCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminLangMgmtCancel;
+
+  /// No description provided for @adminLangMgmtCodeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Code (e.g. bas)'**
+  String get adminLangMgmtCodeLabel;
+
+  /// No description provided for @adminLangMgmtCountryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Country (optional)'**
+  String get adminLangMgmtCountryLabel;
+
+  /// No description provided for @adminLangMgmtDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminLangMgmtDelete;
+
+  /// No description provided for @adminLangMgmtDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{name}\" will be permanently removed. This only works if it has no courses yet.'**
+  String adminLangMgmtDeleteBody(String name);
+
+  /// No description provided for @adminLangMgmtDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete language.'**
+  String get adminLangMgmtDeleteError;
+
+  /// No description provided for @adminLangMgmtDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete language?'**
+  String get adminLangMgmtDeleteTitle;
+
+  /// No description provided for @adminLangMgmtDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Language deleted.'**
+  String get adminLangMgmtDeletedMessage;
+
+  /// No description provided for @adminLangMgmtDraft.
+  ///
+  /// In en, this message translates to:
+  /// **'Draft'**
+  String get adminLangMgmtDraft;
+
+  /// No description provided for @adminLangMgmtEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap \"Add Language\" to create the first one.'**
+  String get adminLangMgmtEmptyMessage;
+
+  /// No description provided for @adminLangMgmtEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No languages yet'**
+  String get adminLangMgmtEmptyTitle;
+
+  /// No description provided for @adminLangMgmtErrorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong'**
+  String get adminLangMgmtErrorTitle;
+
+  /// No description provided for @adminLangMgmtLoadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not load languages.'**
+  String get adminLangMgmtLoadError;
+
+  /// No description provided for @adminLangMgmtNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Name (e.g. Bassa)'**
+  String get adminLangMgmtNameLabel;
+
+  /// No description provided for @adminLangMgmtPublished.
+  ///
+  /// In en, this message translates to:
+  /// **'Published'**
+  String get adminLangMgmtPublished;
+
+  /// No description provided for @adminLangMgmtSubtitleCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} total'**
+  String adminLangMgmtSubtitleCount(int count);
+
+  /// No description provided for @adminLangMgmtTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Languages'**
+  String get adminLangMgmtTitle;
+
+  /// No description provided for @adminLangMgmtUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update language.'**
+  String get adminLangMgmtUpdateError;
+
+  /// No description provided for @adminLessonImagesAdd.
+  ///
+  /// In en, this message translates to:
+  /// **'Add'**
+  String get adminLessonImagesAdd;
+
+  /// No description provided for @adminLessonImagesAddError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add image.'**
+  String get adminLessonImagesAddError;
+
+  /// No description provided for @adminLessonImagesAddImage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Image'**
+  String get adminLessonImagesAddImage;
+
+  /// No description provided for @adminLessonImagesAddedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image added.'**
+  String get adminLessonImagesAddedMessage;
+
+  /// No description provided for @adminLessonImagesCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminLessonImagesCancel;
+
+  /// No description provided for @adminLessonImagesCaptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Caption (optional)'**
+  String get adminLessonImagesCaptionLabel;
+
+  /// No description provided for @adminLessonImagesDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminLessonImagesDelete;
+
+  /// No description provided for @adminLessonImagesDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove the image for \"{word}\"?'**
+  String adminLessonImagesDeleteBody(String word);
+
+  /// No description provided for @adminLessonImagesDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Image'**
+  String get adminLessonImagesDeleteTitle;
+
+  /// No description provided for @adminLessonImagesDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Illustrate a Word'**
+  String get adminLessonImagesDialogTitle;
+
+  /// No description provided for @adminLessonImagesEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Add an image to illustrate a word in this lesson.'**
+  String get adminLessonImagesEmptyMessage;
+
+  /// No description provided for @adminLessonImagesEmptyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'No images yet'**
+  String get adminLessonImagesEmptyTitle;
+
+  /// No description provided for @adminLessonImagesIntro.
+  ///
+  /// In en, this message translates to:
+  /// **'Add images to illustrate words from this lesson. Add as many as you like.'**
+  String get adminLessonImagesIntro;
+
+  /// No description provided for @adminLessonImagesRemoveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not remove image.'**
+  String get adminLessonImagesRemoveError;
+
+  /// No description provided for @adminLessonImagesRemovedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Image removed.'**
+  String get adminLessonImagesRemovedMessage;
+
+  /// No description provided for @adminLessonImagesTitleFallback.
+  ///
+  /// In en, this message translates to:
+  /// **'Lesson Images'**
+  String get adminLessonImagesTitleFallback;
+
+  /// No description provided for @adminLessonImagesTitleWithLesson.
+  ///
+  /// In en, this message translates to:
+  /// **'Images — {lesson}'**
+  String adminLessonImagesTitleWithLesson(String lesson);
+
+  /// No description provided for @adminLessonImagesWordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Word this illustrates'**
+  String get adminLessonImagesWordLabel;
+
+  /// No description provided for @adminModuleMgmtAllCourses.
+  ///
+  /// In en, this message translates to:
+  /// **'All Courses'**
+  String get adminModuleMgmtAllCourses;
+
+  /// No description provided for @adminModuleMgmtAppBarTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Module Management'**
+  String get adminModuleMgmtAppBarTitle;
+
+  /// No description provided for @adminModuleMgmtCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminModuleMgmtCancel;
+
+  /// No description provided for @adminModuleMgmtCourseLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Course'**
+  String get adminModuleMgmtCourseLabel;
+
+  /// No description provided for @adminModuleMgmtCourseLessonsSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{course} • {count} lessons'**
+  String adminModuleMgmtCourseLessonsSummary(String course, int count);
+
+  /// No description provided for @adminModuleMgmtCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Create'**
+  String get adminModuleMgmtCreate;
+
+  /// No description provided for @adminModuleMgmtCreateCourseFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Create a course first.'**
+  String get adminModuleMgmtCreateCourseFirst;
+
+  /// No description provided for @adminModuleMgmtCreateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not create module.'**
+  String get adminModuleMgmtCreateError;
+
+  /// No description provided for @adminModuleMgmtCreatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Module created.'**
+  String get adminModuleMgmtCreatedMessage;
+
+  /// No description provided for @adminModuleMgmtDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get adminModuleMgmtDelete;
+
+  /// No description provided for @adminModuleMgmtDeleteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{title}\"?'**
+  String adminModuleMgmtDeleteBody(String title);
+
+  /// No description provided for @adminModuleMgmtDeleteError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete module.'**
+  String get adminModuleMgmtDeleteError;
+
+  /// No description provided for @adminModuleMgmtDeleteLessonsFirst.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this module\'s {count} lesson(s) first.'**
+  String adminModuleMgmtDeleteLessonsFirst(int count);
+
+  /// No description provided for @adminModuleMgmtDeleteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Module'**
+  String get adminModuleMgmtDeleteTitle;
+
+  /// No description provided for @adminModuleMgmtDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Module deleted.'**
+  String get adminModuleMgmtDeletedMessage;
+
+  /// No description provided for @adminModuleMgmtDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description'**
+  String get adminModuleMgmtDescriptionLabel;
+
+  /// No description provided for @adminModuleMgmtEditTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Module'**
+  String get adminModuleMgmtEditTitle;
+
+  /// No description provided for @adminModuleMgmtFrenchDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Description (optional)'**
+  String get adminModuleMgmtFrenchDescriptionLabel;
+
+  /// No description provided for @adminModuleMgmtFrenchTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Title (optional)'**
+  String get adminModuleMgmtFrenchTitleLabel;
+
+  /// No description provided for @adminModuleMgmtNewModule.
+  ///
+  /// In en, this message translates to:
+  /// **'New Module'**
+  String get adminModuleMgmtNewModule;
+
+  /// No description provided for @adminModuleMgmtNoModulesFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No modules found.'**
+  String get adminModuleMgmtNoModulesFound;
+
+  /// No description provided for @adminModuleMgmtSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get adminModuleMgmtSave;
+
+  /// No description provided for @adminModuleMgmtSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search modules...'**
+  String get adminModuleMgmtSearchHint;
+
+  /// No description provided for @adminModuleMgmtTitleLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get adminModuleMgmtTitleLabel;
+
+  /// No description provided for @adminModuleMgmtUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update module.'**
+  String get adminModuleMgmtUpdateError;
+
+  /// No description provided for @adminModuleMgmtUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Module updated.'**
+  String get adminModuleMgmtUpdatedMessage;
+
+  /// No description provided for @adminProfileAccountDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Details'**
+  String get adminProfileAccountDetails;
+
+  /// No description provided for @adminProfileAccountStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Status'**
+  String get adminProfileAccountStatus;
+
+  /// No description provided for @adminProfileActive.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get adminProfileActive;
+
+  /// No description provided for @adminProfileAdministratorRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Administrator'**
+  String get adminProfileAdministratorRole;
+
+  /// No description provided for @adminProfileDeactivated.
+  ///
+  /// In en, this message translates to:
+  /// **'Deactivated'**
+  String get adminProfileDeactivated;
+
+  /// No description provided for @adminProfileEditProfileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Profile'**
+  String get adminProfileEditProfileLabel;
+
+  /// No description provided for @adminProfileFullNameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Full Name'**
+  String get adminProfileFullNameLabel;
+
+  /// No description provided for @adminProfileLastLogin.
+  ///
+  /// In en, this message translates to:
+  /// **'Last Login'**
+  String get adminProfileLastLogin;
+
+  /// No description provided for @adminProfileLogOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get adminProfileLogOut;
+
+  /// No description provided for @adminProfileMemberSince.
+  ///
+  /// In en, this message translates to:
+  /// **'Member Since'**
+  String get adminProfileMemberSince;
+
+  /// No description provided for @adminProfileNewPasswordHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Leave blank to keep current password'**
+  String get adminProfileNewPasswordHint;
+
+  /// No description provided for @adminProfileNewPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'New Password'**
+  String get adminProfileNewPasswordLabel;
+
+  /// No description provided for @adminProfileSaveChanges.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Changes'**
+  String get adminProfileSaveChanges;
+
+  /// No description provided for @adminProfileSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your administrator account'**
+  String get adminProfileSubtitle;
+
+  /// No description provided for @adminProfileThisSession.
+  ///
+  /// In en, this message translates to:
+  /// **'This session'**
+  String get adminProfileThisSession;
+
+  /// No description provided for @adminProfileTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'My Profile'**
+  String get adminProfileTitle;
+
+  /// No description provided for @adminProfileUpdateError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not update profile.'**
+  String get adminProfileUpdateError;
+
+  /// No description provided for @adminProfileUpdatedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile updated.'**
+  String get adminProfileUpdatedMessage;
+
+  /// No description provided for @adminProfileUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload photo.'**
+  String get adminProfileUploadError;
+
+  /// No description provided for @adminBookEditorAddPageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not add page.'**
+  String get adminBookEditorAddPageError;
+
+  /// No description provided for @adminBookEditorAddPageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Add Page'**
+  String get adminBookEditorAddPageLabel;
+
+  /// No description provided for @adminBookEditorAudioOptionalLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio (optional)'**
+  String get adminBookEditorAudioOptionalLabel;
+
+  /// No description provided for @adminBookEditorAuthorFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Author (optional)'**
+  String get adminBookEditorAuthorFieldLabel;
+
+  /// No description provided for @adminBookEditorAuthoredPagesSegmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Authored Pages'**
+  String get adminBookEditorAuthoredPagesSegmentLabel;
+
+  /// No description provided for @adminBookEditorBookSavedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Book saved.'**
+  String get adminBookEditorBookSavedMessage;
+
+  /// No description provided for @adminBookEditorCategoryLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Category'**
+  String get adminBookEditorCategoryLabel;
+
+  /// No description provided for @adminBookEditorChangeCoverLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Change Cover'**
+  String get adminBookEditorChangeCoverLabel;
+
+  /// No description provided for @adminBookEditorContainsIllustrationsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Contains illustrations'**
+  String get adminBookEditorContainsIllustrationsLabel;
+
+  /// No description provided for @adminBookEditorContentTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content'**
+  String get adminBookEditorContentTitle;
+
+  /// No description provided for @adminBookEditorCoverImageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover Image'**
+  String get adminBookEditorCoverImageLabel;
+
+  /// No description provided for @adminBookEditorCurrentFileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Current file: {fileType} — {fileUrl}'**
+  String adminBookEditorCurrentFileLabel(String fileType, String fileUrl);
+
+  /// No description provided for @adminBookEditorDeletePageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete page.'**
+  String get adminBookEditorDeletePageError;
+
+  /// No description provided for @adminBookEditorDescriptionFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Description (optional)'**
+  String get adminBookEditorDescriptionFieldLabel;
+
+  /// No description provided for @adminBookEditorDetailsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get adminBookEditorDetailsTitle;
+
+  /// No description provided for @adminBookEditorEnglishTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English Translation (optional)'**
+  String get adminBookEditorEnglishTranslationLabel;
+
+  /// No description provided for @adminBookEditorEwondoTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo Text'**
+  String get adminBookEditorEwondoTextLabel;
+
+  /// No description provided for @adminBookEditorFrenchDescriptionLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French description (optional)'**
+  String get adminBookEditorFrenchDescriptionLabel;
+
+  /// No description provided for @adminBookEditorFrenchTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French Translation (optional)'**
+  String get adminBookEditorFrenchTranslationLabel;
+
+  /// No description provided for @adminBookEditorIllustrationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Illustration'**
+  String get adminBookEditorIllustrationLabel;
+
+  /// No description provided for @adminBookEditorLevelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Level'**
+  String get adminBookEditorLevelLabel;
+
+  /// No description provided for @adminBookEditorNoFileUploadedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No file uploaded yet.'**
+  String get adminBookEditorNoFileUploadedMessage;
+
+  /// No description provided for @adminBookEditorNoPagesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No pages yet. Add the first one below.'**
+  String get adminBookEditorNoPagesMessage;
+
+  /// No description provided for @adminBookEditorPageNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {number}'**
+  String adminBookEditorPageNumberLabel(int number);
+
+  /// No description provided for @adminBookEditorReadingTimeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Reading Time (min)'**
+  String get adminBookEditorReadingTimeLabel;
+
+  /// No description provided for @adminBookEditorRecommendedAgeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Recommended Age (min. years)'**
+  String get adminBookEditorRecommendedAgeLabel;
+
+  /// No description provided for @adminBookEditorReorderPagesError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not reorder pages.'**
+  String get adminBookEditorReorderPagesError;
+
+  /// No description provided for @adminBookEditorReplaceAudioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace Audio'**
+  String get adminBookEditorReplaceAudioLabel;
+
+  /// No description provided for @adminBookEditorReplaceFileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace File'**
+  String get adminBookEditorReplaceFileLabel;
+
+  /// No description provided for @adminBookEditorSaveBookError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save book.'**
+  String get adminBookEditorSaveBookError;
+
+  /// No description provided for @adminBookEditorSavePageError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not save page.'**
+  String get adminBookEditorSavePageError;
+
+  /// No description provided for @adminBookEditorSavePageLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Page'**
+  String get adminBookEditorSavePageLabel;
+
+  /// No description provided for @adminBookEditorSavingEllipsisLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving…'**
+  String get adminBookEditorSavingEllipsisLabel;
+
+  /// No description provided for @adminBookEditorTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit Book'**
+  String get adminBookEditorTitle;
+
+  /// No description provided for @adminBookEditorTitleFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get adminBookEditorTitleFieldLabel;
+
+  /// No description provided for @adminBookEditorUploadAudioError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload audio.'**
+  String get adminBookEditorUploadAudioError;
+
+  /// No description provided for @adminBookEditorUploadCoverError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload cover image.'**
+  String get adminBookEditorUploadCoverError;
+
+  /// No description provided for @adminBookEditorUploadFileError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload file.'**
+  String get adminBookEditorUploadFileError;
+
+  /// No description provided for @adminBookEditorUploadFileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload PDF or EPUB'**
+  String get adminBookEditorUploadFileLabel;
+
+  /// No description provided for @adminBookEditorUploadIllustrationError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload illustration.'**
+  String get adminBookEditorUploadIllustrationError;
+
+  /// No description provided for @adminBookEditorUploadedFileSegmentLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploaded File'**
+  String get adminBookEditorUploadedFileSegmentLabel;
+
+  /// No description provided for @adminSyllabaryMgmtAnalyzeError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not analyze this content.'**
+  String get adminSyllabaryMgmtAnalyzeError;
+
+  /// No description provided for @adminSyllabaryMgmtAnalyzeWithAiLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyze with AI'**
+  String get adminSyllabaryMgmtAnalyzeWithAiLabel;
+
+  /// No description provided for @adminSyllabaryMgmtAnalyzingMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Analyzing chart photo…'**
+  String get adminSyllabaryMgmtAnalyzingMessage;
+
+  /// No description provided for @adminSyllabaryMgmtApproveImportLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Approve & Import'**
+  String get adminSyllabaryMgmtApproveImportLabel;
+
+  /// No description provided for @adminSyllabaryMgmtChooseFileLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a File'**
+  String get adminSyllabaryMgmtChooseFileLabel;
+
+  /// No description provided for @adminSyllabaryMgmtClearLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get adminSyllabaryMgmtClearLabel;
+
+  /// No description provided for @adminSyllabaryMgmtClipboardEmptyMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing usable found on the clipboard.'**
+  String get adminSyllabaryMgmtClipboardEmptyMessage;
+
+  /// No description provided for @adminSyllabaryMgmtContentPreviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Content Preview'**
+  String get adminSyllabaryMgmtContentPreviewTitle;
+
+  /// No description provided for @adminSyllabaryMgmtDeleteEntryError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete entry.'**
+  String get adminSyllabaryMgmtDeleteEntryError;
+
+  /// No description provided for @adminSyllabaryMgmtDeleteLetterDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all {count} row(s) for \"{letter}\"?'**
+  String adminSyllabaryMgmtDeleteLetterDialogContent(int count, String letter);
+
+  /// No description provided for @adminSyllabaryMgmtDeleteLetterDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{letter}\"'**
+  String adminSyllabaryMgmtDeleteLetterDialogTitle(String letter);
+
+  /// No description provided for @adminSyllabaryMgmtDeleteLetterError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not delete letter.'**
+  String get adminSyllabaryMgmtDeleteLetterError;
+
+  /// No description provided for @adminSyllabaryMgmtDeleteLetterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all rows for \"{letter}\"'**
+  String adminSyllabaryMgmtDeleteLetterTooltip(String letter);
+
+  /// No description provided for @adminSyllabaryMgmtDimensionsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Dimensions: {width} × {height}'**
+  String adminSyllabaryMgmtDimensionsLabel(int width, int height);
+
+  /// No description provided for @adminSyllabaryMgmtDropZoneText.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste an image, a table, or text here\nor drag and drop a file'**
+  String get adminSyllabaryMgmtDropZoneText;
+
+  /// No description provided for @adminSyllabaryMgmtEmptyStateMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No syllabary content yet. Tap \"Upload Chart\" below — paste, drop, or choose a photo, PDF, Word, Excel, or text file of a chart, and the AI will extract it for you to review before saving.'**
+  String get adminSyllabaryMgmtEmptyStateMessage;
+
+  /// No description provided for @adminSyllabaryMgmtEnglishTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'English translation (optional)'**
+  String get adminSyllabaryMgmtEnglishTranslationLabel;
+
+  /// No description provided for @adminSyllabaryMgmtExampleSentenceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Example sentence'**
+  String get adminSyllabaryMgmtExampleSentenceLabel;
+
+  /// No description provided for @adminSyllabaryMgmtExampleWordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Example word'**
+  String get adminSyllabaryMgmtExampleWordLabel;
+
+  /// No description provided for @adminSyllabaryMgmtExtractionNotesLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'AI extraction notes'**
+  String get adminSyllabaryMgmtExtractionNotesLabel;
+
+  /// No description provided for @adminSyllabaryMgmtFrenchTranslationLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'French translation'**
+  String get adminSyllabaryMgmtFrenchTranslationLabel;
+
+  /// No description provided for @adminSyllabaryMgmtImportedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {count} row(s).'**
+  String adminSyllabaryMgmtImportedMessage(int count);
+
+  /// No description provided for @adminSyllabaryMgmtImportedWithFailuresMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Imported {succeeded} row(s), {failed} failed{errorSuffix}.'**
+  String adminSyllabaryMgmtImportedWithFailuresMessage(
+    int succeeded,
+    int failed,
+    String errorSuffix,
+  );
+
+  /// No description provided for @adminSyllabaryMgmtLetterDeletedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'\"{letter}\" deleted.'**
+  String adminSyllabaryMgmtLetterDeletedMessage(String letter);
+
+  /// No description provided for @adminSyllabaryMgmtLetterFieldHint.
+  ///
+  /// In en, this message translates to:
+  /// **'e.g. L (blank = vowel-only)'**
+  String get adminSyllabaryMgmtLetterFieldHint;
+
+  /// No description provided for @adminSyllabaryMgmtLetterFieldLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Letter'**
+  String get adminSyllabaryMgmtLetterFieldLabel;
+
+  /// No description provided for @adminSyllabaryMgmtLettersDetectedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Detected {count} letters — review each below.'**
+  String adminSyllabaryMgmtLettersDetectedMessage(int count);
+
+  /// No description provided for @adminSyllabaryMgmtLettersSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{letterCount} letter(s), {rowCount} row(s) total'**
+  String adminSyllabaryMgmtLettersSummary(int letterCount, int rowCount);
+
+  /// No description provided for @adminSyllabaryMgmtLettersTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Letters'**
+  String get adminSyllabaryMgmtLettersTitle;
+
+  /// No description provided for @adminSyllabaryMgmtListTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllabus Management'**
+  String get adminSyllabaryMgmtListTitle;
+
+  /// No description provided for @adminSyllabaryMgmtNoChartsDetectedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No syllabary charts were detected. Try Re-analyze with a clearer photo or document, or go back and upload a different one.'**
+  String get adminSyllabaryMgmtNoChartsDetectedMessage;
+
+  /// No description provided for @adminSyllabaryMgmtNoRowsDetectedMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No rows detected — check the notes on the review screen.'**
+  String get adminSyllabaryMgmtNoRowsDetectedMessage;
+
+  /// No description provided for @adminSyllabaryMgmtNoRowsForLetterMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No rows detected for this letter.'**
+  String get adminSyllabaryMgmtNoRowsForLetterMessage;
+
+  /// No description provided for @adminSyllabaryMgmtNoneDetectedLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'None detected'**
+  String get adminSyllabaryMgmtNoneDetectedLabel;
+
+  /// No description provided for @adminSyllabaryMgmtPasteFromClipboardLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste from Clipboard'**
+  String get adminSyllabaryMgmtPasteFromClipboardLabel;
+
+  /// No description provided for @adminSyllabaryMgmtPastedTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted text'**
+  String get adminSyllabaryMgmtPastedTextLabel;
+
+  /// No description provided for @adminSyllabaryMgmtReanalyzeAction.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-analyze'**
+  String get adminSyllabaryMgmtReanalyzeAction;
+
+  /// No description provided for @adminSyllabaryMgmtReanalyzeDialogContent.
+  ///
+  /// In en, this message translates to:
+  /// **'This replaces the current draft, including any edits you made.'**
+  String get adminSyllabaryMgmtReanalyzeDialogContent;
+
+  /// No description provided for @adminSyllabaryMgmtReanalyzeDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Re-analyze?'**
+  String get adminSyllabaryMgmtReanalyzeDialogTitle;
+
+  /// No description provided for @adminSyllabaryMgmtRemoveLetterTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this letter and its rows'**
+  String get adminSyllabaryMgmtRemoveLetterTooltip;
+
+  /// No description provided for @adminSyllabaryMgmtRemoveRowTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove this row'**
+  String get adminSyllabaryMgmtRemoveRowTooltip;
+
+  /// No description provided for @adminSyllabaryMgmtReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Chart'**
+  String get adminSyllabaryMgmtReviewTitle;
+
+  /// No description provided for @adminSyllabaryMgmtRowCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} row(s)'**
+  String adminSyllabaryMgmtRowCountLabel(int count);
+
+  /// No description provided for @adminSyllabaryMgmtRowNumberLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Row {number}'**
+  String adminSyllabaryMgmtRowNumberLabel(int number);
+
+  /// No description provided for @adminSyllabaryMgmtSizeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Size: {size}'**
+  String adminSyllabaryMgmtSizeLabel(String size);
+
+  /// No description provided for @adminSyllabaryMgmtStep1Subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A photo, a table, or text — pick whichever is easiest.'**
+  String get adminSyllabaryMgmtStep1Subtitle;
+
+  /// No description provided for @adminSyllabaryMgmtStep1Title.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Paste or Import Content'**
+  String get adminSyllabaryMgmtStep1Title;
+
+  /// No description provided for @adminSyllabaryMgmtSupportedFormatsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Supported formats: PNG, JPG, PDF, Word, Excel, TXT'**
+  String get adminSyllabaryMgmtSupportedFormatsText;
+
+  /// No description provided for @adminSyllabaryMgmtSyllableCountLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} syllable(s)'**
+  String adminSyllabaryMgmtSyllableCountLabel(int count);
+
+  /// No description provided for @adminSyllabaryMgmtSyllableLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Syllable'**
+  String get adminSyllabaryMgmtSyllableLabel;
+
+  /// No description provided for @adminSyllabaryMgmtTypeLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Type: {type}'**
+  String adminSyllabaryMgmtTypeLabel(String type);
+
+  /// No description provided for @adminSyllabaryMgmtUnknownServerError.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown server error.'**
+  String get adminSyllabaryMgmtUnknownServerError;
+
+  /// No description provided for @adminSyllabaryMgmtUploadChartLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload Chart'**
+  String get adminSyllabaryMgmtUploadChartLabel;
+
+  /// No description provided for @adminSyllabaryMgmtVowelLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Vowel'**
+  String get adminSyllabaryMgmtVowelLabel;
+
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
@@ -1547,8 +4873,20 @@ abstract class AppLocalizations {
   /// No description provided for @switchLanguageTitle.
   ///
   /// In en, this message translates to:
-  /// **'Switch Language'**
+  /// **'Learning Language'**
   String get switchLanguageTitle;
+
+  /// No description provided for @appLanguageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'App Language'**
+  String get appLanguageTitle;
+
+  /// No description provided for @bookReaderTextSizeTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Text size'**
+  String get bookReaderTextSizeTooltip;
 
   /// No description provided for @uploadPhotoTooltip.
   ///

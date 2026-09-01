@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/locale/locale_provider.dart';
 import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/colors/app_colors.dart';
@@ -131,14 +133,20 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
   }
 }
 
-class _CertificateCard extends StatelessWidget {
+class _CertificateCard extends ConsumerWidget {
   const _CertificateCard({required this.certificate});
 
   final Certificate certificate;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = certificateThemeForLevel(certificate.level);
+    final isFrench = ref.watch(localeProvider).languageCode == 'fr';
+    final title = (isFrench &&
+            certificate.frenchCourseTitle != null &&
+            certificate.frenchCourseTitle!.isNotEmpty)
+        ? certificate.frenchCourseTitle!
+        : certificate.courseTitle;
     return GradientHeroCard(
       gradient: theme.gradient,
       child: Row(
@@ -150,7 +158,7 @@ class _CertificateCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  certificate.courseTitle,
+                  title,
                   style: AppTypography.title.copyWith(color: Colors.white),
                 ),
                 const SizedBox(height: AppSpacing.xs),

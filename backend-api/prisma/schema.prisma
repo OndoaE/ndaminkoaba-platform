@@ -405,13 +405,19 @@ model DailyVerse {
 /// via AI-assisted extraction from a photographed chart (see AiService),
 /// reviewed and approved before being written here.
 model SyllabaryEntry {
-  id              String   @id @default(uuid())
-  consonant       String?
-  vowel           String
-  syllable        String
-  exampleWord     String?
-  translation     String?
-  exampleSentence String?
+  id                 String   @id @default(uuid())
+  consonant          String?
+  vowel              String
+  syllable           String
+  exampleWord        String?
+  // Support-language translation of exampleWord, split so the learner-
+  // facing chart can switch to match the UI locale (English vs French) —
+  // `frenchTranslation` was the original single `translation` field
+  // (renamed via migration, existing data preserved); `englishTranslation`
+  // is new and starts null until admin-authored.
+  englishTranslation String?
+  frenchTranslation  String?
+  exampleSentence    String?
   // Preserves the language's own vowel display order (e.g. Ewondo's
   // a/ə/ɛ/e/i/u/o/ɔ), which is not alphabetically or Unicode sortable.
   orderNumber     Int
@@ -436,11 +442,17 @@ enum BookCategory {
 }
 
 model Book {
-  id          String  @id @default(uuid())
-  title       String
-  author      String?
-  description String?
-  coverUrl    String?
+  id                String  @id @default(uuid())
+  title             String
+  author            String?
+  // Default/English description. `frenchDescription` is the French
+  // counterpart, following this schema's established convention (see
+  // Course.title/frenchTitle, Lesson.content/frenchContent) of a base
+  // field plus an optional frenchX field, rather than a strict
+  // englishX/frenchX pair.
+  description       String?
+  frenchDescription String?
+  coverUrl          String?
   // A book is either an uploaded file (fileUrl/fileType, below) or a set of
   // authored BookPage rows (see `pages`) — both optional, mutually
   // additive, chosen per book by the admin. Neither is required at create
@@ -485,6 +497,7 @@ model BookPage {
   orderNumber     Int
   illustrationUrl String?
   ewondoText      String
+  englishText     String?
   frenchText      String?
   audioUrl        String?
   createdAt       DateTime @default(now())

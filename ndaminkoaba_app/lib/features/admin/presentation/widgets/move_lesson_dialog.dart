@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../design_system/colors/app_colors.dart';
 import '../../../../design_system/spacing/app_spacing.dart';
 import '../../../../design_system/typography/app_typography.dart';
+import '../../../../l10n/app_localizations.dart';
 import '../../domain/management_models.dart';
 
 class MoveLessonResult {
@@ -69,18 +70,19 @@ class _MoveLessonDialogState extends State<_MoveLessonDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final courses = _courses;
     final modulesForCourse = _modulesForSelectedCourse;
     final isNoOp = selectedModuleId == widget.currentModuleId;
 
     return AlertDialog(
-      title: const Text('Move Lesson'),
+      title: Text(l10n.moveLessonDialogTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Destination course', style: AppTypography.caption),
+            Text(l10n.moveLessonDialogDestinationCourseLabel, style: AppTypography.caption),
             const SizedBox(height: AppSpacing.xs),
             DropdownButton<String>(
               value: selectedCourseId,
@@ -103,7 +105,7 @@ class _MoveLessonDialogState extends State<_MoveLessonDialog> {
               },
             ),
             const SizedBox(height: AppSpacing.md),
-            Text('Destination module', style: AppTypography.caption),
+            Text(l10n.moveLessonDialogDestinationModuleLabel, style: AppTypography.caption),
             const SizedBox(height: AppSpacing.xs),
             DropdownButton<String>(
               value: selectedModuleId.isEmpty ? null : selectedModuleId,
@@ -116,7 +118,7 @@ class _MoveLessonDialogState extends State<_MoveLessonDialog> {
             if (isNoOp) ...[
               const SizedBox(height: AppSpacing.md),
               Text(
-                'This lesson is already in that module.',
+                l10n.moveLessonDialogAlreadyInModuleMessage,
                 style: AppTypography.caption.copyWith(color: AppColors.warning),
               ),
             ],
@@ -124,7 +126,7 @@ class _MoveLessonDialogState extends State<_MoveLessonDialog> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(l10n.commonCancel)),
         FilledButton(
           onPressed: (selectedModuleId.isEmpty || isNoOp)
               ? null
@@ -135,7 +137,7 @@ class _MoveLessonDialogState extends State<_MoveLessonDialog> {
                     MoveLessonResult(moduleId: target.id, orderNumber: target.lessonCount + 1),
                   );
                 },
-          child: const Text('Move'),
+          child: Text(l10n.moveLessonDialogMoveButton),
         ),
       ],
     );

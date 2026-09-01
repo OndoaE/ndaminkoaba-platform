@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/language/learning_language_provider.dart';
+import '../../../core/locale/locale_provider.dart';
 import '../../../core/network/api_error.dart';
 import '../../../design_system/buttons/bouncy_icon_button.dart';
 import '../../../design_system/buttons/primary_button.dart';
@@ -337,14 +338,18 @@ class _LevelChip extends StatelessWidget {
   }
 }
 
-class _VocabularyCard extends StatelessWidget {
+class _VocabularyCard extends ConsumerWidget {
   const _VocabularyCard({required this.word});
 
   final VocabularyWord word;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
+    final isFrench = ref.watch(localeProvider).languageCode == 'fr';
+    final meaning = isFrench
+        ? word.frenchMeaning ?? word.englishMeaning
+        : word.englishMeaning ?? word.frenchMeaning;
 
     return PremiumCard(
       child: Column(
@@ -374,15 +379,9 @@ class _VocabularyCard extends StatelessWidget {
                 ),
             ],
           ),
-          if (word.englishMeaning != null || word.frenchMeaning != null) ...[
+          if (meaning != null) ...[
             const SizedBox(height: AppSpacing.xs),
-            Text(
-              [
-                word.englishMeaning,
-                word.frenchMeaning,
-              ].where((m) => m != null && m.isNotEmpty).join(' • '),
-              style: AppTypography.caption,
-            ),
+            Text(meaning, style: AppTypography.caption),
           ],
           if (word.exampleSentence != null &&
               word.exampleSentence!.isNotEmpty) ...[

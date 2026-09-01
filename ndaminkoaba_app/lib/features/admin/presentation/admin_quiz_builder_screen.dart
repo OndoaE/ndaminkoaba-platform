@@ -12,6 +12,7 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/gradient_hero_card.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_content_models.dart';
 import '../domain/quiz_paste_parser.dart';
@@ -32,7 +33,7 @@ class AdminQuizBuilderScreen extends StatefulWidget {
 
 class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
   final repository = ContentRepository();
-  final titleController = TextEditingController(text: 'Lesson Quiz');
+  final titleController = TextEditingController();
   final descriptionController = TextEditingController();
   final frenchTitleController = TextEditingController();
   final frenchDescriptionController = TextEditingController();
@@ -40,12 +41,22 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
 
   bool isLoading = true;
   bool isCreatingQuiz = false;
+  bool _defaultTitleSet = false;
   AdminQuiz? quiz;
 
   @override
   void initState() {
     super.initState();
     load();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!_defaultTitleSet) {
+      _defaultTitleSet = true;
+      titleController.text = AppLocalizations.of(context).adminQuizBuilderDefaultTitle;
+    }
   }
 
   @override
@@ -81,6 +92,7 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
   }
 
   Future<void> createQuiz() async {
+    final l10n = AppLocalizations.of(context);
     setState(() => isCreatingQuiz = true);
     try {
       await repository.createQuiz(
@@ -93,13 +105,14 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
       );
       await load();
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not create quiz.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminQuizBuilderCreateError));
     } finally {
       if (mounted) setState(() => isCreatingQuiz = false);
     }
   }
 
   Future<void> editQuizInfo(AdminQuiz currentQuiz) async {
+    final l10n = AppLocalizations.of(context);
     final titleCtrl = TextEditingController(text: currentQuiz.title);
     final descCtrl = TextEditingController(text: currentQuiz.description ?? '');
     final frenchTitleCtrl = TextEditingController(text: currentQuiz.frenchTitle ?? '');
@@ -111,35 +124,35 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Quiz'),
+        title: Text(l10n.adminQuizBuilderEditQuizTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: titleCtrl,
-                decoration: const InputDecoration(labelText: 'Title'),
+                decoration: InputDecoration(labelText: l10n.adminQuizBuilderTitleLabel),
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: descCtrl,
-                decoration: const InputDecoration(labelText: 'Description'),
+                decoration: InputDecoration(labelText: l10n.adminQuizBuilderDescriptionLabel),
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: frenchTitleCtrl,
-                decoration: const InputDecoration(labelText: 'French Title (optional)'),
+                decoration: InputDecoration(labelText: l10n.adminQuizBuilderFrenchTitleLabel),
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: frenchDescCtrl,
-                decoration: const InputDecoration(labelText: 'French Description (optional)'),
+                decoration: InputDecoration(labelText: l10n.adminQuizBuilderFrenchDescriptionLabel),
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: scoreCtrl,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Passing Score (%)'),
+                decoration: InputDecoration(labelText: l10n.adminQuizBuilderPassingScoreLabel),
               ),
             ],
           ),
@@ -147,11 +160,11 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.adminQuizBuilderCancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Save'),
+            child: Text(l10n.adminQuizBuilderSave),
           ),
         ],
       ),
@@ -169,30 +182,33 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
         passingScore: int.tryParse(scoreCtrl.text.trim()),
       );
       await load();
-      _showMessage('Quiz updated.');
+      _showMessage(l10n.adminQuizBuilderQuizUpdated);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update quiz.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminQuizBuilderUpdateQuizError));
     }
   }
 
   Future<void> deleteQuizEntirely(AdminQuiz currentQuiz) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Quiz'),
+        title: Text(l10n.adminQuizBuilderDeleteQuizTitle),
         content: Text(
-          'Delete "${currentQuiz.title}" and all ${currentQuiz.questions.length} question(s)? '
-          'Learners will no longer be able to complete this lesson via quiz.',
+          l10n.adminQuizBuilderDeleteQuizConfirm(
+            currentQuiz.title,
+            currentQuiz.questions.length,
+          ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.adminQuizBuilderCancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.adminQuizBuilderDelete),
           ),
         ],
       ),
@@ -204,11 +220,12 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
       if (!mounted) return;
       Navigator.pop(context);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete quiz.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminQuizBuilderDeleteQuizError));
     }
   }
 
   Future<void> addQuestion() async {
+    final l10n = AppLocalizations.of(context);
     final currentQuiz = quiz;
     if (currentQuiz == null) return;
 
@@ -228,13 +245,14 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
         choices: result.choices,
       );
       await load();
-      _showMessage('Question added.');
+      _showMessage(l10n.adminQuizBuilderQuestionAdded);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not add question.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminQuizBuilderAddQuestionError));
     }
   }
 
   Future<void> pasteQuiz() async {
+    final l10n = AppLocalizations.of(context);
     final currentQuiz = quiz;
     if (currentQuiz == null) return;
 
@@ -263,7 +281,7 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
         succeeded++;
       } on DioException catch (e) {
         failed++;
-        firstError ??= extractErrorMessage(e, fallback: 'Unknown server error.');
+        firstError ??= extractErrorMessage(e, fallback: l10n.adminQuizBuilderUnknownServerError);
       } catch (e) {
         failed++;
         firstError ??= e.toString();
@@ -273,13 +291,17 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
     await load();
     _showMessage(
       failed == 0
-          ? 'Imported $succeeded question(s).'
-          : 'Imported $succeeded question(s), $failed failed'
-                '${firstError != null ? ' — $firstError' : ''}.',
+          ? l10n.adminQuizBuilderImportSuccess(succeeded)
+          : l10n.adminQuizBuilderImportPartial(
+              succeeded,
+              failed,
+              firstError != null ? ' — $firstError' : '',
+            ),
     );
   }
 
   Future<void> editQuestion(AdminQuestion question) async {
+    final l10n = AppLocalizations.of(context);
     final result = await showDialog<_QuestionFormResult>(
       context: context,
       builder: (context) => _QuestionFormDialog(initial: question),
@@ -297,15 +319,16 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
         choices: result.choices,
       );
       await load();
-      _showMessage('Question updated.');
+      _showMessage(l10n.adminQuizBuilderQuestionUpdated);
     } on DioException catch (e) {
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not update question.'),
+        extractErrorMessage(e, fallback: l10n.adminQuizBuilderUpdateQuestionError),
       );
     }
   }
 
   Future<void> deleteQuestion(AdminQuestion question) async {
+    final l10n = AppLocalizations.of(context);
     try {
       await repository.deleteQuestion(
         question.id,
@@ -314,12 +337,13 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
       await load();
     } on DioException catch (e) {
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not delete question.'),
+        extractErrorMessage(e, fallback: l10n.adminQuizBuilderDeleteQuestionError),
       );
     }
   }
 
   Future<void> markCorrect(AdminQuestion question, AdminChoice choice) async {
+    final l10n = AppLocalizations.of(context);
     try {
       await repository.setChoiceCorrect(choice.id, true);
       for (final other in question.choices) {
@@ -330,16 +354,21 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
       await load();
     } on DioException catch (e) {
       _showMessage(
-        extractErrorMessage(e, fallback: 'Could not update answer key.'),
+        extractErrorMessage(e, fallback: l10n.adminQuizBuilderUpdateAnswerKeyError),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: GradientAppBar(title: 'Quiz — ${widget.lessonTitle ?? 'Lesson'}'),
+      appBar: GradientAppBar(
+        title: l10n.adminQuizBuilderAppBarTitle(
+          widget.lessonTitle ?? l10n.adminQuizBuilderDefaultLessonTitle,
+        ),
+      ),
       body: SafeArea(
         child: isLoading
             ? const Padding(
@@ -349,50 +378,50 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
             : SingleChildScrollView(
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: quiz == null
-                    ? _buildCreateForm()
-                    : _buildQuizEditor(quiz!),
+                    ? _buildCreateForm(l10n)
+                    : _buildQuizEditor(quiz!, l10n),
               ),
       ),
     );
   }
 
-  Widget _buildCreateForm() {
+  Widget _buildCreateForm(AppLocalizations l10n) {
     return PremiumCard(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('This lesson has no quiz yet', style: AppTypography.title),
+          Text(l10n.adminQuizBuilderNoQuizYetTitle, style: AppTypography.title),
           const SizedBox(height: AppSpacing.sm),
           Text(
-            'Create one so learners can complete this lesson by passing it.',
+            l10n.adminQuizBuilderNoQuizYetDescription,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.lg),
-          PremiumTextField(label: 'Quiz Title', controller: titleController),
+          PremiumTextField(label: l10n.adminQuizBuilderQuizTitleLabel, controller: titleController),
           const SizedBox(height: AppSpacing.lg),
           PremiumTextField(
-            label: 'Description',
+            label: l10n.adminQuizBuilderDescriptionLabel,
             controller: descriptionController,
           ),
           const SizedBox(height: AppSpacing.lg),
           PremiumTextField(
-            label: 'French Title (optional)',
+            label: l10n.adminQuizBuilderFrenchTitleLabel,
             controller: frenchTitleController,
           ),
           const SizedBox(height: AppSpacing.lg),
           PremiumTextField(
-            label: 'French Description (optional)',
+            label: l10n.adminQuizBuilderFrenchDescriptionLabel,
             controller: frenchDescriptionController,
           ),
           const SizedBox(height: AppSpacing.lg),
           PremiumTextField(
-            label: 'Passing Score (%)',
+            label: l10n.adminQuizBuilderPassingScoreLabel,
             controller: passingScoreController,
             keyboardType: TextInputType.number,
           ),
           const SizedBox(height: AppSpacing.xl),
           PrimaryButton(
-            label: 'Create Quiz',
+            label: l10n.adminQuizBuilderCreateQuizButton,
             isLoading: isCreatingQuiz,
             onPressed: createQuiz,
           ),
@@ -401,7 +430,7 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
     );
   }
 
-  Widget _buildQuizEditor(AdminQuiz quiz) {
+  Widget _buildQuizEditor(AdminQuiz quiz, AppLocalizations l10n) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -420,7 +449,7 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
                     ),
                     const SizedBox(height: AppSpacing.xs),
                     Text(
-                      'Pass mark: ${quiz.passingScore}% • ${quiz.questions.length} questions',
+                      l10n.adminQuizBuilderPassMarkSummary(quiz.passingScore, quiz.questions.length),
                       style: const TextStyle(color: Colors.white70),
                     ),
                   ],
@@ -428,12 +457,12 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
               ),
               IconButton(
                 icon: const Icon(Icons.edit_outlined, color: Colors.white),
-                tooltip: 'Edit quiz info',
+                tooltip: l10n.adminQuizBuilderEditQuizInfoTooltip,
                 onPressed: () => editQuizInfo(quiz),
               ),
               IconButton(
                 icon: const Icon(Icons.delete_outline, color: Colors.white),
-                tooltip: 'Delete quiz',
+                tooltip: l10n.adminQuizBuilderDeleteQuizTooltip,
                 onPressed: () => deleteQuizEntirely(quiz),
               ),
             ],
@@ -443,18 +472,18 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Questions', style: AppTypography.title),
+            Text(l10n.adminQuizBuilderQuestionsHeading, style: AppTypography.title),
             Row(
               children: [
                 TextButton.icon(
                   onPressed: pasteQuiz,
                   icon: const Icon(Icons.content_paste),
-                  label: const Text('Paste Quiz'),
+                  label: Text(l10n.adminQuizBuilderPasteQuizButton),
                 ),
                 TextButton.icon(
                   onPressed: addQuestion,
                   icon: const Icon(Icons.add),
-                  label: const Text('Add Question'),
+                  label: Text(l10n.adminQuizBuilderAddQuestionButton),
                 ),
               ],
             ),
@@ -467,13 +496,12 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'No questions yet. A quiz needs at least one question before a learner can take it.',
+                  l10n.adminQuizBuilderNoQuestionsYet,
                   style: AppTypography.caption,
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Text(
-                  'Already have a quiz written elsewhere? Use "Paste Quiz" above to '
-                  'copy and paste it in and have the questions and choices created for you.',
+                  l10n.adminQuizBuilderPasteQuizHint,
                   style: AppTypography.caption,
                 ),
               ],
@@ -512,7 +540,7 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
                         ),
                         IconButton(
                           icon: const Icon(Icons.edit_outlined),
-                          tooltip: 'Edit question',
+                          tooltip: l10n.adminQuizBuilderEditQuestionTooltip,
                           onPressed: () => editQuestion(entry.value),
                         ),
                         IconButton(
@@ -520,7 +548,7 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
                             Icons.delete_outline,
                             color: AppColors.error,
                           ),
-                          tooltip: 'Delete question',
+                          tooltip: l10n.adminQuizBuilderDeleteQuestionTooltip,
                           onPressed: () => deleteQuestion(entry.value),
                         ),
                       ],
@@ -564,7 +592,7 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
                       Padding(
                         padding: const EdgeInsets.only(top: AppSpacing.xs),
                         child: Text(
-                          'No correct answer set — tap a choice above to mark it.',
+                          l10n.adminQuizBuilderNoCorrectAnswerSet,
                           style: AppTypography.caption.copyWith(
                             color: AppColors.error,
                           ),
@@ -674,10 +702,11 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
   }
 
   void submit() {
+    final l10n = AppLocalizations.of(context);
     if (questionController.text.trim().length < 5) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Question text must be at least 5 characters.'),
+        SnackBar(
+          content: Text(l10n.adminQuizBuilderQuestionTooShortError),
         ),
       );
       return;
@@ -689,7 +718,7 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
     }
     if (filled.length < 2) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Add at least 2 answer choices.')),
+        SnackBar(content: Text(l10n.adminQuizBuilderTooFewChoicesError)),
       );
       return;
     }
@@ -723,10 +752,11 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final isEditing = widget.initial != null;
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Question' : 'Add Question'),
+      title: Text(isEditing ? l10n.adminQuizBuilderEditQuestionDialogTitle : l10n.adminQuizBuilderAddQuestionButton),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -734,32 +764,32 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
           children: [
             TextField(
               controller: questionController,
-              decoration: const InputDecoration(labelText: 'Question'),
+              decoration: InputDecoration(labelText: l10n.adminQuizBuilderQuestionLabel),
             ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: explanationController,
-              decoration: const InputDecoration(
-                labelText: 'Explanation (optional)',
+              decoration: InputDecoration(
+                labelText: l10n.adminQuizBuilderExplanationLabel,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: frenchQuestionController,
-              decoration: const InputDecoration(
-                labelText: 'French Question (optional)',
+              decoration: InputDecoration(
+                labelText: l10n.adminQuizBuilderFrenchQuestionLabel,
               ),
             ),
             const SizedBox(height: AppSpacing.md),
             TextField(
               controller: frenchExplanationController,
-              decoration: const InputDecoration(
-                labelText: 'French Explanation (optional)',
+              decoration: InputDecoration(
+                labelText: l10n.adminQuizBuilderFrenchExplanationLabel,
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
             Text(
-              'Choices — select the correct one',
+              l10n.adminQuizBuilderChoicesHelper,
               style: AppTypography.caption,
             ),
             RadioGroup<int>(
@@ -777,7 +807,7 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
                           child: TextField(
                             controller: choiceControllers[i],
                             decoration: InputDecoration(
-                              hintText: 'Choice ${i + 1}',
+                              hintText: l10n.adminQuizBuilderChoiceHint(i + 1),
                             ),
                           ),
                         ),
@@ -786,7 +816,7 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
                           child: TextField(
                             controller: frenchChoiceControllers[i],
                             decoration: InputDecoration(
-                              hintText: 'French (optional)',
+                              hintText: l10n.adminQuizBuilderFrenchOptionalHint,
                             ),
                           ),
                         ),
@@ -805,7 +835,7 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
               TextButton.icon(
                 onPressed: addChoiceField,
                 icon: const Icon(Icons.add),
-                label: const Text('Add another choice'),
+                label: Text(l10n.adminQuizBuilderAddAnotherChoiceButton),
               ),
           ],
         ),
@@ -813,11 +843,11 @@ class _QuestionFormDialogState extends State<_QuestionFormDialog> {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: Text(l10n.adminQuizBuilderCancel),
         ),
         FilledButton(
           onPressed: submit,
-          child: Text(isEditing ? 'Save' : 'Add Question'),
+          child: Text(isEditing ? l10n.adminQuizBuilderSave : l10n.adminQuizBuilderAddQuestionButton),
         ),
       ],
     );
@@ -855,26 +885,27 @@ class _PasteQuizDialogState extends State<_PasteQuizDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     final current = result;
     return AlertDialog(
-      title: Text(current == null ? 'Paste Quiz' : 'Preview Import'),
+      title: Text(current == null ? l10n.adminQuizBuilderPasteQuizButton : l10n.adminQuizBuilderPreviewImportTitle),
       content: SizedBox(
         width: 520,
-        child: current == null ? _buildPasteStep() : _buildPreviewStep(current),
+        child: current == null ? _buildPasteStep(l10n) : _buildPreviewStep(current, l10n),
       ),
       actions: current == null
           ? [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: Text(l10n.adminQuizBuilderCancel),
               ),
               FilledButton(
                 onPressed: textController.text.trim().isEmpty ? null : parse,
-                child: const Text('Parse'),
+                child: Text(l10n.adminQuizBuilderParseButton),
               ),
             ]
           : [
-              TextButton(onPressed: backToPaste, child: const Text('Back')),
+              TextButton(onPressed: backToPaste, child: Text(l10n.adminQuizBuilderBackButton)),
               FilledButton(
                 onPressed: current.questions.where((q) => q.isValid).isEmpty
                     ? null
@@ -883,21 +914,21 @@ class _PasteQuizDialogState extends State<_PasteQuizDialog> {
                         current.questions.where((q) => q.isValid).toList(),
                       ),
                 child: Text(
-                  'Import ${current.questions.where((q) => q.isValid).length} Question(s)',
+                  l10n.adminQuizBuilderImportButton(current.questions.where((q) => q.isValid).length),
                 ),
               ),
             ],
     );
   }
 
-  Widget _buildPasteStep() {
+  Widget _buildPasteStep(AppLocalizations l10n) {
     return SingleChildScrollView(
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'Paste one or more questions, with a blank line between each question.',
+            l10n.adminQuizBuilderPasteInstructions,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -909,25 +940,13 @@ class _PasteQuizDialogState extends State<_PasteQuizDialog> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              '1. What is the Ewondo word for "water"?\n'
-              'A) Mendim *\n'
-              'B) Ayong\n'
-              'C) Nti\n'
-              'Explanation: Mendim means water.\n\n'
-              '2. Next question...\n'
-              'A) Choice one\n'
-              'B) Choice two\n'
-              'Answer: B',
+              l10n.adminQuizBuilderPasteExample,
               style: AppTypography.caption.copyWith(fontFamily: 'monospace'),
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(
-            'Mark the correct choice with a trailing * or add an "Answer: B" / '
-            '"Réponse : B" line. Add "FR: ..." on its own line right after a '
-            'question or choice for the French translation. Numbered '
-            'questions with all the answers listed separately at the bottom '
-            'under a heading "Answer Key" (e.g. "7. B) Parents") also work.',
+            l10n.adminQuizBuilderPasteFormatHelp,
             style: AppTypography.caption,
           ),
           const SizedBox(height: AppSpacing.md),
@@ -935,9 +954,9 @@ class _PasteQuizDialogState extends State<_PasteQuizDialog> {
             controller: textController,
             maxLines: 12,
             minLines: 8,
-            decoration: const InputDecoration(
-              hintText: 'Paste your quiz text here…',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              hintText: l10n.adminQuizBuilderPasteHint,
+              border: const OutlineInputBorder(),
             ),
             onChanged: (_) => setState(() {}),
           ),
@@ -946,7 +965,7 @@ class _PasteQuizDialogState extends State<_PasteQuizDialog> {
     );
   }
 
-  Widget _buildPreviewStep(QuizPasteParseResult result) {
+  Widget _buildPreviewStep(QuizPasteParseResult result, AppLocalizations l10n) {
     final validCount = result.questions.where((q) => q.isValid).length;
     return SizedBox(
       height: 420,
@@ -954,7 +973,7 @@ class _PasteQuizDialogState extends State<_PasteQuizDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${result.questions.length} question(s) detected — $validCount ready to import.',
+            l10n.adminQuizBuilderDetectedCount(result.questions.length, validCount),
             style: AppTypography.caption,
           ),
           if (result.globalWarnings.isNotEmpty)
@@ -970,7 +989,7 @@ class _PasteQuizDialogState extends State<_PasteQuizDialog> {
             child: result.questions.isEmpty
                 ? Center(
                     child: Text(
-                      'Nothing to preview — go back and adjust the pasted text.',
+                      l10n.adminQuizBuilderNothingToPreview,
                       style: AppTypography.caption,
                     ),
                   )

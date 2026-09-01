@@ -68,6 +68,11 @@ final appRouter = GoRouter(
       path: '/language-select',
       builder: (context, state) => const LanguageSelectionScreen(),
     ),
+    GoRoute(
+      path: '/app-language',
+      builder: (context, state) =>
+          const LanguageSelectionScreen(fromSettings: true),
+    ),
     GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
     GoRoute(
       path: '/select-learning-language',

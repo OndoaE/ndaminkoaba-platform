@@ -9,6 +9,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
+import '../../../l10n/app_localizations.dart';
 import '../data/content_repository.dart';
 import '../domain/management_models.dart';
 
@@ -74,6 +75,7 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
   }
 
   Future<void> editQuizInfo(ManagedQuiz quiz) async {
+    final l10n = AppLocalizations.of(context);
     final titleController = TextEditingController(text: quiz.title);
     final descController = TextEditingController(text: quiz.description ?? '');
     final frenchTitleController = TextEditingController(text: quiz.frenchTitle ?? '');
@@ -83,36 +85,36 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit Quiz'),
+        title: Text(l10n.adminQuizMgmtEditQuizTitle),
         content: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextField(controller: titleController, decoration: const InputDecoration(labelText: 'Title')),
+              TextField(controller: titleController, decoration: InputDecoration(labelText: l10n.adminQuizMgmtTitleLabel)),
               const SizedBox(height: AppSpacing.md),
-              TextField(controller: descController, decoration: const InputDecoration(labelText: 'Description')),
+              TextField(controller: descController, decoration: InputDecoration(labelText: l10n.adminQuizMgmtDescriptionLabel)),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: frenchTitleController,
-                decoration: const InputDecoration(labelText: 'French Title (optional)'),
+                decoration: InputDecoration(labelText: l10n.adminQuizMgmtFrenchTitleLabel),
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: frenchDescController,
-                decoration: const InputDecoration(labelText: 'French Description (optional)'),
+                decoration: InputDecoration(labelText: l10n.adminQuizMgmtFrenchDescriptionLabel),
               ),
               const SizedBox(height: AppSpacing.md),
               TextField(
                 controller: scoreController,
                 keyboardType: TextInputType.number,
-                decoration: const InputDecoration(labelText: 'Passing Score (%)'),
+                decoration: InputDecoration(labelText: l10n.adminQuizMgmtPassingScoreLabel),
               ),
             ],
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
-          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('Save')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.adminQuizMgmtCancel)),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: Text(l10n.adminQuizMgmtSave)),
         ],
       ),
     );
@@ -128,26 +130,27 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
         passingScore: int.tryParse(scoreController.text.trim()),
       );
       load();
-      _showMessage('Quiz updated.');
+      _showMessage(l10n.adminQuizMgmtQuizUpdated);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not update quiz.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminQuizMgmtUpdateQuizError));
     }
   }
 
   Future<void> deleteQuiz(ManagedQuiz quiz) async {
+    final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Quiz'),
+        title: Text(l10n.adminQuizMgmtDeleteQuizTitle),
         content: Text(
-          'Delete "${quiz.title}" and all ${quiz.questionCount} question(s)? This cannot be undone.',
+          l10n.adminQuizMgmtDeleteQuizConfirm(quiz.title, quiz.questionCount),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(context, false), child: Text(l10n.adminQuizMgmtCancel)),
           FilledButton(
             style: FilledButton.styleFrom(backgroundColor: AppColors.error),
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.adminQuizMgmtDelete),
           ),
         ],
       ),
@@ -161,21 +164,22 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
         await contentRepository.deleteQuiz(full);
       }
       load();
-      _showMessage('Quiz deleted.');
+      _showMessage(l10n.adminQuizMgmtQuizDeleted);
     } on DioException catch (e) {
-      _showMessage(extractErrorMessage(e, fallback: 'Could not delete quiz.'));
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminQuizMgmtDeleteQuizError));
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'Quiz Management', colors: [Color(0xFFB5312B), AppColors.primary]),
+      appBar: GradientAppBar(title: l10n.adminQuizMgmtAppBarTitle, colors: const [Color(0xFFB5312B), AppColors.primary]),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFFB5312B),
         icon: const Icon(Icons.add, color: Colors.white),
-        label: const Text('New Quiz', style: TextStyle(color: Colors.white)),
+        label: Text(l10n.adminQuizMgmtNewQuizButton, style: const TextStyle(color: Colors.white)),
         onPressed: () async {
           await context.push(
             '/admin/languages/${widget.languageId}/quizzes/new',
@@ -194,7 +198,7 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
                 controller: searchController,
                 onChanged: (_) => setState(() {}),
                 decoration: InputDecoration(
-                  hintText: 'Search quizzes...',
+                  hintText: l10n.adminQuizMgmtSearchHint,
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   fillColor: AppColors.surface,
@@ -209,7 +213,7 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
                     scrollDirection: Axis.horizontal,
                     children: [
                       _FilterChip(
-                        label: 'All Courses',
+                        label: l10n.adminQuizMgmtAllCoursesFilter,
                         selected: courseFilter == null,
                         onTap: () => setState(() => courseFilter = null),
                       ),
@@ -231,7 +235,7 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
                 child: isLoading
                     ? const ShimmerListLoader()
                     : _visible.isEmpty
-                        ? Center(child: Text('No quizzes found.', style: AppTypography.caption))
+                        ? Center(child: Text(l10n.adminQuizMgmtNoQuizzesFound, style: AppTypography.caption))
                         : ListView.separated(
                             padding: const EdgeInsets.only(bottom: 80),
                             itemCount: _visible.length,
@@ -273,7 +277,7 @@ class _AdminQuizManagementScreenState extends State<AdminQuizManagementScreen> {
                                               overflow: TextOverflow.ellipsis,
                                             ),
                                             Text(
-                                              '${quiz.questionCount} questions • pass ${quiz.passingScore}%',
+                                              l10n.adminQuizMgmtQuestionsSummary(quiz.questionCount, quiz.passingScore),
                                               style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
                                             ),
                                           ],
