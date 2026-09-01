@@ -164,6 +164,39 @@
     "placeholders": { "count": { "type": "int" }, "book": { "type": "String" } }
   },
   "adminBibleChapterOverwriteButton": "Overwrite",
+  "adminBibleChapterFilesLoaded": "{count} file(s) loaded.",
+  "@adminBibleChapterFilesLoaded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminBibleChapterFilesLoadedWithErrors": "{count} file(s) loaded, {unreadable} couldn't be read.",
+  "@adminBibleChapterFilesLoadedWithErrors": {
+    "placeholders": { "count": { "type": "int" }, "unreadable": { "type": "int" } }
+  },
+  "adminBibleChapterPastedTextLabel": "Pasted text",
+  "adminBibleChapterOverwriteConfirmMulti": "{count} of these {total} book(s) have chapters that already exist. Saving now will replace their existing verses with the ones you're uploading.",
+  "@adminBibleChapterOverwriteConfirmMulti": {
+    "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "adminBibleChapterSavedBooks": "Saved {count} book(s).",
+  "@adminBibleChapterSavedBooks": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminBibleChapterSavedBooksWithFailures": "Saved {succeeded} book(s), {failed} failed{errorSuffix}.",
+  "@adminBibleChapterSavedBooksWithFailures": {
+    "placeholders": {
+      "succeeded": { "type": "int" },
+      "failed": { "type": "int" },
+      "errorSuffix": { "type": "String" }
+    }
+  },
+  "adminBibleChapterBooksDetectedSummary": "{count} book(s) detected — review each below, then save.",
+  "@adminBibleChapterBooksDetectedSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminBibleChapterSaveAllBooksButton": "Save All Books ({count})",
+  "@adminBibleChapterSaveAllBooksButton": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "adminLessonEditorTabInfo": "Lesson Info",
   "adminLessonEditorTabContent": "Content",
   "adminLessonEditorTabActivities": "Activities",

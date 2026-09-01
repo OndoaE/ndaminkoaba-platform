@@ -533,6 +533,48 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminBibleChapterOverwriteButton => 'Overwrite';
 
   @override
+  String adminBibleChapterFilesLoaded(int count) {
+    return '$count file(s) loaded.';
+  }
+
+  @override
+  String adminBibleChapterFilesLoadedWithErrors(int count, int unreadable) {
+    return '$count file(s) loaded, $unreadable couldn\'t be read.';
+  }
+
+  @override
+  String get adminBibleChapterPastedTextLabel => 'Pasted text';
+
+  @override
+  String adminBibleChapterOverwriteConfirmMulti(int count, int total) {
+    return '$count of these $total book(s) have chapters that already exist. Saving now will replace their existing verses with the ones you\'re uploading.';
+  }
+
+  @override
+  String adminBibleChapterSavedBooks(int count) {
+    return 'Saved $count book(s).';
+  }
+
+  @override
+  String adminBibleChapterSavedBooksWithFailures(
+    int succeeded,
+    int failed,
+    String errorSuffix,
+  ) {
+    return 'Saved $succeeded book(s), $failed failed$errorSuffix.';
+  }
+
+  @override
+  String adminBibleChapterBooksDetectedSummary(int count) {
+    return '$count book(s) detected — review each below, then save.';
+  }
+
+  @override
+  String adminBibleChapterSaveAllBooksButton(int count) {
+    return 'Save All Books ($count)';
+  }
+
+  @override
   String get adminLessonEditorTabInfo => 'Lesson Info';
 
   @override

@@ -42,11 +42,59 @@ class _VersePreview {
   final String? frenchText;
 }
 
+/// One file picked (or pasted) for a single language slot in USFM batch
+/// mode. Unlike the single-string paste boxes this app started with, a
+/// slot can now hold many of these at once -- one file per book.
+class _UsfmFileUpload {
+  const _UsfmFileUpload({required this.fileName, required this.rawText});
+
+  final String fileName;
+  final String rawText;
+}
+
+/// Accumulates the Ewondo/English/French USFM parse results that share a
+/// detected book identity, before they're flattened into a [_BookDraft].
+/// Kept as a small mutable holder (not a record) because it's built up
+/// incrementally across three separate passes (one per language).
+class _BookAccumulator {
+  _BookAccumulator(this.displayName);
+
+  String displayName;
+  UsfmParseResult? ewondo;
+  UsfmParseResult? english;
+  UsfmParseResult? french;
+}
+
+/// One book's worth of reviewable, editable, individually-savable content
+/// in USFM batch mode -- the whole point of this screen supporting more
+/// than one book per upload. [bookController] starts pre-filled from
+/// whatever the source files' own USFM headers declared, but stays fully
+/// editable in case detection picked the wrong name or none at all.
+class _BookDraft {
+  _BookDraft({required String initialBook, required this.verses})
+      : bookController = TextEditingController(text: initialBook);
+
+  final TextEditingController bookController;
+  final List<_VersePreview> verses;
+  bool include = true;
+
+  int get chapterCount => verses.map((v) => v.chapter).toSet().length;
+
+  void dispose() => bookController.dispose();
+}
+
 /// Lets an admin paste a full Bible chapter in Ewondo alongside its English
 /// (ESV) translation, aligns the two verse-by-verse for review, then saves
-/// the chapter as parallel-text knowledge for Nnanga to search — a third,
+/// the chapter as parallel-text knowledge for Nnanga to search -- a third,
 /// distinct way to grow the knowledge base beyond single words
 /// (VocabFormDialog) or freeform text blocks (TextEntryFormDialog).
+///
+/// USFM mode is a separate, batch-capable path: an admin can select many
+/// files at once per language (e.g. every book from Acts to Revelation),
+/// each file is matched across the three language slots by its own USFM
+/// book identity, and every resulting book is reviewed and saved as its
+/// own independent [_BookDraft] -- one succeeding or failing does not
+/// affect the others.
 class AdminBibleChapterScreen extends StatefulWidget {
   const AdminBibleChapterScreen({
     super.key,
@@ -73,10 +121,19 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
   bool isLoadingChapters = true;
   bool isSaving = false;
+  bool isSavingAll = false;
   bool isUsfmMode = false;
   bool _defaultVersionSet = false;
   List<BibleChapterSummary> savedChapters = [];
+
+  // Manual (single-chapter) mode only.
   List<_VersePreview> preview = [];
+
+  // USFM batch mode only.
+  List<_UsfmFileUpload> ewondoFiles = [];
+  List<_UsfmFileUpload> englishFiles = [];
+  List<_UsfmFileUpload> frenchFiles = [];
+  List<_BookDraft> bookDrafts = [];
 
   @override
   void initState() {
@@ -101,6 +158,9 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     ewondoController.dispose();
     englishController.dispose();
     frenchController.dispose();
+    for (final draft in bookDrafts) {
+      draft.dispose();
+    }
     super.dispose();
   }
 
@@ -128,8 +188,23 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     ).showSnackBar(SnackBar(content: Text(message)));
   }
 
-  Future<void> _uploadUsfmFile(TextEditingController controller) async {
+  void _clearBookDrafts() {
+    for (final draft in bookDrafts) {
+      draft.dispose();
+    }
+    bookDrafts = [];
+  }
+
+  /// Picks one or many USFM/SFM/txt files for a single language slot.
+  /// Replaces whatever was previously picked for that slot -- consistent
+  /// with the rest of this screen's "a fresh pick replaces stale state"
+  /// rule, so a previous batch's files can never silently linger into a
+  /// new one.
+  Future<void> _pickUsfmFiles(void Function(List<_UsfmFileUpload>) onPicked) async {
     final l10n = AppLocalizations.of(context);
+    // pickFiles already defaults to allowMultiple: true -- that's the
+    // whole point of this screen supporting more than one book per
+    // upload, so it's picked once here and never overridden to false.
     final result = await FilePicker.pickFiles(
       type: FileType.custom,
       allowedExtensions: ['usfm', 'sfm', 'txt'],
@@ -137,27 +212,44 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     );
     if (result == null || result.files.isEmpty) return;
 
-    final bytes = result.files.first.bytes;
-    if (bytes == null) {
+    final picked = <_UsfmFileUpload>[];
+    var unreadable = 0;
+    for (final file in result.files) {
+      final bytes = file.bytes;
+      if (bytes == null) {
+        unreadable++;
+        continue;
+      }
+      picked.add(
+        _UsfmFileUpload(fileName: file.name, rawText: utf8.decode(bytes, allowMalformed: true)),
+      );
+    }
+
+    if (picked.isEmpty) {
       _showMessage(l10n.adminBibleChapterFileReadError);
       return;
     }
 
     setState(() {
-      controller.text = utf8.decode(bytes, allowMalformed: true);
-      // A fresh file means a fresh book -- never let a book name detected
-      // (or typed) for a *previous* upload silently carry over. Without
-      // this, uploading e.g. Matthew after John, when Matthew's USFM
-      // header isn't recognized, would leave "John" in the field and
-      // Preview/Save would upsert Matthew's verses into John's rows
-      // (same book+chapter+verse key), silently corrupting John's text
-      // instead of adding Matthew as its own book. Preview re-fills this
-      // from the new file's own header if one is found; if not, it now
-      // stays empty (visible, obvious) rather than wrong-but-plausible.
-      bookController.clear();
-      preview = [];
+      onPicked(picked);
+      // A fresh pick means fresh books -- the previous preview no longer
+      // reflects what's about to be built, and could otherwise be saved
+      // by mistake if the admin doesn't re-run Preview.
+      _clearBookDrafts();
     });
-    _showMessage(l10n.adminBibleChapterFileLoaded(result.files.first.name));
+    _showMessage(
+      unreadable > 0
+          ? l10n.adminBibleChapterFilesLoadedWithErrors(picked.length, unreadable)
+          : l10n.adminBibleChapterFilesLoaded(picked.length),
+    );
+  }
+
+  void _removeUsfmFile(List<_UsfmFileUpload> files, void Function(List<_UsfmFileUpload>) onChanged, int index) {
+    final updated = List<_UsfmFileUpload>.from(files)..removeAt(index);
+    setState(() {
+      onChanged(updated);
+      _clearBookDrafts();
+    });
   }
 
   List<({int verse, String text})> _parseVerses(String raw) {
@@ -178,7 +270,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
   void buildPreview() {
     if (isUsfmMode) {
-      _buildUsfmPreview();
+      _buildUsfmBookDrafts();
     } else {
       _buildManualPreview();
     }
@@ -227,72 +319,120 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     });
   }
 
-  void _buildUsfmPreview() {
+  /// Builds this batch's book drafts: parses every picked file (plus any
+  /// directly-pasted text, treated as one more unit) per language slot,
+  /// groups units across all three slots by their detected USFM book
+  /// identity (code, then name, then filename as a last resort so a file
+  /// with no recognizable header still becomes its own reviewable draft
+  /// instead of silently vanishing), and turns each group into a
+  /// [_BookDraft] with its own editable book name and its own chapter/
+  /// verse content -- ready to be reviewed and saved independently.
+  void _buildUsfmBookDrafts() {
     final l10n = AppLocalizations.of(context);
-    final ewondoResult = UsfmParser.parse(ewondoController.text);
-    final englishResult = UsfmParser.parse(englishController.text);
-    final frenchResult = UsfmParser.parse(frenchController.text);
 
-    if (ewondoResult.verseCount == 0 &&
-        englishResult.verseCount == 0 &&
-        frenchResult.verseCount == 0) {
-      _showMessage(
-        l10n.adminBibleChapterNoUsfmMarkersError,
-      );
+    final ewondoUnits = [
+      ...ewondoFiles,
+      if (ewondoController.text.trim().isNotEmpty)
+        _UsfmFileUpload(
+          fileName: l10n.adminBibleChapterPastedTextLabel,
+          rawText: ewondoController.text,
+        ),
+    ];
+    final englishUnits = [
+      ...englishFiles,
+      if (englishController.text.trim().isNotEmpty)
+        _UsfmFileUpload(
+          fileName: l10n.adminBibleChapterPastedTextLabel,
+          rawText: englishController.text,
+        ),
+    ];
+    final frenchUnits = [
+      ...frenchFiles,
+      if (frenchController.text.trim().isNotEmpty)
+        _UsfmFileUpload(
+          fileName: l10n.adminBibleChapterPastedTextLabel,
+          rawText: frenchController.text,
+        ),
+    ];
+
+    if (ewondoUnits.isEmpty && englishUnits.isEmpty && frenchUnits.isEmpty) {
+      _showMessage(l10n.adminBibleChapterNoUsfmMarkersError);
       return;
     }
 
-    final ewondoByChapter = {
-      for (final c in ewondoResult.chapters) c.chapter: c.verses,
-    };
-    final englishByChapter = {
-      for (final c in englishResult.chapters) c.chapter: c.verses,
-    };
-    final frenchByChapter = {
-      for (final c in frenchResult.chapters) c.chapter: c.verses,
-    };
-    final chapterNumbers = {
-      ...ewondoByChapter.keys,
-      ...englishByChapter.keys,
-      ...frenchByChapter.keys,
-    }.toList()..sort();
+    final byKey = <String, _BookAccumulator>{};
 
-    final result = <_VersePreview>[];
-    for (final chapterNum in chapterNumbers) {
-      final ewondoVerses = ewondoByChapter[chapterNum] ?? {};
-      final englishVerses = englishByChapter[chapterNum] ?? {};
-      final frenchVerses = frenchByChapter[chapterNum] ?? {};
-      final verseNumbers = {
-        ...ewondoVerses.keys,
-        ...englishVerses.keys,
-        ...frenchVerses.keys,
-      }.toList()..sort();
-      for (final verseNum in verseNumbers) {
-        result.add(
-          _VersePreview(
-            chapter: chapterNum,
-            verse: verseNum,
-            ewondoText: ewondoVerses[verseNum],
-            englishText: englishVerses[verseNum],
-            frenchText: frenchVerses[verseNum],
-          ),
-        );
+    void accumulate(
+      List<_UsfmFileUpload> units,
+      void Function(_BookAccumulator acc, UsfmParseResult parsed) assign,
+    ) {
+      for (final unit in units) {
+        final parsed = UsfmParser.parse(unit.rawText);
+        if (parsed.verseCount == 0) continue;
+        final key = (parsed.bookCode ?? parsed.bookName ?? unit.fileName).trim().toUpperCase();
+        final displayName = parsed.bookName ?? parsed.bookCode ?? unit.fileName;
+        final acc = byKey.putIfAbsent(key, () => _BookAccumulator(displayName));
+        assign(acc, parsed);
       }
     }
 
-    final detectedBook =
-        ewondoResult.bookName ??
-        englishResult.bookName ??
-        frenchResult.bookName ??
-        ewondoResult.bookCode ??
-        englishResult.bookCode ??
-        frenchResult.bookCode;
+    accumulate(ewondoUnits, (acc, parsed) => acc.ewondo = parsed);
+    accumulate(englishUnits, (acc, parsed) => acc.english = parsed);
+    accumulate(frenchUnits, (acc, parsed) => acc.french = parsed);
+
+    if (byKey.isEmpty) {
+      _showMessage(l10n.adminBibleChapterNoUsfmMarkersError);
+      return;
+    }
+
+    final drafts = <_BookDraft>[];
+    for (final acc in byKey.values) {
+      final ewondoByChapter = {
+        for (final c in acc.ewondo?.chapters ?? const <UsfmChapter>[]) c.chapter: c.verses,
+      };
+      final englishByChapter = {
+        for (final c in acc.english?.chapters ?? const <UsfmChapter>[]) c.chapter: c.verses,
+      };
+      final frenchByChapter = {
+        for (final c in acc.french?.chapters ?? const <UsfmChapter>[]) c.chapter: c.verses,
+      };
+      final chapterNumbers = {
+        ...ewondoByChapter.keys,
+        ...englishByChapter.keys,
+        ...frenchByChapter.keys,
+      }.toList()..sort();
+
+      final verses = <_VersePreview>[];
+      for (final chapterNum in chapterNumbers) {
+        final ewondoVerses = ewondoByChapter[chapterNum] ?? {};
+        final englishVerses = englishByChapter[chapterNum] ?? {};
+        final frenchVerses = frenchByChapter[chapterNum] ?? {};
+        final verseNumbers = {
+          ...ewondoVerses.keys,
+          ...englishVerses.keys,
+          ...frenchVerses.keys,
+        }.toList()..sort();
+        for (final verseNum in verseNumbers) {
+          verses.add(
+            _VersePreview(
+              chapter: chapterNum,
+              verse: verseNum,
+              ewondoText: ewondoVerses[verseNum],
+              englishText: englishVerses[verseNum],
+              frenchText: frenchVerses[verseNum],
+            ),
+          );
+        }
+      }
+      drafts.add(_BookDraft(initialBook: acc.displayName, verses: verses));
+    }
+    drafts.sort(
+      (a, b) => a.bookController.text.toLowerCase().compareTo(b.bookController.text.toLowerCase()),
+    );
 
     setState(() {
-      preview = result;
-      if (detectedBook != null && detectedBook.isNotEmpty) {
-        bookController.text = detectedBook;
-      }
+      _clearBookDrafts();
+      bookDrafts = drafts;
     });
   }
 
@@ -320,13 +460,10 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
 
     final chapterCount = versesToSave.map((v) => v.chapter).toSet().length;
 
-    // Safety net for the exact failure mode that made "only one USFM
-    // ends up saved" possible: if this book+version already has any of
-    // these chapters saved, saving again would silently overwrite them
-    // (same book/chapter/verse/version/language upsert key on the
-    // backend) -- surface that plainly instead of letting it happen
-    // invisibly, whether it's a genuine intentional re-upload or a
-    // book name that wasn't changed from the previous book.
+    // Safety net: if this book+version already has any of these chapters
+    // saved, saving again would silently overwrite them (same book/
+    // chapter/verse/version/language upsert key on the backend) --
+    // surface that plainly instead of letting it happen invisibly.
     final chaptersInPreview = versesToSave.map((v) => v.chapter).toSet();
     final collidingChapters = savedChapters
         .where(
@@ -388,7 +525,6 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
         ewondoController.clear();
         englishController.clear();
         frenchController.clear();
-        if (isUsfmMode) chapterController.clear();
       });
       _showMessage(
         chapterCount > 1
@@ -401,6 +537,132 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     } finally {
       if (mounted) setState(() => isSaving = false);
     }
+  }
+
+  /// Saves every included book draft independently -- one book's payload
+  /// failing (a validation error, a network blip) does not stop the rest
+  /// of the batch, matching how the admin's paste-import features (quiz,
+  /// vocabulary) already report partial success rather than all-or-
+  /// nothing.
+  Future<void> saveAllBooks() async {
+    final l10n = AppLocalizations.of(context);
+    final version = versionController.text.trim().isEmpty
+        ? l10n.adminBibleChapterDefaultVersion
+        : versionController.text.trim();
+
+    final toSave = bookDrafts.where((d) => d.include).toList();
+    if (toSave.isEmpty) return;
+
+    for (final draft in toSave) {
+      if (draft.bookController.text.trim().isEmpty) {
+        _showMessage(l10n.adminBibleChapterEnterBookNameError);
+        return;
+      }
+    }
+
+    final versesByDraft = {
+      for (final draft in toSave)
+        draft: draft.verses.where((v) => v.ewondoText != null && v.ewondoText!.isNotEmpty).toList(),
+    };
+    if (versesByDraft.values.every((v) => v.isEmpty)) {
+      _showMessage(l10n.adminBibleChapterNoEwondoVersesError);
+      return;
+    }
+
+    // Same overwrite safety net as the single-book save, aggregated
+    // across the whole batch into one upfront confirmation rather than
+    // one dialog per book.
+    var booksWithCollisions = 0;
+    for (final draft in toSave) {
+      final book = draft.bookController.text.trim();
+      final chaptersInDraft = versesByDraft[draft]!.map((v) => v.chapter).toSet();
+      final hasCollision = savedChapters.any(
+        (s) => s.book == book && s.version == version && chaptersInDraft.contains(s.chapter),
+      );
+      if (hasCollision) booksWithCollisions++;
+    }
+    if (booksWithCollisions > 0) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.adminBibleChapterOverwriteTitle),
+          content: Text(
+            l10n.adminBibleChapterOverwriteConfirmMulti(booksWithCollisions, toSave.length),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.adminBibleChapterCancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.adminBibleChapterOverwriteButton),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
+
+    setState(() => isSavingAll = true);
+    var succeeded = 0;
+    var failed = 0;
+    String? firstError;
+    for (final draft in toSave) {
+      final verses = versesByDraft[draft]!;
+      if (verses.isEmpty) continue;
+      final book = draft.bookController.text.trim();
+      try {
+        await repository.bulkUpsertBibleVerses(
+          verses
+              .map(
+                (v) => {
+                  'book': book,
+                  'chapter': v.chapter,
+                  'verse': v.verse,
+                  'text': v.ewondoText,
+                  if (v.englishText != null && v.englishText!.isNotEmpty)
+                    'englishText': v.englishText,
+                  if (v.frenchText != null && v.frenchText!.isNotEmpty)
+                    'frenchText': v.frenchText,
+                  'version': version,
+                },
+              )
+              .toList(),
+          languageId: widget.languageId,
+        );
+        succeeded++;
+      } on DioException catch (e) {
+        failed++;
+        firstError ??= extractErrorMessage(e, fallback: l10n.adminBibleChapterSaveError);
+      } catch (e) {
+        failed++;
+        firstError ??= e.toString();
+      }
+    }
+
+    if (!mounted) return;
+    setState(() {
+      _clearBookDrafts();
+      ewondoFiles = [];
+      englishFiles = [];
+      frenchFiles = [];
+      ewondoController.clear();
+      englishController.clear();
+      frenchController.clear();
+      isSavingAll = false;
+    });
+    _showMessage(
+      failed == 0
+          ? l10n.adminBibleChapterSavedBooks(succeeded)
+          : l10n.adminBibleChapterSavedBooksWithFailures(
+              succeeded,
+              failed,
+              firstError != null ? ' — $firstError' : '',
+            ),
+    );
+    loadChapters();
   }
 
   Future<void> deleteChapter(BibleChapterSummary summary) async {
@@ -489,6 +751,8 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     String hint,
     TextEditingController controller, {
     VoidCallback? onUpload,
+    List<_UsfmFileUpload>? files,
+    void Function(int index)? onRemoveFile,
   }) {
     final l10n = AppLocalizations.of(context);
     return PremiumCard(
@@ -508,6 +772,21 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
           ),
           const SizedBox(height: AppSpacing.xs),
           Text(helper, style: AppTypography.caption),
+          if (files != null && files.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Wrap(
+              spacing: AppSpacing.xs,
+              runSpacing: AppSpacing.xs,
+              children: [
+                for (var i = 0; i < files.length; i++)
+                  Chip(
+                    label: Text(files[i].fileName, overflow: TextOverflow.ellipsis),
+                    visualDensity: VisualDensity.compact,
+                    onDeleted: onRemoveFile == null ? null : () => onRemoveFile(i),
+                  ),
+              ],
+            ),
+          ],
           const SizedBox(height: AppSpacing.md),
           TextField(
             controller: controller,
@@ -530,11 +809,11 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     );
   }
 
-  /// Preview verses grouped by chapter, in chapter order — a single group
-  /// for manual mode, potentially dozens for a whole USFM book.
-  List<MapEntry<int, List<_VersePreview>>> get _previewChapters {
+  /// Groups a book's verses by chapter, in chapter order — a single group
+  /// for a manual-mode chapter, potentially dozens for a whole USFM book.
+  List<MapEntry<int, List<_VersePreview>>> _chaptersOf(List<_VersePreview> verses) {
     final grouped = <int, List<_VersePreview>>{};
-    for (final item in preview) {
+    for (final item in verses) {
       grouped.putIfAbsent(item.chapter, () => []).add(item);
     }
     final entries = grouped.entries.toList()
@@ -542,13 +821,14 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     return entries;
   }
 
-  Widget _chapterPreviewSection(MapEntry<int, List<_VersePreview>> entry) {
+  Widget _chapterPreviewSection(MapEntry<int, List<_VersePreview>> entry, {required bool singleChapter}) {
     final l10n = AppLocalizations.of(context);
     final chapter = entry.key;
     final verses = entry.value;
-    final rows = verses.map(_verseRow).toList();
+    final hasFrenchData = _hasFrenchDataIn(verses);
+    final rows = verses.map((v) => _verseRow(v, hasFrenchData: hasFrenchData)).toList();
 
-    if (_previewChapters.length == 1) {
+    if (singleChapter) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: rows,
@@ -569,10 +849,10 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     );
   }
 
-  bool get _hasFrenchData =>
-      preview.any((v) => v.frenchText != null && v.frenchText!.isNotEmpty);
+  bool _hasFrenchDataIn(List<_VersePreview> verses) =>
+      verses.any((v) => v.frenchText != null && v.frenchText!.isNotEmpty);
 
-  Widget _verseRow(_VersePreview item) {
+  Widget _verseRow(_VersePreview item, {required bool hasFrenchData}) {
     final l10n = AppLocalizations.of(context);
     return Container(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
@@ -625,7 +905,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                       fontStyle: FontStyle.italic,
                     ),
                   ),
-                if (_hasFrenchData) ...[
+                if (hasFrenchData) ...[
                   const SizedBox(height: AppSpacing.xs),
                   if (item.frenchText != null)
                     Text(item.frenchText!, style: AppTypography.caption)
@@ -646,10 +926,63 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     );
   }
 
+  Widget _bookDraftCard(_BookDraft draft) {
+    final l10n = AppLocalizations.of(context);
+    final chapters = _chaptersOf(draft.verses);
+    final singleChapter = chapters.length == 1;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.md),
+      child: PremiumCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Checkbox(
+                  value: draft.include,
+                  onChanged: (v) => setState(() => draft.include = v ?? true),
+                ),
+                Expanded(
+                  child: TextField(
+                    controller: draft.bookController,
+                    style: AppTypography.title,
+                    decoration: const InputDecoration(
+                      isDense: true,
+                      border: InputBorder.none,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 48),
+              child: Text(
+                l10n.adminBibleChapterVersesAcrossChapters(draft.verses.length, draft.chapterCount),
+                style: AppTypography.caption,
+              ),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            Padding(
+              padding: const EdgeInsets.only(left: 48),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: chapters
+                    .map((entry) => _chapterPreviewSection(entry, singleChapter: singleChapter))
+                    .toList(),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final title = widget.languageName ?? l10n.adminBibleChapterDefaultLanguageName;
+    final manualChapters = _chaptersOf(preview);
     return AdminShell(
       activeNavKey: 'bible',
       languageId: widget.languageId,
@@ -676,6 +1009,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 onSelected: (_) => setState(() {
                   isUsfmMode = false;
                   preview = [];
+                  _clearBookDrafts();
                 }),
                 selectedColor: AppColors.primary,
                 labelStyle: TextStyle(
@@ -688,6 +1022,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 onSelected: (_) => setState(() {
                   isUsfmMode = true;
                   preview = [];
+                  _clearBookDrafts();
                 }),
                 selectedColor: AppColors.primary,
                 labelStyle: TextStyle(
@@ -716,9 +1051,12 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _field(l10n.adminBibleChapterBookLabel, bookController),
-                    const SizedBox(width: AppSpacing.md),
+                    // In USFM batch mode each book gets its own editable
+                    // name inline in its review card below, so the single
+                    // shared Book field here only applies to manual mode.
                     if (!isUsfmMode) ...[
+                      _field(l10n.adminBibleChapterBookLabel, bookController),
+                      const SizedBox(width: AppSpacing.md),
                       _field(
                         l10n.adminBibleChapterChapterLabel,
                         chapterController,
@@ -743,7 +1081,11 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 : l10n.adminBibleChapterManualHintExample,
             ewondoController,
             onUpload: isUsfmMode
-                ? () => _uploadUsfmFile(ewondoController)
+                ? () => _pickUsfmFiles((f) => ewondoFiles = f)
+                : null,
+            files: isUsfmMode ? ewondoFiles : null,
+            onRemoveFile: isUsfmMode
+                ? (i) => _removeUsfmFile(ewondoFiles, (f) => ewondoFiles = f, i)
                 : null,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -759,7 +1101,11 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 : l10n.adminBibleChapterManualHintExample,
             englishController,
             onUpload: isUsfmMode
-                ? () => _uploadUsfmFile(englishController)
+                ? () => _pickUsfmFiles((f) => englishFiles = f)
+                : null,
+            files: isUsfmMode ? englishFiles : null,
+            onRemoveFile: isUsfmMode
+                ? (i) => _removeUsfmFile(englishFiles, (f) => englishFiles = f, i)
                 : null,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -775,7 +1121,11 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                 : l10n.adminBibleChapterFrenchManualHintExample,
             frenchController,
             onUpload: isUsfmMode
-                ? () => _uploadUsfmFile(frenchController)
+                ? () => _pickUsfmFiles((f) => frenchFiles = f)
+                : null,
+            files: isUsfmMode ? frenchFiles : null,
+            onRemoveFile: isUsfmMode
+                ? (i) => _removeUsfmFile(frenchFiles, (f) => frenchFiles = f, i)
                 : null,
           ),
           const SizedBox(height: AppSpacing.lg),
@@ -791,7 +1141,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
               ),
             ),
           ),
-          if (preview.isNotEmpty) ...[
+          if (!isUsfmMode && preview.isNotEmpty) ...[
             const SizedBox(height: AppSpacing.lg),
             PremiumCard(
               child: Column(
@@ -800,20 +1150,40 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                   Text(l10n.adminBibleChapterComparisonTitle, style: AppTypography.title),
                   const SizedBox(height: AppSpacing.xs),
                   Text(
-                    l10n.adminBibleChapterVersesAcrossChapters(preview.length, _previewChapters.length),
+                    l10n.adminBibleChapterVersesAcrossChapters(preview.length, manualChapters.length),
                     style: AppTypography.caption,
                   ),
                   const SizedBox(height: AppSpacing.md),
-                  ..._previewChapters.map(_chapterPreviewSection),
+                  ...manualChapters.map(
+                    (entry) => _chapterPreviewSection(entry, singleChapter: manualChapters.length == 1),
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: AppSpacing.lg),
             PrimaryButton(
-              label: isUsfmMode ? l10n.adminBibleChapterSaveBookButton : l10n.adminBibleChapterSaveChapterButton,
+              label: l10n.adminBibleChapterSaveChapterButton,
               icon: Icons.save_outlined,
               isLoading: isSaving,
               onPressed: saveChapter,
+            ),
+          ],
+          if (isUsfmMode && bookDrafts.isNotEmpty) ...[
+            const SizedBox(height: AppSpacing.lg),
+            Text(
+              l10n.adminBibleChapterBooksDetectedSummary(bookDrafts.length),
+              style: AppTypography.caption,
+            ),
+            const SizedBox(height: AppSpacing.md),
+            ...bookDrafts.map(_bookDraftCard),
+            const SizedBox(height: AppSpacing.sm),
+            PrimaryButton(
+              label: l10n.adminBibleChapterSaveAllBooksButton(
+                bookDrafts.where((d) => d.include).length,
+              ),
+              icon: Icons.save_outlined,
+              isLoading: isSavingAll,
+              onPressed: saveAllBooks,
             ),
           ],
           const SizedBox(height: AppSpacing.xxl),

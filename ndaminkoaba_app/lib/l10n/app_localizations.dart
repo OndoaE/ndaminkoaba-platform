@@ -978,6 +978,58 @@ abstract class AppLocalizations {
   /// **'Overwrite'**
   String get adminBibleChapterOverwriteButton;
 
+  /// No description provided for @adminBibleChapterFilesLoaded.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} file(s) loaded.'**
+  String adminBibleChapterFilesLoaded(int count);
+
+  /// No description provided for @adminBibleChapterFilesLoadedWithErrors.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} file(s) loaded, {unreadable} couldn\'t be read.'**
+  String adminBibleChapterFilesLoadedWithErrors(int count, int unreadable);
+
+  /// No description provided for @adminBibleChapterPastedTextLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Pasted text'**
+  String get adminBibleChapterPastedTextLabel;
+
+  /// No description provided for @adminBibleChapterOverwriteConfirmMulti.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of these {total} book(s) have chapters that already exist. Saving now will replace their existing verses with the ones you\'re uploading.'**
+  String adminBibleChapterOverwriteConfirmMulti(int count, int total);
+
+  /// No description provided for @adminBibleChapterSavedBooks.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {count} book(s).'**
+  String adminBibleChapterSavedBooks(int count);
+
+  /// No description provided for @adminBibleChapterSavedBooksWithFailures.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved {succeeded} book(s), {failed} failed{errorSuffix}.'**
+  String adminBibleChapterSavedBooksWithFailures(
+    int succeeded,
+    int failed,
+    String errorSuffix,
+  );
+
+  /// No description provided for @adminBibleChapterBooksDetectedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} book(s) detected — review each below, then save.'**
+  String adminBibleChapterBooksDetectedSummary(int count);
+
+  /// No description provided for @adminBibleChapterSaveAllBooksButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save All Books ({count})'**
+  String adminBibleChapterSaveAllBooksButton(int count);
+
   /// No description provided for @adminLessonEditorTabInfo.
   ///
   /// In en, this message translates to:

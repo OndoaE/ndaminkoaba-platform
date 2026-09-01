@@ -164,6 +164,39 @@
     "placeholders": { "count": { "type": "int" }, "book": { "type": "String" } }
   },
   "adminBibleChapterOverwriteButton": "Écraser",
+  "adminBibleChapterFilesLoaded": "{count} fichier(s) chargé(s).",
+  "@adminBibleChapterFilesLoaded": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminBibleChapterFilesLoadedWithErrors": "{count} fichier(s) chargé(s), {unreadable} n'ont pas pu être lus.",
+  "@adminBibleChapterFilesLoadedWithErrors": {
+    "placeholders": { "count": { "type": "int" }, "unreadable": { "type": "int" } }
+  },
+  "adminBibleChapterPastedTextLabel": "Texte collé",
+  "adminBibleChapterOverwriteConfirmMulti": "{count} de ces {total} livre(s) ont des chapitres déjà enregistrés. Enregistrer maintenant remplacera leurs versets existants par ceux que vous importez.",
+  "@adminBibleChapterOverwriteConfirmMulti": {
+    "placeholders": { "count": { "type": "int" }, "total": { "type": "int" } }
+  },
+  "adminBibleChapterSavedBooks": "{count} livre(s) enregistré(s).",
+  "@adminBibleChapterSavedBooks": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminBibleChapterSavedBooksWithFailures": "{succeeded} livre(s) enregistré(s), {failed} échec(s){errorSuffix}.",
+  "@adminBibleChapterSavedBooksWithFailures": {
+    "placeholders": {
+      "succeeded": { "type": "int" },
+      "failed": { "type": "int" },
+      "errorSuffix": { "type": "String" }
+    }
+  },
+  "adminBibleChapterBooksDetectedSummary": "{count} livre(s) détecté(s) — vérifiez chacun ci-dessous, puis enregistrez.",
+  "@adminBibleChapterBooksDetectedSummary": {
+    "placeholders": { "count": { "type": "int" } }
+  },
+  "adminBibleChapterSaveAllBooksButton": "Enregistrer tous les livres ({count})",
+  "@adminBibleChapterSaveAllBooksButton": {
+    "placeholders": { "count": { "type": "int" } }
+  },
   "adminLessonEditorTabInfo": "Infos de la leçon",
   "adminLessonEditorTabContent": "Contenu",
   "adminLessonEditorTabActivities": "Activités",
