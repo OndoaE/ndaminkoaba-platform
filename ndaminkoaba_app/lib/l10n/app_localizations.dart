@@ -960,6 +960,24 @@ abstract class AppLocalizations {
   /// **'Delete chapter'**
   String get adminBibleChapterDeleteChapterTooltip;
 
+  /// No description provided for @adminBibleChapterOverwriteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite existing chapters?'**
+  String get adminBibleChapterOverwriteTitle;
+
+  /// No description provided for @adminBibleChapterOverwriteConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} of these chapters are already saved for \"{book}\". Saving now will replace their existing verses with the ones you\'re uploading.'**
+  String adminBibleChapterOverwriteConfirm(int count, String book);
+
+  /// No description provided for @adminBibleChapterOverwriteButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Overwrite'**
+  String get adminBibleChapterOverwriteButton;
+
   /// No description provided for @adminLessonEditorTabInfo.
   ///
   /// In en, this message translates to:

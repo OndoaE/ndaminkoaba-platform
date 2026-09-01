@@ -533,6 +533,18 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminBibleChapterDeleteChapterTooltip => 'Supprimer le chapitre';
 
   @override
+  String get adminBibleChapterOverwriteTitle =>
+      'Écraser les chapitres existants ?';
+
+  @override
+  String adminBibleChapterOverwriteConfirm(int count, String book) {
+    return '$count de ces chapitres sont déjà enregistrés pour « $book ». Enregistrer maintenant remplacera leurs versets existants par ceux que vous importez.';
+  }
+
+  @override
+  String get adminBibleChapterOverwriteButton => 'Écraser';
+
+  @override
   String get adminLessonEditorTabInfo => 'Infos de la leçon';
 
   @override

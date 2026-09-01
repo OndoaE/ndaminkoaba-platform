@@ -158,6 +158,12 @@
   "adminBibleChapterEmptyTitle": "No chapters yet",
   "adminBibleChapterEmptyMessage": "Paste and save a chapter above to see it here.",
   "adminBibleChapterDeleteChapterTooltip": "Delete chapter",
+  "adminBibleChapterOverwriteTitle": "Overwrite existing chapters?",
+  "adminBibleChapterOverwriteConfirm": "{count} of these chapters are already saved for \"{book}\". Saving now will replace their existing verses with the ones you're uploading.",
+  "@adminBibleChapterOverwriteConfirm": {
+    "placeholders": { "count": { "type": "int" }, "book": { "type": "String" } }
+  },
+  "adminBibleChapterOverwriteButton": "Overwrite",
   "adminLessonEditorTabInfo": "Lesson Info",
   "adminLessonEditorTabContent": "Content",
   "adminLessonEditorTabActivities": "Activities",

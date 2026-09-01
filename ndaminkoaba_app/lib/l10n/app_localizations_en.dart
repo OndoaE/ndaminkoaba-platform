@@ -522,6 +522,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminBibleChapterDeleteChapterTooltip => 'Delete chapter';
 
   @override
+  String get adminBibleChapterOverwriteTitle => 'Overwrite existing chapters?';
+
+  @override
+  String adminBibleChapterOverwriteConfirm(int count, String book) {
+    return '$count of these chapters are already saved for \"$book\". Saving now will replace their existing verses with the ones you\'re uploading.';
+  }
+
+  @override
+  String get adminBibleChapterOverwriteButton => 'Overwrite';
+
+  @override
   String get adminLessonEditorTabInfo => 'Lesson Info';
 
   @override

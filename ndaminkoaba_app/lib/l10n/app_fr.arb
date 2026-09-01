@@ -158,6 +158,12 @@
   "adminBibleChapterEmptyTitle": "Pas encore de chapitres",
   "adminBibleChapterEmptyMessage": "Collez et enregistrez un chapitre ci-dessus pour le voir apparaître ici.",
   "adminBibleChapterDeleteChapterTooltip": "Supprimer le chapitre",
+  "adminBibleChapterOverwriteTitle": "Écraser les chapitres existants ?",
+  "adminBibleChapterOverwriteConfirm": "{count} de ces chapitres sont déjà enregistrés pour « {book} ». Enregistrer maintenant remplacera leurs versets existants par ceux que vous importez.",
+  "@adminBibleChapterOverwriteConfirm": {
+    "placeholders": { "count": { "type": "int" }, "book": { "type": "String" } }
+  },
+  "adminBibleChapterOverwriteButton": "Écraser",
   "adminLessonEditorTabInfo": "Infos de la leçon",
   "adminLessonEditorTabContent": "Contenu",
   "adminLessonEditorTabActivities": "Activités",

@@ -143,7 +143,20 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       return;
     }
 
-    setState(() => controller.text = utf8.decode(bytes, allowMalformed: true));
+    setState(() {
+      controller.text = utf8.decode(bytes, allowMalformed: true);
+      // A fresh file means a fresh book -- never let a book name detected
+      // (or typed) for a *previous* upload silently carry over. Without
+      // this, uploading e.g. Matthew after John, when Matthew's USFM
+      // header isn't recognized, would leave "John" in the field and
+      // Preview/Save would upsert Matthew's verses into John's rows
+      // (same book+chapter+verse key), silently corrupting John's text
+      // instead of adding Matthew as its own book. Preview re-fills this
+      // from the new file's own header if one is found; if not, it now
+      // stays empty (visible, obvious) rather than wrong-but-plausible.
+      bookController.clear();
+      preview = [];
+    });
     _showMessage(l10n.adminBibleChapterFileLoaded(result.files.first.name));
   }
 
@@ -306,6 +319,47 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     }
 
     final chapterCount = versesToSave.map((v) => v.chapter).toSet().length;
+
+    // Safety net for the exact failure mode that made "only one USFM
+    // ends up saved" possible: if this book+version already has any of
+    // these chapters saved, saving again would silently overwrite them
+    // (same book/chapter/verse/version/language upsert key on the
+    // backend) -- surface that plainly instead of letting it happen
+    // invisibly, whether it's a genuine intentional re-upload or a
+    // book name that wasn't changed from the previous book.
+    final chaptersInPreview = versesToSave.map((v) => v.chapter).toSet();
+    final collidingChapters = savedChapters
+        .where(
+          (s) =>
+              s.book == book &&
+              s.version == version &&
+              chaptersInPreview.contains(s.chapter),
+        )
+        .map((s) => s.chapter)
+        .toSet();
+    if (collidingChapters.isNotEmpty) {
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text(l10n.adminBibleChapterOverwriteTitle),
+          content: Text(
+            l10n.adminBibleChapterOverwriteConfirm(collidingChapters.length, book),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context, false),
+              child: Text(l10n.adminBibleChapterCancel),
+            ),
+            FilledButton(
+              style: FilledButton.styleFrom(backgroundColor: AppColors.error),
+              onPressed: () => Navigator.pop(context, true),
+              child: Text(l10n.adminBibleChapterOverwriteButton),
+            ),
+          ],
+        ),
+      );
+      if (confirmed != true) return;
+    }
 
     setState(() => isSaving = true);
     try {
