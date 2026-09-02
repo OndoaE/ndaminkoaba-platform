@@ -1281,6 +1281,11 @@
     "placeholders": { "count": { "type": "int" } }
   },
   "exploreSectionTitle": "Explorer",
+  "exploreSectionSubtitle": "Découvrez, apprenez et grandissez avec NdaMinkoaba.",
+  "exploreVocabularyDescription": "Apprenez de nouveaux mots et enrichissez votre vocabulaire Ewondo.",
+  "exploreLearnDescription": "Leçons, exercices et activités pour progresser à votre rythme.",
+  "exploreBibleDescription": "Lisez, écoutez et méditez la Parole de Dieu en Ewondo, Français et Anglais.",
+  "exploreBooksDescription": "Explorez une collection de livres éducatifs et inspirants.",
   "nnangaPromoSubtitle": "Pratiquez l'ewondo avec votre tuteur IA personnel",
   "startPracticeButton": "COMMENCER",
   "phraseOfDayTitle": "Phrase du jour",

@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import '../../../core/language/learning_language_provider.dart';
 import '../../../core/locale/locale_provider.dart';
@@ -284,40 +285,61 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ],
 
                 const SizedBox(height: AppSpacing.xl),
-                SectionTitle(title: l10n.exploreSectionTitle),
+                _ExploreSectionHeading(
+                  title: l10n.exploreSectionTitle,
+                  subtitle: l10n.exploreSectionSubtitle,
+                ),
                 const SizedBox(height: AppSpacing.lg),
                 if (isLoading)
                   const ShimmerListLoader(itemCount: 2, itemHeight: 160)
                 else
-                  GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisSpacing: AppSpacing.lg,
-                    mainAxisSpacing: AppSpacing.lg,
-                    childAspectRatio: 2.6,
-                    children: [
-                      _ExploreTile(
-                        icon: Icons.translate,
-                        label: l10n.actionVocabulary,
-                        onTap: () => context.push('/vocabulary'),
-                      ),
-                      _ExploreTile(
-                        icon: Icons.menu_book,
-                        label: l10n.navLearn,
-                        onTap: () => context.push('/learn'),
-                      ),
-                      _ExploreTile(
-                        icon: Icons.auto_stories,
-                        label: l10n.actionBible,
-                        onTap: () => context.push('/bible'),
-                      ),
-                      _ExploreTile(
-                        icon: Icons.local_library,
-                        label: l10n.actionBooks,
-                        onTap: () => context.push('/books'),
-                      ),
-                    ],
+                  LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Two tiles per row above ~420 logical px (matches
+                      // this app's other two-up grids), one per row on
+                      // narrower phones so the description text never
+                      // gets crushed.
+                      final twoUp = constraints.maxWidth >= 420;
+                      final tiles = [
+                        _ExploreTile(
+                          icon: Icons.translate,
+                          color: _exploreVocabColor,
+                          label: l10n.actionVocabulary,
+                          description: l10n.exploreVocabularyDescription,
+                          onTap: () => context.push('/vocabulary'),
+                        ),
+                        _ExploreTile(
+                          icon: Icons.menu_book,
+                          color: _exploreLearnColor,
+                          label: l10n.navLearn,
+                          description: l10n.exploreLearnDescription,
+                          onTap: () => context.push('/learn'),
+                        ),
+                        _ExploreTile(
+                          icon: Icons.auto_stories,
+                          color: _exploreBibleColor,
+                          label: l10n.actionBible,
+                          description: l10n.exploreBibleDescription,
+                          onTap: () => context.push('/bible'),
+                        ),
+                        _ExploreTile(
+                          icon: Icons.local_library,
+                          color: _exploreBooksColor,
+                          label: l10n.actionBooks,
+                          description: l10n.exploreBooksDescription,
+                          onTap: () => context.push('/books'),
+                        ),
+                      ];
+                      return GridView.count(
+                        crossAxisCount: twoUp ? 2 : 1,
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        crossAxisSpacing: AppSpacing.lg,
+                        mainAxisSpacing: AppSpacing.lg,
+                        childAspectRatio: twoUp ? 1.55 : 2.6,
+                        children: tiles,
+                      );
+                    },
                   ),
 
                 const SizedBox(height: AppSpacing.xl),
@@ -626,57 +648,152 @@ class _ContinueLearningCard extends StatelessWidget {
   }
 }
 
+// Explore section accent colors — one per tile, scoped locally rather
+// than added to the shared AppColors token set since they're purely
+// decorative and specific to this one grid (matching how
+// admin_book_editor_screen.dart's `_bookAccent` and this same file's
+// `_kAvatarGradient` already scope one-off palettes locally). The Bible
+// purple reuses the exact accent (#6B4CE0) admin_bible_chapter_screen.dart
+// already uses for Bible-related icons, so the color reads consistently
+// as "Bible" across both the learner and admin sides.
+const _exploreVocabColor = Color(0xFF2E9E5B);
+const _exploreLearnColor = Color(0xFFD98A1F);
+const _exploreBibleColor = Color(0xFF6B4CE0);
+const _exploreBooksColor = Color(0xFFD9622F);
+
+/// The "Explorer" heading treatment: a serif title (distinct from this
+/// app's usual Poppins headings, used nowhere else — deliberately a one-
+/// off editorial moment for this section) with a small diamond-and-line
+/// divider underneath, and a caption subtitle.
+class _ExploreSectionHeading extends StatelessWidget {
+  const _ExploreSectionHeading({required this.title, required this.subtitle});
+
+  final String title;
+  final String subtitle;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          title,
+          style: GoogleFonts.playfairDisplay(
+            fontSize: 28,
+            fontWeight: FontWeight.w700,
+            color: AppColors.primary,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.xs),
+        Row(
+          children: [
+            Container(width: 28, height: 1, color: AppColors.secondary),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
+              child: Transform.rotate(
+                angle: 0.785398, // 45deg — a diamond, not a square
+                child: Container(
+                  width: 6,
+                  height: 6,
+                  color: AppColors.secondary,
+                ),
+              ),
+            ),
+            Container(width: 28, height: 1, color: AppColors.secondary),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Text(subtitle, style: AppTypography.caption),
+      ],
+    );
+  }
+}
+
 class _ExploreTile extends StatelessWidget {
   const _ExploreTile({
     required this.icon,
     required this.label,
+    required this.description,
+    required this.color,
     required this.onTap,
   });
 
   final IconData icon;
   final String label;
+  final String description;
+  final Color color;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
-      borderRadius: AppRadius.medium,
+      borderRadius: AppRadius.large,
       onTap: onTap,
-      child: PremiumCard(
-        padding: const EdgeInsets.symmetric(
-          horizontal: AppSpacing.md,
-          vertical: AppSpacing.sm,
+      child: Container(
+        clipBehavior: Clip.antiAlias,
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: AppRadius.large,
+          border: Border(bottom: BorderSide(color: color, width: 4)),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
-        child: Row(
+        padding: const EdgeInsets.all(AppSpacing.lg),
+        child: Stack(
           children: [
-            Container(
-              width: 36,
-              height: 36,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                border: Border.all(color: AppColors.secondary),
-              ),
-              alignment: Alignment.center,
-              child: Icon(icon, color: AppColors.primary, size: 18),
-            ),
-            const SizedBox(width: AppSpacing.sm),
-            Expanded(
-              child: FittedBox(
-                fit: BoxFit.scaleDown,
-                alignment: Alignment.centerLeft,
-                child: Text(
-                  label,
-                  style: AppTypography.body.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                  maxLines: 1,
+            GoldCornerPattern(color: color, size: 56),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 48,
+                      height: 48,
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(icon, color: color, size: 24),
+                    ),
+                    const Spacer(),
+                    Container(
+                      width: 32,
+                      height: 32,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(color: color.withValues(alpha: 0.45)),
+                      ),
+                      alignment: Alignment.center,
+                      child: Icon(Icons.chevron_right, color: color, size: 18),
+                    ),
+                  ],
                 ),
-              ),
-            ),
-            const Icon(
-              Icons.chevron_right,
-              color: AppColors.textSecondary,
-              size: 18,
+                const SizedBox(height: AppSpacing.md),
+                Text(
+                  label,
+                  style: GoogleFonts.playfairDisplay(
+                    fontSize: 19,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primary,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.xs),
+                Text(
+                  description,
+                  style: AppTypography.caption,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ],
             ),
           ],
         ),

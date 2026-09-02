@@ -3831,6 +3831,26 @@ class AppLocalizationsEn extends AppLocalizations {
   String get exploreSectionTitle => 'Explore';
 
   @override
+  String get exploreSectionSubtitle =>
+      'Discover, learn, and grow with NdaMinkoaba.';
+
+  @override
+  String get exploreVocabularyDescription =>
+      'Learn new words and enrich your Ewondo vocabulary.';
+
+  @override
+  String get exploreLearnDescription =>
+      'Lessons, exercises, and activities to progress at your own pace.';
+
+  @override
+  String get exploreBibleDescription =>
+      'Read, listen to, and reflect on the Word of God in Ewondo, French, and English.';
+
+  @override
+  String get exploreBooksDescription =>
+      'Explore a collection of educational and inspiring books.';
+
+  @override
   String get nnangaPromoSubtitle =>
       'Practice Ewondo with your personal AI tutor';
 

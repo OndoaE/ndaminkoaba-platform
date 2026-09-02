@@ -6968,6 +6968,36 @@ abstract class AppLocalizations {
   /// **'Explore'**
   String get exploreSectionTitle;
 
+  /// No description provided for @exploreSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Discover, learn, and grow with NdaMinkoaba.'**
+  String get exploreSectionSubtitle;
+
+  /// No description provided for @exploreVocabularyDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn new words and enrich your Ewondo vocabulary.'**
+  String get exploreVocabularyDescription;
+
+  /// No description provided for @exploreLearnDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Lessons, exercises, and activities to progress at your own pace.'**
+  String get exploreLearnDescription;
+
+  /// No description provided for @exploreBibleDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Read, listen to, and reflect on the Word of God in Ewondo, French, and English.'**
+  String get exploreBibleDescription;
+
+  /// No description provided for @exploreBooksDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Explore a collection of educational and inspiring books.'**
+  String get exploreBooksDescription;
+
   /// No description provided for @nnangaPromoSubtitle.
   ///
   /// In en, this message translates to:
