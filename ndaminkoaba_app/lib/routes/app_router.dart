@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../core/navigation/navigator_key.dart';
 import '../core/services/storage_service.dart';
 import '../features/admin/presentation/admin_bible_chapter_screen.dart';
+import '../features/admin/presentation/admin_bible_images_screen.dart';
 import '../features/admin/presentation/admin_book_editor_screen.dart';
 import '../features/admin/presentation/admin_book_management_screen.dart';
 import '../features/admin/presentation/admin_certificates_screen.dart';
@@ -418,6 +419,14 @@ final appRouter = GoRouter(
         final languageId = state.pathParameters['languageId']!;
         final languageName = state.extra as String?;
         return AdminBibleChapterScreen(languageId: languageId, languageName: languageName);
+      },
+    ),
+    GoRoute(
+      path: '/admin/languages/:languageId/management/bible/images',
+      builder: (context, state) {
+        final languageId = state.pathParameters['languageId']!;
+        final languageName = state.extra as String?;
+        return AdminBibleImagesScreen(languageId: languageId, languageName: languageName);
       },
     ),
     GoRoute(

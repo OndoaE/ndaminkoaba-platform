@@ -575,6 +575,55 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get adminBibleChapterManageImagesButton => 'Cover Images';
+
+  @override
+  String get adminBibleImagesTitle => 'Bible Cover Images';
+
+  @override
+  String adminBibleImagesSubtitle(String title) {
+    return 'Hero banner and per-book cover photos for $title';
+  }
+
+  @override
+  String get adminBibleImagesHeroSectionTitle => 'Hero Banner';
+
+  @override
+  String get adminBibleImagesHeroSectionSubtitle =>
+      'Shown at the top of the learner Bible screen.';
+
+  @override
+  String get adminBibleImagesBookCoversSectionTitle => 'Book Covers';
+
+  @override
+  String get adminBibleImagesGospelsGroupLabel => 'The Four Gospels';
+
+  @override
+  String get adminBibleImagesOtherBooksGroupLabel => 'Other Books';
+
+  @override
+  String get adminBibleImagesNoOtherBooksMessage =>
+      'No other books uploaded yet — upload chapters first.';
+
+  @override
+  String get adminBibleImagesUploadLabel => 'Upload';
+
+  @override
+  String get adminBibleImagesReplaceLabel => 'Replace';
+
+  @override
+  String get adminBibleImagesRemoveLabel => 'Remove';
+
+  @override
+  String get adminBibleImagesUploadingLabel => 'Uploading…';
+
+  @override
+  String get adminBibleImagesUploadError => 'Could not upload that image.';
+
+  @override
+  String get adminBibleImagesRemoveError => 'Could not remove that image.';
+
+  @override
   String get adminLessonEditorTabInfo => 'Lesson Info';
 
   @override
@@ -2661,6 +2710,31 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get bibleSubtitle =>
       'Read Scripture in Ewondo, side by side with your language';
+
+  @override
+  String get bibleHeroEyebrow => 'THE BIBLE IN EWONDO';
+
+  @override
+  String get bibleHeroHeadline => 'The Word, in your language.';
+
+  @override
+  String get bibleHeroSubtitle =>
+      'Read Scripture in Ewondo, French and English.';
+
+  @override
+  String get bibleHeroCta => 'Start reading';
+
+  @override
+  String get bibleSearchHint => 'Search for a book…';
+
+  @override
+  String get bibleLanguagePillEwondo => 'Ewondo';
+
+  @override
+  String get bibleLanguagePillFrench => 'Français';
+
+  @override
+  String get bibleLanguagePillEnglish => 'English';
 
   @override
   String get bibleFourGospelsTitle => 'The Four Gospels';

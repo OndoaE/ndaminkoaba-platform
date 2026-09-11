@@ -133,6 +133,8 @@ model Language {
   courses          Course[]
   vocabulary       Vocabulary[]
   bibleVerses      BibleVerse[]
+  bibleBookCovers  BibleBookCover[]
+  bibleHeroImage   BibleHeroImage?
   dailyWords       DailyWord[]
   dailyVerses      DailyVerse[]
   knowledgeTexts   KnowledgeText[]
@@ -362,6 +364,41 @@ model BibleVerse {
   language Language @relation(fields: [languageId], references: [id])
 
   @@unique([book, chapter, verse, version, languageId], name: "book_chapter_verse_version_language")
+}
+
+/// Admin-uploaded cover photo for one Bible book, scoped to a language. For
+/// the four Gospels, bookKey is the canonical enum name ("MATTHEW"/"MARK"/
+/// "LUKE"/"JOHN") so a cover set once keeps working across USFM re-uploads
+/// that spell the book differently (see GospelBook/matchGospelBook in the
+/// Flutter app). For any other book, bookKey is the exact free-text
+/// BibleVerse.book value, matching how the learner screen already groups
+/// non-Gospel books.
+model BibleBookCover {
+  id         String   @id @default(uuid())
+  languageId String
+  bookKey    String
+  coverUrl   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([languageId, bookKey])
+}
+
+/// Admin-uploaded hero banner photo for the Bible home screen, one per
+/// language. Its own model rather than a sentinel bookKey on
+/// BibleBookCover, for the same reason BookBookmark is its own model:
+/// Postgres unique constraints treat NULL as distinct from itself, so a
+/// nullable-discriminator table would silently allow duplicate hero rows.
+model BibleHeroImage {
+  id         String   @id @default(uuid())
+  languageId String   @unique
+  imageUrl   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
 }
 
 /// Admin-curated pool of words shown one-per-day on the learner dashboard,

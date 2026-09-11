@@ -587,6 +587,57 @@ class AppLocalizationsFr extends AppLocalizations {
   }
 
   @override
+  String get adminBibleChapterManageImagesButton => 'Images de couverture';
+
+  @override
+  String get adminBibleImagesTitle => 'Images de couverture bibliques';
+
+  @override
+  String adminBibleImagesSubtitle(String title) {
+    return 'Bannière et photos de couverture par livre pour $title';
+  }
+
+  @override
+  String get adminBibleImagesHeroSectionTitle => 'Bannière d\'accueil';
+
+  @override
+  String get adminBibleImagesHeroSectionSubtitle =>
+      'Affichée en haut de l\'écran Bible de l\'apprenant.';
+
+  @override
+  String get adminBibleImagesBookCoversSectionTitle => 'Couvertures des livres';
+
+  @override
+  String get adminBibleImagesGospelsGroupLabel => 'Les quatre Évangiles';
+
+  @override
+  String get adminBibleImagesOtherBooksGroupLabel => 'Autres livres';
+
+  @override
+  String get adminBibleImagesNoOtherBooksMessage =>
+      'Aucun autre livre importé pour l\'instant — importez d\'abord des chapitres.';
+
+  @override
+  String get adminBibleImagesUploadLabel => 'Importer';
+
+  @override
+  String get adminBibleImagesReplaceLabel => 'Remplacer';
+
+  @override
+  String get adminBibleImagesRemoveLabel => 'Supprimer';
+
+  @override
+  String get adminBibleImagesUploadingLabel => 'Import en cours…';
+
+  @override
+  String get adminBibleImagesUploadError =>
+      'Impossible d\'importer cette image.';
+
+  @override
+  String get adminBibleImagesRemoveError =>
+      'Impossible de supprimer cette image.';
+
+  @override
   String get adminLessonEditorTabInfo => 'Infos de la leçon';
 
   @override
@@ -2737,6 +2788,31 @@ class AppLocalizationsFr extends AppLocalizations {
   @override
   String get bibleSubtitle =>
       'Lisez les Écritures en Ewondo, à côté de votre langue';
+
+  @override
+  String get bibleHeroEyebrow => 'LA BIBLE EN EWONDO';
+
+  @override
+  String get bibleHeroHeadline => 'La Parole, dans votre langue.';
+
+  @override
+  String get bibleHeroSubtitle =>
+      'Lisez les Écritures en ewondo, français et anglais.';
+
+  @override
+  String get bibleHeroCta => 'Commencer la lecture';
+
+  @override
+  String get bibleSearchHint => 'Rechercher un livre…';
+
+  @override
+  String get bibleLanguagePillEwondo => 'Ewondo';
+
+  @override
+  String get bibleLanguagePillFrench => 'Français';
+
+  @override
+  String get bibleLanguagePillEnglish => 'English';
 
   @override
   String get bibleFourGospelsTitle => 'Les Quatre Évangiles';

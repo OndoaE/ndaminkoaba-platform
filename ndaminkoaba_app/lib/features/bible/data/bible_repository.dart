@@ -35,4 +35,15 @@ class BibleRepository {
         .map((item) => BibleVerse.fromJson(item as Map<String, dynamic>))
         .toList();
   }
+
+  /// Hero banner + per-book cover photos (`GET /bible-images`), public and
+  /// unauthenticated like [getChapters].
+  Future<BibleImages> getImages({String? languageId}) async {
+    final response = await ApiClient.dio.get('/bible-images', queryParameters: {
+      if (languageId != null) 'languageId': languageId,
+    });
+    final data = response.data as Map<String, dynamic>;
+    final images = (data['data'] ?? data) as Map<String, dynamic>;
+    return BibleImages.fromJson(images);
+  }
 }

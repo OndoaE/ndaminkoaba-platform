@@ -473,15 +473,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                color: const Color(
-                                  0xFF8B3A3A,
-                                ).withValues(alpha: 0.12),
+                                color: AppColors.scripture.withValues(alpha: 0.12),
                                 borderRadius: AppRadius.medium,
                               ),
                               alignment: Alignment.center,
                               child: const Icon(
                                 Icons.auto_stories,
-                                color: Color(0xFF8B3A3A),
+                                color: AppColors.scripture,
                               ),
                             ),
                             const SizedBox(width: AppSpacing.lg),
@@ -500,15 +498,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               width: 52,
                               height: 52,
                               decoration: BoxDecoration(
-                                color: const Color(
-                                  0xFF8B3A3A,
-                                ).withValues(alpha: 0.12),
+                                color: AppColors.scripture.withValues(alpha: 0.12),
                                 borderRadius: AppRadius.medium,
                               ),
                               alignment: Alignment.center,
                               child: const Icon(
                                 Icons.auto_stories,
-                                color: Color(0xFF8B3A3A),
+                                color: AppColors.scripture,
                               ),
                             ),
                             const SizedBox(width: AppSpacing.lg),
@@ -535,7 +531,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                   Text(
                                     dailyVerse!.reference,
                                     style: AppTypography.caption.copyWith(
-                                      color: const Color(0xFF8B3A3A),
+                                      color: AppColors.scripture,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),

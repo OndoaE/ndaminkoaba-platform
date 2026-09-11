@@ -96,6 +96,50 @@ GospelBook? matchGospelBook(String bookName) {
   return null;
 }
 
+/// Admin-uploaded cover photo for one Bible book (`GET /bible-images`).
+/// `bookKey` is the canonical [GospelBook] enum name (uppercase) for one of
+/// the four Gospels, or the exact free-text book string for any other book.
+class BibleBookCover {
+  final String bookKey;
+  final String coverUrl;
+
+  const BibleBookCover({required this.bookKey, required this.coverUrl});
+
+  factory BibleBookCover.fromJson(Map<String, dynamic> json) {
+    return BibleBookCover(
+      bookKey: json['bookKey'] ?? '',
+      coverUrl: json['coverUrl'] ?? '',
+    );
+  }
+}
+
+/// Admin-uploaded hero banner photo for the Bible home screen.
+class BibleHeroImage {
+  final String imageUrl;
+
+  const BibleHeroImage({required this.imageUrl});
+
+  factory BibleHeroImage.fromJson(Map<String, dynamic> json) {
+    return BibleHeroImage(imageUrl: json['imageUrl'] ?? '');
+  }
+}
+
+class BibleImages {
+  final BibleHeroImage? hero;
+  final List<BibleBookCover> covers;
+
+  const BibleImages({required this.hero, required this.covers});
+
+  factory BibleImages.fromJson(Map<String, dynamic> json) {
+    final heroJson = json['hero'] as Map<String, dynamic>?;
+    final coverItems = (json['covers'] ?? []) as List;
+    return BibleImages(
+      hero: heroJson == null ? null : BibleHeroImage.fromJson(heroJson),
+      covers: coverItems.map((item) => BibleBookCover.fromJson(item as Map<String, dynamic>)).toList(),
+    );
+  }
+}
+
 /// Different USFM uploads for the same Gospel can arrive under different
 /// free-text book-name spellings (e.g. an old single test chapter saved as
 /// "Mathew" alongside a later full-book upload saved as "Mateus"). This

@@ -20,6 +20,10 @@ class AppColors {
 
   static const ai = Color(0xFF4A6CF7);
 
+  /// A deep maroon reminiscent of leather-bound Bibles — the Bible
+  /// feature's accent color, used for its hero banner, cards, and CTAs.
+  static const scripture = Color(0xFF8B3A3A);
+
   // Learner relaunch tokens — streaks, progress rings, badges, and the
   // decorative wave shapes on the new cream/gold Home dashboard.
   static const streakFlame = Color(0xFFFF6B35);

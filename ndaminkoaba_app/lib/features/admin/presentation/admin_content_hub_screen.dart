@@ -30,7 +30,7 @@ const _sections = [
   _Section('Quiz Management', 'Quizzes, questions and answer keys',
       Icons.quiz, Color(0xFFB5312B), '/management/quizzes'),
   _Section('Bible Management', 'Upload USFM chapters and whole books',
-      Icons.auto_stories, Color(0xFF8B3A3A), '/management/bible'),
+      Icons.auto_stories, AppColors.scripture, '/management/bible'),
   _Section('Daily Content Management', 'Daily Word and Daily Verse pools',
       Icons.auto_awesome, Color(0xFFC77B2E), '/management/daily'),
   _Section('Book Management', 'Upload PDF and EPUB books for learners',

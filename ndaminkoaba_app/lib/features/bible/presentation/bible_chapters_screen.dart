@@ -88,7 +88,7 @@ class _BibleChaptersScreenState extends ConsumerState<BibleChaptersScreen> {
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: EmptyState(
                       icon: Icons.menu_book_outlined,
-                      iconColor: const Color(0xFF8B3A3A),
+                      iconColor: AppColors.scripture,
                       title: l10n.bibleNoContentTitle,
                       message: l10n.bibleNoContentMessage,
                     ),
@@ -146,7 +146,7 @@ class _BibleChaptersScreenState extends ConsumerState<BibleChaptersScreen> {
                                       Text(
                                         '${info.chapter}',
                                         style: AppTypography.title.copyWith(
-                                          color: const Color(0xFF8B3A3A),
+                                          color: AppColors.scripture,
                                           fontWeight: FontWeight.w800,
                                         ),
                                       ),

@@ -1030,6 +1030,96 @@ abstract class AppLocalizations {
   /// **'Save All Books ({count})'**
   String adminBibleChapterSaveAllBooksButton(int count);
 
+  /// No description provided for @adminBibleChapterManageImagesButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Cover Images'**
+  String get adminBibleChapterManageImagesButton;
+
+  /// No description provided for @adminBibleImagesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bible Cover Images'**
+  String get adminBibleImagesTitle;
+
+  /// No description provided for @adminBibleImagesSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hero banner and per-book cover photos for {title}'**
+  String adminBibleImagesSubtitle(String title);
+
+  /// No description provided for @adminBibleImagesHeroSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Hero Banner'**
+  String get adminBibleImagesHeroSectionTitle;
+
+  /// No description provided for @adminBibleImagesHeroSectionSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown at the top of the learner Bible screen.'**
+  String get adminBibleImagesHeroSectionSubtitle;
+
+  /// No description provided for @adminBibleImagesBookCoversSectionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Book Covers'**
+  String get adminBibleImagesBookCoversSectionTitle;
+
+  /// No description provided for @adminBibleImagesGospelsGroupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'The Four Gospels'**
+  String get adminBibleImagesGospelsGroupLabel;
+
+  /// No description provided for @adminBibleImagesOtherBooksGroupLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Books'**
+  String get adminBibleImagesOtherBooksGroupLabel;
+
+  /// No description provided for @adminBibleImagesNoOtherBooksMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'No other books uploaded yet — upload chapters first.'**
+  String get adminBibleImagesNoOtherBooksMessage;
+
+  /// No description provided for @adminBibleImagesUploadLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload'**
+  String get adminBibleImagesUploadLabel;
+
+  /// No description provided for @adminBibleImagesReplaceLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace'**
+  String get adminBibleImagesReplaceLabel;
+
+  /// No description provided for @adminBibleImagesRemoveLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get adminBibleImagesRemoveLabel;
+
+  /// No description provided for @adminBibleImagesUploadingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading…'**
+  String get adminBibleImagesUploadingLabel;
+
+  /// No description provided for @adminBibleImagesUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload that image.'**
+  String get adminBibleImagesUploadError;
+
+  /// No description provided for @adminBibleImagesRemoveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not remove that image.'**
+  String get adminBibleImagesRemoveError;
+
   /// No description provided for @adminLessonEditorTabInfo.
   ///
   /// In en, this message translates to:
@@ -4795,6 +4885,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Read Scripture in Ewondo, side by side with your language'**
   String get bibleSubtitle;
+
+  /// No description provided for @bibleHeroEyebrow.
+  ///
+  /// In en, this message translates to:
+  /// **'THE BIBLE IN EWONDO'**
+  String get bibleHeroEyebrow;
+
+  /// No description provided for @bibleHeroHeadline.
+  ///
+  /// In en, this message translates to:
+  /// **'The Word, in your language.'**
+  String get bibleHeroHeadline;
+
+  /// No description provided for @bibleHeroSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Read Scripture in Ewondo, French and English.'**
+  String get bibleHeroSubtitle;
+
+  /// No description provided for @bibleHeroCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Start reading'**
+  String get bibleHeroCta;
+
+  /// No description provided for @bibleSearchHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a book…'**
+  String get bibleSearchHint;
+
+  /// No description provided for @bibleLanguagePillEwondo.
+  ///
+  /// In en, this message translates to:
+  /// **'Ewondo'**
+  String get bibleLanguagePillEwondo;
+
+  /// No description provided for @bibleLanguagePillFrench.
+  ///
+  /// In en, this message translates to:
+  /// **'Français'**
+  String get bibleLanguagePillFrench;
+
+  /// No description provided for @bibleLanguagePillEnglish.
+  ///
+  /// In en, this message translates to:
+  /// **'English'**
+  String get bibleLanguagePillEnglish;
 
   /// No description provided for @bibleFourGospelsTitle.
   ///

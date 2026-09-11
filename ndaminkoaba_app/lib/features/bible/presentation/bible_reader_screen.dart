@@ -185,8 +185,8 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
                                     ? () => _goToChapter(availableChapters[currentIndex - 1])
                                     : null,
                                 style: OutlinedButton.styleFrom(
-                                  foregroundColor: const Color(0xFF8B3A3A),
-                                  side: const BorderSide(color: Color(0xFF8B3A3A)),
+                                  foregroundColor: AppColors.scripture,
+                                  side: const BorderSide(color: AppColors.scripture),
                                 ),
                                 // Built by hand rather than OutlinedButton.icon:
                                 // that constructor lays its label out with no
@@ -215,7 +215,7 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
                                 onPressed: hasNext
                                     ? () => _goToChapter(availableChapters[currentIndex + 1])
                                     : null,
-                                style: FilledButton.styleFrom(backgroundColor: const Color(0xFF8B3A3A)),
+                                style: FilledButton.styleFrom(backgroundColor: AppColors.scripture),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -269,14 +269,14 @@ class _VerseTile extends StatelessWidget {
             height: 26,
             margin: const EdgeInsets.only(top: 2),
             decoration: BoxDecoration(
-              color: const Color(0xFF8B3A3A).withValues(alpha: 0.1),
+              color: AppColors.scripture.withValues(alpha: 0.1),
               shape: BoxShape.circle,
             ),
             alignment: Alignment.center,
             child: Text(
               '${verse.verse}',
               style: const TextStyle(
-                color: Color(0xFF8B3A3A),
+                color: AppColors.scripture,
                 fontWeight: FontWeight.w800,
                 fontSize: 12,
               ),

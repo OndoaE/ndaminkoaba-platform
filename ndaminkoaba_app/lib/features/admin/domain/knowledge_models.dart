@@ -120,6 +120,40 @@ class BibleChapterSummary {
   }
 }
 
+class BibleBookCoverEntry {
+  final String id;
+  final String bookKey;
+  final String coverUrl;
+
+  const BibleBookCoverEntry({
+    required this.id,
+    required this.bookKey,
+    required this.coverUrl,
+  });
+
+  factory BibleBookCoverEntry.fromJson(Map<String, dynamic> json) {
+    return BibleBookCoverEntry(
+      id: json['id'] ?? '',
+      bookKey: json['bookKey'] ?? '',
+      coverUrl: json['coverUrl'] ?? '',
+    );
+  }
+}
+
+class BibleHeroImageEntry {
+  final String id;
+  final String imageUrl;
+
+  const BibleHeroImageEntry({required this.id, required this.imageUrl});
+
+  factory BibleHeroImageEntry.fromJson(Map<String, dynamic> json) {
+    return BibleHeroImageEntry(
+      id: json['id'] ?? '',
+      imageUrl: json['imageUrl'] ?? '',
+    );
+  }
+}
+
 class DailyWordEntry {
   final String id;
   final String word;

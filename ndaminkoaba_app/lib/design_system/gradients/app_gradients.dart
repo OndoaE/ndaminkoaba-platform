@@ -30,7 +30,7 @@ class AppGradients {
   /// leather-bound Bibles, distinct from the green/gold brand accents used
   /// for courses and certificates elsewhere in the app.
   static const scripture = LinearGradient(
-    colors: [Color(0xFF8B3A3A), Color(0xFFB5544F)],
+    colors: [AppColors.scripture, Color(0xFFB5544F)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );

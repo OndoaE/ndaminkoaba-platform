@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_error.dart';
 import '../../../design_system/buttons/primary_button.dart';
@@ -989,6 +990,16 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
       languageName: title,
       title: l10n.adminBibleChapterTitle,
       subtitle: l10n.adminBibleChapterSubtitle(title),
+      actions: [
+        OutlinedButton.icon(
+          onPressed: () => context.push(
+            '/admin/languages/${widget.languageId}/management/bible/images',
+            extra: title,
+          ),
+          icon: const Icon(Icons.image_outlined, size: 16),
+          label: Text(l10n.adminBibleChapterManageImagesButton),
+        ),
+      ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

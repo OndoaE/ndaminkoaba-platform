@@ -205,6 +205,66 @@ class KnowledgeRepository {
     await ApiClient.dio.delete('/bible-verses/$id');
   }
 
+  // --- Bible book/hero images ---
+
+  /// Uploads raw image bytes to the generic uploads endpoint and returns the
+  /// relative URL (e.g. `/uploads/images/xxx.png`) — used for Bible book
+  /// covers and the hero banner photo.
+  Future<String> uploadImage(Uint8List bytes, String filename) async {
+    final formData = FormData.fromMap({
+      'file': MultipartFile.fromBytes(bytes, filename: filename),
+    });
+    final response = await ApiClient.dio.post('/uploads/image', data: formData);
+    final data = response.data as Map<String, dynamic>;
+    return ((data['data'] ?? data) as Map<String, dynamic>)['url'] as String;
+  }
+
+  Future<({BibleHeroImageEntry? hero, List<BibleBookCoverEntry> covers})> getBibleImages({
+    String? languageId,
+  }) async {
+    final response = await ApiClient.dio.get('/bible-images', queryParameters: {
+      if (languageId != null) 'languageId': languageId,
+    });
+    final data = response.data as Map<String, dynamic>;
+    final images = (data['data'] ?? data) as Map<String, dynamic>;
+    final heroJson = images['hero'] as Map<String, dynamic>?;
+    final coverItems = (images['covers'] ?? []) as List;
+    return (
+      hero: heroJson == null ? null : BibleHeroImageEntry.fromJson(heroJson),
+      covers: coverItems.map((item) => BibleBookCoverEntry.fromJson(item as Map<String, dynamic>)).toList(),
+    );
+  }
+
+  Future<void> upsertBibleBookCover({
+    required String languageId,
+    required String bookKey,
+    required String coverUrl,
+  }) async {
+    await ApiClient.dio.post('/bible-images/cover', data: {
+      'languageId': languageId,
+      'bookKey': bookKey,
+      'coverUrl': coverUrl,
+    });
+  }
+
+  Future<void> upsertBibleHeroImage({
+    required String languageId,
+    required String imageUrl,
+  }) async {
+    await ApiClient.dio.post('/bible-images/hero', data: {
+      'languageId': languageId,
+      'imageUrl': imageUrl,
+    });
+  }
+
+  Future<void> deleteBibleBookCover(String id) async {
+    await ApiClient.dio.delete('/bible-images/cover/$id');
+  }
+
+  Future<void> deleteBibleHeroImage(String id) async {
+    await ApiClient.dio.delete('/bible-images/hero/$id');
+  }
+
   // --- Daily word / verse (rotating pool shown on the learner dashboard) ---
 
   /// Drains every page instead of capping at a fixed count — see
