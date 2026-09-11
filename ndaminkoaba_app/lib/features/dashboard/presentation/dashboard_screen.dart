@@ -299,8 +299,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     builder: (context, constraints) {
                       // Two tiles per row above ~420 logical px (matches
                       // this app's other two-up grids), one per row on
-                      // narrower phones so the description text never
-                      // gets crushed.
+                      // narrower phones.
                       final twoUp = constraints.maxWidth >= 420;
                       final tiles = [
                         _ExploreTile(
@@ -332,14 +331,38 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                           onTap: () => context.push('/books'),
                         ),
                       ];
-                      return GridView.count(
-                        crossAxisCount: twoUp ? 2 : 1,
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        crossAxisSpacing: AppSpacing.lg,
-                        mainAxisSpacing: AppSpacing.lg,
-                        childAspectRatio: twoUp ? 1.55 : 2.6,
-                        children: tiles,
+                      // A fixed childAspectRatio grid forced every tile
+                      // into the same height regardless of how many lines
+                      // its description wrapped to -- a 2-line French
+                      // caption at typical phone widths didn't fit, and
+                      // the tile's Clip.antiAlias silently sliced the
+                      // overflow off instead of showing it. Laying tiles
+                      // out in plain Rows/Columns instead lets each one
+                      // size to its own natural content height.
+                      if (!twoUp) {
+                        return Column(
+                          children: [
+                            for (var i = 0; i < tiles.length; i++) ...[
+                              if (i > 0) const SizedBox(height: AppSpacing.lg),
+                              tiles[i],
+                            ],
+                          ],
+                        );
+                      }
+                      Widget row(Widget a, Widget b) => Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(child: a),
+                              const SizedBox(width: AppSpacing.lg),
+                              Expanded(child: b),
+                            ],
+                          );
+                      return Column(
+                        children: [
+                          row(tiles[0], tiles[1]),
+                          const SizedBox(height: AppSpacing.lg),
+                          row(tiles[2], tiles[3]),
+                        ],
                       );
                     },
                   ),

@@ -364,7 +364,12 @@ class _BookGrid extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                 ),
                 if (book.category != null)
-                  Text(bookCategoryLabel(book.category!), style: AppTypography.caption.copyWith(fontSize: 11)),
+                  Text(
+                    bookCategoryLabel(book.category!),
+                    style: AppTypography.caption.copyWith(fontSize: 11),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 const SizedBox(height: 2),
                 if (progress != null && !progress.completed && book.pageCount != null && book.pageCount! > 0)
                   ClipRRect(
