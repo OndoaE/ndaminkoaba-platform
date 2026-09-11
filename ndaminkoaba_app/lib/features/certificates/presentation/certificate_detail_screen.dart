@@ -19,6 +19,7 @@ import '../../../l10n/app_localizations.dart';
 import '../data/certificate_repository.dart';
 import '../domain/certificate.dart';
 import '../domain/certificate_theme.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 String _levelLabel(AppLocalizations l10n, String level) {
   switch (level) {
@@ -170,7 +171,7 @@ class _CertificateDetailScreenState
               );
             }
 
-            return SingleChildScrollView(
+            return PageWidth(child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -266,7 +267,7 @@ class _CertificateDetailScreenState
                     ),
                 ],
               ),
-            );
+            ));
           },
         ),
       ),

@@ -14,6 +14,7 @@ import '../../../design_system/buttons/primary_button.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/language_repository.dart';
 import '../domain/language.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 /// Shown both at onboarding (no learning language chosen yet — see
 /// `SplashScreen.decideDestination` / `navigateAfterLogin`) and from
@@ -110,7 +111,7 @@ class _LearningLanguageSelectionScreenState
                   ),
                 ),
               )
-            : Padding(
+            : PageWidth(child: Padding(
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -179,7 +180,7 @@ class _LearningLanguageSelectionScreenState
                     ),
                   ],
                 ),
-              ),
+              )),
       ),
     );
   }

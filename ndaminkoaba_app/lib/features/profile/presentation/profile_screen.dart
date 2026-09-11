@@ -30,6 +30,7 @@ import '../../streaks/data/streaks_repository.dart';
 import '../../streaks/domain/streak_stats.dart';
 import '../data/profile_repository.dart';
 import '../domain/user_profile.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -184,7 +185,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: EdgeInsets.all(AppSpacing.xl),
                 child: ShimmerListLoader(itemCount: 2, itemHeight: 160),
               )
-            : SingleChildScrollView(
+            : PageWidth(child: SingleChildScrollView(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.xl,
                   AppSpacing.xl,
@@ -455,7 +456,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ],
                 ),
-              ),
+              )),
       ),
       ),
     );

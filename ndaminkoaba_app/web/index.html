@@ -18,7 +18,11 @@
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
-  <meta name="description" content="A new Flutter project.">
+  <!-- Without this, a mobile browser assumes a ~980px layout viewport and
+       renders the whole app zoomed out. Keep it so the web build lays out
+       at the real device width, matching the Android app. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="description" content="NdaMinkoaba — learn, preserve and transmit Cameroonian heritage languages.">
 
   <!-- iOS meta tags & icons -->
   <meta name="mobile-web-app-capable" content="yes">

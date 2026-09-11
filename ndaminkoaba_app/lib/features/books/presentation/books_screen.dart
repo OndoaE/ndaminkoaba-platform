@@ -225,12 +225,28 @@ class _BooksScreenState extends ConsumerState<BooksScreen> {
                                       );
 
                                       if (constraints.maxWidth >= 760) {
+                                        // `grid` shrink-wraps to its full
+                                        // intrinsic height (by design, so it
+                                        // can sit inside the narrow branch's
+                                        // outer scroll view below) -- inside
+                                        // `Expanded` that natural height is
+                                        // forced into a fixed box, which
+                                        // overflows once there are enough
+                                        // books. Give it its own scrollable
+                                        // box instead of touching `_BookGrid`
+                                        // itself.
                                         return Row(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Expanded(flex: 3, child: grid),
+                                            Expanded(
+                                              flex: 3,
+                                              child: SingleChildScrollView(child: grid),
+                                            ),
                                             const SizedBox(width: AppSpacing.lg),
-                                            SizedBox(width: 320, child: detail),
+                                            SizedBox(
+                                              width: 320,
+                                              child: SingleChildScrollView(child: detail),
+                                            ),
                                           ],
                                         );
                                       }

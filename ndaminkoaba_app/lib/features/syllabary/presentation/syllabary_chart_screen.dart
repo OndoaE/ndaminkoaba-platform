@@ -12,6 +12,7 @@ import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/syllabary_repository.dart';
 import '../domain/syllabary_models.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 /// The syllable chart for one letter: every vowel row (syllable, example
 /// word, French translation, example sentence), in the order the admin
@@ -96,7 +97,7 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
                     icon: Icons.grid_view_outlined,
                     title: 'Nothing here yet',
                   )
-                : ListView(
+                : PageWidth(child: ListView(
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     children: [
                       Center(
@@ -161,7 +162,7 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
                         },
                       ),
                     ],
-                  ),
+                  )),
       ),
     );
   }

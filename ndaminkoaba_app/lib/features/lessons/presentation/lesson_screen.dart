@@ -45,6 +45,7 @@ import '../data/lesson_progress_service.dart';
 import '../data/lesson_repository.dart';
 import '../domain/lesson.dart';
 import '../domain/models/lesson_image.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 String _levelLabel(AppLocalizations l10n, String level) {
   switch (level) {
@@ -444,7 +445,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 ? quiz!.questions.first
                 : null;
 
-            return SingleChildScrollView(
+            return PageWidth(child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -1087,7 +1088,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                   ],
                 ],
               ),
-            );
+            ));
           },
         ),
       ),

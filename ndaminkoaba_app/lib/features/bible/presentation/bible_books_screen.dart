@@ -139,8 +139,17 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
                         subtitle: l10n.bibleFourGospelsSubtitle,
                       ),
                       const SizedBox(height: AppSpacing.md),
-                      GridView.count(
-                        crossAxisCount: 2,
+                      LayoutBuilder(
+                        builder: (context, constraints) {
+                          // Fixed at 2 columns, this pair of cards balloons
+                          // to full-width on a wide desktop-web window; scale
+                          // the column count with the available width instead
+                          // (still 2 on a phone, matching the pre-existing
+                          // childAspectRatio).
+                          final crossAxisCount =
+                              (constraints.maxWidth / 220).floor().clamp(2, 4);
+                          return GridView.count(
+                        crossAxisCount: crossAxisCount,
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         crossAxisSpacing: AppSpacing.md,
@@ -164,6 +173,8 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
                                     ),
                           );
                         }).toList(),
+                      );
+                        },
                       ),
                       if (_otherBooks.isNotEmpty) ...[
                         const SizedBox(height: AppSpacing.xl),

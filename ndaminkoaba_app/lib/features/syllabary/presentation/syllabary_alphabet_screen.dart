@@ -83,10 +83,19 @@ class _SyllabaryAlphabetScreenState
                     message:
                         "The syllabary chart for this language hasn't been added yet.",
                   )
-                : GridView.builder(
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      // Fixed at 4 columns, letter tiles shrink to a
+                      // cramped cluster on a phone and stay stuck at 4 on a
+                      // wide desktop-web window; scale the column count
+                      // with the available width instead (still ~4 on a
+                      // phone).
+                      final crossAxisCount =
+                          (constraints.maxWidth / 110).floor().clamp(4, 8);
+                      return GridView.builder(
                     padding: const EdgeInsets.all(AppSpacing.xl),
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 4,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: crossAxisCount,
                       mainAxisSpacing: AppSpacing.md,
                       crossAxisSpacing: AppSpacing.md,
                       childAspectRatio: 1,
@@ -109,6 +118,8 @@ class _SyllabaryAlphabetScreenState
                             style: AppTypography.h1.copyWith(color: AppColors.primary),
                           ),
                         ),
+                      );
+                    },
                       );
                     },
                   ),

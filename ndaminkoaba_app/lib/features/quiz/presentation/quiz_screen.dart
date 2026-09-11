@@ -21,6 +21,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../progress/data/progress_repository.dart';
 import '../data/quiz_repository.dart';
 import '../domain/quiz.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 class QuizScreen extends ConsumerStatefulWidget {
   const QuizScreen({super.key, required this.courseId, required this.lessonId});
@@ -202,7 +203,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               );
             }
 
-            return SingleChildScrollView(
+            return PageWidth(child: SingleChildScrollView(
               padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -268,7 +269,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
                   ),
                 ],
               ),
-            );
+            ));
           },
         ),
       ),
@@ -391,7 +392,7 @@ class _QuizResultView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final color = result.passed ? AppColors.success : AppColors.error;
 
-    return SingleChildScrollView(
+    return PageWidth(child: SingleChildScrollView(
       padding: const EdgeInsets.all(AppSpacing.xl),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -500,6 +501,6 @@ class _QuizResultView extends StatelessWidget {
             PrimaryButton(label: l10n.continueButton, onPressed: onDone),
         ],
       ),
-    );
+    ));
   }
 }

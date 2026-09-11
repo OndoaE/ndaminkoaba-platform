@@ -23,6 +23,7 @@ import '../../courses/domain/models/course.dart';
 import '../../courses/presentation/courses_screen.dart'
     show CourseCard, previousLevel, levelLabel;
 import '../../practice/data/practice_repository.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 const _kLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 
@@ -138,7 +139,7 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: load,
-          child: SingleChildScrollView(
+          child: PageWidth(child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.xl,
@@ -352,7 +353,7 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
                 ),
               ],
             ),
-          ),
+          )),
         ),
       ),
       ),

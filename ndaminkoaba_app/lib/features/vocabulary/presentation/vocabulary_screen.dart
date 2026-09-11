@@ -22,6 +22,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../offline/data/offline_course_repository.dart';
 import '../data/vocabulary_repository.dart';
 import '../domain/vocabulary_word.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 const _levels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 
@@ -149,7 +150,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
       child: Scaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Padding(
+        child: PageWidth(maxWidth: 640, child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,7 +302,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
               ),
             ],
           ),
-        ),
+        )),
       ),
       ),
     );

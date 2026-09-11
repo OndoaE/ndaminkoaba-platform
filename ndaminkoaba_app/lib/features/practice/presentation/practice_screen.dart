@@ -28,6 +28,7 @@ import '../data/practice_repository.dart';
 import '../data/vocabulary_review_repository.dart';
 import '../domain/practice_today.dart';
 import 'vocabulary_review_screen.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 /// Tab-root "Practice" screen (bottom nav index 2) — Smart Review queue,
 /// weekly activity calendar, and badge progress.
@@ -114,7 +115,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: load,
-          child: SingleChildScrollView(
+          child: PageWidth(child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(
               AppSpacing.xl,
@@ -407,7 +408,7 @@ class _PracticeScreenState extends ConsumerState<PracticeScreen> {
                 ],
               ],
             ),
-          ),
+          )),
         ),
       ),
       ),

@@ -101,9 +101,18 @@ class _BibleChaptersScreenState extends ConsumerState<BibleChaptersScreen> {
                         Text(l10n.bibleSelectChapterTitle, style: AppTypography.title),
                         const SizedBox(height: AppSpacing.lg),
                         Expanded(
-                          child: GridView.builder(
-                            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                              crossAxisCount: 4,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              // Fixed at 4 columns, chapter tiles shrink to
+                              // a cramped cluster on a phone and stay stuck
+                              // at 4 on a wide desktop-web window; scale the
+                              // column count with the available width
+                              // instead (still ~4 on a phone).
+                              final crossAxisCount =
+                                  (constraints.maxWidth / 90).floor().clamp(4, 10);
+                              return GridView.builder(
+                            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: crossAxisCount,
                               crossAxisSpacing: AppSpacing.sm,
                               mainAxisSpacing: AppSpacing.sm,
                               childAspectRatio: 1,
@@ -154,6 +163,8 @@ class _BibleChaptersScreenState extends ConsumerState<BibleChaptersScreen> {
                                     ],
                                   ),
                                 ),
+                              );
+                            },
                               );
                             },
                           ),

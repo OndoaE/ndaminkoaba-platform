@@ -13,6 +13,7 @@ import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/bible_repository.dart';
 import '../domain/models/bible_verse.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 /// Bilingual reader: Ewondo alongside whichever of English/French the
 /// learner has selected as their UI language — never both, per the product
@@ -152,7 +153,7 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
                 : Column(
                     children: [
                       Expanded(
-                        child: ListView.builder(
+                        child: PageWidth(child: ListView.builder(
                           padding: const EdgeInsets.fromLTRB(
                             AppSpacing.xl,
                             AppSpacing.lg,
@@ -165,7 +166,7 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
                             isFrench: isFrench,
                             pendingLabel: l10n.bibleTranslationPending,
                           ),
-                        ),
+                        )),
                       ),
                       Container(
                         padding: const EdgeInsets.symmetric(
@@ -179,27 +180,56 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
                         child: Row(
                           children: [
                             Expanded(
-                              child: OutlinedButton.icon(
+                              child: OutlinedButton(
                                 onPressed: hasPrev
                                     ? () => _goToChapter(availableChapters[currentIndex - 1])
                                     : null,
-                                icon: const Icon(Icons.chevron_left),
-                                label: Text(l10n.biblePreviousChapter),
                                 style: OutlinedButton.styleFrom(
                                   foregroundColor: const Color(0xFF8B3A3A),
                                   side: const BorderSide(color: Color(0xFF8B3A3A)),
+                                ),
+                                // Built by hand rather than OutlinedButton.icon:
+                                // that constructor lays its label out with no
+                                // Flexible/ellipsis, so a longer translation
+                                // (e.g. French "Chapitre précédent") overflows
+                                // the half-width button on a narrow phone.
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.chevron_left),
+                                    const SizedBox(width: AppSpacing.xs),
+                                    Flexible(
+                                      child: Text(
+                                        l10n.biblePreviousChapter,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
                             const SizedBox(width: AppSpacing.md),
                             Expanded(
-                              child: FilledButton.icon(
+                              child: FilledButton(
                                 onPressed: hasNext
                                     ? () => _goToChapter(availableChapters[currentIndex + 1])
                                     : null,
-                                icon: const Icon(Icons.chevron_right),
-                                label: Text(l10n.bibleNextChapter),
                                 style: FilledButton.styleFrom(backgroundColor: const Color(0xFF8B3A3A)),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Flexible(
+                                      child: Text(
+                                        l10n.bibleNextChapter,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 1,
+                                      ),
+                                    ),
+                                    const SizedBox(width: AppSpacing.xs),
+                                    const Icon(Icons.chevron_right),
+                                  ],
+                                ),
                               ),
                             ),
                           ],

@@ -18,6 +18,7 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/app_header.dart';
 import '../../../design_system/cards/featured_card.dart';
 import '../../../design_system/widgets/gold_corner_pattern.dart';
+import '../../../design_system/widgets/page_width.dart';
 import '../../../design_system/widgets/progress_ring.dart';
 import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
@@ -151,6 +152,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: SafeArea(
         child: RefreshIndicator(
           onRefresh: loadDashboard,
+          child: PageWidth(
           child: SingleChildScrollView(
             physics: const AlwaysScrollableScrollPhysics(),
             padding: const EdgeInsets.fromLTRB(
@@ -545,6 +547,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 ),
               ],
             ),
+          ),
           ),
         ),
       ),

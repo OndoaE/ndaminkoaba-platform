@@ -66,7 +66,7 @@ class WelcomeScreen extends StatelessWidget {
             ),
           ),
           SafeArea(
-            child: Padding(
+            child: SingleChildScrollView(reverse: true, child: Padding(
               padding: const EdgeInsets.all(AppSpacing.xl),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -152,7 +152,7 @@ class WelcomeScreen extends StatelessWidget {
                   const SizedBox(height: AppSpacing.md),
                 ],
               ),
-            ),
+            )),
           ),
         ],
       ),

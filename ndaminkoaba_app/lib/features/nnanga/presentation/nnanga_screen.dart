@@ -503,7 +503,13 @@ class _MessageBubble extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final isUser = message.isUser;
 
-    return Align(
+    // Sized off the bubble's own layout constraints, not the full window --
+    // MediaQuery's size ignores a sidebar/detail pane and lets a bubble on
+    // desktop web balloon to 78% of the whole screen instead of 78% of the
+    // chat column it actually sits in.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
@@ -512,7 +518,7 @@ class _MessageBubble extends StatelessWidget {
           vertical: AppSpacing.md,
         ),
         constraints: BoxConstraints(
-          maxWidth: MediaQuery.of(context).size.width * 0.78,
+          maxWidth: constraints.maxWidth * 0.78,
         ),
         decoration: BoxDecoration(
           gradient: isUser ? AppGradients.ai : null,
@@ -591,6 +597,8 @@ class _MessageBubble extends StatelessWidget {
                 ],
               ),
       ),
+        );
+      },
     );
   }
 }

@@ -16,6 +16,7 @@ import '../../../l10n/app_localizations.dart';
 import '../data/certificate_repository.dart';
 import '../domain/certificate.dart';
 import '../domain/certificate_theme.dart';
+import '../../../design_system/widgets/page_width.dart';
 
 class CertificatesScreen extends StatefulWidget {
   const CertificatesScreen({super.key});
@@ -83,7 +84,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
                   ),
                 ),
               )
-            : SingleChildScrollView(
+            : PageWidth(child: SingleChildScrollView(
                 padding: const EdgeInsets.all(AppSpacing.xl),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,7 +128,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
                       ),
                   ],
                 ),
-              ),
+              )),
       ),
     );
   }
