@@ -175,9 +175,9 @@ class AdminSidebar extends StatelessWidget {
               bottom: -50,
               child: NdaFloralDecoration(
                 corner: Alignment.bottomLeft,
-                size: 260,
-                opacity: 0.12,
-                tint: AppColors.primary,
+                size: 320,
+                opacity: 0.32,
+                fadeStop: 0.55,
               ),
             ),
             Column(

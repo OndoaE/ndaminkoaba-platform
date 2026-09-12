@@ -14,6 +14,15 @@ class AppGradients {
     end: Alignment.bottomRight,
   );
 
+  /// The learner dashboard's "hero"/progress-card gradient — deeper and
+  /// more teal-leaning than [primary], matching the reference mockup's
+  /// progress card exactly (062B26 -> 07513F -> 087252).
+  static const hero = LinearGradient(
+    colors: [Color(0xFF062B26), Color(0xFF07513F), Color(0xFF087252)],
+    begin: Alignment.centerLeft,
+    end: Alignment.centerRight,
+  );
+
   static const ai = LinearGradient(
     colors: [AppColors.ai, Color(0xFF6B4CE0)],
     begin: Alignment.topLeft,

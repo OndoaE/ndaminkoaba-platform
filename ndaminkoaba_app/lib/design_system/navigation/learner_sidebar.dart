@@ -52,13 +52,13 @@ class LearnerSidebar extends StatelessWidget {
         child: Stack(
           children: [
             const Positioned(
-              left: -60,
-              bottom: -40,
+              left: -80,
+              bottom: -60,
               child: NdaFloralDecoration(
                 corner: Alignment.bottomLeft,
-                size: 260,
-                opacity: 0.22,
-                tint: AppColors.primary,
+                size: 420,
+                opacity: 0.6,
+                fadeStop: 0.75,
               ),
             ),
             Column(

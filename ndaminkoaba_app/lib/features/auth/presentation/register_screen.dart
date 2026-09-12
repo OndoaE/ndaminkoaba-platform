@@ -148,6 +148,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: SafeArea(
         child: NdaPageBackground(
+          decorationSize: 420,
+          opacity: 0.9,
+          fadeStop: 0.6,
           child: Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.symmetric(

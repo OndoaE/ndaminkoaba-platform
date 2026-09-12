@@ -18,6 +18,7 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/app_header.dart';
 import '../../../design_system/cards/featured_card.dart';
 import '../../../design_system/widgets/gold_corner_pattern.dart';
+import '../../../design_system/widgets/nda_floral_decoration.dart';
 import '../../../design_system/widgets/nda_gold_divider.dart';
 import '../../../design_system/widgets/nda_page_background.dart';
 import '../../../design_system/widgets/page_width.dart';
@@ -211,13 +212,26 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     width: double.infinity,
                     clipBehavior: Clip.antiAlias,
                     decoration: BoxDecoration(
-                      gradient: AppGradients.primary,
+                      gradient: AppGradients.hero,
                       borderRadius: AppRadius.large,
                     ),
                     padding: const EdgeInsets.all(AppSpacing.xl),
                     child: Stack(
                       children: [
-                        const GoldCornerPattern(color: Colors.white),
+                        // Floral crop concentrated on the right side only,
+                        // per the reference — the left/center stays dark
+                        // and clean for the progress text.
+                        Positioned(
+                          top: -40,
+                          bottom: -40,
+                          right: -60,
+                          child: NdaFloralDecoration(
+                            corner: Alignment.centerRight,
+                            size: 260,
+                            opacity: 0.8,
+                            fadeStop: 0.7,
+                          ),
+                        ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
