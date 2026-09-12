@@ -11,8 +11,8 @@ import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/widgets/empty_state.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../lessons/domain/models/lesson_image.dart';
@@ -129,39 +129,27 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: GradientAppBar(
-        title: widget.lessonTitle != null
-            ? l10n.adminLessonImagesTitleWithLesson(widget.lessonTitle!)
-            : l10n.adminLessonImagesTitleFallback,
-        colors: const [Color(0xFFB5312B), AppColors.primary],
-      ),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFFB5312B),
-        icon: isUploading
-            ? const SizedBox(
-                width: 18,
-                height: 18,
-                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-              )
-            : const Icon(Icons.add_photo_alternate_outlined, color: Colors.white),
-        label: Text(l10n.adminLessonImagesAddImage, style: const TextStyle(color: Colors.white)),
-        onPressed: isUploading ? null : addImage,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                l10n.adminLessonImagesIntro,
-                style: AppTypography.caption,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
+    return AdminShell(
+      activeNavKey: 'lessons',
+      title: widget.lessonTitle != null
+          ? l10n.adminLessonImagesTitleWithLesson(widget.lessonTitle!)
+          : l10n.adminLessonImagesTitleFallback,
+      subtitle: l10n.adminLessonImagesIntro,
+      actions: [
+        FilledButton.icon(
+          onPressed: isUploading ? null : addImage,
+          style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+          icon: isUploading
+              ? const SizedBox(
+                  width: 18,
+                  height: 18,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                )
+              : const Icon(Icons.add_photo_alternate_outlined, size: 18),
+          label: Text(l10n.adminLessonImagesAddImage),
+        ),
+      ],
+      child: isLoading
                     ? const ShimmerListLoader()
                     : images.isEmpty
                         ? EmptyState(
@@ -170,6 +158,8 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
                             message: l10n.adminLessonImagesEmptyMessage,
                           )
                         : GridView.builder(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.only(bottom: 80),
                             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                               crossAxisCount: 2,
@@ -238,11 +228,6 @@ class _AdminLessonImagesScreenState extends State<AdminLessonImagesScreen> {
                               );
                             },
                           ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

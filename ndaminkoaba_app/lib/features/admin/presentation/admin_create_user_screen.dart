@@ -6,9 +6,9 @@ import '../../../design_system/buttons/primary_button.dart';
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/inputs/premium_textfield.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../data/admin_repository.dart';
 
 const _roles = ['LEARNER', 'TEACHER', 'ADMIN'];
@@ -79,13 +79,10 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'New User'),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: PremiumCard(
+    return AdminShell(
+      activeNavKey: 'users',
+      title: 'New User',
+      child: PremiumCard(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -150,8 +147,6 @@ class _AdminCreateUserScreenState extends State<AdminCreateUserScreen> {
               ],
             ),
           ),
-        ),
-      ),
     );
   }
 }

@@ -9,7 +9,7 @@ import '../../../design_system/gradients/app_gradients.dart';
 import '../../../design_system/inputs/premium_textfield.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/widgets/gradient_hero_card.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
@@ -362,26 +362,19 @@ class _AdminQuizBuilderScreenState extends State<AdminQuizBuilderScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: GradientAppBar(
-        title: l10n.adminQuizBuilderAppBarTitle(
-          widget.lessonTitle ?? l10n.adminQuizBuilderDefaultLessonTitle,
-        ),
+    return AdminShell(
+      activeNavKey: 'assessments',
+      title: l10n.adminQuizBuilderAppBarTitle(
+        widget.lessonTitle ?? l10n.adminQuizBuilderDefaultLessonTitle,
       ),
-      body: SafeArea(
-        child: isLoading
+      child: isLoading
             ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
                 child: ShimmerListLoader(itemCount: 3, itemHeight: 96),
               )
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: quiz == null
+            : (quiz == null
                     ? _buildCreateForm(l10n)
-                    : _buildQuizEditor(quiz!, l10n),
-              ),
-      ),
+                    : _buildQuizEditor(quiz!, l10n)),
     );
   }
 

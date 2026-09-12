@@ -5,7 +5,7 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../data/content_repository.dart';
 import '../domain/admin_content_models.dart';
 
@@ -50,15 +50,14 @@ class _AdminNewQuizScreenState extends State<AdminNewQuizScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'New Quiz'),
-      body: SafeArea(
-        child: isLoading
+    return AdminShell(
+      activeNavKey: 'assessments',
+      languageId: widget.languageId,
+      languageName: widget.languageName,
+      title: 'New Quiz',
+      child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
+            : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
@@ -108,8 +107,6 @@ class _AdminNewQuizScreenState extends State<AdminNewQuizScreen> {
                       ),
                   ],
                 ),
-              ),
-      ),
     );
   }
 

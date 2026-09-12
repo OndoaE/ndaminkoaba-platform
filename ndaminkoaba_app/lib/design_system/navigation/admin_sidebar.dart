@@ -386,6 +386,7 @@ class _SidebarTile extends StatelessWidget {
         child: InkWell(
           borderRadius: AppRadius.medium,
           onTap: () => context.go(item.route),
+          hoverColor: Colors.white.withValues(alpha: 0.08),
           child: Padding(
             padding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.md,

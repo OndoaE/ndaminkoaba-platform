@@ -7,7 +7,7 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/widgets/lesson_content_preview.dart';
 import '../../../design_system/widgets/markdown_formatting_toolbar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
@@ -324,25 +324,26 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: GradientAppBar(title: l10n.adminLessonMgmtAppBarTitle, colors: const [Color(0xFF3D6BE0), AppColors.primary]),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF3D6BE0),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(l10n.adminQuickActionNewLesson, style: const TextStyle(color: Colors.white)),
-        onPressed: () async {
-          await context.push(
-            '/admin/languages/${widget.languageId}/lessons/new',
-            extra: widget.languageName,
-          );
-          load();
-        },
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
+    return AdminShell(
+      activeNavKey: 'lessons',
+      languageId: widget.languageId,
+      languageName: widget.languageName,
+      title: l10n.adminLessonMgmtAppBarTitle,
+      actions: [
+        FilledButton.icon(
+          onPressed: () async {
+            await context.push(
+              '/admin/languages/${widget.languageId}/lessons/new',
+              extra: widget.languageName,
+            );
+            load();
+          },
+          style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+          icon: const Icon(Icons.add, size: 18),
+          label: Text(l10n.adminQuickActionNewLesson),
+        ),
+      ],
+      child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
@@ -382,12 +383,13 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                   ),
                 ),
               const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
+              isLoading
                     ? const ShimmerListLoader()
                     : _visible.isEmpty
                         ? Center(child: Text(l10n.adminLessonMgmtNoLessonsFoundMessage, style: AppTypography.caption))
                         : ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.only(bottom: 80),
                             itemCount: _visible.length,
                             separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
@@ -472,11 +474,8 @@ class _AdminLessonManagementScreenState extends State<AdminLessonManagementScree
                               );
                             },
                           ),
-              ),
             ],
           ),
-        ),
-      ),
     );
   }
 }

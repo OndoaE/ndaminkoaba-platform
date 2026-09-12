@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 
@@ -50,34 +51,15 @@ class AdminContentHubScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Text(languageName != null ? '$languageName Content' : 'Content Management'),
-        backgroundColor: AppColors.primary,
-        foregroundColor: Colors.white,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Content Management',
-                style: AppTypography.h1.copyWith(
-                  color: AppColors.primary,
-                  fontWeight: FontWeight.w800,
-                ),
-              ),
-              const SizedBox(height: AppSpacing.sm),
-              Text(
-                'Manage every piece of learning content for this language.',
-                style: AppTypography.caption,
-              ),
-              const SizedBox(height: AppSpacing.xl),
-              Expanded(
-                child: ListView.separated(
+    return AdminShell(
+      activeNavKey: 'dashboard',
+      languageId: languageId,
+      languageName: languageName,
+      title: 'Content Management',
+      subtitle: 'Manage every piece of learning content for this language.',
+      child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
                   itemCount: _sections.length,
                   separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
                   itemBuilder: (context, index) {
@@ -123,11 +105,6 @@ class AdminContentHubScreen extends StatelessWidget {
                     );
                   },
                 ),
-              ),
-            ],
-          ),
-        ),
-      ),
     );
   }
 }

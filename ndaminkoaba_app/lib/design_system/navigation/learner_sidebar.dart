@@ -165,6 +165,7 @@ class _LearnerSidebarTile extends StatelessWidget {
             onNavigate?.call();
             context.go(item.route);
           },
+          hoverColor: Colors.white.withValues(alpha: 0.08),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
             child: Row(

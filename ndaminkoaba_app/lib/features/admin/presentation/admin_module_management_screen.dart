@@ -6,7 +6,7 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/admin_repository.dart';
@@ -172,19 +172,20 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: GradientAppBar(title: l10n.adminModuleMgmtAppBarTitle, colors: const [Color(0xFF0D7A4C), AppColors.primary]),
-      floatingActionButton: FloatingActionButton.extended(
-        backgroundColor: const Color(0xFF0D7A4C),
-        icon: const Icon(Icons.add, color: Colors.white),
-        label: Text(l10n.adminModuleMgmtNewModule, style: const TextStyle(color: Colors.white)),
-        onPressed: addModule,
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
+    return AdminShell(
+      activeNavKey: 'lessons',
+      languageId: widget.languageId,
+      languageName: widget.languageName,
+      title: l10n.adminModuleMgmtAppBarTitle,
+      actions: [
+        FilledButton.icon(
+          onPressed: addModule,
+          style: FilledButton.styleFrom(backgroundColor: AppColors.primary),
+          icon: const Icon(Icons.add, size: 18),
+          label: Text(l10n.adminModuleMgmtNewModule),
+        ),
+      ],
+      child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               TextField(
@@ -224,12 +225,13 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
                   ),
                 ),
               const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
+              isLoading
                     ? const ShimmerListLoader()
                     : _visible.isEmpty
                         ? Center(child: Text(l10n.adminModuleMgmtNoModulesFound, style: AppTypography.caption))
                         : ListView.separated(
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
                             padding: const EdgeInsets.only(bottom: 80),
                             itemCount: _visible.length,
                             separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.md),
@@ -280,11 +282,8 @@ class _AdminModuleManagementScreenState extends State<AdminModuleManagementScree
                               );
                             },
                           ),
-              ),
             ],
           ),
-        ),
-      ),
     );
   }
 }

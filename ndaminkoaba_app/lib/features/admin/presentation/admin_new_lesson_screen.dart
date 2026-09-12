@@ -9,7 +9,7 @@ import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/inputs/premium_textfield.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/widgets/lesson_content_preview.dart';
 import '../../../design_system/widgets/markdown_formatting_toolbar.dart';
 import '../data/content_repository.dart';
@@ -119,15 +119,14 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: const GradientAppBar(title: 'New Lesson'),
-      body: SafeArea(
-        child: isLoading
+    return AdminShell(
+      activeNavKey: 'lessons',
+      languageId: widget.languageId,
+      languageName: widget.languageName,
+      title: 'New Lesson',
+      child: isLoading
             ? const Center(child: CircularProgressIndicator())
-            : SingleChildScrollView(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
+            : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     _StepBreadcrumb(
@@ -221,8 +220,6 @@ class _AdminNewLessonScreenState extends State<AdminNewLessonScreen> {
                       ),
                   ],
                 ),
-              ),
-      ),
     );
   }
 }
