@@ -5,7 +5,7 @@ import '../radius/app_radius.dart';
 import '../shadows/app_shadows.dart';
 import '../spacing/app_spacing.dart';
 import '../typography/app_typography.dart';
-import 'gold_corner_pattern.dart';
+import 'nda_floral_decoration.dart';
 
 /// Stat card used across the admin dashboards — icon-in-circle, a big
 /// number, a label, and an optional small delta line ("+12.5%"), with the
@@ -35,31 +35,53 @@ class AdminStatCard extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: AppRadius.medium,
+        borderRadius: AppRadius.large,
+        border: Border.all(color: AppColors.divider),
         boxShadow: AppShadows.soft,
       ),
       child: Stack(
         children: [
-          const Positioned(top: 0, right: 0, child: GoldCornerPattern(size: 40)),
+          const Positioned(
+            top: -16,
+            right: -16,
+            child: NdaFloralDecoration(
+              corner: Alignment.topRight,
+              size: 100,
+              opacity: 0.45,
+            ),
+          ),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Container(
                 width: 44,
                 height: 44,
-                decoration: BoxDecoration(color: color.withValues(alpha: 0.12), shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
                 alignment: Alignment.center,
                 child: Icon(icon, color: color, size: 22),
               ),
               const SizedBox(height: AppSpacing.md),
-              Text(value, style: AppTypography.h1.copyWith(fontSize: 26, fontWeight: FontWeight.w800)),
+              Text(
+                value,
+                style: AppTypography.h1.copyWith(
+                  fontSize: 26,
+                  fontWeight: FontWeight.w800,
+                ),
+              ),
               const SizedBox(height: 2),
               Text(label, style: AppTypography.caption),
               if (delta != null) ...[
                 const SizedBox(height: AppSpacing.xs),
                 Text(
                   delta!,
-                  style: const TextStyle(color: AppColors.success, fontSize: 12, fontWeight: FontWeight.w600),
+                  style: const TextStyle(
+                    color: AppColors.success,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ],
             ],

@@ -10,19 +10,25 @@ import '../spacing/app_spacing.dart';
 /// Login and Register used to duplicate directly on a flat background —
 /// now a real floating card, matching the auth mockup.
 class NdaAuthCard extends StatelessWidget {
-  const NdaAuthCard({super.key, required this.child, this.maxWidth = 430});
+  const NdaAuthCard({
+    super.key,
+    required this.child,
+    this.maxWidth = 430,
+    this.padding,
+  });
 
   final Widget child;
   final double maxWidth;
+  final EdgeInsets? padding;
 
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
       constraints: BoxConstraints(maxWidth: maxWidth),
       child: Container(
-        padding: const EdgeInsets.all(AppSpacing.xl),
+        padding: padding ?? const EdgeInsets.all(AppSpacing.xl),
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: AppColors.lightCream.withValues(alpha: 0.94),
           borderRadius: AppRadius.large,
           boxShadow: AppShadows.floating,
         ),

@@ -15,8 +15,12 @@ class ProgressRing extends StatelessWidget {
     required this.subLabel,
     this.size = 96,
     this.strokeWidth = 10,
+    this.foregroundColor,
+    this.heritageColors = false,
   });
 
+  final Color? foregroundColor;
+  final bool heritageColors;
   final double progress;
   final String centerLabel;
   final String subLabel;
@@ -35,17 +39,25 @@ class ProgressRing extends StatelessWidget {
             size: Size(size, size),
             painter: _RingPainter(
               progress: progress.clamp(0, 1),
+              heritageColors: heritageColors,
               strokeWidth: strokeWidth,
             ),
           ),
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(centerLabel, style: AppTypography.numeric.copyWith(fontSize: size * 0.2)),
               Text(
-                subLabel,
-                style: AppTypography.caption.copyWith(fontSize: size * 0.09),
+                centerLabel,
+                style: AppTypography.numeric.copyWith(
+                  color: foregroundColor,
+                  fontSize: size * 0.23,
+                ),
               ),
+              if (subLabel.isNotEmpty)
+                Text(
+                  subLabel,
+                  style: AppTypography.caption.copyWith(fontSize: size * 0.09),
+                ),
             ],
           ),
         ],
@@ -55,8 +67,13 @@ class ProgressRing extends StatelessWidget {
 }
 
 class _RingPainter extends CustomPainter {
-  _RingPainter({required this.progress, required this.strokeWidth});
+  _RingPainter({
+    required this.progress,
+    required this.strokeWidth,
+    required this.heritageColors,
+  });
 
+  final bool heritageColors;
   final double progress;
   final double strokeWidth;
 
@@ -85,6 +102,25 @@ class _RingPainter extends CustomPainter {
 
     const startAngle = -1.5708; // -90deg, 12 o'clock
     final sweepAngle = 6.2832 * progress; // 2*pi
+    if (progress <= 0) return;
+    if (heritageColors) {
+      const colors = [Color(0xFF009B79), Color(0xFFE30020), Color(0xFFF2BA16)];
+      for (var i = 0; i < colors.length; i++) {
+        final paint = Paint()
+          ..color = colors[i]
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = strokeWidth
+          ..strokeCap = StrokeCap.round;
+        canvas.drawArc(
+          Rect.fromCircle(center: center, radius: radius),
+          startAngle + sweepAngle * i / 3,
+          sweepAngle / 3,
+          false,
+          paint,
+        );
+      }
+      return;
+    }
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       startAngle,
@@ -96,5 +132,7 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _RingPainter oldDelegate) =>
-      oldDelegate.progress != progress || oldDelegate.strokeWidth != strokeWidth;
+      oldDelegate.progress != progress ||
+      oldDelegate.strokeWidth != strokeWidth ||
+      oldDelegate.heritageColors != heritageColors;
 }

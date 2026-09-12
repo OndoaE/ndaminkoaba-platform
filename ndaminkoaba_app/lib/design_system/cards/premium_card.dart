@@ -25,6 +25,7 @@ class PremiumCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: color,
         borderRadius: AppRadius.large,
+        border: Border.all(color: AppColors.divider.withValues(alpha: 0.7)),
         boxShadow: AppShadows.soft,
       ),
       child: child,

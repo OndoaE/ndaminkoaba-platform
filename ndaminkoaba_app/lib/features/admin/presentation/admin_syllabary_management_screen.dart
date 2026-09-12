@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'dart:convert';
 import 'dart:typed_data';
 import 'dart:ui' show instantiateImageCodec;
@@ -41,13 +42,13 @@ class _PickedContent {
   }) : text = null;
 
   const _PickedContent.text(this.text)
-      : bytes = null,
-        fileName = null,
-        mimeType = null,
-        isImage = false,
-        sizeBytes = null,
-        imageWidth = null,
-        imageHeight = null;
+    : bytes = null,
+      fileName = null,
+      mimeType = null,
+      isImage = false,
+      sizeBytes = null,
+      imageWidth = null,
+      imageHeight = null;
 
   final Uint8List? bytes;
   final String? fileName;
@@ -116,7 +117,9 @@ class _AdminSyllabaryManagementScreenState
 
   void _showMessage(String message) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(message)));
   }
 
   Map<String, List<SyllabaryEntry>> get _grouped {
@@ -137,17 +140,30 @@ class _AdminSyllabaryManagementScreenState
     } on DioException catch (e) {
       if (!mounted) return;
       final l10n = AppLocalizations.of(context);
-      _showMessage(extractErrorMessage(e, fallback: l10n.adminSyllabaryMgmtDeleteEntryError));
+      _showMessage(
+        extractErrorMessage(
+          e,
+          fallback: l10n.adminSyllabaryMgmtDeleteEntryError,
+        ),
+      );
     }
   }
 
-  Future<void> deleteLetter(String letter, List<SyllabaryEntry> letterEntries) async {
+  Future<void> deleteLetter(
+    String letter,
+    List<SyllabaryEntry> letterEntries,
+  ) async {
     final l10n = AppLocalizations.of(context);
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.adminSyllabaryMgmtDeleteLetterDialogTitle(letter)),
-        content: Text(l10n.adminSyllabaryMgmtDeleteLetterDialogContent(letterEntries.length, letter)),
+        content: Text(
+          l10n.adminSyllabaryMgmtDeleteLetterDialogContent(
+            letterEntries.length,
+            letter,
+          ),
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -172,11 +188,26 @@ class _AdminSyllabaryManagementScreenState
       _showMessage(l10n.adminSyllabaryMgmtLetterDeletedMessage(letter));
     } on DioException catch (e) {
       if (!mounted) return;
-      _showMessage(extractErrorMessage(e, fallback: l10n.adminSyllabaryMgmtDeleteLetterError));
+      _showMessage(
+        extractErrorMessage(
+          e,
+          fallback: l10n.adminSyllabaryMgmtDeleteLetterError,
+        ),
+      );
     }
   }
 
-  static const _kAllowedExtensions = ['png', 'jpg', 'jpeg', 'pdf', 'doc', 'docx', 'xls', 'xlsx', 'txt'];
+  static const _kAllowedExtensions = [
+    'png',
+    'jpg',
+    'jpeg',
+    'pdf',
+    'doc',
+    'docx',
+    'xls',
+    'xlsx',
+    'txt',
+  ];
 
   void openUploadPhase() {
     setState(() {
@@ -285,7 +316,11 @@ class _AdminSyllabaryManagementScreenState
     final file = files.firstOrNull;
     if (file == null) return;
     final bytes = await file.readAsBytes();
-    await _setPickedFile(bytes: bytes, fileName: file.name, mimeType: file.mimeType);
+    await _setPickedFile(
+      bytes: bytes,
+      fileName: file.name,
+      mimeType: file.mimeType,
+    );
   }
 
   void clearPicked() => setState(() => picked = null);
@@ -325,13 +360,17 @@ class _AdminSyllabaryManagementScreenState
       if (result.letters.every((g) => g.rows.isEmpty)) {
         _showMessage(l10n.adminSyllabaryMgmtNoRowsDetectedMessage);
       } else if (result.letters.length > 1) {
-        _showMessage(l10n.adminSyllabaryMgmtLettersDetectedMessage(result.letters.length));
+        _showMessage(
+          l10n.adminSyllabaryMgmtLettersDetectedMessage(result.letters.length),
+        );
       }
     } on DioException catch (e) {
       if (!mounted) return;
       setState(() => isExtracting = false);
       final l10n = AppLocalizations.of(context);
-      _showMessage(extractErrorMessage(e, fallback: l10n.adminSyllabaryMgmtAnalyzeError));
+      _showMessage(
+        extractErrorMessage(e, fallback: l10n.adminSyllabaryMgmtAnalyzeError),
+      );
     }
   }
 
@@ -342,9 +381,7 @@ class _AdminSyllabaryManagementScreenState
       context: context,
       builder: (context) => AlertDialog(
         title: Text(l10n.adminSyllabaryMgmtReanalyzeDialogTitle),
-        content: Text(
-          l10n.adminSyllabaryMgmtReanalyzeDialogContent,
-        ),
+        content: Text(l10n.adminSyllabaryMgmtReanalyzeDialogContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -395,7 +432,10 @@ class _AdminSyllabaryManagementScreenState
           succeeded++;
         } on DioException catch (e) {
           failed++;
-          firstError ??= extractErrorMessage(e, fallback: l10n.adminSyllabaryMgmtUnknownServerError);
+          firstError ??= extractErrorMessage(
+            e,
+            fallback: l10n.adminSyllabaryMgmtUnknownServerError,
+          );
         } catch (e) {
           failed++;
           firstError ??= e.toString();
@@ -433,7 +473,7 @@ class _AdminSyllabaryManagementScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       appBar: GradientAppBar(
         title: _titleFor(l10n, phase),
@@ -476,7 +516,10 @@ class _AdminSyllabaryManagementScreenState
         children: [
           const CircularProgressIndicator(),
           const SizedBox(height: AppSpacing.lg),
-          Text(l10n.adminSyllabaryMgmtAnalyzingMessage, style: AppTypography.body),
+          Text(
+            l10n.adminSyllabaryMgmtAnalyzingMessage,
+            style: AppTypography.body,
+          ),
         ],
       ),
     );
@@ -535,26 +578,35 @@ class _AdminSyllabaryManagementScreenState
                       const SizedBox(width: AppSpacing.md),
                       Expanded(
                         child: Text(
-                          l10n.adminSyllabaryMgmtSyllableCountLabel(grouped[letter]!.length),
+                          l10n.adminSyllabaryMgmtSyllableCountLabel(
+                            grouped[letter]!.length,
+                          ),
                           style: AppTypography.title,
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.delete_outline, color: AppColors.error),
-                        tooltip: l10n.adminSyllabaryMgmtDeleteLetterTooltip(letter),
+                        icon: const Icon(
+                          Icons.delete_outline,
+                          color: AppColors.error,
+                        ),
+                        tooltip: l10n.adminSyllabaryMgmtDeleteLetterTooltip(
+                          letter,
+                        ),
                         onPressed: () => deleteLetter(letter, grouped[letter]!),
                       ),
                     ],
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  ...grouped[letter]!.map(
-                    (entry) {
-                      final translations = [entry.frenchTranslation, entry.englishTranslation]
-                          .whereType<String>()
-                          .where((t) => t.isNotEmpty)
-                          .join(' / ');
-                      return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs),
+                  ...grouped[letter]!.map((entry) {
+                    final translations =
+                        [entry.frenchTranslation, entry.englishTranslation]
+                            .whereType<String>()
+                            .where((t) => t.isNotEmpty)
+                            .join(' / ');
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: AppSpacing.xs,
+                      ),
                       child: Row(
                         children: [
                           Expanded(
@@ -568,7 +620,10 @@ class _AdminSyllabaryManagementScreenState
                           ),
                           Expanded(
                             flex: 3,
-                            child: Text(entry.exampleWord ?? '—', style: AppTypography.caption),
+                            child: Text(
+                              entry.exampleWord ?? '—',
+                              style: AppTypography.caption,
+                            ),
                           ),
                           Expanded(
                             flex: 3,
@@ -584,8 +639,7 @@ class _AdminSyllabaryManagementScreenState
                         ],
                       ),
                     );
-                    },
-                  ),
+                  }),
                 ],
               ),
             ),
@@ -598,7 +652,12 @@ class _AdminSyllabaryManagementScreenState
     final l10n = AppLocalizations.of(context);
     final current = picked;
     return ListView(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.xl, AppSpacing.xl, AppSpacing.xl, 120),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.xl,
+        AppSpacing.xl,
+        AppSpacing.xl,
+        120,
+      ),
       children: [
         SectionTitle(
           title: l10n.adminSyllabaryMgmtStep1Title,
@@ -628,13 +687,17 @@ class _AdminSyllabaryManagementScreenState
                 Icon(
                   Icons.content_paste_outlined,
                   size: 40,
-                  color: isDraggingOver ? AppColors.ai : AppColors.textSecondary,
+                  color: isDraggingOver
+                      ? AppColors.ai
+                      : AppColors.textSecondary,
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
                   l10n.adminSyllabaryMgmtDropZoneText,
                   textAlign: TextAlign.center,
-                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
                 Text(
@@ -650,7 +713,9 @@ class _AdminSyllabaryManagementScreenState
                     OutlinedButton.icon(
                       onPressed: pasteFromClipboard,
                       icon: const Icon(Icons.content_paste, size: 16),
-                      label: Text(l10n.adminSyllabaryMgmtPasteFromClipboardLabel),
+                      label: Text(
+                        l10n.adminSyllabaryMgmtPasteFromClipboardLabel,
+                      ),
                     ),
                     OutlinedButton.icon(
                       onPressed: pickFile,
@@ -660,7 +725,9 @@ class _AdminSyllabaryManagementScreenState
                     if (current != null)
                       OutlinedButton.icon(
                         onPressed: clearPicked,
-                        style: OutlinedButton.styleFrom(foregroundColor: AppColors.error),
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: AppColors.error,
+                        ),
                         icon: const Icon(Icons.close, size: 16),
                         label: Text(l10n.adminSyllabaryMgmtClearLabel),
                       ),
@@ -691,7 +758,10 @@ class _AdminSyllabaryManagementScreenState
     final current = draft;
     if (current == null) return const SizedBox.shrink();
 
-    final totalRows = current.letters.fold<int>(0, (sum, g) => sum + g.rows.length);
+    final totalRows = current.letters.fold<int>(
+      0,
+      (sum, g) => sum + g.rows.length,
+    );
 
     return Column(
       children: [
@@ -707,7 +777,9 @@ class _AdminSyllabaryManagementScreenState
                   decoration: BoxDecoration(
                     color: AppColors.warning.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: AppColors.warning.withValues(alpha: 0.4)),
+                    border: Border.all(
+                      color: AppColors.warning.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -729,7 +801,9 @@ class _AdminSyllabaryManagementScreenState
                         ],
                       ),
                       const SizedBox(height: AppSpacing.xs),
-                      ...current.warnings.map((w) => Text('• $w', style: AppTypography.caption)),
+                      ...current.warnings.map(
+                        (w) => Text('• $w', style: AppTypography.caption),
+                      ),
                     ],
                   ),
                 ),
@@ -737,7 +811,10 @@ class _AdminSyllabaryManagementScreenState
                 title: l10n.adminSyllabaryMgmtLettersTitle,
                 subtitle: current.letters.isEmpty
                     ? l10n.adminSyllabaryMgmtNoneDetectedLabel
-                    : l10n.adminSyllabaryMgmtLettersSummary(current.letters.length, totalRows),
+                    : l10n.adminSyllabaryMgmtLettersSummary(
+                        current.letters.length,
+                        totalRows,
+                      ),
               ),
               const SizedBox(height: AppSpacing.md),
               if (current.letters.isEmpty)
@@ -839,7 +916,10 @@ class _ContentPreviewCard extends StatelessWidget {
               children: [
                 const Icon(Icons.text_snippet_outlined, color: AppColors.ai),
                 const SizedBox(width: AppSpacing.sm),
-                Text(l10n.adminSyllabaryMgmtPastedTextLabel, style: AppTypography.title.copyWith(fontSize: 14)),
+                Text(
+                  l10n.adminSyllabaryMgmtPastedTextLabel,
+                  style: AppTypography.title.copyWith(fontSize: 14),
+                ),
               ],
             ),
             const SizedBox(height: AppSpacing.sm),
@@ -872,7 +952,11 @@ class _ContentPreviewCard extends StatelessWidget {
                 borderRadius: AppRadius.small,
               ),
               alignment: Alignment.center,
-              child: const Icon(Icons.description_outlined, color: AppColors.ai, size: 32),
+              child: const Icon(
+                Icons.description_outlined,
+                color: AppColors.ai,
+                size: 32,
+              ),
             ),
           const SizedBox(width: AppSpacing.md),
           Expanded(
@@ -881,18 +965,31 @@ class _ContentPreviewCard extends StatelessWidget {
               children: [
                 Text(
                   content.fileName ?? '—',
-                  style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+                  style: AppTypography.body.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                Text(l10n.adminSyllabaryMgmtTypeLabel(content.mimeType ?? '—'), style: AppTypography.caption),
+                Text(
+                  l10n.adminSyllabaryMgmtTypeLabel(content.mimeType ?? '—'),
+                  style: AppTypography.caption,
+                ),
                 if (content.imageWidth != null && content.imageHeight != null)
                   Text(
-                    l10n.adminSyllabaryMgmtDimensionsLabel(content.imageWidth!, content.imageHeight!),
+                    l10n.adminSyllabaryMgmtDimensionsLabel(
+                      content.imageWidth!,
+                      content.imageHeight!,
+                    ),
                     style: AppTypography.caption,
                   ),
                 if (content.sizeBytes != null)
-                  Text(l10n.adminSyllabaryMgmtSizeLabel(_formatSize(content.sizeBytes!)), style: AppTypography.caption),
+                  Text(
+                    l10n.adminSyllabaryMgmtSizeLabel(
+                      _formatSize(content.sizeBytes!),
+                    ),
+                    style: AppTypography.caption,
+                  ),
               ],
             ),
           ),
@@ -933,7 +1030,10 @@ class _LetterGroupSection extends StatelessWidget {
           PremiumCard(
             child: Row(
               children: [
-                Text(l10n.adminSyllabaryMgmtLetterFieldLabel, style: AppTypography.title),
+                Text(
+                  l10n.adminSyllabaryMgmtLetterFieldLabel,
+                  style: AppTypography.title,
+                ),
                 const SizedBox(width: AppSpacing.md),
                 Expanded(
                   child: TextFormField(
@@ -946,7 +1046,10 @@ class _LetterGroupSection extends StatelessWidget {
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.delete_outline, color: AppColors.error),
+                  icon: const Icon(
+                    Icons.delete_outline,
+                    color: AppColors.error,
+                  ),
                   tooltip: l10n.adminSyllabaryMgmtRemoveLetterTooltip,
                   onPressed: onDeleteGroup,
                 ),
@@ -1008,14 +1111,21 @@ class _EditableRowCard extends StatefulWidget {
 
 class _EditableRowCardState extends State<_EditableRowCard> {
   late final vowelController = TextEditingController(text: widget.row.vowel);
-  late final syllableController = TextEditingController(text: widget.row.syllable);
-  late final wordController = TextEditingController(text: widget.row.exampleWord ?? '');
-  late final frenchTranslationController =
-      TextEditingController(text: widget.row.frenchTranslation ?? '');
-  late final englishTranslationController =
-      TextEditingController(text: widget.row.englishTranslation ?? '');
-  late final exampleController =
-      TextEditingController(text: widget.row.exampleSentence ?? '');
+  late final syllableController = TextEditingController(
+    text: widget.row.syllable,
+  );
+  late final wordController = TextEditingController(
+    text: widget.row.exampleWord ?? '',
+  );
+  late final frenchTranslationController = TextEditingController(
+    text: widget.row.frenchTranslation ?? '',
+  );
+  late final englishTranslationController = TextEditingController(
+    text: widget.row.englishTranslation ?? '',
+  );
+  late final exampleController = TextEditingController(
+    text: widget.row.exampleSentence ?? '',
+  );
 
   @override
   void dispose() {
@@ -1058,8 +1168,12 @@ class _EditableRowCardState extends State<_EditableRowCard> {
                 ),
               Expanded(
                 child: Text(
-                  l10n.adminSyllabaryMgmtRowNumberLabel(widget.row.orderNumber + 1),
-                  style: AppTypography.caption.copyWith(fontWeight: FontWeight.w600),
+                  l10n.adminSyllabaryMgmtRowNumberLabel(
+                    widget.row.orderNumber + 1,
+                  ),
+                  style: AppTypography.caption.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
               IconButton(
@@ -1074,7 +1188,10 @@ class _EditableRowCardState extends State<_EditableRowCard> {
               Expanded(
                 child: TextField(
                   controller: vowelController,
-                  decoration: InputDecoration(labelText: l10n.adminSyllabaryMgmtVowelLabel, isDense: true),
+                  decoration: InputDecoration(
+                    labelText: l10n.adminSyllabaryMgmtVowelLabel,
+                    isDense: true,
+                  ),
                   onChanged: (v) => widget.row.vowel = v,
                 ),
               ),
@@ -1082,7 +1199,10 @@ class _EditableRowCardState extends State<_EditableRowCard> {
               Expanded(
                 child: TextField(
                   controller: syllableController,
-                  decoration: InputDecoration(labelText: l10n.adminSyllabaryMgmtSyllableLabel, isDense: true),
+                  decoration: InputDecoration(
+                    labelText: l10n.adminSyllabaryMgmtSyllableLabel,
+                    isDense: true,
+                  ),
                   onChanged: (v) => widget.row.syllable = v,
                 ),
               ),
@@ -1091,7 +1211,10 @@ class _EditableRowCardState extends State<_EditableRowCard> {
           const SizedBox(height: AppSpacing.sm),
           TextField(
             controller: wordController,
-            decoration: InputDecoration(labelText: l10n.adminSyllabaryMgmtExampleWordLabel, isDense: true),
+            decoration: InputDecoration(
+              labelText: l10n.adminSyllabaryMgmtExampleWordLabel,
+              isDense: true,
+            ),
             onChanged: (v) => widget.row.exampleWord = v.isEmpty ? null : v,
           ),
           const SizedBox(height: AppSpacing.sm),
@@ -1101,7 +1224,8 @@ class _EditableRowCardState extends State<_EditableRowCard> {
               labelText: l10n.adminSyllabaryMgmtFrenchTranslationLabel,
               isDense: true,
             ),
-            onChanged: (v) => widget.row.frenchTranslation = v.isEmpty ? null : v,
+            onChanged: (v) =>
+                widget.row.frenchTranslation = v.isEmpty ? null : v,
           ),
           const SizedBox(height: AppSpacing.sm),
           TextField(
@@ -1110,7 +1234,8 @@ class _EditableRowCardState extends State<_EditableRowCard> {
               labelText: l10n.adminSyllabaryMgmtEnglishTranslationLabel,
               isDense: true,
             ),
-            onChanged: (v) => widget.row.englishTranslation = v.isEmpty ? null : v,
+            onChanged: (v) =>
+                widget.row.englishTranslation = v.isEmpty ? null : v,
           ),
           const SizedBox(height: AppSpacing.sm),
           TextField(

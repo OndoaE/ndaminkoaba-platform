@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'nda_floral_decoration.dart';
 
 /// A premium gradient app bar used consistently across the Administrator
 /// screens. Behaves like a normal [AppBar] (works as `Scaffold.appBar`) but
@@ -36,6 +37,7 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: actions,
       bottom: bottom,
       flexibleSpace: Container(
+        clipBehavior: Clip.hardEdge,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: colors,
@@ -43,12 +45,24 @@ class GradientAppBar extends StatelessWidget implements PreferredSizeWidget {
             end: Alignment.bottomRight,
           ),
         ),
+        child: const Stack(
+          children: [
+            Positioned(
+              top: -20,
+              right: 0,
+              child: NdaFloralDecoration(
+                corner: Alignment.topRight,
+                size: 180,
+                opacity: 0.2,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(
-        kToolbarHeight + (bottom?.preferredSize.height ?? 0),
-      );
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0));
 }

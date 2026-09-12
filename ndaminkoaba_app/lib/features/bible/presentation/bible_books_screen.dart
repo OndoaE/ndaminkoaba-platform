@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -73,7 +74,9 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
       setState(() {
         chapters = fetchedChapters;
         heroImageUrl = images.hero?.imageUrl;
-        coverByKey = {for (final cover in images.covers) cover.bookKey: cover.coverUrl};
+        coverByKey = {
+          for (final cover in images.covers) cover.bookKey: cover.coverUrl,
+        };
         isLoading = false;
       });
     } catch (_) {
@@ -101,12 +104,17 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
 
   GospelBook? get _firstAvailableGospel {
     for (final gospel in GospelBook.values) {
-      if (consolidatedChaptersForGospel(chapters, gospel).isNotEmpty) return gospel;
+      if (consolidatedChaptersForGospel(chapters, gospel).isNotEmpty)
+        return gospel;
     }
     return null;
   }
 
-  void _openBook(String book, List<BibleChapterInfo> bookChapters, String displayName) {
+  void _openBook(
+    String book,
+    List<BibleChapterInfo> bookChapters,
+    String displayName,
+  ) {
     if (bookChapters.length == 1) {
       context.push(
         '/bible/${Uri.encodeComponent(book)}/${bookChapters.first.chapter}',
@@ -127,18 +135,27 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
     VoidCallback? onStartReading;
     if (firstGospel != null) {
       onStartReading = () {
-        final gospelChapters = consolidatedChaptersForGospel(chapters, firstGospel);
-        final displayName = isFrench ? firstGospel.displayNameFr : firstGospel.displayNameEn;
+        final gospelChapters = consolidatedChaptersForGospel(
+          chapters,
+          firstGospel,
+        );
+        final displayName = isFrench
+            ? firstGospel.displayNameFr
+            : firstGospel.displayNameEn;
         _openBook(gospelChapters.first.book, gospelChapters, displayName);
       };
     }
 
     final visibleGospels = GospelBook.values
-        .where((gospel) => _matchesSearch(isFrench ? gospel.displayNameFr : gospel.displayNameEn))
+        .where(
+          (gospel) => _matchesSearch(
+            isFrench ? gospel.displayNameFr : gospel.displayNameEn,
+          ),
+        )
         .toList();
     final visibleOtherBooks = _otherBooks.where(_matchesSearch).toList();
 
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Text(l10n.bibleTitle),
@@ -153,134 +170,165 @@ class _BibleBooksScreenState extends ConsumerState<BibleBooksScreen> {
                 child: ShimmerListLoader(itemCount: 4, itemHeight: 100),
               )
             : hasError
-                ? Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: EmptyState(
-                      icon: Icons.wifi_off_outlined,
-                      iconColor: AppColors.error,
-                      title: l10n.commonSomethingWrong,
-                      action: PrimaryButton(
-                        label: l10n.commonRetry,
-                        onPressed: load,
-                      ),
-                    ),
-                  )
-                : chapters.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: EmptyState(
-                      icon: Icons.menu_book_outlined,
-                      iconColor: AppColors.scripture,
-                      title: l10n.bibleNoContentTitle,
-                      message: l10n.bibleNoContentMessage,
-                      lottieAsset: 'assets/lottie/bible_open.json',
-                    ),
-                  )
-                : ListView(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
+            ? Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: EmptyState(
+                  icon: Icons.wifi_off_outlined,
+                  iconColor: AppColors.error,
+                  title: l10n.commonSomethingWrong,
+                  action: PrimaryButton(
+                    label: l10n.commonRetry,
+                    onPressed: load,
+                  ),
+                ),
+              )
+            : chapters.isEmpty
+            ? Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: EmptyState(
+                  icon: Icons.menu_book_outlined,
+                  iconColor: AppColors.scripture,
+                  title: l10n.bibleNoContentTitle,
+                  message: l10n.bibleNoContentMessage,
+                  lottieAsset: 'assets/lottie/bible_open.json',
+                ),
+              )
+            : ListView(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                children: [
+                  _BibleHero(
+                    imageUrl: heroImageUrl,
+                    onStartReading: onStartReading,
+                  ),
+                  const SizedBox(height: AppSpacing.xl),
+                  PremiumTextField(
+                    controller: searchController,
+                    hint: l10n.bibleSearchHint,
+                    prefixIcon: Icons.search,
+                    onChanged: (value) => setState(() => searchQuery = value),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Wrap(
+                    spacing: AppSpacing.sm,
+                    runSpacing: AppSpacing.sm,
                     children: [
-                      _BibleHero(imageUrl: heroImageUrl, onStartReading: onStartReading),
-                      const SizedBox(height: AppSpacing.xl),
-                      PremiumTextField(
-                        controller: searchController,
-                        hint: l10n.bibleSearchHint,
-                        prefixIcon: Icons.search,
-                        onChanged: (value) => setState(() => searchQuery = value),
+                      ChoiceChip(
+                        label: Text(l10n.bibleLanguagePillEwondo),
+                        selected: true,
+                        onSelected: null,
+                        selectedColor: AppColors.scripture,
+                        showCheckmark: false,
+                        shape: const StadiumBorder(),
+                        labelStyle: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      const SizedBox(height: AppSpacing.sm),
-                      Wrap(
-                        spacing: AppSpacing.sm,
-                        runSpacing: AppSpacing.sm,
-                        children: [
-                          ChoiceChip(
-                            label: Text(l10n.bibleLanguagePillEwondo),
-                            selected: true,
-                            onSelected: null,
-                            selectedColor: AppColors.scripture,
-                            showCheckmark: false,
-                            shape: const StadiumBorder(),
-                            labelStyle: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      ChoiceChip(
+                        label: Text(l10n.bibleLanguagePillFrench),
+                        selected: isFrench,
+                        onSelected: (_) =>
+                            setAppLocale(ref, const Locale('fr')),
+                        selectedColor: AppColors.scripture,
+                        showCheckmark: false,
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                            color: isFrench
+                                ? AppColors.scripture
+                                : Colors.black12,
                           ),
-                          ChoiceChip(
-                            label: Text(l10n.bibleLanguagePillFrench),
-                            selected: isFrench,
-                            onSelected: (_) => setAppLocale(ref, const Locale('fr')),
-                            selectedColor: AppColors.scripture,
-                            showCheckmark: false,
-                            shape: StadiumBorder(
-                              side: BorderSide(color: isFrench ? AppColors.scripture : Colors.black12),
-                            ),
-                            labelStyle: TextStyle(
-                              color: isFrench ? Colors.white : AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          ChoiceChip(
-                            label: Text(l10n.bibleLanguagePillEnglish),
-                            selected: !isFrench,
-                            onSelected: (_) => setAppLocale(ref, const Locale('en')),
-                            selectedColor: AppColors.scripture,
-                            showCheckmark: false,
-                            shape: StadiumBorder(
-                              side: BorderSide(color: !isFrench ? AppColors.scripture : Colors.black12),
-                            ),
-                            labelStyle: TextStyle(
-                              color: !isFrench ? Colors.white : AppColors.textPrimary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ],
+                        ),
+                        labelStyle: TextStyle(
+                          color: isFrench
+                              ? Colors.white
+                              : AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                      if (visibleGospels.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.xl),
-                        SectionTitle(
-                          title: l10n.bibleFourGospelsTitle,
-                          subtitle: l10n.bibleFourGospelsSubtitle,
+                      ChoiceChip(
+                        label: Text(l10n.bibleLanguagePillEnglish),
+                        selected: !isFrench,
+                        onSelected: (_) =>
+                            setAppLocale(ref, const Locale('en')),
+                        selectedColor: AppColors.scripture,
+                        showCheckmark: false,
+                        shape: StadiumBorder(
+                          side: BorderSide(
+                            color: !isFrench
+                                ? AppColors.scripture
+                                : Colors.black12,
+                          ),
                         ),
-                        const SizedBox(height: AppSpacing.md),
-                        _BibleBookGrid(
-                          cards: visibleGospels.map((gospel) {
-                            final gospelChapters = consolidatedChaptersForGospel(chapters, gospel);
-                            final displayName = isFrench ? gospel.displayNameFr : gospel.displayNameEn;
-
-                            return _BibleBookCard(
-                              title: displayName,
-                              chapterCount: gospelChapters.length,
-                              coverUrl: coverByKey[gospel.name.toUpperCase()],
-                              comingSoonLabel: l10n.bibleComingSoonLabel,
-                              chaptersLabel: l10n.bibleChaptersCountLabel(gospelChapters.length),
-                              onTap: gospelChapters.isEmpty
-                                  ? null
-                                  : () => _openBook(
-                                        gospelChapters.first.book,
-                                        gospelChapters,
-                                        displayName,
-                                      ),
-                            );
-                          }).toList(),
+                        labelStyle: TextStyle(
+                          color: !isFrench
+                              ? Colors.white
+                              : AppColors.textPrimary,
+                          fontWeight: FontWeight.w600,
                         ),
-                      ],
-                      if (visibleOtherBooks.isNotEmpty) ...[
-                        const SizedBox(height: AppSpacing.xl),
-                        SectionTitle(title: l10n.bibleOtherBooksTitle),
-                        const SizedBox(height: AppSpacing.md),
-                        _BibleBookGrid(
-                          cards: visibleOtherBooks.map((book) {
-                            final bookChapters = chapters.where((c) => c.book == book).toList();
-                            return _BibleBookCard(
-                              title: book,
-                              chapterCount: bookChapters.length,
-                              coverUrl: coverByKey[book],
-                              comingSoonLabel: l10n.bibleComingSoonLabel,
-                              chaptersLabel: l10n.bibleChaptersCountLabel(bookChapters.length),
-                              onTap: () => _openBook(book, bookChapters, book),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                      const SizedBox(height: AppSpacing.xl),
+                      ),
                     ],
                   ),
+                  if (visibleGospels.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xl),
+                    SectionTitle(
+                      title: l10n.bibleFourGospelsTitle,
+                      subtitle: l10n.bibleFourGospelsSubtitle,
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    _BibleBookGrid(
+                      cards: visibleGospels.map((gospel) {
+                        final gospelChapters = consolidatedChaptersForGospel(
+                          chapters,
+                          gospel,
+                        );
+                        final displayName = isFrench
+                            ? gospel.displayNameFr
+                            : gospel.displayNameEn;
+
+                        return _BibleBookCard(
+                          title: displayName,
+                          chapterCount: gospelChapters.length,
+                          coverUrl: coverByKey[gospel.name.toUpperCase()],
+                          comingSoonLabel: l10n.bibleComingSoonLabel,
+                          chaptersLabel: l10n.bibleChaptersCountLabel(
+                            gospelChapters.length,
+                          ),
+                          onTap: gospelChapters.isEmpty
+                              ? null
+                              : () => _openBook(
+                                  gospelChapters.first.book,
+                                  gospelChapters,
+                                  displayName,
+                                ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  if (visibleOtherBooks.isNotEmpty) ...[
+                    const SizedBox(height: AppSpacing.xl),
+                    SectionTitle(title: l10n.bibleOtherBooksTitle),
+                    const SizedBox(height: AppSpacing.md),
+                    _BibleBookGrid(
+                      cards: visibleOtherBooks.map((book) {
+                        final bookChapters = chapters
+                            .where((c) => c.book == book)
+                            .toList();
+                        return _BibleBookCard(
+                          title: book,
+                          chapterCount: bookChapters.length,
+                          coverUrl: coverByKey[book],
+                          comingSoonLabel: l10n.bibleComingSoonLabel,
+                          chaptersLabel: l10n.bibleChaptersCountLabel(
+                            bookChapters.length,
+                          ),
+                          onTap: () => _openBook(book, bookChapters, book),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                  const SizedBox(height: AppSpacing.xl),
+                ],
+              ),
       ),
     );
   }
@@ -317,7 +365,9 @@ class _BibleHero extends StatelessWidget {
                     AppConfig.resolveUrl(imageUrl!),
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stack) => const DecoratedBox(
-                      decoration: BoxDecoration(gradient: AppGradients.scripture),
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.scripture,
+                      ),
                     ),
                   )
                 : const DecoratedBox(
@@ -333,7 +383,9 @@ class _BibleHero extends StatelessWidget {
           if (hasImage)
             Positioned.fill(
               child: DecoratedBox(
-                decoration: BoxDecoration(color: Colors.black.withValues(alpha: 0.38)),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.38),
+                ),
               ),
             ),
           const Positioned.fill(
@@ -375,7 +427,10 @@ class _BibleHero extends StatelessWidget {
                     style: FilledButton.styleFrom(
                       backgroundColor: AppColors.scripture,
                       foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.lg,
+                        vertical: AppSpacing.md,
+                      ),
                       shape: const StadiumBorder(),
                     ),
                     child: Row(
@@ -475,14 +530,23 @@ class _BibleBookCard extends StatelessWidget {
                         ? Image.network(
                             AppConfig.resolveUrl(coverUrl!),
                             fit: BoxFit.cover,
-                            errorBuilder: (context, error, stack) => const DecoratedBox(
-                              decoration: BoxDecoration(gradient: AppGradients.scripture),
-                            ),
+                            errorBuilder: (context, error, stack) =>
+                                const DecoratedBox(
+                                  decoration: BoxDecoration(
+                                    gradient: AppGradients.scripture,
+                                  ),
+                                ),
                           )
                         : const DecoratedBox(
-                            decoration: BoxDecoration(gradient: AppGradients.scripture),
+                            decoration: BoxDecoration(
+                              gradient: AppGradients.scripture,
+                            ),
                             child: Center(
-                              child: Icon(Icons.menu_book, color: Colors.white54, size: 36),
+                              child: Icon(
+                                Icons.menu_book,
+                                color: Colors.white54,
+                                size: 36,
+                              ),
                             ),
                           ),
                     Positioned(
@@ -497,14 +561,21 @@ class _BibleBookCard extends StatelessWidget {
                           boxShadow: AppShadows.soft,
                         ),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.menu_book, color: Colors.white, size: 13),
+                        child: const Icon(
+                          Icons.menu_book,
+                          color: Colors.white,
+                          size: 13,
+                        ),
                       ),
                     ),
                   ],
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.sm),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.sm,
+                  vertical: AppSpacing.sm,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
@@ -519,7 +590,9 @@ class _BibleBookCard extends StatelessWidget {
                     Text(
                       available ? chaptersLabel : comingSoonLabel,
                       style: AppTypography.caption.copyWith(
-                        color: available ? AppColors.scripture : AppColors.textSecondary,
+                        color: available
+                            ? AppColors.scripture
+                            : AppColors.textSecondary,
                         fontWeight: FontWeight.w600,
                         fontSize: 11,
                       ),

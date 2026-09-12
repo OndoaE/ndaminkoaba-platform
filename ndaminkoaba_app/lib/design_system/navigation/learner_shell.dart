@@ -13,7 +13,11 @@ import 'learner_sidebar.dart';
 /// inside [child] — this shell only supplies the sidebar/drawer and, on
 /// narrow layouts, a minimal hamburger row above the screen's own content.
 class LearnerShell extends StatelessWidget {
-  const LearnerShell({super.key, required this.activeNavKey, required this.child});
+  const LearnerShell({
+    super.key,
+    required this.activeNavKey,
+    required this.child,
+  });
 
   final String activeNavKey;
   final Widget child;
@@ -39,7 +43,7 @@ class LearnerShell extends StatelessWidget {
         return Scaffold(
           backgroundColor: AppColors.background,
           drawer: Drawer(
-            width: 248,
+            width: 280,
             backgroundColor: AppColors.primary,
             child: Builder(
               builder: (drawerContext) => LearnerSidebar(
@@ -53,12 +57,20 @@ class LearnerShell extends StatelessWidget {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.sm, AppSpacing.xs, AppSpacing.sm, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.sm,
+                    AppSpacing.xs,
+                    AppSpacing.sm,
+                    0,
+                  ),
                   child: Row(
                     children: [
                       Builder(
                         builder: (barContext) => IconButton(
-                          icon: const Icon(Icons.menu, color: AppColors.textPrimary),
+                          icon: const Icon(
+                            Icons.menu,
+                            color: AppColors.textPrimary,
+                          ),
                           onPressed: () => Scaffold.of(barContext).openDrawer(),
                         ),
                       ),

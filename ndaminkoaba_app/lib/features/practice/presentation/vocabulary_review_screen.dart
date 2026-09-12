@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
@@ -118,7 +119,7 @@ class _VocabularyReviewScreenState
     final l10n = AppLocalizations.of(context);
 
     if (completed) {
-      return Scaffold(
+      return NdaScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: AppColors.background,
@@ -172,7 +173,7 @@ class _VocabularyReviewScreenState
     final word = widget.items[index].vocabulary;
     final meaning = isFrench ? word.frenchMeaning : word.englishMeaning;
 
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: AppColors.background,

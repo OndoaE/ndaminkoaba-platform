@@ -9,14 +9,21 @@ import '../spacing/app_spacing.dart';
 /// Shared top section for the Login and Signup screens — the app
 /// logo/wordmark pinned top-left, and a language pill pinned top-right.
 class AuthHeader extends ConsumerWidget {
-  const AuthHeader({super.key, required this.title, required this.tagline});
+  const AuthHeader({
+    super.key,
+    required this.title,
+    required this.tagline,
+    this.large = false,
+  });
 
+  final bool large;
   final String title;
   final String tagline;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider).languageCode;
+    final expanded = large && MediaQuery.sizeOf(context).width >= 650;
 
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -24,8 +31,8 @@ class AuthHeader extends ConsumerWidget {
         ClipOval(
           child: Image.asset(
             'assets/images/ndaminkoaba_logo.png',
-            width: 64,
-            height: 64,
+            width: expanded ? 80 : 48,
+            height: expanded ? 80 : 48,
             fit: BoxFit.cover,
             errorBuilder: (_, __, ___) => const CircleAvatar(
               radius: 32,
@@ -45,19 +52,19 @@ class AuthHeader extends ConsumerWidget {
                 child: Text(
                   title,
                   maxLines: 1,
-                  style: const TextStyle(
+                  style: TextStyle(
                     color: AppColors.primary,
                     fontWeight: FontWeight.w800,
-                    fontSize: 22,
+                    fontSize: expanded ? 28 : 22,
                   ),
                 ),
               ),
               Text(
                 tagline,
-                style: const TextStyle(
+                style: TextStyle(
                   color: AppColors.secondary,
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontSize: expanded ? 15 : 12,
                 ),
               ),
             ],
@@ -67,7 +74,10 @@ class AuthHeader extends ConsumerWidget {
           borderRadius: AppRadius.circle,
           onTap: () => setAppLocale(ref, Locale(locale == 'en' ? 'fr' : 'en')),
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: 6),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.md,
+              vertical: 6,
+            ),
             decoration: BoxDecoration(
               color: AppColors.background,
               border: Border.all(color: AppColors.divider),
@@ -78,9 +88,17 @@ class AuthHeader extends ConsumerWidget {
               children: [
                 Text(
                   locale.toUpperCase(),
-                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 13),
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
-                const Icon(Icons.expand_more, size: 18, color: AppColors.primary),
+                const Icon(
+                  Icons.expand_more,
+                  size: 18,
+                  color: AppColors.primary,
+                ),
               ],
             ),
           ),

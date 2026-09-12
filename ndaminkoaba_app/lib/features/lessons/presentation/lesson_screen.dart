@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -393,7 +394,7 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
   Widget build(BuildContext context) {
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
 
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Builder(
@@ -445,650 +446,662 @@ class _LessonScreenState extends ConsumerState<LessonScreen> {
                 ? quiz!.questions.first
                 : null;
 
-            return PageWidth(child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AppHeader(
-                    onBack: () => Navigator.pop(context),
-                    title: l10n.lessonNumberLabel(currentLesson.orderNumber),
-                    trailing: userId != null && !isOfflineFallback
-                        ? InkWell(
-                            borderRadius: AppRadius.circle,
-                            onTap: _toggleBookmark,
-                            child: Icon(
-                              bookmarkId != null
-                                  ? Icons.bookmark
-                                  : Icons.bookmark_border,
-                              color: bookmarkId != null
-                                  ? AppColors.secondary
-                                  : AppColors.textPrimary,
-                            ),
-                          )
-                        : null,
-                  ),
-                  if (isOfflineFallback) ...[
-                    const SizedBox(height: AppSpacing.md),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.md,
-                        vertical: AppSpacing.sm,
-                      ),
-                      decoration: BoxDecoration(
-                        color: AppColors.secondary.withValues(alpha: 0.12),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.cloud_off,
-                            size: 18,
-                            color: AppColors.secondary,
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                          Expanded(
-                            child: Text(
-                              l10n.downloadedOfflineLabel,
-                              style: AppTypography.caption.copyWith(
-                                color: AppColors.secondary,
-                                fontWeight: FontWeight.w700,
+            return PageWidth(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AppHeader(
+                      onBack: () => Navigator.pop(context),
+                      title: l10n.lessonNumberLabel(currentLesson.orderNumber),
+                      trailing: userId != null && !isOfflineFallback
+                          ? InkWell(
+                              borderRadius: AppRadius.circle,
+                              onTap: _toggleBookmark,
+                              child: Icon(
+                                bookmarkId != null
+                                    ? Icons.bookmark
+                                    : Icons.bookmark_border,
+                                color: bookmarkId != null
+                                    ? AppColors.secondary
+                                    : AppColors.textPrimary,
                               ),
-                            ),
-                          ),
-                        ],
-                      ),
+                            )
+                          : null,
                     ),
-                  ],
-                  const SizedBox(height: AppSpacing.lg),
-                  if (total > 1) ...[
-                    Text(
-                      '${currentIndex + 1} of $total',
-                      style: AppTypography.caption,
-                    ),
-                    const SizedBox(height: AppSpacing.xs),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(100),
-                      child: LinearProgressIndicator(
-                        value: (currentIndex + 1) / total,
-                        minHeight: 6,
-                        backgroundColor: AppColors.progressRingTrack,
-                        valueColor: const AlwaysStoppedAnimation(
-                          AppColors.secondary,
+                    if (isOfflineFallback) ...[
+                      const SizedBox(height: AppSpacing.md),
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
                         ),
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                  ],
-                  if (levelLabel != null || moduleTitle != null)
-                    Text(
-                      [levelLabel, moduleTitle].whereType<String>().join(' • '),
-                      style: AppTypography.caption,
-                    ),
-                  const SizedBox(height: AppSpacing.lg),
-
-                  // Hero: today's lesson
-                  Container(
-                    width: double.infinity,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.primary,
-                      borderRadius: AppRadius.large,
-                    ),
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Stack(
-                      children: [
-                        const GoldCornerPattern(color: Colors.white),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        decoration: BoxDecoration(
+                          color: AppColors.secondary.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    l10n.todaysLessonLabel,
-                                    style: TextStyle(
-                                      color: AppColors.secondary.withValues(
-                                        alpha: 0.9,
-                                      ),
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 11,
-                                      letterSpacing: 1,
-                                    ),
-                                  ),
-                                  const SizedBox(height: AppSpacing.xs),
-                                  Text(
-                                    localizedText(
-                                      currentLesson.title,
-                                      currentLesson.frenchTitle,
-                                      isFrench,
-                                    ),
-                                    style: AppTypography.h1.copyWith(
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  if (lessonSummary.isNotEmpty) ...[
-                                    const SizedBox(height: AppSpacing.xs),
-                                    Text(
-                                      lessonSummary,
-                                      style: TextStyle(
-                                        color: Colors.white.withValues(
-                                          alpha: 0.85,
-                                        ),
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
-                            ),
                             const Icon(
-                              Icons.forum_outlined,
-                              color: Colors.white54,
-                              size: 36,
+                              Icons.cloud_off,
+                              size: 18,
+                              color: AppColors.secondary,
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Expanded(
+                              child: Text(
+                                l10n.downloadedOfflineLabel,
+                                style: AppTypography.caption.copyWith(
+                                  color: AppColors.secondary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
                             ),
                           ],
                         ),
-                      ],
-                    ),
-                  ),
-
-                  // Listen and Repeat
-                  if (primaryWord != null) ...[
-                    const SizedBox(height: AppSpacing.xl),
-                    PremiumCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.listenAndRepeatTitle,
-                            style: AppTypography.title,
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.lg),
+                    if (total > 1) ...[
+                      Text(
+                        '${currentIndex + 1} of $total',
+                        style: AppTypography.caption,
+                      ),
+                      const SizedBox(height: AppSpacing.xs),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(100),
+                        child: LinearProgressIndicator(
+                          value: (currentIndex + 1) / total,
+                          minHeight: 6,
+                          backgroundColor: AppColors.progressRingTrack,
+                          valueColor: const AlwaysStoppedAnimation(
+                            AppColors.secondary,
                           ),
-                          const SizedBox(height: AppSpacing.md),
+                        ),
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                    ],
+                    if (levelLabel != null || moduleTitle != null)
+                      Text(
+                        [
+                          levelLabel,
+                          moduleTitle,
+                        ].whereType<String>().join(' • '),
+                        style: AppTypography.caption,
+                      ),
+                    const SizedBox(height: AppSpacing.lg),
+
+                    // Hero: today's lesson
+                    Container(
+                      width: double.infinity,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.primary,
+                        borderRadius: AppRadius.large,
+                      ),
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      child: Stack(
+                        children: [
+                          const GoldCornerPattern(color: Colors.white),
                           Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              if ((primaryWord.audioUrl ?? '').isNotEmpty)
-                                InkWell(
-                                  borderRadius: AppRadius.circle,
-                                  onTap: () => _playAudio(
-                                    primaryWord.audioUrl!,
-                                    localPath:
-                                        offlineVocabAudioPaths[primaryWord.id],
-                                  ),
-                                  child: Container(
-                                    width: 48,
-                                    height: 48,
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.secondary,
-                                      ),
-                                    ),
-                                    child: const Icon(
-                                      Icons.volume_up,
-                                      color: AppColors.secondary,
-                                    ),
-                                  ),
-                                ),
-                              const SizedBox(width: AppSpacing.lg),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      primaryWord.word,
-                                      style: AppTypography.h2.copyWith(
-                                        color: AppColors.primary,
+                                      l10n.todaysLessonLabel,
+                                      style: TextStyle(
+                                        color: AppColors.secondary.withValues(
+                                          alpha: 0.9,
+                                        ),
+                                        fontWeight: FontWeight.w800,
+                                        fontSize: 11,
+                                        letterSpacing: 1,
                                       ),
                                     ),
-                                    if ((primaryWord.phoneticTranscription ??
-                                            '')
-                                        .isNotEmpty)
+                                    const SizedBox(height: AppSpacing.xs),
+                                    Text(
+                                      localizedText(
+                                        currentLesson.title,
+                                        currentLesson.frenchTitle,
+                                        isFrench,
+                                      ),
+                                      style: AppTypography.h1.copyWith(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    if (lessonSummary.isNotEmpty) ...[
+                                      const SizedBox(height: AppSpacing.xs),
                                       Text(
-                                        '/${primaryWord.phoneticTranscription}/',
-                                        style: AppTypography.caption.copyWith(
-                                          fontStyle: FontStyle.italic,
+                                        lessonSummary,
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.85,
+                                          ),
+                                          fontSize: 13,
                                         ),
                                       ),
-                                    Text(
-                                      (isFrench
-                                              ? primaryWord.frenchMeaning
-                                              : primaryWord.englishMeaning) ??
-                                          '',
-                                      style: AppTypography.caption,
-                                    ),
+                                    ],
                                   ],
                                 ),
                               ),
+                              const Icon(
+                                Icons.forum_outlined,
+                                color: Colors.white54,
+                                size: 36,
+                              ),
                             ],
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            l10n.tapSpeakerRepeatCaption,
-                            style: AppTypography.caption,
                           ),
                         ],
                       ),
                     ),
-                  ],
 
-                  // Your Pronunciation
-                  if (primaryWord != null) ...[
-                    const SizedBox(height: AppSpacing.xl),
-                    PronunciationRecorder(
-                      targetText: primaryWord.word,
-                      vocabularyId: primaryWord.id,
-                      lessonId: currentLesson.id,
-                      onNewlyEarnedBadges: _onBadgesEarned,
-                    ),
-                  ],
-
-                  const SizedBox(height: AppSpacing.xl),
-                  PremiumCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (currentLesson.audioUrl.isNotEmpty) ...[
-                          InkWell(
-                            borderRadius: AppRadius.circle,
-                            onTap: () => _playAudio(
-                              currentLesson.audioUrl,
-                              localPath: offlineLessonAudioPath,
+                    // Listen and Repeat
+                    if (primaryWord != null) ...[
+                      const SizedBox(height: AppSpacing.xl),
+                      PremiumCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.listenAndRepeatTitle,
+                              style: AppTypography.title,
                             ),
-                            child: Container(
-                              width: 40,
-                              height: 40,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.1),
-                                shape: BoxShape.circle,
-                              ),
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.volume_up,
-                                color: AppColors.primary,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                        ],
-                        lessonContent.isNotEmpty
-                            ? MarkdownBody(
-                                data: lessonContent,
-                                styleSheet: MarkdownStyleSheet(
-                                  p: AppTypography.lessonBody,
-                                  strong: AppTypography.lessonBodyStrong,
-                                ),
-                                softLineBreak: true,
-                                inlineSyntaxes: ndaMarkdownInlineSyntaxes,
-                                builders: ndaMarkdownBuilders,
-                                onTapLink: ndaMarkdownOnTapLink,
-                              )
-                            : Text(
-                                l10n.lessonNoContent,
-                                style: AppTypography.lessonBody,
-                              ),
-                      ],
-                    ),
-                  ),
-
-                  if (lessonImages.isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.xl),
-                    PremiumCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.illustratedWordsTitle,
-                            style: AppTypography.title,
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          SizedBox(
-                            height: 150,
-                            child: ListView.separated(
-                              scrollDirection: Axis.horizontal,
-                              itemCount: lessonImages.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: AppSpacing.md),
-                              itemBuilder: (context, index) {
-                                final image = lessonImages[index];
-                                return SizedBox(
-                                  width: 110,
+                            const SizedBox(height: AppSpacing.md),
+                            Row(
+                              children: [
+                                if ((primaryWord.audioUrl ?? '').isNotEmpty)
+                                  InkWell(
+                                    borderRadius: AppRadius.circle,
+                                    onTap: () => _playAudio(
+                                      primaryWord.audioUrl!,
+                                      localPath:
+                                          offlineVocabAudioPaths[primaryWord
+                                              .id],
+                                    ),
+                                    child: Container(
+                                      width: 48,
+                                      height: 48,
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        border: Border.all(
+                                          color: AppColors.secondary,
+                                        ),
+                                      ),
+                                      child: const Icon(
+                                        Icons.volume_up,
+                                        color: AppColors.secondary,
+                                      ),
+                                    ),
+                                  ),
+                                const SizedBox(width: AppSpacing.lg),
+                                Expanded(
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      Expanded(
-                                        child: ClipRRect(
-                                          borderRadius: AppRadius.medium,
-                                          child:
-                                              offlineImagePaths.containsKey(
-                                                image.id,
-                                              )
-                                              ? Image.file(
-                                                  File(
-                                                    offlineImagePaths[image
-                                                        .id]!,
-                                                  ),
-                                                  width: 110,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) => Container(
-                                                        color:
-                                                            AppColors.surface,
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: const Icon(
-                                                          Icons
-                                                              .broken_image_outlined,
-                                                        ),
-                                                      ),
-                                                )
-                                              : Image.network(
-                                                  AppConfig.resolveUrl(
-                                                    image.imageUrl,
-                                                  ),
-                                                  width: 110,
-                                                  fit: BoxFit.cover,
-                                                  errorBuilder:
-                                                      (
-                                                        context,
-                                                        error,
-                                                        stackTrace,
-                                                      ) => Container(
-                                                        color:
-                                                            AppColors.surface,
-                                                        alignment:
-                                                            Alignment.center,
-                                                        child: const Icon(
-                                                          Icons
-                                                              .broken_image_outlined,
-                                                        ),
-                                                      ),
-                                                ),
+                                      Text(
+                                        primaryWord.word,
+                                        style: AppTypography.h2.copyWith(
+                                          color: AppColors.primary,
                                         ),
                                       ),
-                                      const SizedBox(height: AppSpacing.xs),
-                                      Text(
-                                        image.word,
-                                        style: AppTypography.caption.copyWith(
-                                          color: AppColors.textPrimary,
-                                          fontWeight: FontWeight.w600,
+                                      if ((primaryWord.phoneticTranscription ??
+                                              '')
+                                          .isNotEmpty)
+                                        Text(
+                                          '/${primaryWord.phoneticTranscription}/',
+                                          style: AppTypography.caption.copyWith(
+                                            fontStyle: FontStyle.italic,
+                                          ),
                                         ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
+                                      Text(
+                                        (isFrench
+                                                ? primaryWord.frenchMeaning
+                                                : primaryWord.englishMeaning) ??
+                                            '',
+                                        style: AppTypography.caption,
                                       ),
                                     ],
                                   ),
-                                );
-                              },
+                                ),
+                              ],
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              l10n.tapSpeakerRepeatCaption,
+                              style: AppTypography.caption,
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
 
-                  // In Conversation
-                  if (currentLesson.conversation.isNotEmpty) ...[
+                    // Your Pronunciation
+                    if (primaryWord != null) ...[
+                      const SizedBox(height: AppSpacing.xl),
+                      PronunciationRecorder(
+                        targetText: primaryWord.word,
+                        vocabularyId: primaryWord.id,
+                        lessonId: currentLesson.id,
+                        onNewlyEarnedBadges: _onBadgesEarned,
+                      ),
+                    ],
+
                     const SizedBox(height: AppSpacing.xl),
                     PremiumCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            l10n.inConversationTitle,
-                            style: AppTypography.title,
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          ...currentLesson.conversation.asMap().entries.map((
-                            entry,
-                          ) {
-                            final line = entry.value;
-                            final isSecondSpeaker = entry.key % 2 == 1;
-                            final avatarColor = isSecondSpeaker
-                                ? AppColors.secondary
-                                : AppColors.primary;
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: AppSpacing.sm,
+                          if (currentLesson.audioUrl.isNotEmpty) ...[
+                            InkWell(
+                              borderRadius: AppRadius.circle,
+                              onTap: () => _playAudio(
+                                currentLesson.audioUrl,
+                                localPath: offlineLessonAudioPath,
                               ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  CircleAvatar(
-                                    radius: 16,
-                                    backgroundColor: avatarColor.withValues(
-                                      alpha: 0.15,
-                                    ),
-                                    child: Icon(
-                                      Icons.person,
-                                      color: avatarColor,
-                                      size: 18,
-                                    ),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.1,
                                   ),
-                                  const SizedBox(width: AppSpacing.sm),
-                                  Expanded(
-                                    child: Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: AppSpacing.md,
-                                        vertical: AppSpacing.sm,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: isSecondSpeaker
-                                            ? AppColors.cardAlt
-                                            : AppColors.primary.withValues(
-                                                alpha: 0.08,
-                                              ),
-                                        borderRadius: AppRadius.medium,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            line.text,
-                                            style: AppTypography.body.copyWith(
-                                              fontWeight: FontWeight.w700,
-                                              color: AppColors.primary,
-                                            ),
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.volume_up,
+                                  color: AppColors.primary,
+                                  size: 20,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                          ],
+                          lessonContent.isNotEmpty
+                              ? MarkdownBody(
+                                  data: lessonContent,
+                                  styleSheet: MarkdownStyleSheet(
+                                    p: AppTypography.lessonBody,
+                                    strong: AppTypography.lessonBodyStrong,
+                                  ),
+                                  softLineBreak: true,
+                                  inlineSyntaxes: ndaMarkdownInlineSyntaxes,
+                                  builders: ndaMarkdownBuilders,
+                                  onTapLink: ndaMarkdownOnTapLink,
+                                )
+                              : Text(
+                                  l10n.lessonNoContent,
+                                  style: AppTypography.lessonBody,
+                                ),
+                        ],
+                      ),
+                    ),
+
+                    if (lessonImages.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xl),
+                      PremiumCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.illustratedWordsTitle,
+                              style: AppTypography.title,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            SizedBox(
+                              height: 150,
+                              child: ListView.separated(
+                                scrollDirection: Axis.horizontal,
+                                itemCount: lessonImages.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(width: AppSpacing.md),
+                                itemBuilder: (context, index) {
+                                  final image = lessonImages[index];
+                                  return SizedBox(
+                                    width: 110,
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Expanded(
+                                          child: ClipRRect(
+                                            borderRadius: AppRadius.medium,
+                                            child:
+                                                offlineImagePaths.containsKey(
+                                                  image.id,
+                                                )
+                                                ? Image.file(
+                                                    File(
+                                                      offlineImagePaths[image
+                                                          .id]!,
+                                                    ),
+                                                    width: 110,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder:
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) => Container(
+                                                          color:
+                                                              AppColors.surface,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: const Icon(
+                                                            Icons
+                                                                .broken_image_outlined,
+                                                          ),
+                                                        ),
+                                                  )
+                                                : Image.network(
+                                                    AppConfig.resolveUrl(
+                                                      image.imageUrl,
+                                                    ),
+                                                    width: 110,
+                                                    fit: BoxFit.cover,
+                                                    errorBuilder:
+                                                        (
+                                                          context,
+                                                          error,
+                                                          stackTrace,
+                                                        ) => Container(
+                                                          color:
+                                                              AppColors.surface,
+                                                          alignment:
+                                                              Alignment.center,
+                                                          child: const Icon(
+                                                            Icons
+                                                                .broken_image_outlined,
+                                                          ),
+                                                        ),
+                                                  ),
                                           ),
-                                          if (isFrench &&
-                                              (line.frenchText ?? '')
-                                                  .isNotEmpty)
-                                            Text(
-                                              line.frenchText!,
-                                              style: AppTypography.caption,
-                                            ),
-                                        ],
-                                      ),
+                                        ),
+                                        const SizedBox(height: AppSpacing.xs),
+                                        Text(
+                                          image.word,
+                                          style: AppTypography.caption.copyWith(
+                                            color: AppColors.textPrimary,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                ],
+                                  );
+                                },
                               ),
-                            );
-                          }),
-                        ],
-                      ),
-                    ),
-                  ],
-
-                  // Quick Check (non-scored preview of the real quiz's first question)
-                  if (firstQuestion != null) ...[
-                    const SizedBox(height: AppSpacing.xl),
-                    PremiumCard(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.quickCheckTitle,
-                            style: AppTypography.title,
-                          ),
-                          const SizedBox(height: AppSpacing.sm),
-                          Text(
-                            localizedText(
-                              firstQuestion.questionText,
-                              firstQuestion.frenchQuestionText,
-                              isFrench,
                             ),
-                            style: AppTypography.body,
-                          ),
-                          const SizedBox(height: AppSpacing.md),
-                          ...firstQuestion.choices.map((choice) {
-                            final selected =
-                                quickCheckSelectedChoiceId == choice.id;
-                            final revealed = quickCheckSelectedChoiceId != null;
-                            // isCorrect isn't exposed on the learner-facing
-                            // QuizChoice model (by design — see quiz_screen),
-                            // so this preview only highlights the learner's
-                            // own pick, not right/wrong; the real graded
-                            // check happens in Take Quiz below.
-                            return Padding(
-                              padding: const EdgeInsets.only(
-                                bottom: AppSpacing.sm,
-                              ),
-                              child: InkWell(
-                                borderRadius: AppRadius.medium,
-                                onTap: revealed
-                                    ? null
-                                    : () => setState(
-                                        () => quickCheckSelectedChoiceId =
-                                            choice.id,
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // In Conversation
+                    if (currentLesson.conversation.isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.xl),
+                      PremiumCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.inConversationTitle,
+                              style: AppTypography.title,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            ...currentLesson.conversation.asMap().entries.map((
+                              entry,
+                            ) {
+                              final line = entry.value;
+                              final isSecondSpeaker = entry.key % 2 == 1;
+                              final avatarColor = isSecondSpeaker
+                                  ? AppColors.secondary
+                                  : AppColors.primary;
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: AppSpacing.sm,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      radius: 16,
+                                      backgroundColor: avatarColor.withValues(
+                                        alpha: 0.15,
                                       ),
-                                child: Container(
-                                  width: double.infinity,
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.md,
-                                    vertical: AppSpacing.md,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: selected
-                                        ? AppColors.primary.withValues(
-                                            alpha: 0.1,
-                                          )
-                                        : AppColors.surface,
-                                    borderRadius: AppRadius.medium,
-                                    border: Border.all(
-                                      color: selected
-                                          ? AppColors.primary
-                                          : AppColors.divider,
+                                      child: Icon(
+                                        Icons.person,
+                                        color: avatarColor,
+                                        size: 18,
+                                      ),
                                     ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        selected
-                                            ? Icons.check_circle
-                                            : Icons.circle_outlined,
+                                    const SizedBox(width: AppSpacing.sm),
+                                    Expanded(
+                                      child: Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: AppSpacing.md,
+                                          vertical: AppSpacing.sm,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: isSecondSpeaker
+                                              ? AppColors.cardAlt
+                                              : AppColors.primary.withValues(
+                                                  alpha: 0.08,
+                                                ),
+                                          borderRadius: AppRadius.medium,
+                                        ),
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              line.text,
+                                              style: AppTypography.body
+                                                  .copyWith(
+                                                    fontWeight: FontWeight.w700,
+                                                    color: AppColors.primary,
+                                                  ),
+                                            ),
+                                            if (isFrench &&
+                                                (line.frenchText ?? '')
+                                                    .isNotEmpty)
+                                              Text(
+                                                line.frenchText!,
+                                                style: AppTypography.caption,
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    // Quick Check (non-scored preview of the real quiz's first question)
+                    if (firstQuestion != null) ...[
+                      const SizedBox(height: AppSpacing.xl),
+                      PremiumCard(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.quickCheckTitle,
+                              style: AppTypography.title,
+                            ),
+                            const SizedBox(height: AppSpacing.sm),
+                            Text(
+                              localizedText(
+                                firstQuestion.questionText,
+                                firstQuestion.frenchQuestionText,
+                                isFrench,
+                              ),
+                              style: AppTypography.body,
+                            ),
+                            const SizedBox(height: AppSpacing.md),
+                            ...firstQuestion.choices.map((choice) {
+                              final selected =
+                                  quickCheckSelectedChoiceId == choice.id;
+                              final revealed =
+                                  quickCheckSelectedChoiceId != null;
+                              // isCorrect isn't exposed on the learner-facing
+                              // QuizChoice model (by design — see quiz_screen),
+                              // so this preview only highlights the learner's
+                              // own pick, not right/wrong; the real graded
+                              // check happens in Take Quiz below.
+                              return Padding(
+                                padding: const EdgeInsets.only(
+                                  bottom: AppSpacing.sm,
+                                ),
+                                child: InkWell(
+                                  borderRadius: AppRadius.medium,
+                                  onTap: revealed
+                                      ? null
+                                      : () => setState(
+                                          () => quickCheckSelectedChoiceId =
+                                              choice.id,
+                                        ),
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: AppSpacing.md,
+                                      vertical: AppSpacing.md,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: selected
+                                          ? AppColors.primary.withValues(
+                                              alpha: 0.1,
+                                            )
+                                          : AppColors.surface,
+                                      borderRadius: AppRadius.medium,
+                                      border: Border.all(
                                         color: selected
                                             ? AppColors.primary
-                                            : AppColors.textSecondary,
-                                        size: 20,
+                                            : AppColors.divider,
                                       ),
-                                      const SizedBox(width: AppSpacing.sm),
-                                      Expanded(
-                                        child: Text(
-                                          localizedText(
-                                            choice.choiceText,
-                                            choice.frenchChoiceText,
-                                            isFrench,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(
+                                          selected
+                                              ? Icons.check_circle
+                                              : Icons.circle_outlined,
+                                          color: selected
+                                              ? AppColors.primary
+                                              : AppColors.textSecondary,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: AppSpacing.sm),
+                                        Expanded(
+                                          child: Text(
+                                            localizedText(
+                                              choice.choiceText,
+                                              choice.frenchChoiceText,
+                                              isFrench,
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                    ],
+
+                    const SizedBox(height: AppSpacing.xl),
+                    if (quiz != null && isOfflineFallback) ...[
+                      PrimaryButton(
+                        label: l10n.takeQuizButton,
+                        icon: Icons.quiz,
+                        onPressed: null,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        l10n.quizRequiresConnectivityMessage,
+                        style: AppTypography.caption,
+                        textAlign: TextAlign.center,
+                      ),
+                    ] else if (quiz != null)
+                      PrimaryButton(
+                        label: l10n.takeQuizButton,
+                        icon: Icons.quiz,
+                        onPressed: () async {
+                          final passed = await context.push<bool>(
+                            '/courses/${widget.courseId}/lessons/${currentLesson.id}/quiz',
+                          );
+                          if (passed == true) {
+                            await _completeAndAdvance();
+                          }
+                        },
+                      )
+                    else ...[
+                      Row(
+                        children: [
+                          if (hasPreviousLesson)
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: () => _goToLesson(
+                                  siblingLessons[currentIndex - 1],
+                                ),
+                                icon: const Icon(Icons.arrow_back, size: 16),
+                                label: Text(
+                                  l10n.previousLessonButton,
+                                  style: const TextStyle(fontSize: 12),
+                                ),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: AppSpacing.md,
+                                  ),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: AppRadius.medium,
                                   ),
                                 ),
                               ),
-                            );
-                          }),
+                            )
+                          else
+                            const Spacer(),
+                          if (total > 1) ...[
+                            const SizedBox(width: AppSpacing.sm),
+                            PaginationDots(
+                              count: total,
+                              currentIndex: currentIndex.clamp(0, total - 1),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                          ] else
+                            const SizedBox(width: AppSpacing.md),
+                          Expanded(
+                            child: PrimaryButton(
+                              label: hasNextLesson
+                                  ? l10n.nextLessonButton
+                                  : l10n.finishLessonButton,
+                              icon: hasNextLesson
+                                  ? Icons.arrow_forward
+                                  : Icons.check_circle,
+                              onPressed: _completeAndAdvance,
+                            ),
+                          ),
                         ],
                       ),
-                    ),
+                    ],
                   ],
-
-                  const SizedBox(height: AppSpacing.xl),
-                  if (quiz != null && isOfflineFallback) ...[
-                    PrimaryButton(
-                      label: l10n.takeQuizButton,
-                      icon: Icons.quiz,
-                      onPressed: null,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.quizRequiresConnectivityMessage,
-                      style: AppTypography.caption,
-                      textAlign: TextAlign.center,
-                    ),
-                  ] else if (quiz != null)
-                    PrimaryButton(
-                      label: l10n.takeQuizButton,
-                      icon: Icons.quiz,
-                      onPressed: () async {
-                        final passed = await context.push<bool>(
-                          '/courses/${widget.courseId}/lessons/${currentLesson.id}/quiz',
-                        );
-                        if (passed == true) {
-                          await _completeAndAdvance();
-                        }
-                      },
-                    )
-                  else ...[
-                    Row(
-                      children: [
-                        if (hasPreviousLesson)
-                          Expanded(
-                            child: OutlinedButton.icon(
-                              onPressed: () =>
-                                  _goToLesson(siblingLessons[currentIndex - 1]),
-                              icon: const Icon(Icons.arrow_back, size: 16),
-                              label: Text(
-                                l10n.previousLessonButton,
-                                style: const TextStyle(fontSize: 12),
-                              ),
-                              style: OutlinedButton.styleFrom(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: AppSpacing.md,
-                                ),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: AppRadius.medium,
-                                ),
-                              ),
-                            ),
-                          )
-                        else
-                          const Spacer(),
-                        if (total > 1) ...[
-                          const SizedBox(width: AppSpacing.sm),
-                          PaginationDots(
-                            count: total,
-                            currentIndex: currentIndex.clamp(0, total - 1),
-                          ),
-                          const SizedBox(width: AppSpacing.sm),
-                        ] else
-                          const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: PrimaryButton(
-                            label: hasNextLesson
-                                ? l10n.nextLessonButton
-                                : l10n.finishLessonButton,
-                            icon: hasNextLesson
-                                ? Icons.arrow_forward
-                                : Icons.check_circle,
-                            onPressed: _completeAndAdvance,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ],
+                ),
               ),
-            ));
+            );
           },
         ),
       ),

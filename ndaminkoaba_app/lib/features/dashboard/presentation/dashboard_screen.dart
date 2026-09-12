@@ -17,7 +17,6 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/app_header.dart';
 import '../../../design_system/cards/featured_card.dart';
-import '../../../design_system/widgets/gold_corner_pattern.dart';
 import '../../../design_system/widgets/nda_floral_decoration.dart';
 import '../../../design_system/widgets/nda_gold_divider.dart';
 import '../../../design_system/widgets/nda_page_background.dart';
@@ -151,271 +150,383 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return LearnerShell(
       activeNavKey: 'home',
       child: Scaffold(
-      body: SafeArea(
-        child: NdaPageBackground(
-        child: RefreshIndicator(
-          onRefresh: loadDashboard,
-          child: PageWidth(
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
-              AppSpacing.xl,
-              AppSpacing.xl,
-              AppSpacing.giant,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppHeader(
-                  title: l10n.appTitle,
-                  subtitle: l10n.appTagline,
-                  showAvatar: true,
-                ),
-                const SizedBox(height: AppSpacing.xl),
-                Text(
-                  'Mbolo, $greetingName 👋',
-                  style: AppTypography.h1.copyWith(fontWeight: FontWeight.w800),
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                Text(l10n.dashboardSubtitle, style: AppTypography.caption),
-                const SizedBox(height: AppSpacing.xl),
-
-                if (hasError) ...[
-                  PremiumCard(
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.wifi_off_outlined,
-                          color: AppColors.error,
-                        ),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Text(
-                            l10n.commonSomethingWrong,
-                            style: AppTypography.caption.copyWith(
-                              color: AppColors.error,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+        body: SafeArea(
+          child: NdaPageBackground(
+            decorationSize: 420,
+            opacity: MediaQuery.sizeOf(context).width < 600 ? 0.07 : 0.18,
+            faintCorners: const [Alignment.topRight, Alignment.bottomLeft],
+            child: RefreshIndicator(
+              onRefresh: loadDashboard,
+              child: PageWidth(
+                maxWidth: 952,
+                child: SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.xl,
+                    AppSpacing.xl,
+                    AppSpacing.xl,
+                    AppSpacing.giant,
                   ),
-                  const SizedBox(height: AppSpacing.lg),
-                ],
-
-                if (isLoading)
-                  const ShimmerListLoader(itemCount: 1, itemHeight: 160)
-                else
-                  Container(
-                    width: double.infinity,
-                    clipBehavior: Clip.antiAlias,
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.hero,
-                      borderRadius: AppRadius.large,
-                    ),
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: Stack(
-                      children: [
-                        // Floral crop concentrated on the right side only,
-                        // per the reference — the left/center stays dark
-                        // and clean for the progress text.
-                        Positioned(
-                          top: -40,
-                          bottom: -40,
-                          right: -60,
-                          child: NdaFloralDecoration(
-                            corner: Alignment.centerRight,
-                            size: 260,
-                            opacity: 0.8,
-                            fadeStop: 0.7,
-                          ),
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      AppHeader(
+                        title: l10n.appTitle,
+                        subtitle: l10n.appTagline,
+                        showAvatar: true,
+                        large: true,
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      Text.rich(
+                        TextSpan(
                           children: [
-                            Text(
-                              l10n.dashboardProgressTitle,
-                              style: AppTypography.title.copyWith(
-                                color: Colors.white,
-                              ),
+                            const TextSpan(text: 'Mblo, '),
+                            TextSpan(
+                              text: greetingName,
+                              style: const TextStyle(color: AppColors.primary),
                             ),
-                            const SizedBox(height: AppSpacing.lg),
-                            Row(
-                              children: [
-                                ProgressRing(
-                                  progress: courseProgress / 100,
-                                  centerLabel: '$courseProgress%',
-                                  subLabel: '',
-                                  size: 84,
-                                  strokeWidth: 8,
-                                ),
-                                const SizedBox(width: AppSpacing.lg),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        l10n.lessonsCompletedCount(
-                                          stats?.completedLessons ?? 0,
-                                        ),
-                                        style: AppTypography.title.copyWith(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      const SizedBox(height: AppSpacing.md),
-                                      Container(
-                                        height: 1,
-                                        color: Colors.white24,
-                                      ),
-                                      const SizedBox(height: AppSpacing.md),
-                                      if (streakStats != null)
-                                        StreakBadge(
-                                          days: streakStats!.currentStreak,
-                                        ),
-                                    ],
+                            const TextSpan(text: ' 👋'),
+                          ],
+                        ),
+                        style: AppTypography.h1.copyWith(
+                          fontWeight: FontWeight.w800,
+                          fontSize: MediaQuery.sizeOf(context).width >= 1200
+                              ? 42
+                              : 28,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      Text(
+                        l10n.dashboardSubtitle,
+                        style: AppTypography.caption.copyWith(fontSize: 18),
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+
+                      if (hasError) ...[
+                        PremiumCard(
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.wifi_off_outlined,
+                                color: AppColors.error,
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: Text(
+                                  l10n.commonSomethingWrong,
+                                  style: AppTypography.caption.copyWith(
+                                    color: AppColors.error,
                                   ),
                                 ),
-                              ],
-                            ),
-                          ],
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: AppSpacing.lg),
+                      ],
+
+                      if (isLoading)
+                        const ShimmerListLoader(itemCount: 1, itemHeight: 160)
+                      else
+                        Container(
+                          width: double.infinity,
+                          clipBehavior: Clip.antiAlias,
+                          decoration: BoxDecoration(
+                            gradient: AppGradients.hero,
+                            borderRadius: AppRadius.large,
+                          ),
+                          padding: const EdgeInsets.all(AppSpacing.xl),
+                          child: Stack(
+                            children: [
+                              // Floral crop concentrated on the right side only,
+                              // per the reference — the left/center stays dark
+                              // and clean for the progress text.
+                              Positioned(
+                                top: -40,
+                                bottom: -40,
+                                right: -60,
+                                child: NdaFloralDecoration(
+                                  corner: Alignment.centerRight,
+                                  size: 340,
+                                  opacity:
+                                      MediaQuery.sizeOf(context).width < 600
+                                      ? 0.18
+                                      : 0.8,
+                                  fadeStop: 0.7,
+                                ),
+                              ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    l10n.dashboardProgressTitle,
+                                    style: AppTypography.title.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                  const SizedBox(height: AppSpacing.lg),
+                                  Row(
+                                    children: [
+                                      ProgressRing(
+                                        progress: courseProgress / 100,
+                                        centerLabel: '$courseProgress%',
+                                        subLabel: '',
+                                        size: 112,
+                                        strokeWidth: 14,
+                                        foregroundColor: Colors.white,
+                                        heritageColors: true,
+                                      ),
+                                      const SizedBox(width: AppSpacing.lg),
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              l10n.lessonsCompletedCount(
+                                                stats?.completedLessons ?? 0,
+                                              ),
+                                              style: AppTypography.title
+                                                  .copyWith(
+                                                    color: Colors.white,
+                                                    fontSize: 16,
+                                                  ),
+                                            ),
+                                            const SizedBox(
+                                              height: AppSpacing.md,
+                                            ),
+                                            Container(
+                                              height: 1,
+                                              color: Colors.white24,
+                                            ),
+                                            const SizedBox(
+                                              height: AppSpacing.md,
+                                            ),
+                                            if (streakStats != null)
+                                              StreakBadge(
+                                                days:
+                                                    streakStats!.currentStreak,
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+
+                      if (continueCourse != null) ...[
+                        const SizedBox(height: AppSpacing.xl),
+                        SectionTitle(title: l10n.continueLearningTitle),
+                        const SizedBox(height: AppSpacing.lg),
+                        InkWell(
+                          borderRadius: AppRadius.large,
+                          onTap: () => context.push(
+                            '/courses/${continueCourse!.courseId}',
+                          ),
+                          child: _ContinueLearningCard(
+                            course: continueCourse!,
+                            isFrench: isFrench,
+                          ),
                         ),
                       ],
-                    ),
-                  ),
 
-                if (continueCourse != null) ...[
-                  const SizedBox(height: AppSpacing.xl),
-                  SectionTitle(title: l10n.continueLearningTitle),
-                  const SizedBox(height: AppSpacing.lg),
-                  InkWell(
-                    borderRadius: AppRadius.large,
-                    onTap: () =>
-                        context.push('/courses/${continueCourse!.courseId}'),
-                    child: _ContinueLearningCard(
-                      course: continueCourse!,
-                      isFrench: isFrench,
-                    ),
-                  ),
-                ],
+                      const SizedBox(height: AppSpacing.xl),
+                      _ExploreSectionHeading(
+                        title: l10n.exploreSectionTitle,
+                        subtitle: l10n.exploreSectionSubtitle,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      if (isLoading)
+                        const ShimmerListLoader(itemCount: 2, itemHeight: 160)
+                      else
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            // Two tiles per row above ~420 logical px (matches
+                            // this app's other two-up grids), one per row on
+                            // narrower phones.
+                            final twoUp = constraints.maxWidth >= 650;
+                            final tiles = [
+                              _ExploreTile(
+                                icon: Icons.translate,
+                                color: _exploreVocabColor,
+                                label: l10n.actionVocabulary,
+                                description: l10n.exploreVocabularyDescription,
+                                onTap: () => context.push('/vocabulary'),
+                              ),
+                              _ExploreTile(
+                                icon: Icons.menu_book,
+                                color: _exploreLearnColor,
+                                label: l10n.navLearn,
+                                description: l10n.exploreLearnDescription,
+                                onTap: () => context.push('/learn'),
+                              ),
+                              _ExploreTile(
+                                icon: Icons.auto_stories,
+                                color: _exploreBibleColor,
+                                label: l10n.actionBible,
+                                description: l10n.exploreBibleDescription,
+                                onTap: () => context.push('/bible'),
+                              ),
+                              _ExploreTile(
+                                icon: Icons.local_library,
+                                color: _exploreBooksColor,
+                                label: l10n.actionBooks,
+                                description: l10n.exploreBooksDescription,
+                                onTap: () => context.push('/books'),
+                              ),
+                            ];
+                            // A fixed childAspectRatio grid forced every tile
+                            // into the same height regardless of how many lines
+                            // its description wrapped to -- a 2-line French
+                            // caption at typical phone widths didn't fit, and
+                            // the tile's Clip.antiAlias silently sliced the
+                            // overflow off instead of showing it. Laying tiles
+                            // out in plain Rows/Columns instead lets each one
+                            // size to its own natural content height.
+                            if (!twoUp) {
+                              return Column(
+                                children: [
+                                  for (var i = 0; i < tiles.length; i++) ...[
+                                    if (i > 0)
+                                      const SizedBox(height: AppSpacing.lg),
+                                    tiles[i],
+                                  ],
+                                ],
+                              );
+                            }
+                            Widget row(Widget a, Widget b) => Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Expanded(child: a),
+                                const SizedBox(width: AppSpacing.lg),
+                                Expanded(child: b),
+                              ],
+                            );
+                            return Column(
+                              children: [
+                                row(tiles[0], tiles[1]),
+                                const SizedBox(height: AppSpacing.lg),
+                                row(tiles[2], tiles[3]),
+                              ],
+                            );
+                          },
+                        ),
 
-                const SizedBox(height: AppSpacing.xl),
-                _ExploreSectionHeading(
-                  title: l10n.exploreSectionTitle,
-                  subtitle: l10n.exploreSectionSubtitle,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                if (isLoading)
-                  const ShimmerListLoader(itemCount: 2, itemHeight: 160)
-                else
-                  LayoutBuilder(
-                    builder: (context, constraints) {
-                      // Two tiles per row above ~420 logical px (matches
-                      // this app's other two-up grids), one per row on
-                      // narrower phones.
-                      final twoUp = constraints.maxWidth >= 420;
-                      final tiles = [
-                        _ExploreTile(
-                          icon: Icons.translate,
-                          color: _exploreVocabColor,
-                          label: l10n.actionVocabulary,
-                          description: l10n.exploreVocabularyDescription,
-                          onTap: () => context.push('/vocabulary'),
-                        ),
-                        _ExploreTile(
-                          icon: Icons.menu_book,
-                          color: _exploreLearnColor,
-                          label: l10n.navLearn,
-                          description: l10n.exploreLearnDescription,
-                          onTap: () => context.push('/learn'),
-                        ),
-                        _ExploreTile(
-                          icon: Icons.auto_stories,
-                          color: _exploreBibleColor,
-                          label: l10n.actionBible,
-                          description: l10n.exploreBibleDescription,
-                          onTap: () => context.push('/bible'),
-                        ),
-                        _ExploreTile(
-                          icon: Icons.local_library,
-                          color: _exploreBooksColor,
-                          label: l10n.actionBooks,
-                          description: l10n.exploreBooksDescription,
-                          onTap: () => context.push('/books'),
-                        ),
-                      ];
-                      // A fixed childAspectRatio grid forced every tile
-                      // into the same height regardless of how many lines
-                      // its description wrapped to -- a 2-line French
-                      // caption at typical phone widths didn't fit, and
-                      // the tile's Clip.antiAlias silently sliced the
-                      // overflow off instead of showing it. Laying tiles
-                      // out in plain Rows/Columns instead lets each one
-                      // size to its own natural content height.
-                      if (!twoUp) {
-                        return Column(
-                          children: [
-                            for (var i = 0; i < tiles.length; i++) ...[
-                              if (i > 0) const SizedBox(height: AppSpacing.lg),
-                              tiles[i],
-                            ],
-                          ],
-                        );
-                      }
-                      Widget row(Widget a, Widget b) => Row(
+                      const SizedBox(height: AppSpacing.xl),
+                      InkWell(
+                        borderRadius: AppRadius.large,
+                        onTap: () => context.push('/nnanga'),
+                        child: FeaturedCard(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(child: a),
-                              const SizedBox(width: AppSpacing.lg),
-                              Expanded(child: b),
+                              Row(
+                                children: [
+                                  ClipOval(
+                                    child: Image.asset(
+                                      'assets/icons/nnanga_ai_icon_circle.png',
+                                      width: 48,
+                                      height: 48,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppSpacing.lg),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Text(
+                                          l10n.nnangaTitle,
+                                          style: AppTypography.title,
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                        const SizedBox(height: AppSpacing.xs),
+                                        Text(
+                                          l10n.nnangaPromoSubtitle,
+                                          style: AppTypography.caption,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: AppSpacing.lg),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: AppSpacing.md,
+                                    vertical: AppSpacing.sm,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.primary,
+                                    borderRadius: AppRadius.circle,
+                                  ),
+                                  child: Text(
+                                    l10n.startPracticeButton,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ],
-                          );
-                      return Column(
-                        children: [
-                          row(tiles[0], tiles[1]),
-                          const SizedBox(height: AppSpacing.lg),
-                          row(tiles[2], tiles[3]),
-                        ],
-                      );
-                    },
-                  ),
+                          ),
+                        ),
+                      ),
 
-                const SizedBox(height: AppSpacing.xl),
-                InkWell(
-                  borderRadius: AppRadius.large,
-                  onTap: () => context.push('/nnanga'),
-                  child: FeaturedCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
+                      const SizedBox(height: AppSpacing.xl),
+                      SectionTitle(title: l10n.phraseOfDayTitle),
+                      const SizedBox(height: AppSpacing.lg),
+                      PremiumCard(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            ClipOval(
-                              child: Image.asset(
-                                'assets/icons/nnanga_ai_icon_circle.png',
-                                width: 48,
-                                height: 48,
-                                fit: BoxFit.cover,
+                            Container(
+                              width: 52,
+                              height: 52,
+                              decoration: BoxDecoration(
+                                color: AppColors.secondary.withValues(
+                                  alpha: 0.15,
+                                ),
+                                borderRadius: AppRadius.medium,
+                              ),
+                              alignment: Alignment.center,
+                              child: const Icon(
+                                Icons.wb_sunny_outlined,
+                                color: AppColors.secondary,
                               ),
                             ),
                             const SizedBox(width: AppSpacing.lg),
                             Expanded(
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Text(
-                                    l10n.nnangaTitle,
-                                    style: AppTypography.title,
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                    dailyWord?.word ?? 'Mbɔ́',
+                                    style: AppTypography.h2.copyWith(
+                                      color: AppColors.primary,
+                                    ),
                                   ),
                                   const SizedBox(height: AppSpacing.xs),
                                   Text(
-                                    l10n.nnangaPromoSubtitle,
+                                    dailyWord == null
+                                        ? l10n.dailyWordMeaning
+                                        : (isFrench
+                                                  ? dailyWord!.frenchMeaning
+                                                  : dailyWord!
+                                                        .englishMeaning) ??
+                                              l10n.bibleTranslationPending,
                                     style: AppTypography.caption,
                                   ),
                                 ],
@@ -423,170 +534,102 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: AppSpacing.lg),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: AppSpacing.md,
-                              vertical: AppSpacing.sm,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.primary,
-                              borderRadius: AppRadius.circle,
-                            ),
-                            child: Text(
-                              l10n.startPracticeButton,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w700,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: AppSpacing.xl),
-                SectionTitle(title: l10n.phraseOfDayTitle),
-                const SizedBox(height: AppSpacing.lg),
-                PremiumCard(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: AppColors.secondary.withValues(alpha: 0.15),
-                          borderRadius: AppRadius.medium,
-                        ),
-                        alignment: Alignment.center,
-                        child: const Icon(
-                          Icons.wb_sunny_outlined,
-                          color: AppColors.secondary,
-                        ),
                       ),
-                      const SizedBox(width: AppSpacing.lg),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              dailyWord?.word ?? 'Mbɔ́',
-                              style: AppTypography.h2.copyWith(
-                                color: AppColors.primary,
-                              ),
-                            ),
-                            const SizedBox(height: AppSpacing.xs),
-                            Text(
-                              dailyWord == null
-                                  ? l10n.dailyWordMeaning
-                                  : (isFrench
-                                            ? dailyWord!.frenchMeaning
-                                            : dailyWord!.englishMeaning) ??
-                                        l10n.bibleTranslationPending,
-                              style: AppTypography.caption,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
 
-                const SizedBox(height: AppSpacing.xl),
-                SectionTitle(
-                  title: l10n.dailyVerseTitle,
-                  subtitle: l10n.dailyVerseSubtitle,
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                PremiumCard(
-                  child: dailyVerse == null
-                      ? Row(
-                          children: [
-                            Container(
-                              width: 52,
-                              height: 52,
-                              decoration: BoxDecoration(
-                                color: AppColors.scripture.withValues(alpha: 0.12),
-                                borderRadius: AppRadius.medium,
-                              ),
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.auto_stories,
-                                color: AppColors.scripture,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.lg),
-                            Expanded(
-                              child: Text(
-                                l10n.dailyContentEmpty,
-                                style: AppTypography.caption,
-                              ),
-                            ),
-                          ],
-                        )
-                      : Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 52,
-                              height: 52,
-                              decoration: BoxDecoration(
-                                color: AppColors.scripture.withValues(alpha: 0.12),
-                                borderRadius: AppRadius.medium,
-                              ),
-                              alignment: Alignment.center,
-                              child: const Icon(
-                                Icons.auto_stories,
-                                color: AppColors.scripture,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.lg),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: AppSpacing.xl),
+                      SectionTitle(
+                        title: l10n.dailyVerseTitle,
+                        subtitle: l10n.dailyVerseSubtitle,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      PremiumCard(
+                        child: dailyVerse == null
+                            ? Row(
                                 children: [
-                                  Text(
-                                    dailyVerse!.text,
-                                    style: AppTypography.body.copyWith(
-                                      height: 1.5,
-                                      fontWeight: FontWeight.w500,
+                                  Container(
+                                    width: 52,
+                                    height: 52,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.scripture.withValues(
+                                        alpha: 0.12,
+                                      ),
+                                      borderRadius: AppRadius.medium,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.auto_stories,
+                                      color: AppColors.scripture,
                                     ),
                                   ),
-                                  const SizedBox(height: AppSpacing.sm),
-                                  Text(
-                                    (isFrench
-                                            ? dailyVerse!.frenchText
-                                            : dailyVerse!.englishText) ??
-                                        l10n.bibleTranslationPending,
-                                    style: const TextStyle(fontSize: 13),
+                                  const SizedBox(width: AppSpacing.lg),
+                                  Expanded(
+                                    child: Text(
+                                      l10n.dailyContentEmpty,
+                                      style: AppTypography.caption,
+                                    ),
                                   ),
-                                  const SizedBox(height: AppSpacing.sm),
-                                  Text(
-                                    dailyVerse!.reference,
-                                    style: AppTypography.caption.copyWith(
+                                ],
+                              )
+                            : Row(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    width: 52,
+                                    height: 52,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.scripture.withValues(
+                                        alpha: 0.12,
+                                      ),
+                                      borderRadius: AppRadius.medium,
+                                    ),
+                                    alignment: Alignment.center,
+                                    child: const Icon(
+                                      Icons.auto_stories,
                                       color: AppColors.scripture,
-                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  const SizedBox(width: AppSpacing.lg),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          dailyVerse!.text,
+                                          style: AppTypography.body.copyWith(
+                                            height: 1.5,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        Text(
+                                          (isFrench
+                                                  ? dailyVerse!.frenchText
+                                                  : dailyVerse!.englishText) ??
+                                              l10n.bibleTranslationPending,
+                                          style: const TextStyle(fontSize: 13),
+                                        ),
+                                        const SizedBox(height: AppSpacing.sm),
+                                        Text(
+                                          dailyVerse!.reference,
+                                          style: AppTypography.caption.copyWith(
+                                            color: AppColors.scripture,
+                                            fontWeight: FontWeight.w700,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ],
-                        ),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
+              ),
             ),
           ),
-          ),
         ),
-        ),
-      ),
       ),
     );
   }
@@ -607,8 +650,8 @@ class _ContinueLearningCard extends StatelessWidget {
       child: Row(
         children: [
           Container(
-            width: 56,
-            height: 56,
+            width: MediaQuery.sizeOf(context).width < 600 ? 48 : 76,
+            height: MediaQuery.sizeOf(context).width < 600 ? 48 : 76,
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [color, color.withValues(alpha: 0.7)],
@@ -718,7 +761,7 @@ class _ExploreSectionHeading extends StatelessWidget {
         Text(
           title,
           style: GoogleFonts.playfairDisplay(
-            fontSize: 28,
+            fontSize: 36,
             fontWeight: FontWeight.w700,
             color: AppColors.primary,
           ),
@@ -755,9 +798,12 @@ class _ExploreTile extends StatelessWidget {
       child: Container(
         clipBehavior: Clip.antiAlias,
         decoration: BoxDecoration(
-          color: AppColors.surface,
+          color: Color.alphaBlend(
+            color.withValues(alpha: 0.025),
+            AppColors.lightCream,
+          ),
           borderRadius: AppRadius.large,
-          border: Border(bottom: BorderSide(color: color, width: 4)),
+          border: Border.all(color: color.withValues(alpha: 0.18)),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.05),
@@ -769,7 +815,29 @@ class _ExploreTile extends StatelessWidget {
         padding: const EdgeInsets.all(AppSpacing.lg),
         child: Stack(
           children: [
-            GoldCornerPattern(color: color, size: 56),
+            const Positioned(
+              top: -16,
+              right: -16,
+              child: NdaFloralDecoration(
+                corner: Alignment.topRight,
+                size: 115,
+                opacity: 0.9,
+              ),
+            ),
+            Positioned(
+              right: 0,
+              bottom: 0,
+              child: Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(color: color.withValues(alpha: 0.45)),
+                ),
+                alignment: Alignment.center,
+                child: Icon(Icons.chevron_right, color: color, size: 18),
+              ),
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -787,34 +855,26 @@ class _ExploreTile extends StatelessWidget {
                       alignment: Alignment.center,
                       child: Icon(icon, color: color, size: 24),
                     ),
-                    const Spacer(),
-                    Container(
-                      width: 32,
-                      height: 32,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(color: color.withValues(alpha: 0.45)),
-                      ),
-                      alignment: Alignment.center,
-                      child: Icon(Icons.chevron_right, color: color, size: 18),
-                    ),
                   ],
                 ),
                 const SizedBox(height: AppSpacing.md),
                 Text(
                   label,
                   style: GoogleFonts.playfairDisplay(
-                    fontSize: 19,
+                    fontSize: 25,
                     fontWeight: FontWeight.w700,
                     color: AppColors.primary,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                Text(
-                  description,
-                  style: AppTypography.caption,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
+                Padding(
+                  padding: const EdgeInsets.only(right: 40),
+                  child: Text(
+                    description,
+                    style: AppTypography.caption.copyWith(fontSize: 16),
+                    maxLines: 3,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
               ],
             ),

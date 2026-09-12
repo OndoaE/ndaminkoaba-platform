@@ -43,14 +43,19 @@ class AdminDataTable extends StatelessWidget {
       clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         color: AppColors.surface,
-        borderRadius: AppRadius.medium,
+        borderRadius: AppRadius.large,
+        border: Border.all(color: AppColors.divider),
         boxShadow: AppShadows.soft,
       ),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
-            decoration: const BoxDecoration(
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.lg,
+              vertical: AppSpacing.md,
+            ),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.055),
               border: Border(bottom: BorderSide(color: AppColors.divider)),
             ),
             child: Row(
@@ -61,7 +66,10 @@ class AdminDataTable extends StatelessWidget {
                     flex: column.flex,
                     child: Text(
                       column.label,
-                      style: AppTypography.caption.copyWith(fontWeight: FontWeight.w700),
+                      style: AppTypography.caption.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.primary,
+                      ),
                     ),
                   ),
               ],
@@ -69,7 +77,10 @@ class AdminDataTable extends StatelessWidget {
           ),
           for (final row in rows)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg, vertical: AppSpacing.md),
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.lg,
+                vertical: AppSpacing.md,
+              ),
               decoration: const BoxDecoration(
                 border: Border(bottom: BorderSide(color: AppColors.divider)),
               ),
@@ -78,7 +89,12 @@ class AdminDataTable extends StatelessWidget {
           if (rows.isEmpty)
             Padding(
               padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Center(child: Text(AppLocalizations.of(context).commonNoResults, style: AppTypography.caption)),
+              child: Center(
+                child: Text(
+                  AppLocalizations.of(context).commonNoResults,
+                  style: AppTypography.caption,
+                ),
+              ),
             ),
         ],
       ),

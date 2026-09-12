@@ -165,8 +165,8 @@ class AdminSidebar extends StatelessWidget {
         : _globalItems(l10n);
 
     return Container(
-      width: 248,
-      color: AppColors.primary,
+      width: MediaQuery.sizeOf(context).width >= 1400 ? 300 : 248,
+      color: AppColors.veryDarkGreen,
       child: SafeArea(
         child: Stack(
           children: [
@@ -175,160 +175,48 @@ class AdminSidebar extends StatelessWidget {
               bottom: -50,
               child: NdaFloralDecoration(
                 corner: Alignment.bottomLeft,
-                size: 320,
-                opacity: 0.32,
+                size: 420,
+                opacity: 0.55,
                 fadeStop: 0.55,
               ),
             ),
+            const Positioned(
+              top: -40,
+              right: -100,
+              child: NdaFloralDecoration(
+                corner: Alignment.topRight,
+                size: 260,
+                opacity: 0.25,
+              ),
+            ),
             Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(
-                AppSpacing.lg,
-                AppSpacing.lg,
-                AppSpacing.lg,
-                AppSpacing.md,
-              ),
-              child: Row(
-                children: [
-                  ClipOval(
-                    child: Image.asset(
-                      'assets/images/ndaminkoaba_logo.png',
-                      width: 40,
-                      height: 40,
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => const CircleAvatar(
-                        radius: 20,
-                        backgroundColor: AppColors.secondary,
-                        child: Icon(
-                          Icons.school,
-                          color: Colors.white,
-                          size: 18,
-                        ),
-                      ),
-                    ),
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.lg,
+                    AppSpacing.md,
                   ),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const Text(
-                          'NdaMinkoaba Admin',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 14,
-                          ),
-                        ),
-                        Text(
-                          l10n.appTagline,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            color: Colors.white.withValues(alpha: 0.7),
-                            fontSize: 10,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            if (languageId != null)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
-                child: InkWell(
-                  borderRadius: AppRadius.medium,
-                  onTap: () => context.push('/admin/languages'),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.md,
-                      vertical: AppSpacing.sm,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: AppRadius.medium,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            l10n.adminLanguageActiveSuffix(
-                              languageName ?? l10n.adminLanguageFallback,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        const Icon(
-                          Icons.expand_more,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            const SizedBox(height: AppSpacing.md),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm),
-                children: [
-                  for (final item in items)
-                    _SidebarTile(item: item, active: item.key == activeNavKey),
-                ],
-              ),
-            ),
-            const Divider(color: Colors.white24, height: 1),
-            if (languageId != null)
-              _SidebarTile(
-                item: _NavItem(
-                  'back',
-                  l10n.adminBackToAllLanguages,
-                  Icons.arrow_back,
-                  '/admin/languages',
-                ),
-                active: false,
-              ),
-            Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: () => context.push('/admin/profile'),
-                child: Padding(
-                  padding: const EdgeInsets.all(AppSpacing.lg),
                   child: Row(
                     children: [
-                      CircleAvatar(
-                        radius: 16,
-                        backgroundColor: Colors.white.withValues(alpha: 0.15),
-                        backgroundImage: (userAvatarUrl?.isNotEmpty ?? false)
-                            ? NetworkImage(AppConfig.resolveUrl(userAvatarUrl!))
-                            : null,
-                        child: (userAvatarUrl?.isNotEmpty ?? false)
-                            ? null
-                            : Text(
-                                (userName?.isNotEmpty ?? false)
-                                    ? userName![0].toUpperCase()
-                                    : '?',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 12,
-                                ),
-                              ),
+                      ClipOval(
+                        child: Image.asset(
+                          'assets/images/ndaminkoaba_logo.png',
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => const CircleAvatar(
+                            radius: 20,
+                            backgroundColor: AppColors.secondary,
+                            child: Icon(
+                              Icons.school,
+                              color: Colors.white,
+                              size: 18,
+                            ),
+                          ),
+                        ),
                       ),
                       const SizedBox(width: AppSpacing.sm),
                       Expanded(
@@ -336,21 +224,23 @@ class AdminSidebar extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Text(
-                              userName ?? l10n.adminRoleFallback,
+                            const Text(
+                              'NdaMinkoaba Admin',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
                               ),
                             ),
                             Text(
-                              userRole ?? l10n.adminSuperAdminFallback,
+                              l10n.appTagline,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.7),
-                                fontSize: 11,
+                                fontSize: 10,
                               ),
                             ),
                           ],
@@ -359,9 +249,140 @@ class AdminSidebar extends StatelessWidget {
                     ],
                   ),
                 ),
-              ),
-            ),
-          ],
+                if (languageId != null)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.lg,
+                    ),
+                    child: InkWell(
+                      borderRadius: AppRadius.circle,
+                      onTap: () => context.push('/admin/languages'),
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.md,
+                          vertical: AppSpacing.sm,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.1),
+                          borderRadius: AppRadius.circle,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                l10n.adminLanguageActiveSuffix(
+                                  languageName ?? l10n.adminLanguageFallback,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                            const Icon(
+                              Icons.expand_more,
+                              color: Colors.white,
+                              size: 16,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: AppSpacing.md),
+                Expanded(
+                  child: ListView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.sm,
+                    ),
+                    children: [
+                      for (final item in items)
+                        _SidebarTile(
+                          item: item,
+                          active: item.key == activeNavKey,
+                        ),
+                    ],
+                  ),
+                ),
+                const Divider(color: Colors.white24, height: 1),
+                if (languageId != null)
+                  _SidebarTile(
+                    item: _NavItem(
+                      'back',
+                      l10n.adminBackToAllLanguages,
+                      Icons.arrow_back,
+                      '/admin/languages',
+                    ),
+                    active: false,
+                  ),
+                Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    onTap: () => context.push('/admin/profile'),
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Row(
+                        children: [
+                          CircleAvatar(
+                            radius: 16,
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.15,
+                            ),
+                            backgroundImage:
+                                (userAvatarUrl?.isNotEmpty ?? false)
+                                ? NetworkImage(
+                                    AppConfig.resolveUrl(userAvatarUrl!),
+                                  )
+                                : null,
+                            child: (userAvatarUrl?.isNotEmpty ?? false)
+                                ? null
+                                : Text(
+                                    (userName?.isNotEmpty ?? false)
+                                        ? userName![0].toUpperCase()
+                                        : '?',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                          ),
+                          const SizedBox(width: AppSpacing.sm),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  userName ?? l10n.adminRoleFallback,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                Text(
+                                  userRole ?? l10n.adminSuperAdminFallback,
+                                  style: TextStyle(
+                                    color: Colors.white.withValues(alpha: 0.7),
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
         ),
@@ -382,9 +403,9 @@ class _SidebarTile extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 2),
       child: Material(
         color: active ? AppColors.secondary : Colors.transparent,
-        borderRadius: AppRadius.medium,
+        borderRadius: AppRadius.circle,
         child: InkWell(
-          borderRadius: AppRadius.medium,
+          borderRadius: AppRadius.circle,
           onTap: () => context.go(item.route),
           hoverColor: Colors.white.withValues(alpha: 0.08),
           child: Padding(
@@ -403,7 +424,7 @@ class _SidebarTile extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.body.copyWith(
                       color: Colors.white,
-                      fontSize: 13,
+                      fontSize: 14,
                       fontWeight: active ? FontWeight.w700 : FontWeight.w400,
                     ),
                   ),

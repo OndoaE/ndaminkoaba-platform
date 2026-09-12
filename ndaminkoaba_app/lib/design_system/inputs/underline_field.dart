@@ -14,8 +14,10 @@ class UnderlineField extends StatelessWidget {
     this.obscureText = false,
     this.suffixIcon,
     this.keyboardType,
+    this.outlined = true,
   });
 
+  final bool outlined;
   final IconData icon;
   final String hint;
   final TextEditingController controller;
@@ -33,25 +35,46 @@ class UnderlineField extends StatelessWidget {
       cursorColor: AppColors.secondary,
       decoration: InputDecoration(
         prefixIcon: Icon(icon, color: AppColors.secondary, size: 20),
-        prefixIconConstraints: const BoxConstraints(minWidth: 34, minHeight: 20),
+        prefixIconConstraints: BoxConstraints(
+          minWidth: outlined ? 52 : 34,
+          minHeight: 24,
+        ),
         suffixIcon: suffixIcon,
         hintText: hint,
-        hintStyle: const TextStyle(
-          color: AppColors.secondary,
+        hintStyle: TextStyle(
+          color: outlined ? AppColors.textSecondary : AppColors.secondary,
           fontSize: 16,
-          fontWeight: FontWeight.w600,
+          fontWeight: outlined ? FontWeight.w400 : FontWeight.w600,
         ),
         isDense: true,
-        contentPadding: const EdgeInsets.symmetric(vertical: 12),
-        border: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.secondary, width: 1.2),
+        contentPadding: EdgeInsets.symmetric(
+          vertical: outlined ? 19 : 12,
+          horizontal: outlined ? 16 : 0,
         ),
-        enabledBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.secondary, width: 1.2),
-        ),
-        focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: AppColors.secondary, width: 1.8),
-        ),
+        border: outlined
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(color: AppColors.secondary),
+              )
+            : const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.secondary, width: 1.2),
+              ),
+        enabledBorder: outlined
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(color: AppColors.secondary),
+              )
+            : const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.secondary, width: 1.2),
+              ),
+        focusedBorder: outlined
+            ? OutlineInputBorder(
+                borderRadius: BorderRadius.circular(18),
+                borderSide: const BorderSide(color: AppColors.secondary),
+              )
+            : const UnderlineInputBorder(
+                borderSide: BorderSide(color: AppColors.secondary, width: 1.8),
+              ),
       ),
     );
   }

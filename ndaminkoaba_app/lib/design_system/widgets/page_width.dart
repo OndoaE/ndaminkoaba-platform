@@ -13,7 +13,7 @@ import 'package:flutter/material.dart';
 /// those. Instead each single-column screen wraps its own top-level
 /// scrollable content in this widget.
 class PageWidth extends StatelessWidget {
-  const PageWidth({super.key, required this.child, this.maxWidth = 720});
+  const PageWidth({super.key, required this.child, this.maxWidth = 952});
 
   final Widget child;
   final double maxWidth;

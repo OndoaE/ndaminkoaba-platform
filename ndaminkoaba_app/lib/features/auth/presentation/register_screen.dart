@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/network/api_error.dart';
@@ -148,7 +149,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       body: SafeArea(
         child: NdaPageBackground(
-          decorationSize: 420,
+          decorationSize: MediaQuery.sizeOf(context).width < 600 ? 280 : 580,
+          faintCorners: const [Alignment.topRight, Alignment.bottomLeft],
           opacity: 0.9,
           fadeStop: 0.6,
           child: Center(
@@ -158,144 +160,181 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 vertical: AppSpacing.xl,
               ),
               child: NdaAuthCard(
+                maxWidth: 620,
+                padding: EdgeInsets.symmetric(
+                  horizontal: MediaQuery.sizeOf(context).width < 600 ? 24 : 58,
+                  vertical: 40,
+                ),
                 child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  AuthHeader(title: l10n.appTitle, tagline: l10n.appTagline),
-                  const SizedBox(height: AppSpacing.lg),
-                  Text(
-                    l10n.createAccountTitle,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 26,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    AuthHeader(
+                      title: l10n.appTitle,
+                      tagline: l10n.appTagline,
+                      large: true,
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.xs),
-                  const NdaGoldDivider(),
-                  const SizedBox(height: AppSpacing.xl),
-                  UnderlineField(
-                    icon: Icons.person_outline,
-                    hint: l10n.fullNameLabel,
-                    controller: fullNameController,
-                    keyboardType: TextInputType.name,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  UnderlineField(
-                    icon: Icons.email_outlined,
-                    hint: l10n.emailLabel,
-                    controller: emailController,
-                    keyboardType: TextInputType.emailAddress,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  UnderlineField(
-                    icon: Icons.lock_outline,
-                    hint: l10n.passwordLabel,
-                    controller: passwordController,
-                    obscureText: obscurePassword,
-                    suffixIcon: BouncyIconButton(
-                      icon: Icon(
-                        obscurePassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.textSecondary,
+                    const SizedBox(height: AppSpacing.lg),
+                    Text(
+                      l10n.createAccountTitle,
+                      style: GoogleFonts.playfairDisplay(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 34,
                       ),
-                      onPressed: () {
-                        setState(() {
-                          obscurePassword = !obscurePassword;
-                        });
-                      },
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  UnderlineField(
-                    icon: Icons.lock_outline,
-                    hint: l10n.confirmPasswordLabel,
-                    controller: confirmPasswordController,
-                    obscureText: obscureConfirmPassword,
-                    suffixIcon: BouncyIconButton(
-                      icon: Icon(
-                        obscureConfirmPassword
-                            ? Icons.visibility_off_outlined
-                            : Icons.visibility_outlined,
-                        color: AppColors.textSecondary,
-                      ),
-                      onPressed: () {
-                        setState(() {
-                          obscureConfirmPassword = !obscureConfirmPassword;
-                        });
-                      },
+                    const SizedBox(height: AppSpacing.xs),
+                    const NdaGoldDivider(),
+                    const SizedBox(height: AppSpacing.xl),
+                    UnderlineField(
+                      icon: Icons.person_outline,
+                      hint: l10n.fullNameLabel,
+                      controller: fullNameController,
+                      keyboardType: TextInputType.name,
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.sm),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: Checkbox(
-                          value: rememberMe,
-                          onChanged: (value) => setState(() => rememberMe = value ?? false),
-                          side: const BorderSide(color: AppColors.secondary),
-                          activeColor: AppColors.secondary,
-                          visualDensity: VisualDensity.compact,
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                    const SizedBox(height: AppSpacing.lg),
+                    UnderlineField(
+                      icon: Icons.email_outlined,
+                      hint: l10n.emailLabel,
+                      controller: emailController,
+                      keyboardType: TextInputType.emailAddress,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    UnderlineField(
+                      icon: Icons.lock_outline,
+                      hint: l10n.passwordLabel,
+                      controller: passwordController,
+                      obscureText: obscurePassword,
+                      suffixIcon: BouncyIconButton(
+                        icon: Icon(
+                          obscurePassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.textSecondary,
                         ),
+                        onPressed: () {
+                          setState(() {
+                            obscurePassword = !obscurePassword;
+                          });
+                        },
                       ),
-                      const SizedBox(width: AppSpacing.sm),
-                      Text(l10n.rememberMeLabel, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-                      const Spacer(),
-                      TextButton(
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        onPressed: () => showMessage(l10n.comingSoonMessage),
-                        child: Text(
-                          l10n.forgotPasswordLabel,
-                          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  PrimaryButton(
-                    label: l10n.registerButtonLabel.toUpperCase(),
-                    isLoading: isLoading,
-                    onPressed: register,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  const OrDivider(showLines: false),
-                  const SizedBox(height: AppSpacing.lg),
-                  GoogleSignInButton(
-                    isLoading: googleLoading,
-                    onLoadingChanged: (loading) => setState(
-                      () => googleLoading = loading,
                     ),
-                    onIdToken: handleGoogleIdToken,
-                    onCancelled: () {},
-                    onError: handleGoogleError,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  Center(
-                    child: Wrap(
-                      alignment: WrapAlignment.center,
+                    const SizedBox(height: AppSpacing.lg),
+                    UnderlineField(
+                      icon: Icons.lock_outline,
+                      hint: l10n.confirmPasswordLabel,
+                      controller: confirmPasswordController,
+                      obscureText: obscureConfirmPassword,
+                      suffixIcon: BouncyIconButton(
+                        icon: Icon(
+                          obscureConfirmPassword
+                              ? Icons.visibility_off_outlined
+                              : Icons.visibility_outlined,
+                          color: AppColors.textSecondary,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            obscureConfirmPassword = !obscureConfirmPassword;
+                          });
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.sm),
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      crossAxisAlignment: WrapCrossAlignment.center,
+                      spacing: 12,
+                      runSpacing: 10,
                       children: [
-                        Text(l10n.alreadyHaveAccountPrompt, style: const TextStyle(color: AppColors.textSecondary)),
-                        const SizedBox(width: 4),
-                        GestureDetector(
-                          onTap: () => context.go('/login'),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: Checkbox(
+                                value: rememberMe,
+                                onChanged: (value) =>
+                                    setState(() => rememberMe = value ?? false),
+                                side: const BorderSide(
+                                  color: AppColors.secondary,
+                                ),
+                                activeColor: AppColors.secondary,
+                                visualDensity: VisualDensity.compact,
+                                materialTapTargetSize:
+                                    MaterialTapTargetSize.shrinkWrap,
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.sm),
+                            Text(
+                              l10n.rememberMeLabel,
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                              ),
+                            ),
+                          ],
+                        ),
+                        TextButton(
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          onPressed: () => showMessage(l10n.comingSoonMessage),
                           child: Text(
-                            l10n.loginLinkLabel,
-                            style: const TextStyle(color: AppColors.secondary, fontWeight: FontWeight.w700),
+                            l10n.forgotPasswordLabel,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                ],
+                    const SizedBox(height: AppSpacing.xl),
+                    PrimaryButton(
+                      label: l10n.registerButtonLabel.toUpperCase(),
+                      isLoading: isLoading,
+                      onPressed: register,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    const OrDivider(),
+                    const SizedBox(height: AppSpacing.lg),
+                    GoogleSignInButton(
+                      isLoading: googleLoading,
+                      onLoadingChanged: (loading) =>
+                          setState(() => googleLoading = loading),
+                      onIdToken: handleGoogleIdToken,
+                      onCancelled: () {},
+                      onError: handleGoogleError,
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    Center(
+                      child: Wrap(
+                        alignment: WrapAlignment.center,
+                        children: [
+                          Text(
+                            l10n.alreadyHaveAccountPrompt,
+                            style: const TextStyle(
+                              color: AppColors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          GestureDetector(
+                            onTap: () => context.go('/login'),
+                            child: Text(
+                              l10n.loginLinkLabel,
+                              style: const TextStyle(
+                                color: AppColors.secondary,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                  ],
                 ),
               ),
             ),

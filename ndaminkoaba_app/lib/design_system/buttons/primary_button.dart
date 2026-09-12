@@ -12,17 +12,19 @@ class PrimaryButton extends StatelessWidget {
     required this.onPressed,
     this.icon,
     this.isLoading = false,
+    this.pill = true,
   });
 
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
   final bool isLoading;
+  final bool pill;
 
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      height: 56,
+      height: pill ? 62 : 56,
       width: double.infinity,
       child: ElevatedButton(
         onPressed: isLoading ? null : onPressed,
@@ -30,7 +32,7 @@ class PrimaryButton extends StatelessWidget {
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
           shape: RoundedRectangleBorder(
-            borderRadius: AppRadius.medium,
+            borderRadius: pill ? AppRadius.circle : AppRadius.medium,
           ),
           elevation: 0,
         ),
@@ -46,7 +48,7 @@ class PrimaryButton extends StatelessWidget {
             : Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  if (icon != null) ...[
+                  if (icon != null && !pill) ...[
                     Icon(icon, size: 20),
                     const SizedBox(width: AppSpacing.sm),
                   ],
@@ -60,6 +62,10 @@ class PrimaryButton extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (icon != null && pill) ...[
+                    const SizedBox(width: 20),
+                    Icon(icon, size: 22),
+                  ],
                 ],
               ),
       ),

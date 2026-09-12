@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -50,14 +51,17 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
       future: bookFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Scaffold(
+          return NdaScaffold(
             backgroundColor: AppColors.background,
-            appBar: AppBar(backgroundColor: _bookAccent, foregroundColor: Colors.white),
+            appBar: AppBar(
+              backgroundColor: _bookAccent,
+              foregroundColor: Colors.white,
+            ),
             body: Center(child: Text(l10n.bookLoadError)),
           );
         }
         if (!snapshot.hasData) {
-          return const Scaffold(
+          return NdaScaffold(
             backgroundColor: AppColors.background,
             body: Center(child: CircularProgressIndicator(color: _bookAccent)),
           );
@@ -74,12 +78,16 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
           return _IllustratedBookReader(book: book);
         }
 
-        return Scaffold(
+        return NdaScaffold(
           backgroundColor: AppColors.background,
           appBar: AppBar(
             backgroundColor: _bookAccent,
             foregroundColor: Colors.white,
-            title: Text(book.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+            title: Text(
+              book.title,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
           ),
           body: book.fileType == 'epub'
               ? _EpubReader(url: AppConfig.resolveUrl(book.fileUrl!))
@@ -120,10 +128,17 @@ class _PdfReaderState extends State<_PdfReader> {
       future: bytesFuture,
       builder: (context, snapshot) {
         if (snapshot.hasError) {
-          return Center(child: Text('${l10n.bookLoadError}\n${snapshot.error}', textAlign: TextAlign.center));
+          return Center(
+            child: Text(
+              '${l10n.bookLoadError}\n${snapshot.error}',
+              textAlign: TextAlign.center,
+            ),
+          );
         }
         if (!snapshot.hasData) {
-          return const Center(child: CircularProgressIndicator(color: _bookAccent));
+          return const Center(
+            child: CircularProgressIndicator(color: _bookAccent),
+          );
         }
 
         return Stack(
@@ -180,9 +195,7 @@ class _EpubReaderState extends State<_EpubReader> {
           onEpubLoaded: () => setState(() => isLoading = false),
         ),
         if (isLoading)
-          const Center(
-            child: CircularProgressIndicator(color: _bookAccent),
-          ),
+          const Center(child: CircularProgressIndicator(color: _bookAccent)),
       ],
     );
   }
@@ -236,15 +249,29 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
       final results = await Future.wait([
         repository.getPages(widget.book.id),
         if (fetchedUserId != null)
-          progressRepository.getProgress(userId: fetchedUserId, bookId: widget.book.id),
+          progressRepository.getProgress(
+            userId: fetchedUserId,
+            bookId: widget.book.id,
+          ),
         if (fetchedUserId != null)
-          bookmarksRepository.findBookmarkId(userId: fetchedUserId, bookId: widget.book.id),
+          bookmarksRepository.findBookmarkId(
+            userId: fetchedUserId,
+            bookId: widget.book.id,
+          ),
       ]);
       if (!mounted) return;
       final fetchedPages = results[0] as List<BookPage>;
-      final progress = fetchedUserId != null ? results[1] as BookProgressEntry? : null;
-      final startIndex = (progress != null && !progress.completed && progress.lastPageNumber >= 1)
-          ? (progress.lastPageNumber - 1).clamp(0, fetchedPages.isEmpty ? 0 : fetchedPages.length - 1)
+      final progress = fetchedUserId != null
+          ? results[1] as BookProgressEntry?
+          : null;
+      final startIndex =
+          (progress != null &&
+              !progress.completed &&
+              progress.lastPageNumber >= 1)
+          ? (progress.lastPageNumber - 1).clamp(
+              0,
+              fetchedPages.isEmpty ? 0 : fetchedPages.length - 1,
+            )
           : 0;
       setState(() {
         pages = fetchedPages;
@@ -264,7 +291,11 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
     if (currentUserId == null) return;
     // Best-effort — a failed record must never block reading.
     progressRepository
-        .recordProgress(userId: currentUserId, bookId: widget.book.id, lastPageNumber: currentIndex + 1)
+        .recordProgress(
+          userId: currentUserId,
+          bookId: widget.book.id,
+          lastPageNumber: currentIndex + 1,
+        )
         .catchError((_) {});
   }
 
@@ -307,7 +338,10 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
         await bookmarksRepository.remove(bookmarkId!);
         setState(() => bookmarkId = null);
       } else {
-        final id = await bookmarksRepository.create(userId: currentUserId, bookId: widget.book.id);
+        final id = await bookmarksRepository.create(
+          userId: currentUserId,
+          bookId: widget.book.id,
+        );
         setState(() => bookmarkId = id);
       }
     } catch (_) {
@@ -319,25 +353,36 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
 
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: _bookAccent,
         foregroundColor: Colors.white,
-        title: Text(widget.book.title, maxLines: 1, overflow: TextOverflow.ellipsis),
+        title: Text(
+          widget.book.title,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+        ),
         actions: [
           IconButton(
-            icon: const Text('Aa', style: TextStyle(fontWeight: FontWeight.w700)),
+            icon: const Text(
+              'Aa',
+              style: TextStyle(fontWeight: FontWeight.w700),
+            ),
             tooltip: l10n.bookReaderTextSizeTooltip,
             onPressed: _cycleFontScale,
           ),
           if (pages.isNotEmpty && pages[currentIndex].audioUrl != null)
             IconButton(
-              icon: Icon(isAudioPlaying ? Icons.pause : Icons.volume_up_outlined),
+              icon: Icon(
+                isAudioPlaying ? Icons.pause : Icons.volume_up_outlined,
+              ),
               onPressed: _toggleAudio,
             ),
           IconButton(
-            icon: Icon(bookmarkId != null ? Icons.bookmark : Icons.bookmark_border),
+            icon: Icon(
+              bookmarkId != null ? Icons.bookmark : Icons.bookmark_border,
+            ),
             onPressed: userId == null ? null : _toggleBookmark,
           ),
         ],
@@ -345,44 +390,62 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: _bookAccent))
           : pages.isEmpty
-              ? Center(child: Text(l10n.bookLoadError))
-              : SafeArea(
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final wide = constraints.maxWidth >= 700;
-                            if (wide && currentIndex + 1 < pages.length) {
-                              return Row(
-                                children: [
-                                  Expanded(child: _PageView(page: pages[currentIndex], fontScale: _kFontScales[fontScaleIndex])),
-                                  const VerticalDivider(width: 1),
-                                  Expanded(child: _PageView(page: pages[currentIndex + 1], fontScale: _kFontScales[fontScaleIndex])),
-                                ],
-                              );
-                            }
-                            return _PageView(page: pages[currentIndex], fontScale: _kFontScales[fontScaleIndex]);
-                          },
-                        ),
-                      ),
-                      _buildControls(),
-                    ],
+          ? Center(child: Text(l10n.bookLoadError))
+          : SafeArea(
+              child: Column(
+                children: [
+                  Expanded(
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final wide = constraints.maxWidth >= 700;
+                        if (wide && currentIndex + 1 < pages.length) {
+                          return Row(
+                            children: [
+                              Expanded(
+                                child: _PageView(
+                                  page: pages[currentIndex],
+                                  fontScale: _kFontScales[fontScaleIndex],
+                                ),
+                              ),
+                              const VerticalDivider(width: 1),
+                              Expanded(
+                                child: _PageView(
+                                  page: pages[currentIndex + 1],
+                                  fontScale: _kFontScales[fontScaleIndex],
+                                ),
+                              ),
+                            ],
+                          );
+                        }
+                        return _PageView(
+                          page: pages[currentIndex],
+                          fontScale: _kFontScales[fontScaleIndex],
+                        );
+                      },
+                    ),
                   ),
-                ),
+                  _buildControls(),
+                ],
+              ),
+            ),
     );
   }
 
   Widget _buildControls() {
     final total = pages.length;
     final wide = MediaQuery.of(context).size.width >= 700;
-    final spreadEnd = wide && currentIndex + 1 < total ? currentIndex + 2 : currentIndex + 1;
+    final spreadEnd = wide && currentIndex + 1 < total
+        ? currentIndex + 2
+        : currentIndex + 1;
     final label = wide && currentIndex + 1 < total
         ? 'Page ${currentIndex + 1}-$spreadEnd / $total'
         : 'Page ${currentIndex + 1} / $total';
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.md,
+        vertical: AppSpacing.sm,
+      ),
       decoration: const BoxDecoration(
         color: AppColors.surface,
         border: Border(top: BorderSide(color: AppColors.divider)),
@@ -403,12 +466,16 @@ class _IllustratedBookReaderState extends State<_IllustratedBookReader> {
             children: [
               IconButton(
                 icon: const Icon(Icons.chevron_left),
-                onPressed: currentIndex == 0 ? null : () => _goToPage(currentIndex - 1),
+                onPressed: currentIndex == 0
+                    ? null
+                    : () => _goToPage(currentIndex - 1),
               ),
               Text(label, style: AppTypography.caption),
               IconButton(
                 icon: const Icon(Icons.chevron_right),
-                onPressed: currentIndex + 1 >= total ? null : () => _goToPage(currentIndex + 1),
+                onPressed: currentIndex + 1 >= total
+                    ? null
+                    : () => _goToPage(currentIndex + 1),
               ),
             ],
           ),
@@ -444,7 +511,8 @@ class _PageView extends ConsumerWidget {
               child: Image.network(
                 AppConfig.resolveUrl(page.illustrationUrl!),
                 fit: BoxFit.cover,
-                errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                errorBuilder: (context, error, stack) =>
+                    const SizedBox.shrink(),
               ),
             ),
           const SizedBox(height: AppSpacing.lg),

@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -59,7 +60,7 @@ class _ContinueLearningScreenState extends State<ContinueLearningScreen> {
         ? null
         : fullName.trim().split(RegExp(r'\s+')).first;
 
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Padding(
@@ -78,7 +79,11 @@ class _ContinueLearningScreenState extends State<ContinueLearningScreen> {
                           shape: BoxShape.circle,
                         ),
                         alignment: Alignment.center,
-                        child: const Icon(Icons.waving_hand_outlined, color: AppColors.primary, size: 40),
+                        child: const Icon(
+                          Icons.waving_hand_outlined,
+                          color: AppColors.primary,
+                          size: 40,
+                        ),
                       ),
                       const SizedBox(height: AppSpacing.xl),
                       Text(
@@ -108,11 +113,16 @@ class _ContinueLearningScreenState extends State<ContinueLearningScreen> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: AppColors.primary.withValues(alpha: 0.12),
+                                  color: AppColors.primary.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
-                                child: const Icon(Icons.play_arrow_rounded, color: AppColors.primary),
+                                child: const Icon(
+                                  Icons.play_arrow_rounded,
+                                  color: AppColors.primary,
+                                ),
                               ),
                               const SizedBox(width: AppSpacing.md),
                               Expanded(
@@ -121,7 +131,9 @@ class _ContinueLearningScreenState extends State<ContinueLearningScreen> {
                                   children: [
                                     Text(
                                       languageName != null
-                                          ? l10n.continueLearningContinueTitle(languageName!)
+                                          ? l10n.continueLearningContinueTitle(
+                                              languageName!,
+                                            )
                                           : l10n.continueLearningContinueFallback,
                                       style: AppTypography.title,
                                     ),
@@ -133,7 +145,10 @@ class _ContinueLearningScreenState extends State<ContinueLearningScreen> {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                              const Icon(
+                                Icons.chevron_right,
+                                color: AppColors.textSecondary,
+                              ),
                             ],
                           ),
                         ),
@@ -149,18 +164,26 @@ class _ContinueLearningScreenState extends State<ContinueLearningScreen> {
                                 width: 48,
                                 height: 48,
                                 decoration: BoxDecoration(
-                                  color: AppColors.secondary.withValues(alpha: 0.12),
+                                  color: AppColors.secondary.withValues(
+                                    alpha: 0.12,
+                                  ),
                                   shape: BoxShape.circle,
                                 ),
                                 alignment: Alignment.center,
-                                child: const Icon(Icons.add_circle_outline, color: AppColors.secondary),
+                                child: const Icon(
+                                  Icons.add_circle_outline,
+                                  color: AppColors.secondary,
+                                ),
                               ),
                               const SizedBox(width: AppSpacing.md),
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(l10n.continueLearningNewLanguageTitle, style: AppTypography.title),
+                                    Text(
+                                      l10n.continueLearningNewLanguageTitle,
+                                      style: AppTypography.title,
+                                    ),
                                     const SizedBox(height: AppSpacing.xs),
                                     Text(
                                       l10n.continueLearningNewLanguageSubtitle,
@@ -169,7 +192,10 @@ class _ContinueLearningScreenState extends State<ContinueLearningScreen> {
                                   ],
                                 ),
                               ),
-                              const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                              const Icon(
+                                Icons.chevron_right,
+                                color: AppColors.textSecondary,
+                              ),
                             ],
                           ),
                         ),

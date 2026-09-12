@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -12,7 +13,11 @@ import '../data/knowledge_repository.dart';
 import '../domain/knowledge_models.dart';
 
 class AdminKnowledgeScreen extends StatelessWidget {
-  const AdminKnowledgeScreen({super.key, required this.languageId, this.languageName});
+  const AdminKnowledgeScreen({
+    super.key,
+    required this.languageId,
+    this.languageName,
+  });
 
   final String languageId;
   final String? languageName;
@@ -21,7 +26,7 @@ class AdminKnowledgeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 2,
-      child: Scaffold(
+      child: NdaScaffold(
         backgroundColor: AppColors.background,
         appBar: GradientAppBar(
           title: 'Train the AI',
@@ -85,7 +90,10 @@ class _TestNnangaTabState extends State<_TestNnangaTab> {
 
     setState(() => isSending = true);
     try {
-      final testResult = await repository.testNnanga(prompt, languageId: widget.languageId);
+      final testResult = await repository.testNnanga(
+        prompt,
+        languageId: widget.languageId,
+      );
       if (!mounted) return;
       setState(() {
         result = testResult;
@@ -135,7 +143,10 @@ class _TestNnangaTabState extends State<_TestNnangaTab> {
                       ? const SizedBox(
                           width: 16,
                           height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
                         )
                       : const Icon(Icons.send, color: Colors.white, size: 20),
                   onPressed: isSending ? null : test,
@@ -146,11 +157,15 @@ class _TestNnangaTabState extends State<_TestNnangaTab> {
           if (result != null) ...[
             const SizedBox(height: AppSpacing.xl),
             PremiumCard(
-              color: result!.usedLocalKnowledge ? AppColors.success : AppColors.warning,
+              color: result!.usedLocalKnowledge
+                  ? AppColors.success
+                  : AppColors.warning,
               child: Row(
                 children: [
                   Icon(
-                    result!.usedLocalKnowledge ? Icons.check_circle : Icons.warning_amber,
+                    result!.usedLocalKnowledge
+                        ? Icons.check_circle
+                        : Icons.warning_amber,
                     color: Colors.white,
                   ),
                   const SizedBox(width: AppSpacing.sm),
@@ -159,7 +174,10 @@ class _TestNnangaTabState extends State<_TestNnangaTab> {
                       result!.usedLocalKnowledge
                           ? 'Answered from the knowledge base'
                           : 'No local knowledge found — Nnanga could not answer well',
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
@@ -180,7 +198,14 @@ class _TestNnangaTabState extends State<_TestNnangaTab> {
                     Wrap(
                       spacing: AppSpacing.sm,
                       children: result!.matchedKeywords
-                          .map((k) => Chip(label: Text(k, style: const TextStyle(fontSize: 11))))
+                          .map(
+                            (k) => Chip(
+                              label: Text(
+                                k,
+                                style: const TextStyle(fontSize: 11),
+                              ),
+                            ),
+                          )
                           .toList(),
                     ),
                   ],
@@ -281,9 +306,16 @@ class _RecentQuestionsTabState extends State<_RecentQuestionsTab> {
                 ],
               ),
               const SizedBox(height: AppSpacing.sm),
-              Text('"${convo.prompt}"', style: const TextStyle(fontStyle: FontStyle.italic)),
+              Text(
+                '"${convo.prompt}"',
+                style: const TextStyle(fontStyle: FontStyle.italic),
+              ),
               const SizedBox(height: AppSpacing.sm),
-              Text(convo.response, maxLines: 3, overflow: TextOverflow.ellipsis),
+              Text(
+                convo.response,
+                maxLines: 3,
+                overflow: TextOverflow.ellipsis,
+              ),
             ],
           ),
         );

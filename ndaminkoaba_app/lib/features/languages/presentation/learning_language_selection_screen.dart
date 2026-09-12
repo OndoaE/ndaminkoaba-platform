@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -89,7 +90,7 @@ class _LearningLanguageSelectionScreenState
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       appBar: GradientAppBar(title: l10n.chooseLanguageTitle),
       body: SafeArea(
@@ -111,76 +112,95 @@ class _LearningLanguageSelectionScreenState
                   ),
                 ),
               )
-            : PageWidth(child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      l10n.chooseLanguageQuestion,
-                      style: AppTypography.h2,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.chooseLanguageHint,
-                      style: AppTypography.caption,
-                    ),
-                    const SizedBox(height: AppSpacing.xl),
-                    Expanded(
-                      child: languages.isEmpty
-                          ? Center(
-                              child: Text(
-                                _onlyLanguageIsCurrent
-                                    ? l10n.chooseLanguageOnlyCurrentMessage
-                                    : l10n.chooseLanguageEmptyTitle,
-                                style: AppTypography.caption,
-                                textAlign: TextAlign.center,
-                              ),
-                            )
-                          : ListView.separated(
-                              itemCount: languages.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(height: AppSpacing.md),
-                              itemBuilder: (context, index) {
-                                final language = languages[index];
-                                return InkWell(
-                                  borderRadius: BorderRadius.circular(24),
-                                  onTap: isSaving ? null : () => select(language),
-                                  child: PremiumCard(
-                                    child: Row(
-                                      children: [
-                                        Container(
-                                          width: 48,
-                                          height: 48,
-                                          decoration: BoxDecoration(
-                                            color: AppColors.primary.withValues(alpha: 0.12),
-                                            shape: BoxShape.circle,
+            : PageWidth(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        l10n.chooseLanguageQuestion,
+                        style: AppTypography.h2,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        l10n.chooseLanguageHint,
+                        style: AppTypography.caption,
+                      ),
+                      const SizedBox(height: AppSpacing.xl),
+                      Expanded(
+                        child: languages.isEmpty
+                            ? Center(
+                                child: Text(
+                                  _onlyLanguageIsCurrent
+                                      ? l10n.chooseLanguageOnlyCurrentMessage
+                                      : l10n.chooseLanguageEmptyTitle,
+                                  style: AppTypography.caption,
+                                  textAlign: TextAlign.center,
+                                ),
+                              )
+                            : ListView.separated(
+                                itemCount: languages.length,
+                                separatorBuilder: (_, __) =>
+                                    const SizedBox(height: AppSpacing.md),
+                                itemBuilder: (context, index) {
+                                  final language = languages[index];
+                                  return InkWell(
+                                    borderRadius: BorderRadius.circular(24),
+                                    onTap: isSaving
+                                        ? null
+                                        : () => select(language),
+                                    child: PremiumCard(
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            width: 48,
+                                            height: 48,
+                                            decoration: BoxDecoration(
+                                              color: AppColors.primary
+                                                  .withValues(alpha: 0.12),
+                                              shape: BoxShape.circle,
+                                            ),
+                                            alignment: Alignment.center,
+                                            child: const Icon(
+                                              Icons.language,
+                                              color: AppColors.primary,
+                                            ),
                                           ),
-                                          alignment: Alignment.center,
-                                          child: const Icon(Icons.language, color: AppColors.primary),
-                                        ),
-                                        const SizedBox(width: AppSpacing.md),
-                                        Expanded(
-                                          child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(language.name, style: AppTypography.title),
-                                              if (language.country != null)
-                                                Text(language.country!, style: AppTypography.caption),
-                                            ],
+                                          const SizedBox(width: AppSpacing.md),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  language.name,
+                                                  style: AppTypography.title,
+                                                ),
+                                                if (language.country != null)
+                                                  Text(
+                                                    language.country!,
+                                                    style:
+                                                        AppTypography.caption,
+                                                  ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-                                      ],
+                                          const Icon(
+                                            Icons.chevron_right,
+                                            color: AppColors.textSecondary,
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                            ),
-                    ),
-                  ],
+                                  );
+                                },
+                              ),
+                      ),
+                    ],
+                  ),
                 ),
-              )),
+              ),
       ),
     );
   }

@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -70,17 +71,22 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
     try {
       final languageId = ref.read(currentLearningLanguageProvider);
       final results = await Future.wait([
-        repository.getVerses(book: widget.book, chapter: widget.chapter, languageId: languageId),
+        repository.getVerses(
+          book: widget.book,
+          chapter: widget.chapter,
+          languageId: languageId,
+        ),
         repository.getChapters(languageId: languageId),
       ]);
-      final fetchedVerses = (results[0] as List<BibleVerse>)..sort((a, b) => a.verse.compareTo(b.verse));
+      final fetchedVerses = (results[0] as List<BibleVerse>)
+        ..sort((a, b) => a.verse.compareTo(b.verse));
       final allChapters = results[1] as List<BibleChapterInfo>;
 
       final gospel = matchGospelBook(widget.book);
       final relevantChapters = gospel != null
           ? consolidatedChaptersForGospel(allChapters, gospel)
           : (allChapters.where((c) => c.book == widget.book).toList()
-            ..sort((a, b) => a.chapter.compareTo(b.chapter)));
+              ..sort((a, b) => a.chapter.compareTo(b.chapter)));
 
       if (!mounted) return;
       setState(() {
@@ -112,11 +118,14 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
     final isFrench = locale.languageCode == 'fr';
     final title = widget.displayName ?? widget.book;
 
-    final currentIndex = availableChapters.indexWhere((c) => c.chapter == widget.chapter);
+    final currentIndex = availableChapters.indexWhere(
+      (c) => c.chapter == widget.chapter,
+    );
     final hasPrev = currentIndex > 0;
-    final hasNext = currentIndex != -1 && currentIndex < availableChapters.length - 1;
+    final hasNext =
+        currentIndex != -1 && currentIndex < availableChapters.length - 1;
 
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         title: Column(
@@ -126,7 +135,10 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
             Text(title, style: const TextStyle(fontSize: 16)),
             Text(
               l10n.bibleChapterLabel(widget.chapter),
-              style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+              style: const TextStyle(
+                fontSize: 12,
+                color: AppColors.textSecondary,
+              ),
             ),
           ],
         ),
@@ -141,109 +153,123 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
                 child: ShimmerListLoader(itemCount: 4, itemHeight: 90),
               )
             : hasError || verses.isEmpty
-                ? Padding(
-                    padding: const EdgeInsets.all(AppSpacing.xl),
-                    child: EmptyState(
-                      icon: Icons.error_outline,
-                      iconColor: AppColors.error,
-                      title: l10n.bibleChapterNotFoundTitle,
-                      message: l10n.bibleChapterNotFoundMessage,
+            ? Padding(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: EmptyState(
+                  icon: Icons.error_outline,
+                  iconColor: AppColors.error,
+                  title: l10n.bibleChapterNotFoundTitle,
+                  message: l10n.bibleChapterNotFoundMessage,
+                ),
+              )
+            : Column(
+                children: [
+                  Expanded(
+                    child: PageWidth(
+                      child: ListView.builder(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.xl,
+                          AppSpacing.lg,
+                          AppSpacing.xl,
+                          AppSpacing.xl,
+                        ),
+                        itemCount: verses.length,
+                        itemBuilder: (context, index) => _VerseTile(
+                          verse: verses[index],
+                          isFrench: isFrench,
+                          pendingLabel: l10n.bibleTranslationPending,
+                        ),
+                      ),
                     ),
-                  )
-                : Column(
-                    children: [
-                      Expanded(
-                        child: PageWidth(child: ListView.builder(
-                          padding: const EdgeInsets.fromLTRB(
-                            AppSpacing.xl,
-                            AppSpacing.lg,
-                            AppSpacing.xl,
-                            AppSpacing.xl,
-                          ),
-                          itemCount: verses.length,
-                          itemBuilder: (context, index) => _VerseTile(
-                            verse: verses[index],
-                            isFrench: isFrench,
-                            pendingLabel: l10n.bibleTranslationPending,
-                          ),
-                        )),
-                      ),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.xl,
-                          vertical: AppSpacing.md,
-                        ),
-                        decoration: const BoxDecoration(
-                          color: AppColors.surface,
-                          border: Border(top: BorderSide(color: AppColors.divider)),
-                        ),
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: OutlinedButton(
-                                onPressed: hasPrev
-                                    ? () => _goToChapter(availableChapters[currentIndex - 1])
-                                    : null,
-                                style: OutlinedButton.styleFrom(
-                                  foregroundColor: AppColors.scripture,
-                                  side: const BorderSide(color: AppColors.scripture),
-                                ),
-                                // Built by hand rather than OutlinedButton.icon:
-                                // that constructor lays its label out with no
-                                // Flexible/ellipsis, so a longer translation
-                                // (e.g. French "Chapitre précédent") overflows
-                                // the half-width button on a narrow phone.
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    const Icon(Icons.chevron_left),
-                                    const SizedBox(width: AppSpacing.xs),
-                                    Flexible(
-                                      child: Text(
-                                        l10n.biblePreviousChapter,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.md),
-                            Expanded(
-                              child: FilledButton(
-                                onPressed: hasNext
-                                    ? () => _goToChapter(availableChapters[currentIndex + 1])
-                                    : null,
-                                style: FilledButton.styleFrom(backgroundColor: AppColors.scripture),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Flexible(
-                                      child: Text(
-                                        l10n.bibleNextChapter,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 1,
-                                      ),
-                                    ),
-                                    const SizedBox(width: AppSpacing.xs),
-                                    const Icon(Icons.chevron_right),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
                   ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.xl,
+                      vertical: AppSpacing.md,
+                    ),
+                    decoration: const BoxDecoration(
+                      color: AppColors.surface,
+                      border: Border(top: BorderSide(color: AppColors.divider)),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: OutlinedButton(
+                            onPressed: hasPrev
+                                ? () => _goToChapter(
+                                    availableChapters[currentIndex - 1],
+                                  )
+                                : null,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.scripture,
+                              side: const BorderSide(
+                                color: AppColors.scripture,
+                              ),
+                            ),
+                            // Built by hand rather than OutlinedButton.icon:
+                            // that constructor lays its label out with no
+                            // Flexible/ellipsis, so a longer translation
+                            // (e.g. French "Chapitre précédent") overflows
+                            // the half-width button on a narrow phone.
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(Icons.chevron_left),
+                                const SizedBox(width: AppSpacing.xs),
+                                Flexible(
+                                  child: Text(
+                                    l10n.biblePreviousChapter,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.md),
+                        Expanded(
+                          child: FilledButton(
+                            onPressed: hasNext
+                                ? () => _goToChapter(
+                                    availableChapters[currentIndex + 1],
+                                  )
+                                : null,
+                            style: FilledButton.styleFrom(
+                              backgroundColor: AppColors.scripture,
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Flexible(
+                                  child: Text(
+                                    l10n.bibleNextChapter,
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 1,
+                                  ),
+                                ),
+                                const SizedBox(width: AppSpacing.xs),
+                                const Icon(Icons.chevron_right),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
       ),
     );
   }
 }
 
 class _VerseTile extends StatelessWidget {
-  const _VerseTile({required this.verse, required this.isFrench, required this.pendingLabel});
+  const _VerseTile({
+    required this.verse,
+    required this.isFrench,
+    required this.pendingLabel,
+  });
 
   final BibleVerse verse;
   final bool isFrench;
@@ -289,7 +315,10 @@ class _VerseTile extends StatelessWidget {
               children: [
                 Text(
                   verse.text,
-                  style: AppTypography.body.copyWith(height: 1.55, fontWeight: FontWeight.w500),
+                  style: AppTypography.body.copyWith(
+                    height: 1.55,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
                 const SizedBox(height: AppSpacing.sm),
                 Container(height: 1, color: AppColors.divider),
@@ -298,8 +327,12 @@ class _VerseTile extends StatelessWidget {
                   translation ?? pendingLabel,
                   style: AppTypography.caption.copyWith(
                     height: 1.4,
-                    fontStyle: translation == null ? FontStyle.italic : FontStyle.normal,
-                    color: translation == null ? AppColors.textSecondary : AppColors.textPrimary,
+                    fontStyle: translation == null
+                        ? FontStyle.italic
+                        : FontStyle.normal,
+                    color: translation == null
+                        ? AppColors.textSecondary
+                        : AppColors.textPrimary,
                   ),
                 ),
               ],

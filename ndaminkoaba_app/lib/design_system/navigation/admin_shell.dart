@@ -12,6 +12,8 @@ import '../radius/app_radius.dart';
 import '../spacing/app_spacing.dart';
 import '../typography/app_typography.dart';
 import '../widgets/notifications_sheet.dart';
+import '../widgets/nda_page_background.dart';
+import '../widgets/nda_gold_divider.dart';
 import 'admin_sidebar.dart';
 
 /// Desktop-only web-admin shell — persistent left sidebar + top bar +
@@ -107,26 +109,32 @@ class _AdminShellState extends ConsumerState<AdminShell> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           if (constraints.maxWidth < 900) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(AppSpacing.xl),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Icon(Icons.desktop_windows_outlined, size: 48, color: AppColors.textSecondary),
-                    const SizedBox(height: AppSpacing.md),
-                    Text(
-                      l10n.adminNeedsWiderScreen,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.title,
-                    ),
-                    const SizedBox(height: AppSpacing.sm),
-                    Text(
-                      l10n.adminResizeBrowserMessage,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.caption,
-                    ),
-                  ],
+            return NdaPageBackground(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(AppSpacing.xl),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.desktop_windows_outlined,
+                        size: 48,
+                        color: AppColors.textSecondary,
+                      ),
+                      const SizedBox(height: AppSpacing.md),
+                      Text(
+                        l10n.adminNeedsWiderScreen,
+                        textAlign: TextAlign.center,
+                        style: AppTypography.title,
+                      ),
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        l10n.adminResizeBrowserMessage,
+                        textAlign: TextAlign.center,
+                        style: AppTypography.caption,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             );
@@ -143,110 +151,167 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                 userAvatarUrl: avatarUrl,
               ),
               Expanded(
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl, vertical: AppSpacing.lg),
-                      decoration: const BoxDecoration(
-                        color: AppColors.surface,
-                        border: Border(bottom: BorderSide(color: AppColors.divider)),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                if (widget.breadcrumbs != null && widget.breadcrumbs!.isNotEmpty)
-                                  Text(widget.breadcrumbs!.join(' / '), style: AppTypography.caption),
-                                Text(widget.title, style: AppTypography.h2),
-                                if (widget.subtitle != null)
-                                  Padding(
-                                    padding: const EdgeInsets.only(top: 2),
-                                    child: Text(widget.subtitle!, style: AppTypography.caption),
-                                  ),
-                              ],
-                            ),
+                child: NdaPageBackground(
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.xl,
+                          vertical: AppSpacing.lg,
+                        ),
+                        decoration: const BoxDecoration(
+                          color: AppColors.lightCream,
+                          border: Border(
+                            bottom: BorderSide(color: AppColors.divider),
                           ),
-                          const SizedBox(width: AppSpacing.lg),
-                          InkWell(
-                            borderRadius: AppRadius.circle,
-                            onTap: _openNotifications,
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 4),
-                              child: Stack(
-                                clipBehavior: Clip.none,
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
-                                  if (unreadCount > 0)
-                                    Positioned(
-                                      right: -1,
-                                      top: -1,
-                                      child: Container(
-                                        width: 9,
-                                        height: 9,
-                                        decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle),
+                                  if (widget.breadcrumbs != null &&
+                                      widget.breadcrumbs!.isNotEmpty)
+                                    Text(
+                                      widget.breadcrumbs!.join(' / '),
+                                      style: AppTypography.caption,
+                                    ),
+                                  Text(
+                                    widget.title,
+                                    style: AppTypography.h2.copyWith(
+                                      color: AppColors.primary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  const NdaGoldDivider(),
+                                  if (widget.subtitle != null)
+                                    Padding(
+                                      padding: const EdgeInsets.only(top: 2),
+                                      child: Text(
+                                        widget.subtitle!,
+                                        style: AppTypography.caption,
                                       ),
                                     ),
                                 ],
                               ),
                             ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          InkWell(
-                            borderRadius: AppRadius.circle,
-                            onTap: _toggleLocale,
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
-                              decoration: BoxDecoration(
-                                border: Border.all(color: AppColors.divider),
-                                borderRadius: AppRadius.circle,
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    locale.toUpperCase(),
-                                    style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 12),
-                                  ),
-                                  const Icon(Icons.expand_more, size: 16, color: AppColors.primary),
-                                ],
-                              ),
-                            ),
-                          ),
-                          if (widget.actions != null) ...[
-                            const SizedBox(width: AppSpacing.md),
-                            ...widget.actions!,
-                          ],
-                          const SizedBox(width: AppSpacing.md),
-                          InkWell(
-                            borderRadius: AppRadius.circle,
-                            onTap: _openProfile,
-                            child: CircleAvatar(
-                              radius: 16,
-                              backgroundColor: AppColors.primary,
-                              backgroundImage: (avatarUrl?.isNotEmpty ?? false)
-                                  ? NetworkImage(AppConfig.resolveUrl(avatarUrl!))
-                                  : null,
-                              child: (avatarUrl?.isNotEmpty ?? false)
-                                  ? null
-                                  : Text(
-                                      (userName?.isNotEmpty ?? false) ? userName![0].toUpperCase() : '?',
-                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w700, fontSize: 12),
+                            const SizedBox(width: AppSpacing.lg),
+                            InkWell(
+                              borderRadius: AppRadius.circle,
+                              onTap: _openNotifications,
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                child: Stack(
+                                  clipBehavior: Clip.none,
+                                  children: [
+                                    const Icon(
+                                      Icons.notifications_outlined,
+                                      color: AppColors.textPrimary,
                                     ),
+                                    if (unreadCount > 0)
+                                      Positioned(
+                                        right: -1,
+                                        top: -1,
+                                        child: Container(
+                                          width: 9,
+                                          height: 9,
+                                          decoration: const BoxDecoration(
+                                            color: AppColors.secondary,
+                                            shape: BoxShape.circle,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            InkWell(
+                              borderRadius: AppRadius.circle,
+                              onTap: _toggleLocale,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.sm,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  border: Border.all(color: AppColors.divider),
+                                  borderRadius: AppRadius.circle,
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      locale.toUpperCase(),
+                                      style: const TextStyle(
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.w700,
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    const Icon(
+                                      Icons.expand_more,
+                                      size: 16,
+                                      color: AppColors.primary,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            InkWell(
+                              borderRadius: AppRadius.circle,
+                              onTap: _openProfile,
+                              child: CircleAvatar(
+                                radius: 16,
+                                backgroundColor: AppColors.primary,
+                                backgroundImage:
+                                    (avatarUrl?.isNotEmpty ?? false)
+                                    ? NetworkImage(
+                                        AppConfig.resolveUrl(avatarUrl!),
+                                      )
+                                    : null,
+                                child: (avatarUrl?.isNotEmpty ?? false)
+                                    ? null
+                                    : Text(
+                                        (userName?.isNotEmpty ?? false)
+                                            ? userName![0].toUpperCase()
+                                            : '?',
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w700,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (widget.actions?.isNotEmpty ?? false)
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(24, 12, 24, 0),
+                          child: Align(
+                            alignment: Alignment.centerRight,
+                            child: Wrap(
+                              spacing: 10,
+                              runSpacing: 10,
+                              children: widget.actions!,
                             ),
                           ),
-                        ],
+                        ),
+                      Expanded(
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.all(AppSpacing.xl),
+                          child: widget.child,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.all(AppSpacing.xl),
-                        child: widget.child,
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],

@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -134,228 +135,244 @@ class _LearnHubScreenState extends ConsumerState<LearnHubScreen> {
 
     return LearnerShell(
       activeNavKey: '',
-      child: Scaffold(
-      backgroundColor: AppColors.background,
-      body: SafeArea(
-        child: RefreshIndicator(
-          onRefresh: load,
-          child: PageWidth(child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            padding: const EdgeInsets.fromLTRB(
-              AppSpacing.xl,
-              AppSpacing.xl,
-              AppSpacing.xl,
-              AppSpacing.giant,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                AppHeader(
-                  onBack: () => context.go('/dashboard'),
-                  title: l10n.learnHubTitle,
-                  subtitle: l10n.learnHubSubtitle,
+      child: NdaScaffold(
+        backgroundColor: AppColors.background,
+        body: SafeArea(
+          child: RefreshIndicator(
+            onRefresh: load,
+            child: PageWidth(
+              child: SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(
+                  AppSpacing.xl,
+                  AppSpacing.xl,
+                  AppSpacing.xl,
+                  AppSpacing.giant,
                 ),
-                const SizedBox(height: AppSpacing.xl),
-                Row(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Expanded(
-                      child: PremiumTextField(
-                        hint: l10n.searchCoursesHint,
-                        controller: searchController,
-                        prefixIcon: Icons.search,
-                        onChanged: (value) =>
-                            setState(() => searchQuery = value),
+                    AppHeader(
+                      onBack: () => context.go('/dashboard'),
+                      title: l10n.learnHubTitle,
+                      subtitle: l10n.learnHubSubtitle,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: PremiumTextField(
+                            hint: l10n.searchCoursesHint,
+                            controller: searchController,
+                            prefixIcon: Icons.search,
+                            onChanged: (value) =>
+                                setState(() => searchQuery = value),
+                          ),
+                        ),
+                        const SizedBox(width: AppSpacing.sm),
+                        Container(
+                          width: 48,
+                          height: 48,
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: AppRadius.medium,
+                          ),
+                          child: const Icon(
+                            Icons.tune,
+                            color: AppColors.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: AppSpacing.lg),
+                    InkWell(
+                      borderRadius: AppRadius.medium,
+                      onTap: () => context.push('/syllabary'),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.lg,
+                          vertical: AppSpacing.md,
+                        ),
+                        decoration: BoxDecoration(
+                          color: AppColors.ai.withValues(alpha: 0.08),
+                          borderRadius: AppRadius.medium,
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.grid_view_outlined,
+                              color: AppColors.ai,
+                            ),
+                            const SizedBox(width: AppSpacing.md),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Alphabet', style: AppTypography.title),
+                                  Text(
+                                    'Browse syllables by letter',
+                                    style: AppTypography.caption,
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const Icon(
+                              Icons.chevron_right,
+                              color: AppColors.ai,
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                    const SizedBox(width: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.lg),
                     Container(
-                      width: 48,
-                      height: 48,
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: AppRadius.medium,
+                        borderRadius: AppRadius.circle,
                       ),
-                      child: const Icon(Icons.tune, color: AppColors.primary),
+                      child: Row(
+                        children: _kLevels.map((level) {
+                          final selected = selectedLevel == level;
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() => selectedLevel = level);
+                                load();
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: AppSpacing.sm,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: selected
+                                      ? AppColors.primary
+                                      : Colors.transparent,
+                                  borderRadius: AppRadius.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: Text(
+                                  _CoursesLevelLabel.of(l10n, level),
+                                  style: TextStyle(
+                                    color: selected
+                                        ? Colors.white
+                                        : AppColors.textPrimary,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                InkWell(
-                  borderRadius: AppRadius.medium,
-                  onTap: () => context.push('/syllabary'),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.lg,
-                      vertical: AppSpacing.md,
-                    ),
-                    decoration: BoxDecoration(
-                      color: AppColors.ai.withValues(alpha: 0.08),
-                      borderRadius: AppRadius.medium,
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.grid_view_outlined, color: AppColors.ai),
-                        const SizedBox(width: AppSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    const SizedBox(height: AppSpacing.xl),
+
+                    if (isLoading)
+                      const ShimmerListLoader(itemCount: 3, itemHeight: 108)
+                    else if (_visibleCourses.isEmpty)
+                      EmptyState(
+                        icon: Icons.menu_book_outlined,
+                        title: l10n.noCoursesTitle,
+                        message: l10n.noCoursesMessage,
+                      )
+                    else ...[
+                      SectionTitle(
+                        title: l10n.availableCoursesTitle,
+                        subtitle: l10n.availableCoursesSubtitle,
+                      ),
+                      const SizedBox(height: AppSpacing.lg),
+                      ..._visibleCourses.map((course) {
+                        final locked = !unlockedLevels.contains(course.level);
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(24),
+                            onTap: locked
+                                ? () => _showLevelLocked(course.level)
+                                : () => context.push('/courses/${course.id}'),
+                            child: CourseCard(
+                              course: course,
+                              locked: locked,
+                              isFrench: isFrench,
+                            ),
+                          ),
+                        );
+                      }),
+                    ],
+
+                    const SizedBox(height: AppSpacing.xl),
+                    Container(
+                      width: double.infinity,
+                      clipBehavior: Clip.antiAlias,
+                      decoration: BoxDecoration(
+                        gradient: AppGradients.primary,
+                        borderRadius: AppRadius.large,
+                      ),
+                      padding: const EdgeInsets.all(AppSpacing.lg),
+                      child: Stack(
+                        children: [
+                          const GoldCornerPattern(
+                            color: Colors.white,
+                            size: 48,
+                          ),
+                          Row(
                             children: [
-                              Text('Alphabet', style: AppTypography.title),
+                              Container(
+                                width: 44,
+                                height: 44,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.15),
+                                  shape: BoxShape.circle,
+                                ),
+                                alignment: Alignment.center,
+                                child: const Icon(
+                                  Icons.local_fire_department,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.md),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      l10n.dailyGoalTitle,
+                                      style: AppTypography.title.copyWith(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    Text(
+                                      l10n.dailyGoalSubtitle,
+                                      style: TextStyle(
+                                        color: Colors.white.withValues(
+                                          alpha: 0.85,
+                                        ),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
                               Text(
-                                'Browse syllables by letter',
-                                style: AppTypography.caption,
+                                dailyGoalMetToday ? '1/1' : '0/1',
+                                style: AppTypography.h2.copyWith(
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
-                        ),
-                        const Icon(Icons.chevron_right, color: AppColors.ai),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.lg),
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: AppColors.surface,
-                    borderRadius: AppRadius.circle,
-                  ),
-                  child: Row(
-                    children: _kLevels.map((level) {
-                      final selected = selectedLevel == level;
-                      return Expanded(
-                        child: GestureDetector(
-                          onTap: () {
-                            setState(() => selectedLevel = level);
-                            load();
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 200),
-                            padding: const EdgeInsets.symmetric(
-                              vertical: AppSpacing.sm,
-                            ),
-                            decoration: BoxDecoration(
-                              color: selected
-                                  ? AppColors.primary
-                                  : Colors.transparent,
-                              borderRadius: AppRadius.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: Text(
-                              _CoursesLevelLabel.of(l10n, level),
-                              style: TextStyle(
-                                color: selected
-                                    ? Colors.white
-                                    : AppColors.textPrimary,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.xl),
-
-                if (isLoading)
-                  const ShimmerListLoader(itemCount: 3, itemHeight: 108)
-                else if (_visibleCourses.isEmpty)
-                  EmptyState(
-                    icon: Icons.menu_book_outlined,
-                    title: l10n.noCoursesTitle,
-                    message: l10n.noCoursesMessage,
-                  )
-                else ...[
-                  SectionTitle(
-                    title: l10n.availableCoursesTitle,
-                    subtitle: l10n.availableCoursesSubtitle,
-                  ),
-                  const SizedBox(height: AppSpacing.lg),
-                  ..._visibleCourses.map((course) {
-                    final locked = !unlockedLevels.contains(course.level);
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(24),
-                        onTap: locked
-                            ? () => _showLevelLocked(course.level)
-                            : () => context.push('/courses/${course.id}'),
-                        child: CourseCard(
-                          course: course,
-                          locked: locked,
-                          isFrench: isFrench,
-                        ),
-                      ),
-                    );
-                  }),
-                ],
-
-                const SizedBox(height: AppSpacing.xl),
-                Container(
-                  width: double.infinity,
-                  clipBehavior: Clip.antiAlias,
-                  decoration: BoxDecoration(
-                    gradient: AppGradients.primary,
-                    borderRadius: AppRadius.large,
-                  ),
-                  padding: const EdgeInsets.all(AppSpacing.lg),
-                  child: Stack(
-                    children: [
-                      const GoldCornerPattern(color: Colors.white, size: 48),
-                      Row(
-                        children: [
-                          Container(
-                            width: 44,
-                            height: 44,
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              shape: BoxShape.circle,
-                            ),
-                            alignment: Alignment.center,
-                            child: const Icon(
-                              Icons.local_fire_department,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: AppSpacing.md),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  l10n.dailyGoalTitle,
-                                  style: AppTypography.title.copyWith(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                                Text(
-                                  l10n.dailyGoalSubtitle,
-                                  style: TextStyle(
-                                    color: Colors.white.withValues(alpha: 0.85),
-                                    fontSize: 12,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Text(
-                            dailyGoalMetToday ? '1/1' : '0/1',
-                            style: AppTypography.h2.copyWith(
-                              color: Colors.white,
-                            ),
-                          ),
                         ],
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          )),
+          ),
         ),
-      ),
       ),
     );
   }

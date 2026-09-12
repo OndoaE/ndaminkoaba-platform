@@ -1,3 +1,4 @@
+import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -131,7 +132,7 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
   Widget build(BuildContext context) {
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
 
-    return Scaffold(
+    return NdaScaffold(
       backgroundColor: AppColors.background,
       body: SafeArea(
         child: Builder(
@@ -203,73 +204,75 @@ class _QuizScreenState extends ConsumerState<QuizScreen> {
               );
             }
 
-            return PageWidth(child: SingleChildScrollView(
-              padding: const EdgeInsets.all(AppSpacing.xl),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  BouncyIconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.arrow_back),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  Text(
-                    localizedText(
-                      currentQuiz.title,
-                      currentQuiz.frenchTitle,
-                      isFrench,
+            return PageWidth(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.all(AppSpacing.xl),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    BouncyIconButton(
+                      onPressed: () => Navigator.pop(context),
+                      icon: const Icon(Icons.arrow_back),
                     ),
-                    style: AppTypography.h1.copyWith(
-                      color: AppColors.primary,
-                      fontWeight: FontWeight.w800,
-                    ),
-                  ),
-                  if (localizedText(
-                    currentQuiz.description ?? '',
-                    currentQuiz.frenchDescription,
-                    isFrench,
-                  ).isNotEmpty) ...[
-                    const SizedBox(height: AppSpacing.sm),
+                    const SizedBox(height: AppSpacing.md),
                     Text(
                       localizedText(
-                        currentQuiz.description ?? '',
-                        currentQuiz.frenchDescription,
+                        currentQuiz.title,
+                        currentQuiz.frenchTitle,
                         isFrench,
                       ),
-                      style: AppTypography.caption,
-                    ),
-                  ],
-                  const SizedBox(height: AppSpacing.sm),
-                  Text(
-                    l10n.passMarkLabel(currentQuiz.passingScore),
-                    style: AppTypography.caption,
-                  ),
-                  const SizedBox(height: AppSpacing.xl),
-                  ...currentQuiz.questions.asMap().entries.map(
-                    (entry) => Padding(
-                      padding: const EdgeInsets.only(bottom: AppSpacing.lg),
-                      child: _QuestionCard(
-                        index: entry.key + 1,
-                        question: entry.value,
-                        selectedChoiceId: selectedAnswers[entry.value.id],
-                        onSelected: (choiceId) {
-                          setState(() {
-                            selectedAnswers[entry.value.id] = choiceId;
-                          });
-                        },
-                        isFrench: isFrench,
+                      style: AppTypography.h1.copyWith(
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w800,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: AppSpacing.md),
-                  PrimaryButton(
-                    label: l10n.submitQuizButton,
-                    isLoading: isSubmitting,
-                    onPressed: submit,
-                  ),
-                ],
+                    if (localizedText(
+                      currentQuiz.description ?? '',
+                      currentQuiz.frenchDescription,
+                      isFrench,
+                    ).isNotEmpty) ...[
+                      const SizedBox(height: AppSpacing.sm),
+                      Text(
+                        localizedText(
+                          currentQuiz.description ?? '',
+                          currentQuiz.frenchDescription,
+                          isFrench,
+                        ),
+                        style: AppTypography.caption,
+                      ),
+                    ],
+                    const SizedBox(height: AppSpacing.sm),
+                    Text(
+                      l10n.passMarkLabel(currentQuiz.passingScore),
+                      style: AppTypography.caption,
+                    ),
+                    const SizedBox(height: AppSpacing.xl),
+                    ...currentQuiz.questions.asMap().entries.map(
+                      (entry) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.lg),
+                        child: _QuestionCard(
+                          index: entry.key + 1,
+                          question: entry.value,
+                          selectedChoiceId: selectedAnswers[entry.value.id],
+                          onSelected: (choiceId) {
+                            setState(() {
+                              selectedAnswers[entry.value.id] = choiceId;
+                            });
+                          },
+                          isFrench: isFrench,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.md),
+                    PrimaryButton(
+                      label: l10n.submitQuizButton,
+                      isLoading: isSubmitting,
+                      onPressed: submit,
+                    ),
+                  ],
+                ),
               ),
-            ));
+            );
           },
         ),
       ),
@@ -392,115 +395,120 @@ class _QuizResultView extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     final color = result.passed ? AppColors.success : AppColors.error;
 
-    return PageWidth(child: SingleChildScrollView(
-      padding: const EdgeInsets.all(AppSpacing.xl),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          GradientHeroCard(
-            gradient: LinearGradient(
-              colors: [color, color.withValues(alpha: 0.8)],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            child: Column(
-              children: [
-                if (result.passed)
-                  SizedBox(
-                    width: 80,
-                    height: 80,
-                    child: Lottie.asset(
-                      'assets/lottie/quiz_success.json',
-                      fit: BoxFit.contain,
-                      repeat: false,
-                      errorBuilder: (context, error, stackTrace) => const Icon(
-                        Icons.check_circle,
-                        color: Colors.white,
-                        size: 48,
-                      ),
-                    ),
-                  )
-                else
-                  const Icon(Icons.cancel, color: Colors.white, size: 48),
-                const SizedBox(height: AppSpacing.md),
-                Text(
-                  result.passed ? l10n.youPassedTitle : l10n.notQuiteThereTitle,
-                  style: AppTypography.h2.copyWith(color: Colors.white),
-                ),
-                const SizedBox(height: AppSpacing.sm),
-                Text(
-                  l10n.scoreSummary(result.score, quiz.passingScore),
-                  style: const TextStyle(color: Colors.white70),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: AppSpacing.xl),
-          Text(l10n.reviewTitle, style: AppTypography.title),
-          const SizedBox(height: AppSpacing.md),
-          ...quiz.questions.map((question) {
-            final questionResult = result.results.firstWhere(
-              (r) => r.questionId == question.id,
-              orElse: () =>
-                  const QuestionResult(questionId: '', isCorrect: false),
-            );
-
-            return Padding(
-              padding: const EdgeInsets.only(bottom: AppSpacing.md),
-              child: PremiumCard(
-                child: Row(
-                  children: [
-                    Icon(
-                      questionResult.isCorrect
-                          ? Icons.check_circle
-                          : Icons.cancel,
-                      color: questionResult.isCorrect
-                          ? AppColors.success
-                          : AppColors.error,
-                    ),
-                    const SizedBox(width: AppSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            localizedText(
-                              question.questionText,
-                              question.frenchQuestionText,
-                              isFrench,
+    return PageWidth(
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            GradientHeroCard(
+              gradient: LinearGradient(
+                colors: [color, color.withValues(alpha: 0.8)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              child: Column(
+                children: [
+                  if (result.passed)
+                    SizedBox(
+                      width: 80,
+                      height: 80,
+                      child: Lottie.asset(
+                        'assets/lottie/quiz_success.json',
+                        fit: BoxFit.contain,
+                        repeat: false,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(
+                              Icons.check_circle,
+                              color: Colors.white,
+                              size: 48,
                             ),
-                          ),
-                          if (!questionResult.isCorrect &&
-                              localizedText(
-                                question.explanation ?? '',
-                                question.frenchExplanation,
-                                isFrench,
-                              ).isNotEmpty) ...[
-                            const SizedBox(height: AppSpacing.xs),
+                      ),
+                    )
+                  else
+                    const Icon(Icons.cancel, color: Colors.white, size: 48),
+                  const SizedBox(height: AppSpacing.md),
+                  Text(
+                    result.passed
+                        ? l10n.youPassedTitle
+                        : l10n.notQuiteThereTitle,
+                    style: AppTypography.h2.copyWith(color: Colors.white),
+                  ),
+                  const SizedBox(height: AppSpacing.sm),
+                  Text(
+                    l10n.scoreSummary(result.score, quiz.passingScore),
+                    style: const TextStyle(color: Colors.white70),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: AppSpacing.xl),
+            Text(l10n.reviewTitle, style: AppTypography.title),
+            const SizedBox(height: AppSpacing.md),
+            ...quiz.questions.map((question) {
+              final questionResult = result.results.firstWhere(
+                (r) => r.questionId == question.id,
+                orElse: () =>
+                    const QuestionResult(questionId: '', isCorrect: false),
+              );
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.md),
+                child: PremiumCard(
+                  child: Row(
+                    children: [
+                      Icon(
+                        questionResult.isCorrect
+                            ? Icons.check_circle
+                            : Icons.cancel,
+                        color: questionResult.isCorrect
+                            ? AppColors.success
+                            : AppColors.error,
+                      ),
+                      const SizedBox(width: AppSpacing.md),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
                             Text(
                               localizedText(
-                                question.explanation ?? '',
-                                question.frenchExplanation,
+                                question.questionText,
+                                question.frenchQuestionText,
                                 isFrench,
                               ),
-                              style: AppTypography.caption,
                             ),
+                            if (!questionResult.isCorrect &&
+                                localizedText(
+                                  question.explanation ?? '',
+                                  question.frenchExplanation,
+                                  isFrench,
+                                ).isNotEmpty) ...[
+                              const SizedBox(height: AppSpacing.xs),
+                              Text(
+                                localizedText(
+                                  question.explanation ?? '',
+                                  question.frenchExplanation,
+                                  isFrench,
+                                ),
+                                style: AppTypography.caption,
+                              ),
+                            ],
                           ],
-                        ],
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            );
-          }),
-          const SizedBox(height: AppSpacing.lg),
-          if (!result.passed)
-            PrimaryButton(label: l10n.tryAgainButton, onPressed: onRetry)
-          else
-            PrimaryButton(label: l10n.continueButton, onPressed: onDone),
-        ],
+              );
+            }),
+            const SizedBox(height: AppSpacing.lg),
+            if (!result.passed)
+              PrimaryButton(label: l10n.tryAgainButton, onPressed: onRetry)
+            else
+              PrimaryButton(label: l10n.continueButton, onPressed: onDone),
+          ],
+        ),
       ),
-    ));
+    );
   }
 }

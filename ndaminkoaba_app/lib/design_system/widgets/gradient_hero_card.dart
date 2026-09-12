@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../colors/app_colors.dart';
 import '../radius/app_radius.dart';
 import '../spacing/app_spacing.dart';
+import 'nda_floral_decoration.dart';
 
 /// The gradient-banner-with-colored-shadow container used for every screen's
 /// hero section (dashboard stats, courses header, admin dashboard, quiz
@@ -30,7 +31,7 @@ class GradientHeroCard extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      padding: padding,
+      clipBehavior: Clip.antiAlias,
       decoration: BoxDecoration(
         gradient: gradient,
         borderRadius: borderRadius ?? AppRadius.extraLarge,
@@ -42,7 +43,21 @@ class GradientHeroCard extends StatelessWidget {
           ),
         ],
       ),
-      child: child,
+      child: Stack(
+        children: [
+          Positioned(
+            top: 0,
+            right: 0,
+            bottom: 0,
+            child: NdaFloralDecoration(
+              corner: Alignment.topRight,
+              size: 240,
+              opacity: MediaQuery.sizeOf(context).width < 600 ? 0.1 : 0.25,
+            ),
+          ),
+          Padding(padding: padding, child: child),
+        ],
+      ),
     );
   }
 }

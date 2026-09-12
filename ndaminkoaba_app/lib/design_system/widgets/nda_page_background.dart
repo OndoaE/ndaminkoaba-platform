@@ -24,8 +24,8 @@ class NdaPageBackground extends StatelessWidget {
     required this.child,
     this.corners = const [Alignment.topLeft, Alignment.bottomRight],
     this.faintCorners = const [],
-    this.decorationSize = 220,
-    this.opacity = 0.5,
+    this.decorationSize = 420,
+    this.opacity = 0.14,
     this.fadeStop = 0.4,
     this.backgroundColor = AppColors.background,
   });
@@ -39,7 +39,7 @@ class NdaPageBackground extends StatelessWidget {
   final Color backgroundColor;
 
   Widget _bloom(Alignment corner, double blendOpacity, double size) {
-    final bleed = size * 0.15;
+    final bleed = size * 0.035;
     return Positioned(
       top: corner.y <= 0 ? -bleed : null,
       bottom: corner.y > 0 ? -bleed : null,
@@ -56,14 +56,21 @@ class NdaPageBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final narrow = MediaQuery.sizeOf(context).width < 600;
+    final effectiveSize = narrow
+        ? decorationSize.clamp(0.0, 280.0)
+        : decorationSize;
+    final effectiveOpacity = narrow && opacity <= 0.2 ? opacity * 0.5 : opacity;
     return Stack(
       children: [
         Positioned.fill(child: ColoredBox(color: backgroundColor)),
-        for (final corner in corners) _bloom(corner, opacity, decorationSize),
+        for (final corner in corners)
+          _bloom(corner, effectiveOpacity, effectiveSize),
         // Faint corners are a smaller, much dimmer accent — never a
         // second full-size bloom — so two corners always stay properly
         // clean rather than the page reading as flowers-on-all-sides.
-        for (final corner in faintCorners) _bloom(corner, opacity * 0.15, decorationSize * 0.65),
+        for (final corner in faintCorners)
+          _bloom(corner, effectiveOpacity * 0.15, effectiveSize * 0.65),
         child,
       ],
     );

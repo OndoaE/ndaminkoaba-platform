@@ -22,6 +22,7 @@ class AppHeader extends ConsumerStatefulWidget {
     this.subtitle,
     this.onBack,
     this.showAvatar = false,
+    this.large = false,
     this.trailing,
   });
 
@@ -33,6 +34,7 @@ class AppHeader extends ConsumerStatefulWidget {
 
   /// Shows a profile-shortcut avatar next to the bell (tab-root screens).
   final bool showAvatar;
+  final bool large;
 
   /// Extra action shown right after the title (e.g. a bookmark toggle on
   /// the lesson screen), before the bell/avatar/locale controls.
@@ -75,6 +77,7 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
   @override
   Widget build(BuildContext context) {
     final locale = ref.watch(localeProvider).languageCode;
+    final large = widget.large && MediaQuery.sizeOf(context).width >= 1200;
 
     return Row(
       children: [
@@ -89,8 +92,8 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
           ),
         ],
         Container(
-          width: 40,
-          height: 40,
+          width: large ? 54 : 40,
+          height: large ? 54 : 40,
           decoration: const BoxDecoration(shape: BoxShape.circle),
           clipBehavior: Clip.antiAlias,
           child: Image.asset(
@@ -110,14 +113,19 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
             children: [
               Text(
                 widget.title,
-                style: AppTypography.title.copyWith(fontWeight: FontWeight.w800),
+                style: AppTypography.title.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: large ? 24 : 18,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
               if (widget.subtitle != null)
                 Text(
                   widget.subtitle!,
-                  style: AppTypography.caption,
+                  style: AppTypography.caption.copyWith(
+                    fontSize: large ? 17 : 13,
+                  ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
@@ -136,7 +144,10 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                const Icon(Icons.notifications_outlined, color: AppColors.textPrimary),
+                const Icon(
+                  Icons.notifications_outlined,
+                  color: AppColors.textPrimary,
+                ),
                 if (unreadCount > 0)
                   Positioned(
                     right: -1,
@@ -144,7 +155,10 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
                     child: Container(
                       width: 9,
                       height: 9,
-                      decoration: const BoxDecoration(color: AppColors.secondary, shape: BoxShape.circle),
+                      decoration: const BoxDecoration(
+                        color: AppColors.secondary,
+                        shape: BoxShape.circle,
+                      ),
                     ),
                   ),
               ],
@@ -156,8 +170,8 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
           InkWell(
             borderRadius: AppRadius.circle,
             onTap: () => context.push('/profile'),
-            child: const CircleAvatar(
-              radius: 16,
+            child: CircleAvatar(
+              radius: large ? 22 : 16,
               backgroundColor: AppColors.primary,
               child: Icon(Icons.person, color: Colors.white, size: 18),
             ),
@@ -168,7 +182,10 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
           borderRadius: AppRadius.circle,
           onTap: _toggleLocale,
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 4),
+            padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.sm,
+              vertical: 4,
+            ),
             decoration: BoxDecoration(
               border: Border.all(color: AppColors.divider),
               borderRadius: AppRadius.circle,
@@ -178,9 +195,17 @@ class _AppHeaderState extends ConsumerState<AppHeader> {
               children: [
                 Text(
                   locale.toUpperCase(),
-                  style: const TextStyle(color: AppColors.primary, fontWeight: FontWeight.w700, fontSize: 12),
+                  style: const TextStyle(
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                  ),
                 ),
-                const Icon(Icons.expand_more, size: 16, color: AppColors.primary),
+                const Icon(
+                  Icons.expand_more,
+                  size: 16,
+                  color: AppColors.primary,
+                ),
               ],
             ),
           ),

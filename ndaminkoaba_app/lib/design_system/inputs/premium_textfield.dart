@@ -55,14 +55,17 @@ class PremiumTextField extends StatelessWidget {
             prefixIcon: prefixIcon == null ? null : Icon(prefixIcon),
             suffixIcon: suffixIcon,
             filled: true,
-            fillColor: AppColors.background,
+            fillColor: AppColors.lightCream,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: AppSpacing.lg,
               vertical: AppSpacing.lg,
             ),
             border: OutlineInputBorder(
               borderRadius: AppRadius.medium,
-              borderSide: BorderSide.none,
+              borderSide: const BorderSide(
+                color: AppColors.secondary,
+                width: 0.8,
+              ),
             ),
           ),
         ),
