@@ -6,6 +6,7 @@ import '../colors/app_colors.dart';
 import '../radius/app_radius.dart';
 import '../spacing/app_spacing.dart';
 import '../typography/app_typography.dart';
+import '../widgets/nda_floral_decoration.dart';
 
 class _LearnerNavItem {
   const _LearnerNavItem(this.key, this.label, this.icon, this.route);
@@ -48,7 +49,19 @@ class LearnerSidebar extends StatelessWidget {
       width: 248,
       color: AppColors.primary,
       child: SafeArea(
-        child: Column(
+        child: Stack(
+          children: [
+            const Positioned(
+              left: -60,
+              bottom: -40,
+              child: NdaFloralDecoration(
+                corner: Alignment.bottomLeft,
+                size: 260,
+                opacity: 0.22,
+                tint: AppColors.primary,
+              ),
+            ),
+            Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
@@ -105,6 +118,25 @@ class LearnerSidebar extends StatelessWidget {
                     ),
                 ],
               ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(
+                AppSpacing.lg,
+                AppSpacing.md,
+                AppSpacing.lg,
+                AppSpacing.lg,
+              ),
+              child: Text(
+                l10n.learnerShellQuote,
+                style: TextStyle(
+                  color: Colors.white.withValues(alpha: 0.65),
+                  fontSize: 11,
+                  fontStyle: FontStyle.italic,
+                  height: 1.5,
+                ),
+              ),
+            ),
+          ],
             ),
           ],
         ),

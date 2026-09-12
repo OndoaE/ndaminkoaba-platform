@@ -31,6 +31,7 @@ import '../../streaks/domain/streak_stats.dart';
 import '../data/profile_repository.dart';
 import '../domain/user_profile.dart';
 import '../../../design_system/widgets/page_width.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -179,7 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       activeNavKey: 'settings',
       child: Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: isLoading
             ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
@@ -457,7 +458,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ],
                 ),
               )),
-      ),
+      )),
       ),
     );
   }

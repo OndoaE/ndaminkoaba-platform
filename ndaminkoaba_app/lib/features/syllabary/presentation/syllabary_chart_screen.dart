@@ -13,6 +13,7 @@ import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/syllabary_repository.dart';
 import '../domain/syllabary_models.dart';
 import '../../../design_system/widgets/page_width.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 /// The syllable chart for one letter: every vowel row (syllable, example
 /// word, French translation, example sentence), in the order the admin
@@ -86,7 +87,7 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: GradientAppBar(title: '"${widget.letter}"'),
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: isLoading
             ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
@@ -163,7 +164,7 @@ class _SyllabaryChartScreenState extends ConsumerState<SyllabaryChartScreen> {
                       ),
                     ],
                   )),
-      ),
+      )),
     );
   }
 }

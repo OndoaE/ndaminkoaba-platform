@@ -10,6 +10,7 @@ import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/syllabary_repository.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 /// Alphabet grid — each tile is a letter with a syllabary chart behind it
 /// (see [SyllabaryChartScreen]). Reached from the Learn Hub.
@@ -70,7 +71,7 @@ class _SyllabaryAlphabetScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: const GradientAppBar(title: 'Alphabet'),
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: isLoading
             ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
@@ -123,7 +124,7 @@ class _SyllabaryAlphabetScreenState
                       );
                     },
                   ),
-      ),
+      )),
     );
   }
 }

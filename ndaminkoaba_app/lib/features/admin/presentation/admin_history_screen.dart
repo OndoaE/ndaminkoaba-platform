@@ -7,8 +7,8 @@ import '../../../design_system/cards/premium_card.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
+import '../../../design_system/navigation/admin_shell.dart';
 import '../../../design_system/widgets/empty_state.dart';
-import '../../../design_system/widgets/gradient_app_bar.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../data/admin_repository.dart';
 import '../domain/admin_models.dart';
@@ -139,99 +139,88 @@ class _AdminHistoryScreenState extends State<AdminHistoryScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      appBar: GradientAppBar(
-        title: 'History',
-        colors: const [Color(0xFF2F3E9E), Color(0xFF4B5FBD)],
-        actions: [
-          if (isAdmin)
-            IconButton(
-              onPressed: entries.isEmpty ? null : emptyHistory,
-              icon: const Icon(Icons.delete_sweep_outlined),
-              tooltip: 'Empty History',
-            ),
-        ],
-      ),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.xl),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                'Every create, edit, and delete made by any admin or teacher, '
-                'newest first — content is shared platform-wide, so this is how '
-                'you see who did what.',
-                style: AppTypography.caption,
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              SizedBox(
-                height: 40,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(right: AppSpacing.sm),
-                      child: ChoiceChip(
-                        label: const Text('All'),
-                        selected: selectedEntity == null,
-                        onSelected: (_) => selectEntity(null),
-                        selectedColor: _historyAccent,
-                        labelStyle: TextStyle(
-                          color: selectedEntity == null ? Colors.white : AppColors.textPrimary,
-                        ),
+    return AdminShell(
+      activeNavKey: 'history',
+      title: 'History',
+      subtitle: 'Every create, edit, and delete made by any admin or teacher, '
+          'newest first — content is shared platform-wide, so this is how '
+          'you see who did what.',
+      actions: [
+        if (isAdmin)
+          IconButton(
+            onPressed: entries.isEmpty ? null : emptyHistory,
+            icon: const Icon(Icons.delete_sweep_outlined),
+            tooltip: 'Empty History',
+          ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            height: 40,
+            child: ListView(
+              scrollDirection: Axis.horizontal,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.only(right: AppSpacing.sm),
+                  child: ChoiceChip(
+                    label: const Text('All'),
+                    selected: selectedEntity == null,
+                    onSelected: (_) => selectEntity(null),
+                    selectedColor: _historyAccent,
+                    labelStyle: TextStyle(
+                      color: selectedEntity == null ? Colors.white : AppColors.textPrimary,
+                    ),
+                  ),
+                ),
+                for (final entity in _entityFilters)
+                  Padding(
+                    padding: const EdgeInsets.only(right: AppSpacing.sm),
+                    child: ChoiceChip(
+                      label: Text(entity),
+                      selected: selectedEntity == entity,
+                      onSelected: (_) => selectEntity(entity),
+                      selectedColor: _historyAccent,
+                      labelStyle: TextStyle(
+                        color: selectedEntity == entity ? Colors.white : AppColors.textPrimary,
                       ),
                     ),
-                    for (final entity in _entityFilters)
-                      Padding(
-                        padding: const EdgeInsets.only(right: AppSpacing.sm),
-                        child: ChoiceChip(
-                          label: Text(entity),
-                          selected: selectedEntity == entity,
-                          onSelected: (_) => selectEntity(entity),
-                          selectedColor: _historyAccent,
-                          labelStyle: TextStyle(
-                            color: selectedEntity == entity ? Colors.white : AppColors.textPrimary,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              const SizedBox(height: AppSpacing.lg),
-              Expanded(
-                child: isLoading
-                    ? const ShimmerListLoader(itemCount: 6, itemHeight: 76)
-                    : error != null
-                        ? EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
-                        : entries.isEmpty
-                            ? const EmptyState(
-                                icon: Icons.history,
-                                title: 'No activity yet',
-                                message: 'Actions taken by admins and teachers will show up here.',
-                              )
-                            : ListView.separated(
-                                itemCount: entries.length + (page < totalPages ? 1 : 0),
-                                separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
-                                itemBuilder: (context, index) {
-                                  if (index == entries.length) {
-                                    return Padding(
-                                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
-                                      child: Center(
-                                        child: isLoadingMore
-                                            ? const CircularProgressIndicator()
-                                            : TextButton(onPressed: loadMore, child: const Text('Load more')),
-                                      ),
-                                    );
-                                  }
-                                  return _AuditLogTile(entry: entries[index]);
-                                },
-                              ),
-              ),
-            ],
+                  ),
+              ],
+            ),
           ),
-        ),
+          const SizedBox(height: AppSpacing.lg),
+          if (isLoading)
+            const ShimmerListLoader(itemCount: 6, itemHeight: 76)
+          else if (error != null)
+            EmptyState(icon: Icons.error_outline, title: 'Something went wrong', message: error)
+          else if (entries.isEmpty)
+            const EmptyState(
+              icon: Icons.history,
+              title: 'No activity yet',
+              message: 'Actions taken by admins and teachers will show up here.',
+            )
+          else
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: entries.length + (page < totalPages ? 1 : 0),
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              itemBuilder: (context, index) {
+                if (index == entries.length) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.md),
+                    child: Center(
+                      child: isLoadingMore
+                          ? const CircularProgressIndicator()
+                          : TextButton(onPressed: loadMore, child: const Text('Load more')),
+                    ),
+                  );
+                }
+                return _AuditLogTile(entry: entries[index]);
+              },
+            ),
+        ],
       ),
     );
   }

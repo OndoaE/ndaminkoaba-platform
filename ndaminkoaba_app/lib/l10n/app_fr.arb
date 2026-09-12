@@ -749,6 +749,7 @@
   "learnerNavHistory": "Historique",
   "learnerNavSettings": "Paramètres",
   "learnerShellTagline": "Mbolo! Apprenons ensemble",
+  "learnerShellQuote": "Notre langue,\nNotre identité,\nNotre avenir.",
   "learnerHistoryEmptyMessage": "Aucune leçon consultée pour le moment. Ouvrez une leçon pour la voir ici.",
   "learnerHistoryViewedOn": "Consulté le {date}",
   "@learnerHistoryViewedOn": {

@@ -12,6 +12,7 @@ import '../../../design_system/radius/app_radius.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../courses/data/enrollment_repository.dart';
@@ -99,6 +100,7 @@ class _MyLearningScreenState extends ConsumerState<MyLearningScreen> {
         title: Text(l10n.myLearningTitle, style: AppTypography.title),
       ),
       body: SafeArea(
+        child: NdaPageBackground(
         child: RefreshIndicator(
           onRefresh: load,
           child: SingleChildScrollView(
@@ -143,6 +145,7 @@ class _MyLearningScreenState extends ConsumerState<MyLearningScreen> {
               ],
             ),
           ),
+        ),
         ),
       ),
       ),

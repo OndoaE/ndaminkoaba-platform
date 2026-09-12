@@ -27,6 +27,7 @@ import '../../../l10n/app_localizations.dart';
 import '../../pronunciation/data/pronunciation_repository.dart';
 import '../../pronunciation/data/wav_encoder.dart';
 import '../data/nnanga_repository.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 const _kSampleRate = 16000;
 
@@ -294,7 +295,7 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
           ],
         ),
       ),
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: Column(
           children: [
             Padding(
@@ -479,7 +480,7 @@ class _NnangaScreenState extends ConsumerState<NnangaScreen> {
             ),
           ],
         ),
-      ),
+      )),
       ),
     );
   }

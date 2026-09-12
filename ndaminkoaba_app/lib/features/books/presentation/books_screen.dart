@@ -21,6 +21,7 @@ import '../../bookmarks/data/book_bookmarks_repository.dart';
 import '../data/book_progress_repository.dart';
 import '../data/book_repository.dart';
 import '../domain/book.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 const _bookAccent = Color(0xFF5D4037);
 
@@ -144,7 +145,7 @@ class _BooksScreenState extends ConsumerState<BooksScreen> {
       activeNavKey: 'library',
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: SafeArea(
+        body: NdaPageBackground(child: SafeArea(
           child: isLoading
               ? const Padding(
                   padding: EdgeInsets.all(AppSpacing.xl),
@@ -263,7 +264,7 @@ class _BooksScreenState extends ConsumerState<BooksScreen> {
                         ],
                       ),
                     ),
-        ),
+        )),
       ),
     );
   }

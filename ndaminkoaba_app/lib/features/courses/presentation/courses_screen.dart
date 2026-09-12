@@ -14,6 +14,7 @@ import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/empty_state.dart';
 import '../../../design_system/widgets/gradient_hero_card.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 import '../../../design_system/widgets/section_title.dart';
 import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
@@ -162,6 +163,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
         title: Text(l10n.coursesTitle, style: AppTypography.title),
       ),
       body: SafeArea(
+        child: NdaPageBackground(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
@@ -261,6 +263,7 @@ class _CoursesScreenState extends ConsumerState<CoursesScreen> {
                 }),
             ],
           ),
+        ),
         ),
       ),
     );

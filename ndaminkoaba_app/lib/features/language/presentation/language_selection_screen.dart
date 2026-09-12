@@ -8,6 +8,7 @@ import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/logo_header.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 import '../../../l10n/app_localizations.dart';
 
 /// Shown on the very first app launch on this device, before the learner
@@ -47,14 +48,7 @@ class LanguageSelectionScreen extends ConsumerWidget {
               foregroundColor: AppColors.textPrimary,
             )
           : null,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFEFEAD9), AppColors.background],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: NdaPageBackground(
         child: SafeArea(
           child: Center(
             child: SingleChildScrollView(

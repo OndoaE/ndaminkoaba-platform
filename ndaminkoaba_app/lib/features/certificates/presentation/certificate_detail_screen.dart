@@ -20,6 +20,7 @@ import '../data/certificate_repository.dart';
 import '../domain/certificate.dart';
 import '../domain/certificate_theme.dart';
 import '../../../design_system/widgets/page_width.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 String _levelLabel(AppLocalizations l10n, String level) {
   switch (level) {
@@ -113,7 +114,7 @@ class _CertificateDetailScreenState
     final isFrench = ref.watch(localeProvider).languageCode == 'fr';
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: Builder(
           builder: (context) {
             final l10n = AppLocalizations.of(context);
@@ -270,7 +271,7 @@ class _CertificateDetailScreenState
             ));
           },
         ),
-      ),
+      )),
     );
   }
 }

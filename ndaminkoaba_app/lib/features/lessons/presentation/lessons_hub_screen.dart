@@ -22,6 +22,7 @@ import '../../courses/domain/models/course.dart';
 import '../../progress/data/progress_repository.dart';
 import '../data/lesson_repository.dart';
 import '../domain/lesson.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 const _kLevels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 
@@ -125,7 +126,7 @@ class _LessonsHubScreenState extends ConsumerState<LessonsHubScreen> {
       activeNavKey: 'lessons',
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: SafeArea(
+        body: NdaPageBackground(child: SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(AppSpacing.xl),
             child: Column(
@@ -191,7 +192,7 @@ class _LessonsHubScreenState extends ConsumerState<LessonsHubScreen> {
               ],
             ),
           ),
-        ),
+        )),
       ),
     );
   }

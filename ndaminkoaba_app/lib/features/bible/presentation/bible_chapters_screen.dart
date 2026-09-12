@@ -12,6 +12,7 @@ import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/bible_repository.dart';
 import '../domain/models/bible_verse.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 /// Chapter picker for a book with more than one chapter uploaded — reached
 /// from [BibleBooksScreen] (skipped entirely when a book only has one
@@ -77,7 +78,7 @@ class _BibleChaptersScreenState extends ConsumerState<BibleChaptersScreen> {
         foregroundColor: AppColors.textPrimary,
         elevation: 0,
       ),
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: isLoading
             ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
@@ -172,7 +173,7 @@ class _BibleChaptersScreenState extends ConsumerState<BibleChaptersScreen> {
                       ],
                     ),
                   ),
-      ),
+      )),
     );
   }
 }

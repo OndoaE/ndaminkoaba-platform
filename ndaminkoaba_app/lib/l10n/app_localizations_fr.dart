@@ -2307,6 +2307,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get learnerShellTagline => 'Mbolo! Apprenons ensemble';
 
   @override
+  String get learnerShellQuote =>
+      'Notre langue,\nNotre identité,\nNotre avenir.';
+
+  @override
   String get learnerHistoryEmptyMessage =>
       'Aucune leçon consultée pour le moment. Ouvrez une leçon pour la voir ici.';
 

@@ -10,6 +10,9 @@ import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/inputs/underline_field.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/widgets/auth_header.dart';
+import '../../../design_system/widgets/nda_auth_card.dart';
+import '../../../design_system/widgets/nda_gold_divider.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 import '../../../design_system/widgets/or_divider.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/auth_service.dart';
@@ -143,14 +146,16 @@ class _RegisterScreenState extends State<RegisterScreen> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xl),
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: Column(
+        child: NdaPageBackground(
+          child: Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.xl,
+                vertical: AppSpacing.xl,
+              ),
+              child: NdaAuthCard(
+                child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   AuthHeader(title: l10n.appTitle, tagline: l10n.appTagline),
@@ -163,6 +168,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       fontSize: 26,
                     ),
                   ),
+                  const SizedBox(height: AppSpacing.xs),
+                  const NdaGoldDivider(),
                   const SizedBox(height: AppSpacing.xl),
                   UnderlineField(
                     icon: Icons.person_outline,
@@ -286,6 +293,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   ),
                   const SizedBox(height: AppSpacing.xl),
                 ],
+                ),
               ),
             ),
           ),

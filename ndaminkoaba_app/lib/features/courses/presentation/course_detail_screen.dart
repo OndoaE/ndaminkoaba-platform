@@ -25,6 +25,7 @@ import '../../progress/data/progress_repository.dart';
 import '../data/course_repository.dart';
 import '../data/enrollment_repository.dart';
 import '../domain/models/course_detail.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 String _levelLabel(AppLocalizations l10n, String level) {
   switch (level) {
@@ -309,7 +310,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: Builder(
           builder: (context) {
             final l10n = AppLocalizations.of(context);
@@ -543,7 +544,7 @@ class _CourseDetailScreenState extends ConsumerState<CourseDetailScreen> {
             );
           },
         ),
-      ),
+      )),
     );
   }
 }

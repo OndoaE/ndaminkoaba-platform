@@ -17,6 +17,7 @@ import '../data/certificate_repository.dart';
 import '../domain/certificate.dart';
 import '../domain/certificate_theme.dart';
 import '../../../design_system/widgets/page_width.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 class CertificatesScreen extends StatefulWidget {
   const CertificatesScreen({super.key});
@@ -65,7 +66,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: isLoading
             ? const Padding(
                 padding: EdgeInsets.all(AppSpacing.xl),
@@ -129,7 +130,7 @@ class _CertificatesScreenState extends State<CertificatesScreen> {
                   ],
                 ),
               )),
-      ),
+      )),
     );
   }
 }

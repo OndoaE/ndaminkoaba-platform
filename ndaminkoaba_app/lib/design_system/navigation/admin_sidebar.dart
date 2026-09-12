@@ -7,6 +7,7 @@ import '../colors/app_colors.dart';
 import '../radius/app_radius.dart';
 import '../spacing/app_spacing.dart';
 import '../typography/app_typography.dart';
+import '../widgets/nda_floral_decoration.dart';
 
 class _NavItem {
   const _NavItem(this.key, this.label, this.icon, this.route);
@@ -167,7 +168,19 @@ class AdminSidebar extends StatelessWidget {
       width: 248,
       color: AppColors.primary,
       child: SafeArea(
-        child: Column(
+        child: Stack(
+          children: [
+            const Positioned(
+              left: -70,
+              bottom: -50,
+              child: NdaFloralDecoration(
+                corner: Alignment.bottomLeft,
+                size: 260,
+                opacity: 0.12,
+                tint: AppColors.primary,
+              ),
+            ),
+            Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
@@ -347,6 +360,8 @@ class AdminSidebar extends StatelessWidget {
                   ),
                 ),
               ),
+            ),
+          ],
             ),
           ],
         ),

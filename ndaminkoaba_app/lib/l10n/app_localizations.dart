@@ -4034,6 +4034,12 @@ abstract class AppLocalizations {
   /// **'Mbolo! Let\'s learn together'**
   String get learnerShellTagline;
 
+  /// No description provided for @learnerShellQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'Our language,\nOur identity,\nOur future.'**
+  String get learnerShellQuote;
+
   /// No description provided for @learnerHistoryEmptyMessage.
   ///
   /// In en, this message translates to:

@@ -16,6 +16,7 @@ import '../data/book_bookmarks_repository.dart';
 import '../data/bookmarks_repository.dart';
 import '../domain/bookmarked_book.dart';
 import '../domain/bookmarked_lesson.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 /// "Favoris" sidebar screen — lists lessons and books the learner
 /// bookmarked, in two labeled sections. Lessons are backed by
@@ -102,7 +103,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
           elevation: 0,
           title: Text(l10n.learnerNavFavorites, style: AppTypography.title),
         ),
-        body: SafeArea(
+        body: NdaPageBackground(child: SafeArea(
           child: RefreshIndicator(
             onRefresh: load,
             child: isLoading
@@ -148,7 +149,7 @@ class _BookmarksScreenState extends State<BookmarksScreen> {
                         ],
                       ),
           ),
-        ),
+        )),
       ),
     );
   }

@@ -14,6 +14,7 @@ import '../../../design_system/widgets/shimmer_list_loader.dart';
 import '../../../l10n/app_localizations.dart';
 import '../data/lesson_history_repository.dart';
 import '../domain/lesson_view_entry.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 /// "Historique" sidebar screen — real backend-tracked lesson-view history
 /// (Phase 1's `GET /lesson-history?userId=`), not a placeholder.
@@ -70,7 +71,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
           elevation: 0,
           title: Text(l10n.learnerNavHistory, style: AppTypography.title),
         ),
-        body: SafeArea(
+        body: NdaPageBackground(child: SafeArea(
           child: RefreshIndicator(
             onRefresh: load,
             child: isLoading
@@ -144,7 +145,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
                         },
                       ),
           ),
-        ),
+        )),
       ),
     );
   }

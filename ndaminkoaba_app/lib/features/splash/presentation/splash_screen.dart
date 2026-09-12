@@ -7,6 +7,7 @@ import '../../../core/services/storage_service.dart';
 import '../../../design_system/colors/app_colors.dart';
 import '../../../design_system/spacing/app_spacing.dart';
 import '../../../design_system/widgets/logo_header.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 import '../../../l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -64,14 +65,7 @@ class _SplashScreenState extends State<SplashScreen> {
     final l10n = AppLocalizations.of(context);
 
     return Scaffold(
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Color(0xFFEFEAD9), AppColors.background],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+      body: NdaPageBackground(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

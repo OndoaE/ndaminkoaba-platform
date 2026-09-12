@@ -18,6 +18,8 @@ import '../../../design_system/typography/app_typography.dart';
 import '../../../design_system/widgets/app_header.dart';
 import '../../../design_system/cards/featured_card.dart';
 import '../../../design_system/widgets/gold_corner_pattern.dart';
+import '../../../design_system/widgets/nda_gold_divider.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 import '../../../design_system/widgets/page_width.dart';
 import '../../../design_system/widgets/progress_ring.dart';
 import '../../../design_system/widgets/section_title.dart';
@@ -148,8 +150,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return LearnerShell(
       activeNavKey: 'home',
       child: Scaffold(
-      backgroundColor: AppColors.background,
       body: SafeArea(
+        child: NdaPageBackground(
         child: RefreshIndicator(
           onRefresh: loadDashboard,
           child: PageWidth(
@@ -569,6 +571,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           ),
           ),
         ),
+        ),
       ),
       ),
     );
@@ -707,23 +710,7 @@ class _ExploreSectionHeading extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSpacing.xs),
-        Row(
-          children: [
-            Container(width: 28, height: 1, color: AppColors.secondary),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.xs),
-              child: Transform.rotate(
-                angle: 0.785398, // 45deg — a diamond, not a square
-                child: Container(
-                  width: 6,
-                  height: 6,
-                  color: AppColors.secondary,
-                ),
-              ),
-            ),
-            Container(width: 28, height: 1, color: AppColors.secondary),
-          ],
-        ),
+        const NdaGoldDivider(),
         const SizedBox(height: AppSpacing.sm),
         Text(subtitle, style: AppTypography.caption),
       ],

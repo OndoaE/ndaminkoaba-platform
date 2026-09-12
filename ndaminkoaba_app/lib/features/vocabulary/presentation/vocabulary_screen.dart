@@ -23,6 +23,7 @@ import '../../offline/data/offline_course_repository.dart';
 import '../data/vocabulary_repository.dart';
 import '../domain/vocabulary_word.dart';
 import '../../../design_system/widgets/page_width.dart';
+import '../../../design_system/widgets/nda_page_background.dart';
 
 const _levels = ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'];
 
@@ -149,7 +150,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
       activeNavKey: 'vocabulary',
       child: Scaffold(
       backgroundColor: AppColors.background,
-      body: SafeArea(
+      body: NdaPageBackground(child: SafeArea(
         child: PageWidth(maxWidth: 640, child: Padding(
           padding: const EdgeInsets.all(AppSpacing.xl),
           child: Column(
@@ -303,7 +304,7 @@ class _VocabularyScreenState extends ConsumerState<VocabularyScreen> {
             ],
           ),
         )),
-      ),
+      )),
       ),
     );
   }
