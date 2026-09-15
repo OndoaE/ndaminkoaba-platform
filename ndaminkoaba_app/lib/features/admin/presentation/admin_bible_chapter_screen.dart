@@ -19,6 +19,7 @@ import '../../../l10n/app_localizations.dart';
 import '../data/knowledge_repository.dart';
 import '../data/usfm_parser.dart';
 import '../domain/knowledge_models.dart';
+import '../../bible/domain/models/bible_verse.dart' show matchGospelBook;
 
 /// Matches a leading verse number on its own line, e.g. "12 In the
 /// beginning..." or "12. In the beginning...". Pasted Bible text almost
@@ -1060,6 +1061,24 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
           icon: const Icon(Icons.image_outlined, size: 16),
           label: Text(l10n.adminBibleChapterManageImagesButton),
         ),
+        const SizedBox(width: AppSpacing.sm),
+        OutlinedButton.icon(
+          onPressed: () async {
+            final imported = await showDialog<bool>(
+              context: context,
+              builder: (_) => _BulkAudioUploadDialog(
+                languageId: widget.languageId,
+                savedChapters: savedChapters,
+                existingAudioKeys: chapterAudio
+                    .map((a) => _chapterAudioKey(a.book, a.chapter))
+                    .toSet(),
+              ),
+            );
+            if (imported == true) loadChapters();
+          },
+          icon: const Icon(Icons.upload_file_outlined, size: 16),
+          label: Text(l10n.adminBibleChapterBulkAudioButton),
+        ),
       ],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1369,5 +1388,385 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
         ],
       ),
     );
+  }
+}
+
+/// Parses a picked file's base name (no extension) as "Book Chapter", e.g.
+/// "Matthew 1" or "1 Corinthians 12" -> book="1 Corinthians", chapter=12.
+/// Returns null if the name doesn't end in a number.
+({String book, int chapter})? _parseBulkAudioFilename(String baseName) {
+  final match = RegExp(r'^(.+?)\s+(\d+)$').firstMatch(baseName.trim());
+  if (match == null) return null;
+  final book = match.group(1)!.trim();
+  final chapter = int.tryParse(match.group(2)!);
+  if (book.isEmpty || chapter == null) return null;
+  return (book: book, chapter: chapter);
+}
+
+/// Resolves a parsed filename's book name to the exact `book` string one of
+/// [savedChapters] actually uses, and confirms the parsed chapter number was
+/// really saved under that book. Gospels match via the same alias list the
+/// learner-facing reader uses (so a file named "Luke 1" correctly finds a
+/// saved book of "Lukas"); every other book matches by a normalized
+/// (lowercase, punctuation/space-stripped) comparison, since this app has no
+/// alias system for non-Gospel books and guessing wrong would misfile real
+/// content.
+BibleChapterSummary? _resolveBulkAudioTarget(
+  String parsedBook,
+  int parsedChapter,
+  List<BibleChapterSummary> savedChapters,
+) {
+  final parsedGospel = matchGospelBook(parsedBook);
+  String normalize(String s) => s.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+  final normalizedParsed = normalize(parsedBook);
+
+  for (final summary in savedChapters) {
+    if (summary.chapter != parsedChapter) continue;
+    final sameGospel = parsedGospel != null && matchGospelBook(summary.book) == parsedGospel;
+    final sameNormalized = normalize(summary.book) == normalizedParsed;
+    if (sameGospel || sameNormalized) return summary;
+  }
+  return null;
+}
+
+class _BulkAudioMatch {
+  _BulkAudioMatch({required this.file, required this.parsedLabel, this.target});
+
+  final PlatformFile file;
+  final String parsedLabel;
+  BibleChapterSummary? target;
+  bool skip = false;
+
+  bool get isResolved => target != null;
+}
+
+enum _BulkPhase { picking, reviewing, uploading, done }
+
+class _BulkAudioUploadDialog extends StatefulWidget {
+  const _BulkAudioUploadDialog({
+    required this.languageId,
+    required this.savedChapters,
+    required this.existingAudioKeys,
+  });
+
+  final String languageId;
+  final List<BibleChapterSummary> savedChapters;
+
+  /// "$book|$chapter" keys that already have audio uploaded — used only to
+  /// show a "will replace" hint, matching the key shape the parent screen's
+  /// own `_chapterAudioKey` helper produces.
+  final Set<String> existingAudioKeys;
+
+  @override
+  State<_BulkAudioUploadDialog> createState() => _BulkAudioUploadDialogState();
+}
+
+class _BulkAudioUploadDialogState extends State<_BulkAudioUploadDialog> {
+  final repository = KnowledgeRepository();
+  _BulkPhase phase = _BulkPhase.picking;
+  List<_BulkAudioMatch> matches = [];
+
+  int uploadedCount = 0;
+  int failedCount = 0;
+  String? firstError;
+
+  Future<void> _pickFiles() async {
+    final l10n = AppLocalizations.of(context);
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['mp3', 'wav', 'm4a', 'ogg'],
+      withData: true,
+    );
+    if (result == null || result.files.isEmpty) return;
+
+    final built = <_BulkAudioMatch>[];
+    for (final file in result.files) {
+      if (file.bytes == null) continue;
+      final dotIndex = file.name.lastIndexOf('.');
+      final baseName = dotIndex > 0 ? file.name.substring(0, dotIndex) : file.name;
+      final parsed = _parseBulkAudioFilename(baseName);
+      final target = parsed == null
+          ? null
+          : _resolveBulkAudioTarget(parsed.book, parsed.chapter, widget.savedChapters);
+      built.add(
+        _BulkAudioMatch(
+          file: file,
+          parsedLabel: parsed == null ? file.name : '${parsed.book} ${parsed.chapter}',
+          target: target,
+        ),
+      );
+    }
+
+    if (built.isEmpty) {
+      _showMessage(l10n.adminBibleChapterFileReadError);
+      return;
+    }
+
+    setState(() {
+      matches = built;
+      phase = _BulkPhase.reviewing;
+    });
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  Future<void> _upload() async {
+    setState(() {
+      phase = _BulkPhase.uploading;
+      uploadedCount = 0;
+      failedCount = 0;
+      firstError = null;
+    });
+
+    final toUpload = matches.where((m) => !m.skip && m.isResolved).toList();
+    for (var i = 0; i < toUpload.length; i++) {
+      final match = toUpload[i];
+      final target = match.target!;
+      try {
+        final url = await repository.uploadAudio(match.file.bytes!, match.file.name);
+        await repository.upsertBibleChapterAudio(
+          languageId: widget.languageId,
+          book: target.book,
+          chapter: target.chapter,
+          audioUrl: url,
+        );
+        uploadedCount++;
+      } catch (e) {
+        failedCount++;
+        firstError ??= e is DioException
+            ? extractErrorMessage(e, fallback: e.toString())
+            : e.toString();
+      }
+      if (mounted) setState(() {});
+    }
+
+    if (!mounted) return;
+    setState(() => phase = _BulkPhase.done);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return AlertDialog(
+      title: Text(switch (phase) {
+        _BulkPhase.picking => l10n.adminBibleChapterBulkPickTitle,
+        _BulkPhase.reviewing => l10n.adminBibleChapterBulkReviewTitle,
+        _BulkPhase.uploading => l10n.adminBibleChapterBulkReviewTitle,
+        _BulkPhase.done => l10n.adminBibleChapterBulkReviewTitle,
+      }),
+      content: SizedBox(
+        width: 560,
+        child: switch (phase) {
+          _BulkPhase.picking => _buildPickStep(l10n),
+          _BulkPhase.reviewing => _buildReviewStep(l10n),
+          _BulkPhase.uploading => _buildUploadingStep(l10n),
+          _BulkPhase.done => _buildDoneStep(l10n),
+        },
+      ),
+      actions: _buildActions(l10n),
+    );
+  }
+
+  Widget _buildPickStep(AppLocalizations l10n) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(l10n.adminBibleChapterBulkPickInstructions, style: AppTypography.caption),
+        const SizedBox(height: AppSpacing.lg),
+        Center(
+          child: OutlinedButton.icon(
+            onPressed: _pickFiles,
+            icon: const Icon(Icons.folder_open_outlined),
+            label: Text(l10n.adminBibleChapterBulkPickButton),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildReviewStep(AppLocalizations l10n) {
+    final resolved = matches.where((m) => m.isResolved).length;
+    final unresolved = matches.length - resolved;
+    return SizedBox(
+      height: 420,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            l10n.adminBibleChapterBulkMatchedSummary(resolved),
+            style: AppTypography.body.copyWith(color: AppColors.primary),
+          ),
+          if (unresolved > 0)
+            Text(
+              l10n.adminBibleChapterBulkUnmatchedSummary(unresolved),
+              style: AppTypography.body.copyWith(color: AppColors.error),
+            ),
+          const SizedBox(height: AppSpacing.md),
+          Expanded(
+            child: ListView.separated(
+              itemCount: matches.length,
+              separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.sm),
+              itemBuilder: (context, index) => _matchTile(matches[index], l10n),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _matchTile(_BulkAudioMatch match, AppLocalizations l10n) {
+    final target = match.target;
+    final hasExistingAudio = target != null &&
+        widget.existingAudioKeys.contains('${target.book}|${target.chapter}');
+    return Opacity(
+      opacity: match.skip ? 0.5 : 1,
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: BoxDecoration(
+          color: AppColors.background,
+          borderRadius: AppRadius.small,
+          border: Border.all(
+            color: match.isResolved ? AppColors.divider : AppColors.error,
+          ),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Expanded(
+                  child: Text(match.file.name, style: AppTypography.caption, maxLines: 1, overflow: TextOverflow.ellipsis),
+                ),
+                if (!match.skip)
+                  IconButton(
+                    icon: const Icon(Icons.close, size: 18),
+                    tooltip: l10n.adminBibleChapterBulkSkipLabel,
+                    onPressed: () => setState(() => match.skip = true),
+                  )
+                else
+                  TextButton(
+                    onPressed: () => setState(() => match.skip = false),
+                    child: Text(l10n.adminBibleChapterBulkSkipLabel),
+                  ),
+              ],
+            ),
+            if (match.isResolved) ...[
+              Text(
+                '${target!.book} ${target.chapter}',
+                style: AppTypography.body.copyWith(fontWeight: FontWeight.w600),
+              ),
+              if (hasExistingAudio)
+                Text(
+                  l10n.adminBibleChapterBulkReplaceNote,
+                  style: AppTypography.caption.copyWith(
+                    color: AppColors.textSecondary,
+                    fontStyle: FontStyle.italic,
+                  ),
+                ),
+            ] else
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      '${l10n.adminBibleChapterBulkReasonBookNotFound}: "${match.parsedLabel}"',
+                      style: AppTypography.caption.copyWith(color: AppColors.error),
+                    ),
+                  ),
+                ],
+              ),
+            const SizedBox(height: AppSpacing.xs),
+            DropdownButtonFormField<BibleChapterSummary?>(
+              initialValue: match.target,
+              isExpanded: true,
+              decoration: InputDecoration(
+                labelText: l10n.adminBibleChapterBulkAssignHint,
+                isDense: true,
+                border: const OutlineInputBorder(),
+              ),
+              items: [
+                DropdownMenuItem(value: null, child: Text(l10n.adminBibleChapterBulkUnassigned)),
+                ...widget.savedChapters.map(
+                  (s) => DropdownMenuItem(
+                    value: s,
+                    child: Text('${s.book} ${s.chapter}', overflow: TextOverflow.ellipsis),
+                  ),
+                ),
+              ],
+              onChanged: (value) => setState(() => match.target = value),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildUploadingStep(AppLocalizations l10n) {
+    final total = matches.where((m) => !m.skip && m.isResolved).length;
+    final done = uploadedCount + failedCount;
+    return SizedBox(
+      height: 120,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          LinearProgressIndicator(value: total == 0 ? 0 : done / total),
+          const SizedBox(height: AppSpacing.md),
+          Text(l10n.adminBibleChapterBulkUploadingLabel(done, total)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDoneStep(AppLocalizations l10n) {
+    return SizedBox(
+      height: 100,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(l10n.adminBibleChapterBulkDoneSummary(uploadedCount, failedCount)),
+          if (firstError != null) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(firstError!, style: AppTypography.caption.copyWith(color: AppColors.error)),
+          ],
+        ],
+      ),
+    );
+  }
+
+  List<Widget> _buildActions(AppLocalizations l10n) {
+    switch (phase) {
+      case _BulkPhase.picking:
+        return [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.adminBibleChapterBulkCancel),
+          ),
+        ];
+      case _BulkPhase.reviewing:
+        final readyCount = matches.where((m) => !m.skip && m.isResolved).length;
+        return [
+          TextButton(
+            onPressed: () => setState(() => phase = _BulkPhase.picking),
+            child: Text(l10n.adminBibleChapterBulkBack),
+          ),
+          FilledButton(
+            onPressed: readyCount == 0 ? null : _upload,
+            child: Text(l10n.adminBibleChapterBulkImportButton(readyCount)),
+          ),
+        ];
+      case _BulkPhase.uploading:
+        return [];
+      case _BulkPhase.done:
+        return [
+          FilledButton(
+            onPressed: () => Navigator.pop(context, uploadedCount > 0),
+            child: Text(l10n.adminBibleChapterBulkClose),
+          ),
+        ];
+    }
   }
 }

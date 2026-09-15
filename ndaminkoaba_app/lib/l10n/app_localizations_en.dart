@@ -540,6 +540,96 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminBibleChapterAudioRemoveError => 'Could not remove audio.';
 
   @override
+  String get adminBibleChapterBulkAudioButton => 'Bulk Upload Audio';
+
+  @override
+  String get adminBibleChapterBulkPickTitle => 'Bulk Upload Chapter Audio';
+
+  @override
+  String get adminBibleChapterBulkPickInstructions =>
+      'Choose as many audio files as you like. Name each file \"Book Chapter\" (e.g. \"Matthew 1.mp3\", \"1 Corinthians 12.ogg\") and it will be matched to the right saved chapter automatically.';
+
+  @override
+  String get adminBibleChapterBulkPickButton => 'Choose Files';
+
+  @override
+  String adminBibleChapterBulkPickedCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'files',
+      one: 'file',
+    );
+    return '$count $_temp0 selected';
+  }
+
+  @override
+  String get adminBibleChapterBulkReviewTitle => 'Review Matches';
+
+  @override
+  String adminBibleChapterBulkMatchedSummary(Object count) {
+    return '$count matched and ready to upload';
+  }
+
+  @override
+  String adminBibleChapterBulkUnmatchedSummary(Object count) {
+    return '$count need your attention';
+  }
+
+  @override
+  String get adminBibleChapterBulkReasonBookNotFound => 'Book not recognized';
+
+  @override
+  String get adminBibleChapterBulkReasonChapterNotFound =>
+      'That chapter hasn\'t been saved yet';
+
+  @override
+  String get adminBibleChapterBulkReasonParseFailed =>
+      'Couldn\'t read a book/chapter from this filename';
+
+  @override
+  String get adminBibleChapterBulkAssignHint => 'Assign to';
+
+  @override
+  String get adminBibleChapterBulkUnassigned => 'Not assigned';
+
+  @override
+  String get adminBibleChapterBulkSkipLabel => 'Skip this file';
+
+  @override
+  String get adminBibleChapterBulkReplaceNote => 'Will replace existing audio';
+
+  @override
+  String adminBibleChapterBulkImportButton(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'files',
+      one: 'file',
+    );
+    return 'Upload $count $_temp0';
+  }
+
+  @override
+  String adminBibleChapterBulkUploadingLabel(Object current, Object total) {
+    return 'Uploading $current of $total…';
+  }
+
+  @override
+  String adminBibleChapterBulkDoneSummary(Object succeeded, Object failed) {
+    return '$succeeded uploaded, $failed failed';
+  }
+
+  @override
+  String get adminBibleChapterBulkClose => 'Close';
+
+  @override
+  String get adminBibleChapterBulkCancel => 'Cancel';
+
+  @override
+  String get adminBibleChapterBulkBack => 'Back';
+
+  @override
   String get adminBibleChapterOverwriteTitle => 'Overwrite existing chapters?';
 
   @override

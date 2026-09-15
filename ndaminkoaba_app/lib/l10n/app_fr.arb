@@ -164,6 +164,45 @@
   "adminBibleChapterAudioSaved": "Audio enregistré.",
   "adminBibleChapterAudioUploadError": "Impossible de téléverser l'audio.",
   "adminBibleChapterAudioRemoveError": "Impossible de supprimer l'audio.",
+  "adminBibleChapterBulkAudioButton": "Téléverser l'audio en masse",
+  "adminBibleChapterBulkPickTitle": "Téléversement groupé de l'audio des chapitres",
+  "adminBibleChapterBulkPickInstructions": "Choisissez autant de fichiers audio que vous voulez. Nommez chaque fichier «Livre Chapitre» (ex. «Matthew 1.mp3», «1 Corinthians 12.ogg») et il sera associé automatiquement au bon chapitre enregistré.",
+  "adminBibleChapterBulkPickButton": "Choisir des fichiers",
+  "adminBibleChapterBulkPickedCount": "{count} {count, plural, one{fichier sélectionné} other{fichiers sélectionnés}}",
+  "@adminBibleChapterBulkPickedCount": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkReviewTitle": "Vérifier les correspondances",
+  "adminBibleChapterBulkMatchedSummary": "{count} associé(s) et prêt(s) à téléverser",
+  "@adminBibleChapterBulkMatchedSummary": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkUnmatchedSummary": "{count} nécessitent votre attention",
+  "@adminBibleChapterBulkUnmatchedSummary": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkReasonBookNotFound": "Livre non reconnu",
+  "adminBibleChapterBulkReasonChapterNotFound": "Ce chapitre n'a pas encore été enregistré",
+  "adminBibleChapterBulkReasonParseFailed": "Impossible de déduire un livre/chapitre de ce nom de fichier",
+  "adminBibleChapterBulkAssignHint": "Attribuer à",
+  "adminBibleChapterBulkUnassigned": "Non attribué",
+  "adminBibleChapterBulkSkipLabel": "Ignorer ce fichier",
+  "adminBibleChapterBulkReplaceNote": "Remplacera l'audio existant",
+  "adminBibleChapterBulkImportButton": "Téléverser {count} {count, plural, one{fichier} other{fichiers}}",
+  "@adminBibleChapterBulkImportButton": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkUploadingLabel": "Téléversement {current} sur {total}…",
+  "@adminBibleChapterBulkUploadingLabel": {
+    "placeholders": { "current": {}, "total": {} }
+  },
+  "adminBibleChapterBulkDoneSummary": "{succeeded} téléversé(s), {failed} échoué(s)",
+  "@adminBibleChapterBulkDoneSummary": {
+    "placeholders": { "succeeded": {}, "failed": {} }
+  },
+  "adminBibleChapterBulkClose": "Fermer",
+  "adminBibleChapterBulkCancel": "Annuler",
+  "adminBibleChapterBulkBack": "Retour",
   "adminBibleChapterOverwriteTitle": "Écraser les chapitres existants ?",
   "adminBibleChapterOverwriteConfirm": "{count} de ces chapitres sont déjà enregistrés pour « {book} ». Enregistrer maintenant remplacera leurs versets existants par ceux que vous importez.",
   "@adminBibleChapterOverwriteConfirm": {

@@ -553,6 +553,97 @@ class AppLocalizationsFr extends AppLocalizations {
       'Impossible de supprimer l\'audio.';
 
   @override
+  String get adminBibleChapterBulkAudioButton => 'Téléverser l\'audio en masse';
+
+  @override
+  String get adminBibleChapterBulkPickTitle =>
+      'Téléversement groupé de l\'audio des chapitres';
+
+  @override
+  String get adminBibleChapterBulkPickInstructions =>
+      'Choisissez autant de fichiers audio que vous voulez. Nommez chaque fichier «Livre Chapitre» (ex. «Matthew 1.mp3», «1 Corinthians 12.ogg») et il sera associé automatiquement au bon chapitre enregistré.';
+
+  @override
+  String get adminBibleChapterBulkPickButton => 'Choisir des fichiers';
+
+  @override
+  String adminBibleChapterBulkPickedCount(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'fichiers sélectionnés',
+      one: 'fichier sélectionné',
+    );
+    return '$count $_temp0';
+  }
+
+  @override
+  String get adminBibleChapterBulkReviewTitle => 'Vérifier les correspondances';
+
+  @override
+  String adminBibleChapterBulkMatchedSummary(Object count) {
+    return '$count associé(s) et prêt(s) à téléverser';
+  }
+
+  @override
+  String adminBibleChapterBulkUnmatchedSummary(Object count) {
+    return '$count nécessitent votre attention';
+  }
+
+  @override
+  String get adminBibleChapterBulkReasonBookNotFound => 'Livre non reconnu';
+
+  @override
+  String get adminBibleChapterBulkReasonChapterNotFound =>
+      'Ce chapitre n\'a pas encore été enregistré';
+
+  @override
+  String get adminBibleChapterBulkReasonParseFailed =>
+      'Impossible de déduire un livre/chapitre de ce nom de fichier';
+
+  @override
+  String get adminBibleChapterBulkAssignHint => 'Attribuer à';
+
+  @override
+  String get adminBibleChapterBulkUnassigned => 'Non attribué';
+
+  @override
+  String get adminBibleChapterBulkSkipLabel => 'Ignorer ce fichier';
+
+  @override
+  String get adminBibleChapterBulkReplaceNote => 'Remplacera l\'audio existant';
+
+  @override
+  String adminBibleChapterBulkImportButton(num count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'fichiers',
+      one: 'fichier',
+    );
+    return 'Téléverser $count $_temp0';
+  }
+
+  @override
+  String adminBibleChapterBulkUploadingLabel(Object current, Object total) {
+    return 'Téléversement $current sur $total…';
+  }
+
+  @override
+  String adminBibleChapterBulkDoneSummary(Object succeeded, Object failed) {
+    return '$succeeded téléversé(s), $failed échoué(s)';
+  }
+
+  @override
+  String get adminBibleChapterBulkClose => 'Fermer';
+
+  @override
+  String get adminBibleChapterBulkCancel => 'Annuler';
+
+  @override
+  String get adminBibleChapterBulkBack => 'Retour';
+
+  @override
   String get adminBibleChapterOverwriteTitle =>
       'Écraser les chapitres existants ?';
 

@@ -164,6 +164,45 @@
   "adminBibleChapterAudioSaved": "Audio saved.",
   "adminBibleChapterAudioUploadError": "Could not upload audio.",
   "adminBibleChapterAudioRemoveError": "Could not remove audio.",
+  "adminBibleChapterBulkAudioButton": "Bulk Upload Audio",
+  "adminBibleChapterBulkPickTitle": "Bulk Upload Chapter Audio",
+  "adminBibleChapterBulkPickInstructions": "Choose as many audio files as you like. Name each file \"Book Chapter\" (e.g. \"Matthew 1.mp3\", \"1 Corinthians 12.ogg\") and it will be matched to the right saved chapter automatically.",
+  "adminBibleChapterBulkPickButton": "Choose Files",
+  "adminBibleChapterBulkPickedCount": "{count} {count, plural, one{file} other{files}} selected",
+  "@adminBibleChapterBulkPickedCount": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkReviewTitle": "Review Matches",
+  "adminBibleChapterBulkMatchedSummary": "{count} matched and ready to upload",
+  "@adminBibleChapterBulkMatchedSummary": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkUnmatchedSummary": "{count} need your attention",
+  "@adminBibleChapterBulkUnmatchedSummary": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkReasonBookNotFound": "Book not recognized",
+  "adminBibleChapterBulkReasonChapterNotFound": "That chapter hasn't been saved yet",
+  "adminBibleChapterBulkReasonParseFailed": "Couldn't read a book/chapter from this filename",
+  "adminBibleChapterBulkAssignHint": "Assign to",
+  "adminBibleChapterBulkUnassigned": "Not assigned",
+  "adminBibleChapterBulkSkipLabel": "Skip this file",
+  "adminBibleChapterBulkReplaceNote": "Will replace existing audio",
+  "adminBibleChapterBulkImportButton": "Upload {count} {count, plural, one{file} other{files}}",
+  "@adminBibleChapterBulkImportButton": {
+    "placeholders": { "count": {} }
+  },
+  "adminBibleChapterBulkUploadingLabel": "Uploading {current} of {total}…",
+  "@adminBibleChapterBulkUploadingLabel": {
+    "placeholders": { "current": {}, "total": {} }
+  },
+  "adminBibleChapterBulkDoneSummary": "{succeeded} uploaded, {failed} failed",
+  "@adminBibleChapterBulkDoneSummary": {
+    "placeholders": { "succeeded": {}, "failed": {} }
+  },
+  "adminBibleChapterBulkClose": "Close",
+  "adminBibleChapterBulkCancel": "Cancel",
+  "adminBibleChapterBulkBack": "Back",
   "adminBibleChapterOverwriteTitle": "Overwrite existing chapters?",
   "adminBibleChapterOverwriteConfirm": "{count} of these chapters are already saved for \"{book}\". Saving now will replace their existing verses with the ones you're uploading.",
   "@adminBibleChapterOverwriteConfirm": {

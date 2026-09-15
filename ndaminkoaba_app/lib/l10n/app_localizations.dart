@@ -996,6 +996,132 @@ abstract class AppLocalizations {
   /// **'Could not remove audio.'**
   String get adminBibleChapterAudioRemoveError;
 
+  /// No description provided for @adminBibleChapterBulkAudioButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk Upload Audio'**
+  String get adminBibleChapterBulkAudioButton;
+
+  /// No description provided for @adminBibleChapterBulkPickTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bulk Upload Chapter Audio'**
+  String get adminBibleChapterBulkPickTitle;
+
+  /// No description provided for @adminBibleChapterBulkPickInstructions.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose as many audio files as you like. Name each file \"Book Chapter\" (e.g. \"Matthew 1.mp3\", \"1 Corinthians 12.ogg\") and it will be matched to the right saved chapter automatically.'**
+  String get adminBibleChapterBulkPickInstructions;
+
+  /// No description provided for @adminBibleChapterBulkPickButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Files'**
+  String get adminBibleChapterBulkPickButton;
+
+  /// No description provided for @adminBibleChapterBulkPickedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} {count, plural, one{file} other{files}} selected'**
+  String adminBibleChapterBulkPickedCount(num count);
+
+  /// No description provided for @adminBibleChapterBulkReviewTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Review Matches'**
+  String get adminBibleChapterBulkReviewTitle;
+
+  /// No description provided for @adminBibleChapterBulkMatchedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} matched and ready to upload'**
+  String adminBibleChapterBulkMatchedSummary(Object count);
+
+  /// No description provided for @adminBibleChapterBulkUnmatchedSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} need your attention'**
+  String adminBibleChapterBulkUnmatchedSummary(Object count);
+
+  /// No description provided for @adminBibleChapterBulkReasonBookNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'Book not recognized'**
+  String get adminBibleChapterBulkReasonBookNotFound;
+
+  /// No description provided for @adminBibleChapterBulkReasonChapterNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That chapter hasn\'t been saved yet'**
+  String get adminBibleChapterBulkReasonChapterNotFound;
+
+  /// No description provided for @adminBibleChapterBulkReasonParseFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t read a book/chapter from this filename'**
+  String get adminBibleChapterBulkReasonParseFailed;
+
+  /// No description provided for @adminBibleChapterBulkAssignHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Assign to'**
+  String get adminBibleChapterBulkAssignHint;
+
+  /// No description provided for @adminBibleChapterBulkUnassigned.
+  ///
+  /// In en, this message translates to:
+  /// **'Not assigned'**
+  String get adminBibleChapterBulkUnassigned;
+
+  /// No description provided for @adminBibleChapterBulkSkipLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip this file'**
+  String get adminBibleChapterBulkSkipLabel;
+
+  /// No description provided for @adminBibleChapterBulkReplaceNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Will replace existing audio'**
+  String get adminBibleChapterBulkReplaceNote;
+
+  /// No description provided for @adminBibleChapterBulkImportButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Upload {count} {count, plural, one{file} other{files}}'**
+  String adminBibleChapterBulkImportButton(num count);
+
+  /// No description provided for @adminBibleChapterBulkUploadingLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Uploading {current} of {total}…'**
+  String adminBibleChapterBulkUploadingLabel(Object current, Object total);
+
+  /// No description provided for @adminBibleChapterBulkDoneSummary.
+  ///
+  /// In en, this message translates to:
+  /// **'{succeeded} uploaded, {failed} failed'**
+  String adminBibleChapterBulkDoneSummary(Object succeeded, Object failed);
+
+  /// No description provided for @adminBibleChapterBulkClose.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get adminBibleChapterBulkClose;
+
+  /// No description provided for @adminBibleChapterBulkCancel.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get adminBibleChapterBulkCancel;
+
+  /// No description provided for @adminBibleChapterBulkBack.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get adminBibleChapterBulkBack;
+
   /// No description provided for @adminBibleChapterOverwriteTitle.
   ///
   /// In en, this message translates to:
