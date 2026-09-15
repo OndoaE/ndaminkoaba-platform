@@ -32,6 +32,7 @@ import { KnowledgeModule } from './knowledge/knowledge.module';
 import { KnowledgeTextsModule } from './knowledge-texts/knowledge-texts.module';
 import { BibleVersesModule } from './bible-verses/bible-verses.module';
 import { BibleImagesModule } from './bible-images/bible-images.module';
+import { BibleAudioModule } from './bible-audio/bible-audio.module';
 import { DailyModule } from './daily/daily.module';
 import { SyllabaryModule } from './syllabary/syllabary.module';
 import { LessonHistoryModule } from './lesson-history/lesson-history.module';
@@ -85,6 +86,7 @@ import { ContentWorkflowModule } from './content-workflow/content-workflow.modul
     KnowledgeTextsModule,
     BibleVersesModule,
     BibleImagesModule,
+    BibleAudioModule,
     DailyModule,
     SyllabaryModule,
     LessonHistoryModule,

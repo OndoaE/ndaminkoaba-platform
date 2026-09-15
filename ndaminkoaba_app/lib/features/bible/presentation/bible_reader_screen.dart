@@ -2,7 +2,9 @@ import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:just_audio/just_audio.dart';
 
+import '../../../config/app_config.dart';
 import '../../../core/language/learning_language_provider.dart';
 import '../../../core/locale/locale_provider.dart';
 import '../../../design_system/colors/app_colors.dart';
@@ -39,10 +41,12 @@ class BibleReaderScreen extends ConsumerStatefulWidget {
 
 class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
   final repository = BibleRepository();
+  final audioPlayer = AudioPlayer();
 
   bool isLoading = true;
   bool hasError = false;
   List<BibleVerse> verses = [];
+  String? currentAudioUrl;
 
   /// Every chapter belonging to this book's Gospel (or exact book match for
   /// non-Gospels), deduped across free-text book-name variants so Previous/
@@ -68,6 +72,9 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
       isLoading = true;
       hasError = false;
     });
+    // Stop whichever chapter's audio was playing before — never let it keep
+    // playing under the newly-loading chapter's content.
+    await audioPlayer.stop();
     try {
       final languageId = ref.read(currentLearningLanguageProvider);
       final results = await Future.wait([
@@ -77,10 +84,12 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
           languageId: languageId,
         ),
         repository.getChapters(languageId: languageId),
+        repository.getChapterAudio(languageId: languageId),
       ]);
       final fetchedVerses = (results[0] as List<BibleVerse>)
         ..sort((a, b) => a.verse.compareTo(b.verse));
       final allChapters = results[1] as List<BibleChapterInfo>;
+      final allAudio = results[2] as List<BibleChapterAudio>;
 
       final gospel = matchGospelBook(widget.book);
       final relevantChapters = gospel != null
@@ -88,13 +97,27 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
           : (allChapters.where((c) => c.book == widget.book).toList()
               ..sort((a, b) => a.chapter.compareTo(b.chapter)));
 
+      final matchingAudio = allAudio
+          .where((a) => a.book == widget.book && a.chapter == widget.chapter)
+          .firstOrNull;
+
       if (!mounted) return;
       setState(() {
         verses = fetchedVerses;
         availableChapters = relevantChapters;
+        currentAudioUrl = matchingAudio?.audioUrl;
         isLoading = false;
         hasError = fetchedVerses.isEmpty;
       });
+      if (matchingAudio != null) {
+        try {
+          await audioPlayer.setUrl(AppConfig.resolveUrl(matchingAudio.audioUrl));
+        } catch (_) {
+          // A broken/unreachable audio file is a content gap, not something
+          // the learner needs an error dialog for — the play button simply
+          // won't do anything if playback later fails.
+        }
+      }
     } catch (_) {
       if (!mounted) return;
       setState(() {
@@ -109,6 +132,12 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
       '/bible/${Uri.encodeComponent(target.book)}/${target.chapter}',
       extra: widget.displayName,
     );
+  }
+
+  @override
+  void dispose() {
+    audioPlayer.dispose();
+    super.dispose();
   }
 
   @override
@@ -164,6 +193,8 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
               )
             : Column(
                 children: [
+                  if (currentAudioUrl != null)
+                    _ChapterAudioBar(audioPlayer: audioPlayer),
                   Expanded(
                     child: PageWidth(
                       child: ListView.builder(
@@ -334,6 +365,96 @@ class _VerseTile extends StatelessWidget {
                         ? AppColors.textSecondary
                         : AppColors.textPrimary,
                   ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Play/pause + elapsed-time bar for the chapter's Ewondo audio narration.
+/// The player itself is owned and pre-loaded by [_BibleReaderScreenState];
+/// this widget only reflects its state, so navigating chapters (which stops
+/// and reloads the player before this bar is even built again) never leaves
+/// a stale control on screen.
+class _ChapterAudioBar extends StatelessWidget {
+  const _ChapterAudioBar({required this.audioPlayer});
+
+  final AudioPlayer audioPlayer;
+
+  String _formatDuration(Duration d) {
+    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
+    return '$minutes:$seconds';
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: AppSpacing.xl,
+        vertical: AppSpacing.sm,
+      ),
+      decoration: const BoxDecoration(
+        color: AppColors.surface,
+        border: Border(bottom: BorderSide(color: AppColors.divider)),
+      ),
+      child: Row(
+        children: [
+          StreamBuilder<PlayerState>(
+            stream: audioPlayer.playerStateStream,
+            builder: (context, snapshot) {
+              final playing = snapshot.data?.playing ?? false;
+              return IconButton(
+                icon: Icon(
+                  playing ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                  color: AppColors.scripture,
+                  size: 32,
+                ),
+                tooltip: playing ? l10n.bibleAudioPause : l10n.bibleAudioPlay,
+                onPressed: () => playing ? audioPlayer.pause() : audioPlayer.play(),
+              );
+            },
+          ),
+          const SizedBox(width: AppSpacing.sm),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(l10n.bibleAudioLabel, style: AppTypography.caption),
+                const SizedBox(height: 4),
+                StreamBuilder<Duration>(
+                  stream: audioPlayer.positionStream,
+                  builder: (context, snapshot) {
+                    final position = snapshot.data ?? Duration.zero;
+                    final duration = audioPlayer.duration ?? Duration.zero;
+                    final progress = duration.inMilliseconds == 0
+                        ? 0.0
+                        : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(4),
+                          child: LinearProgressIndicator(
+                            value: progress,
+                            minHeight: 4,
+                            backgroundColor: AppColors.divider,
+                            color: AppColors.scripture,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          '${_formatDuration(position)} / ${_formatDuration(duration)}',
+                          style: AppTypography.caption,
+                        ),
+                      ],
+                    );
+                  },
                 ),
               ],
             ),

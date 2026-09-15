@@ -158,6 +158,12 @@
   "adminBibleChapterEmptyTitle": "Pas encore de chapitres",
   "adminBibleChapterEmptyMessage": "Collez et enregistrez un chapitre ci-dessus pour le voir apparaître ici.",
   "adminBibleChapterDeleteChapterTooltip": "Supprimer le chapitre",
+  "adminBibleChapterAddAudioTooltip": "Ajouter l'audio",
+  "adminBibleChapterReplaceAudioTooltip": "Remplacer l'audio",
+  "adminBibleChapterRemoveAudioTooltip": "Supprimer l'audio",
+  "adminBibleChapterAudioSaved": "Audio enregistré.",
+  "adminBibleChapterAudioUploadError": "Impossible de téléverser l'audio.",
+  "adminBibleChapterAudioRemoveError": "Impossible de supprimer l'audio.",
   "adminBibleChapterOverwriteTitle": "Écraser les chapitres existants ?",
   "adminBibleChapterOverwriteConfirm": "{count} de ces chapitres sont déjà enregistrés pour « {book} ». Enregistrer maintenant remplacera leurs versets existants par ceux que vous importez.",
   "@adminBibleChapterOverwriteConfirm": {
@@ -940,6 +946,9 @@
   "biblePreviousChapter": "Précédent",
   "bibleNextChapter": "Suivant",
   "bibleTranslationPending": "Traduction pas encore disponible",
+  "bibleAudioLabel": "Écouter en Ewondo",
+  "bibleAudioPlay": "Lire",
+  "bibleAudioPause": "Pause",
   "bibleChapterNotFoundTitle": "Chapitre introuvable",
   "bibleChapterNotFoundMessage": "Ce chapitre n'a pas pu être chargé. Veuillez revenir en arrière et réessayer.",
 

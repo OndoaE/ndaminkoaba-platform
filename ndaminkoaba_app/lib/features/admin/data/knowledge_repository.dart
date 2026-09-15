@@ -265,6 +265,37 @@ class KnowledgeRepository {
     await ApiClient.dio.delete('/bible-images/hero/$id');
   }
 
+  // --- Bible chapter audio (Ewondo narration, one per book+chapter) ---
+
+  Future<List<BibleChapterAudioEntry>> getBibleChapterAudio({String? languageId}) async {
+    final response = await ApiClient.dio.get('/bible-audio', queryParameters: {
+      if (languageId != null) 'languageId': languageId,
+    });
+    final data = response.data as Map<String, dynamic>;
+    final items = (data['data'] ?? data) as List;
+    return items
+        .map((item) => BibleChapterAudioEntry.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
+
+  Future<void> upsertBibleChapterAudio({
+    required String languageId,
+    required String book,
+    required int chapter,
+    required String audioUrl,
+  }) async {
+    await ApiClient.dio.post('/bible-audio', data: {
+      'languageId': languageId,
+      'book': book,
+      'chapter': chapter,
+      'audioUrl': audioUrl,
+    });
+  }
+
+  Future<void> deleteBibleChapterAudio(String id) async {
+    await ApiClient.dio.delete('/bible-audio/$id');
+  }
+
   // --- Daily word / verse (rotating pool shown on the learner dashboard) ---
 
   /// Drains every page instead of capping at a fixed count — see

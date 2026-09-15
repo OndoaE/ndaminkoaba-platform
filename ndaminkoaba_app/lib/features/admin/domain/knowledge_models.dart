@@ -154,6 +154,29 @@ class BibleHeroImageEntry {
   }
 }
 
+class BibleChapterAudioEntry {
+  final String id;
+  final String book;
+  final int chapter;
+  final String audioUrl;
+
+  const BibleChapterAudioEntry({
+    required this.id,
+    required this.book,
+    required this.chapter,
+    required this.audioUrl,
+  });
+
+  factory BibleChapterAudioEntry.fromJson(Map<String, dynamic> json) {
+    return BibleChapterAudioEntry(
+      id: json['id'] ?? '',
+      book: json['book'] ?? '',
+      chapter: json['chapter'] ?? 0,
+      audioUrl: json['audioUrl'] ?? '',
+    );
+  }
+}
+
 class DailyWordEntry {
   final String id;
   final String word;

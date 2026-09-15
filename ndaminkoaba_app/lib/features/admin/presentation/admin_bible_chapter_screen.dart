@@ -126,6 +126,8 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   bool isUsfmMode = false;
   bool _defaultVersionSet = false;
   List<BibleChapterSummary> savedChapters = [];
+  List<BibleChapterAudioEntry> chapterAudio = [];
+  String? uploadingAudioKey;
 
   // Manual (single-chapter) mode only.
   List<_VersePreview> preview = [];
@@ -168,17 +170,76 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
   Future<void> loadChapters() async {
     setState(() => isLoadingChapters = true);
     try {
-      final result = await repository.getBibleChapters(
-        languageId: widget.languageId,
-      );
+      final results = await Future.wait([
+        repository.getBibleChapters(languageId: widget.languageId),
+        repository.getBibleChapterAudio(languageId: widget.languageId),
+      ]);
       if (!mounted) return;
       setState(() {
-        savedChapters = result;
+        savedChapters = results[0] as List<BibleChapterSummary>;
+        chapterAudio = results[1] as List<BibleChapterAudioEntry>;
         isLoadingChapters = false;
       });
     } catch (_) {
       if (!mounted) return;
       setState(() => isLoadingChapters = false);
+    }
+  }
+
+  String _chapterAudioKey(String book, int chapter) => '$book|$chapter';
+
+  BibleChapterAudioEntry? _audioFor(BibleChapterSummary summary) {
+    final key = _chapterAudioKey(summary.book, summary.chapter);
+    for (final entry in chapterAudio) {
+      if (_chapterAudioKey(entry.book, entry.chapter) == key) return entry;
+    }
+    return null;
+  }
+
+  Future<void> _uploadChapterAudio(BibleChapterSummary summary) async {
+    final result = await FilePicker.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['mp3', 'wav', 'm4a', 'ogg'],
+      withData: true,
+    );
+    final picked = result?.files.firstOrNull;
+    if (picked == null || picked.bytes == null) return;
+
+    final l10n = AppLocalizations.of(context);
+    final key = _chapterAudioKey(summary.book, summary.chapter);
+    setState(() => uploadingAudioKey = key);
+    try {
+      final url = await repository.uploadAudio(picked.bytes!, picked.name);
+      await repository.upsertBibleChapterAudio(
+        languageId: widget.languageId,
+        book: summary.book,
+        chapter: summary.chapter,
+        audioUrl: url,
+      );
+      if (!mounted) return;
+      await loadChapters();
+      _showMessage(l10n.adminBibleChapterAudioSaved);
+    } on DioException catch (e) {
+      if (!mounted) return;
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBibleChapterAudioUploadError));
+    } finally {
+      if (mounted) setState(() => uploadingAudioKey = null);
+    }
+  }
+
+  Future<void> _removeChapterAudio(BibleChapterAudioEntry entry) async {
+    final l10n = AppLocalizations.of(context);
+    final key = _chapterAudioKey(entry.book, entry.chapter);
+    setState(() => uploadingAudioKey = key);
+    try {
+      await repository.deleteBibleChapterAudio(entry.id);
+      if (!mounted) return;
+      await loadChapters();
+    } on DioException catch (e) {
+      if (!mounted) return;
+      _showMessage(extractErrorMessage(e, fallback: l10n.adminBibleChapterAudioRemoveError));
+    } finally {
+      if (mounted) setState(() => uploadingAudioKey = null);
     }
   }
 
@@ -1249,6 +1310,47 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                                     ],
                                   ),
                                 ),
+                                if (uploadingAudioKey ==
+                                    _chapterAudioKey(summary.book, summary.chapter))
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(horizontal: AppSpacing.sm),
+                                    child: SizedBox(
+                                      width: 18,
+                                      height: 18,
+                                      child: CircularProgressIndicator(strokeWidth: 2),
+                                    ),
+                                  )
+                                else ...[
+                                  Builder(
+                                    builder: (context) {
+                                      final audio = _audioFor(summary);
+                                      return IconButton(
+                                        icon: Icon(
+                                          audio != null ? Icons.graphic_eq : Icons.mic_none_outlined,
+                                          color: audio != null ? AppColors.primary : null,
+                                        ),
+                                        tooltip: audio != null
+                                            ? l10n.adminBibleChapterReplaceAudioTooltip
+                                            : l10n.adminBibleChapterAddAudioTooltip,
+                                        onPressed: () => _uploadChapterAudio(summary),
+                                      );
+                                    },
+                                  ),
+                                  Builder(
+                                    builder: (context) {
+                                      final audio = _audioFor(summary);
+                                      if (audio == null) return const SizedBox.shrink();
+                                      return IconButton(
+                                        icon: const Icon(
+                                          Icons.close,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        tooltip: l10n.adminBibleChapterRemoveAudioTooltip,
+                                        onPressed: () => _removeChapterAudio(audio),
+                                      );
+                                    },
+                                  ),
+                                ],
                                 IconButton(
                                   icon: const Icon(
                                     Icons.delete_outline,

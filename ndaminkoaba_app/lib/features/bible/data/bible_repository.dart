@@ -46,4 +46,17 @@ class BibleRepository {
     final images = (data['data'] ?? data) as Map<String, dynamic>;
     return BibleImages.fromJson(images);
   }
+
+  /// Admin-uploaded chapter audio narrations (`GET /bible-audio`), public
+  /// and unauthenticated like [getChapters].
+  Future<List<BibleChapterAudio>> getChapterAudio({String? languageId}) async {
+    final response = await ApiClient.dio.get('/bible-audio', queryParameters: {
+      if (languageId != null) 'languageId': languageId,
+    });
+    final data = response.data as Map<String, dynamic>;
+    final items = data['data'] ?? data;
+    return (items as List)
+        .map((item) => BibleChapterAudio.fromJson(item as Map<String, dynamic>))
+        .toList();
+  }
 }

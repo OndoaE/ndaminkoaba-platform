@@ -158,6 +158,12 @@
   "adminBibleChapterEmptyTitle": "No chapters yet",
   "adminBibleChapterEmptyMessage": "Paste and save a chapter above to see it here.",
   "adminBibleChapterDeleteChapterTooltip": "Delete chapter",
+  "adminBibleChapterAddAudioTooltip": "Add audio",
+  "adminBibleChapterReplaceAudioTooltip": "Replace audio",
+  "adminBibleChapterRemoveAudioTooltip": "Remove audio",
+  "adminBibleChapterAudioSaved": "Audio saved.",
+  "adminBibleChapterAudioUploadError": "Could not upload audio.",
+  "adminBibleChapterAudioRemoveError": "Could not remove audio.",
   "adminBibleChapterOverwriteTitle": "Overwrite existing chapters?",
   "adminBibleChapterOverwriteConfirm": "{count} of these chapters are already saved for \"{book}\". Saving now will replace their existing verses with the ones you're uploading.",
   "@adminBibleChapterOverwriteConfirm": {
@@ -989,6 +995,9 @@
   "biblePreviousChapter": "Previous",
   "bibleNextChapter": "Next",
   "bibleTranslationPending": "Translation not yet available",
+  "bibleAudioLabel": "Listen in Ewondo",
+  "bibleAudioPlay": "Play",
+  "bibleAudioPause": "Pause",
   "bibleChapterNotFoundTitle": "Chapter not found",
   "bibleChapterNotFoundMessage": "This chapter could not be loaded. Please go back and try again.",
 

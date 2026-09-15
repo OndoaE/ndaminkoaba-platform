@@ -124,6 +124,31 @@ class BibleHeroImage {
   }
 }
 
+/// Admin-uploaded Ewondo audio narration for one Bible chapter
+/// (`GET /bible-audio`). Keyed by the exact `book`+`chapter` the chapter was
+/// saved under — matched directly against `BibleReaderScreen.book`, which by
+/// the time it reaches the reader has already been resolved to one winning
+/// spelling variant per chapter (see [consolidatedChaptersForGospel]).
+class BibleChapterAudio {
+  final String book;
+  final int chapter;
+  final String audioUrl;
+
+  const BibleChapterAudio({
+    required this.book,
+    required this.chapter,
+    required this.audioUrl,
+  });
+
+  factory BibleChapterAudio.fromJson(Map<String, dynamic> json) {
+    return BibleChapterAudio(
+      book: json['book'] ?? '',
+      chapter: json['chapter'] ?? 0,
+      audioUrl: json['audioUrl'] ?? '',
+    );
+  }
+}
+
 class BibleImages {
   final BibleHeroImage? hero;
   final List<BibleBookCover> covers;

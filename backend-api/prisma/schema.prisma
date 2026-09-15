@@ -132,9 +132,10 @@ model Language {
 
   courses          Course[]
   vocabulary       Vocabulary[]
-  bibleVerses      BibleVerse[]
-  bibleBookCovers  BibleBookCover[]
-  bibleHeroImage   BibleHeroImage?
+  bibleVerses       BibleVerse[]
+  bibleBookCovers   BibleBookCover[]
+  bibleHeroImage    BibleHeroImage?
+  bibleChapterAudio BibleChapterAudio[]
   dailyWords       DailyWord[]
   dailyVerses      DailyVerse[]
   knowledgeTexts   KnowledgeText[]
@@ -399,6 +400,25 @@ model BibleHeroImage {
   updatedAt  DateTime @updatedAt
 
   language Language @relation(fields: [languageId], references: [id])
+}
+
+/// Admin-uploaded audio narration of one Bible chapter in Ewondo, scoped to
+/// a language. Keyed by the exact (languageId, book, chapter) triple — the
+/// same raw strings BibleVerse itself uses — not the Gospel-alias bookKey
+/// scheme BibleBookCover uses, so audio always matches whichever spelling
+/// variant the reader is actually displaying for a given chapter.
+model BibleChapterAudio {
+  id         String   @id @default(uuid())
+  languageId String
+  book       String
+  chapter    Int
+  audioUrl   String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  language Language @relation(fields: [languageId], references: [id])
+
+  @@unique([languageId, book, chapter])
 }
 
 /// Admin-curated pool of words shown one-per-day on the learner dashboard,

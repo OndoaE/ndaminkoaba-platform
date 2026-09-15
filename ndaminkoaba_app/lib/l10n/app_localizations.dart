@@ -960,6 +960,42 @@ abstract class AppLocalizations {
   /// **'Delete chapter'**
   String get adminBibleChapterDeleteChapterTooltip;
 
+  /// No description provided for @adminBibleChapterAddAudioTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Add audio'**
+  String get adminBibleChapterAddAudioTooltip;
+
+  /// No description provided for @adminBibleChapterReplaceAudioTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Replace audio'**
+  String get adminBibleChapterReplaceAudioTooltip;
+
+  /// No description provided for @adminBibleChapterRemoveAudioTooltip.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove audio'**
+  String get adminBibleChapterRemoveAudioTooltip;
+
+  /// No description provided for @adminBibleChapterAudioSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio saved.'**
+  String get adminBibleChapterAudioSaved;
+
+  /// No description provided for @adminBibleChapterAudioUploadError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not upload audio.'**
+  String get adminBibleChapterAudioUploadError;
+
+  /// No description provided for @adminBibleChapterAudioRemoveError.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not remove audio.'**
+  String get adminBibleChapterAudioRemoveError;
+
   /// No description provided for @adminBibleChapterOverwriteTitle.
   ///
   /// In en, this message translates to:
@@ -5017,6 +5053,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Translation not yet available'**
   String get bibleTranslationPending;
+
+  /// No description provided for @bibleAudioLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Listen in Ewondo'**
+  String get bibleAudioLabel;
+
+  /// No description provided for @bibleAudioPlay.
+  ///
+  /// In en, this message translates to:
+  /// **'Play'**
+  String get bibleAudioPlay;
+
+  /// No description provided for @bibleAudioPause.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get bibleAudioPause;
 
   /// No description provided for @bibleChapterNotFoundTitle.
   ///

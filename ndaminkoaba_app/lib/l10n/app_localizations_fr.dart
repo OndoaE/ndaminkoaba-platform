@@ -533,6 +533,26 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminBibleChapterDeleteChapterTooltip => 'Supprimer le chapitre';
 
   @override
+  String get adminBibleChapterAddAudioTooltip => 'Ajouter l\'audio';
+
+  @override
+  String get adminBibleChapterReplaceAudioTooltip => 'Remplacer l\'audio';
+
+  @override
+  String get adminBibleChapterRemoveAudioTooltip => 'Supprimer l\'audio';
+
+  @override
+  String get adminBibleChapterAudioSaved => 'Audio enregistré.';
+
+  @override
+  String get adminBibleChapterAudioUploadError =>
+      'Impossible de téléverser l\'audio.';
+
+  @override
+  String get adminBibleChapterAudioRemoveError =>
+      'Impossible de supprimer l\'audio.';
+
+  @override
   String get adminBibleChapterOverwriteTitle =>
       'Écraser les chapitres existants ?';
 
@@ -2863,6 +2883,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get bibleTranslationPending => 'Traduction pas encore disponible';
+
+  @override
+  String get bibleAudioLabel => 'Écouter en Ewondo';
+
+  @override
+  String get bibleAudioPlay => 'Lire';
+
+  @override
+  String get bibleAudioPause => 'Pause';
 
   @override
   String get bibleChapterNotFoundTitle => 'Chapitre introuvable';
