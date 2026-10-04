@@ -13,11 +13,11 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
-  // The API sits behind exactly one reverse proxy (Railway's edge), which
-  // appends the real client address to X-Forwarded-For. Without this, every
-  // request appears to come from the proxy and the per-IP rate limiter would
-  // share one bucket across all users. Override with TRUST_PROXY (a hop
-  // count) if the hosting topology changes; 0 disables it.
+  // `req.ip` honours X-Forwarded-For only up to this many proxy hops. It is
+  // NOT what the rate limiter uses: Railway's path has a variable number of
+  // hops, so the limiter reads the client address from X-Real-IP instead (see
+  // common/throttler/client-ip.ts). Kept at one hop for anything else that
+  // reads req.ip; set TRUST_PROXY to change it, 0 disables it.
   app.set('trust proxy', Number(process.env.TRUST_PROXY ?? 1));
 
   // Unauthenticated credential routes only ever carry a few short fields, so

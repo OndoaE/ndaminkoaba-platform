@@ -1,7 +1,8 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
-import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ClientIpThrottlerGuard } from './common/throttler/client-ip-throttler.guard';
 import { join } from 'path';
 
 import { AppController } from './app.controller';
@@ -114,7 +115,7 @@ import { ContentWorkflowModule } from './content-workflow/content-workflow.modul
     AppService,
     // Every route gets a per-IP request budget; credential and paid-AI
     // endpoints override it with a tighter one via @Throttle().
-    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    { provide: APP_GUARD, useClass: ClientIpThrottlerGuard },
   ],
 })
 export class AppModule {}
