@@ -1,5 +1,6 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
+import { Throttle } from '@nestjs/throttler';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
@@ -14,6 +15,7 @@ import { LessonAssistService } from './lesson-assist.service';
 export class LessonAssistController {
   constructor(private readonly lessonAssistService: LessonAssistService) {}
 
+  @Throttle({ default: { limit: 20, ttl: 60000 } })
   @Post('lesson-assist')
   assist(@Body() dto: LessonAssistDto) {
     return this.lessonAssistService.assist(

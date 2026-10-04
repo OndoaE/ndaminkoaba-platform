@@ -1,5 +1,6 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import type { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { json, urlencoded } from 'express';
 import helmet from 'helmet';
@@ -10,7 +11,19 @@ import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // The API sits behind exactly one reverse proxy (Railway's edge), which
+  // appends the real client address to X-Forwarded-For. Without this, every
+  // request appears to come from the proxy and the per-IP rate limiter would
+  // share one bucket across all users. Override with TRUST_PROXY (a hop
+  // count) if the hosting topology changes; 0 disables it.
+  app.set('trust proxy', Number(process.env.TRUST_PROXY ?? 1));
+
+  // Unauthenticated credential routes only ever carry a few short fields, so
+  // they get a tiny body limit instead of the 25mb one below. This parser is
+  // registered first, so it handles these requests before the global one.
+  app.use('/api/auth', json({ limit: '100kb' }));
 
   // Express's default JSON body limit (100kb) is far too small for a
   // whole-book USFM import (Ewondo + English text for every verse of a
@@ -59,24 +72,32 @@ async function bootstrap() {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalInterceptors(new ResponseInterceptor());
 
-  const config = new DocumentBuilder()
-    .setTitle('NdaMinkoaba API')
-    .setDescription('AI-assisted indigenous language learning platform API')
-    .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        name: 'Authorization',
-        in: 'header',
-      },
-      'access-token',
-    )
-    .build();
+  // Swagger UI publishes a full map of the API, so it is off in production
+  // unless explicitly enabled (SWAGGER_ENABLED=true); on by default elsewhere.
+  const swaggerEnabled = process.env.SWAGGER_ENABLED
+    ? process.env.SWAGGER_ENABLED === 'true'
+    : process.env.NODE_ENV !== 'production';
 
-  const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api/docs', app, document);
+  if (swaggerEnabled) {
+    const config = new DocumentBuilder()
+      .setTitle('NdaMinkoaba API')
+      .setDescription('AI-assisted indigenous language learning platform API')
+      .setVersion('1.0')
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'Authorization',
+          in: 'header',
+        },
+        'access-token',
+      )
+      .build();
+
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
+  }
 
   const port = process.env.PORT ?? 3000;
   await app.listen(port);

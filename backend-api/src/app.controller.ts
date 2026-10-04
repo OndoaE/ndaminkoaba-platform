@@ -1,4 +1,5 @@
 import { Controller, Get } from '@nestjs/common';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AppService } from './app.service';
 import { PrismaService } from './prisma/prisma.service';
 
@@ -16,6 +17,7 @@ export class AppController {
 
   // Unauthenticated liveness/readiness probe for hosting platforms
   // (Railway/Render/etc. poll this to know when to route traffic).
+  @SkipThrottle()
   @Get('health')
   async health() {
     await this.prisma.$queryRaw`SELECT 1`;

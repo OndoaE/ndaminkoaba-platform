@@ -100,6 +100,13 @@ export class AuthService {
   }
 
   private async issueSession(user: User) {
+    // Checked here, after the credentials are verified, so it covers both the
+    // password and Google paths without revealing account state to someone
+    // who doesn't hold valid credentials.
+    if (!user.isActive) {
+      throw new UnauthorizedException('This account has been deactivated.');
+    }
+
     const payload = {
       sub: user.id,
       email: user.email,

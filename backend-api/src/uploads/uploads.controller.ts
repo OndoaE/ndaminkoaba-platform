@@ -8,43 +8,59 @@ import {
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiTags } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { randomUUID } from 'crypto';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
+import { RolesGuard } from '../auth/guards/roles/roles.guard';
+import { Roles } from '../auth/decorators/roles/roles.decorator';
+
+import {
+  assertFileSignature,
+  audioExtension,
+  documentExtension,
+  imageExtension,
+} from './upload-validation';
+
+const FILE_BODY = {
+  schema: {
+    type: 'object',
+    properties: {
+      file: {
+        type: 'string',
+        format: 'binary',
+      },
+    },
+  },
+} as const;
 
 @ApiTags('Uploads')
 @ApiBearerAuth('access-token')
 @Controller('uploads')
 @UseGuards(JwtAuthGuard)
 export class UploadsController {
+  /// Any signed-in user may upload an image (learners set a profile photo).
   @Post('image')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  @ApiBody(FILE_BODY)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads/images',
         filename: (_req, file, callback) => {
-          const uniqueName = `${randomUUID()}${extname(file.originalname)}`;
-          callback(null, uniqueName);
+          callback(
+            null,
+            `${randomUUID()}${imageExtension(file.mimetype) ?? '.bin'}`,
+          );
         },
       }),
       fileFilter: (_req, file, callback) => {
-        if (!file.mimetype.match(/\/(jpg|jpeg|png|webp)$/)) {
+        if (!imageExtension(file.mimetype)) {
           return callback(
-            new BadRequestException('Only image files are allowed'),
+            new BadRequestException(
+              'Only JPEG, PNG or WebP images are allowed',
+            ),
             false,
           );
         }
@@ -60,6 +76,7 @@ export class UploadsController {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
+    assertFileSignature(file.path, 'image');
 
     return {
       message: 'Image uploaded successfully',
@@ -71,36 +88,27 @@ export class UploadsController {
     };
   }
 
+  /// Books (up to 50 MB) are staff-only: this is the endpoint that can fill
+  /// the storage volume, and learners never publish books.
   @Post('document')
+  @UseGuards(RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.TEACHER)
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  @ApiBody(FILE_BODY)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads/books',
         filename: (_req, file, callback) => {
-          const uniqueName = `${randomUUID()}${extname(file.originalname)}`;
-          callback(null, uniqueName);
+          const extension =
+            documentExtension(file.originalname, file.mimetype) ?? '.bin';
+          callback(null, `${randomUUID()}${extension}`);
         },
       }),
       fileFilter: (_req, file, callback) => {
-        // EPUB mimetype reporting is inconsistent across browsers/OSes
-        // (application/epub+zip, application/zip, application/octet-stream
-        // have all been observed), so the file extension is checked too
-        // rather than trusting mimetype alone.
-        const extensionOk = /\.(pdf|epub)$/i.test(file.originalname);
-        const mimetypeOk = file.mimetype.match(/\/(pdf|epub\+zip)$/);
-        if (!extensionOk && !mimetypeOk) {
+        // Extension AND mimetype must both be plausible — either one alone is
+        // client-controlled.
+        if (!documentExtension(file.originalname, file.mimetype)) {
           return callback(
             new BadRequestException('Only PDF or EPUB files are allowed'),
             false,
@@ -118,6 +126,10 @@ export class UploadsController {
     if (!file) {
       throw new BadRequestException('No file uploaded');
     }
+    assertFileSignature(
+      file.path,
+      file.filename.endsWith('.epub') ? 'epub' : 'pdf',
+    );
 
     return {
       message: 'Document uploaded successfully',
@@ -129,32 +141,26 @@ export class UploadsController {
     };
   }
 
+  /// Any signed-in user may upload audio (voice messages, pronunciation
+  /// attempts); admins also use it for lesson and Bible narration.
   @Post('audio')
   @ApiConsumes('multipart/form-data')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        file: {
-          type: 'string',
-          format: 'binary',
-        },
-      },
-    },
-  })
+  @ApiBody(FILE_BODY)
   @UseInterceptors(
     FileInterceptor('file', {
       storage: diskStorage({
         destination: './uploads/audio',
         filename: (_req, file, callback) => {
-          const uniqueName = `${randomUUID()}${extname(file.originalname)}`;
-          callback(null, uniqueName);
+          callback(
+            null,
+            `${randomUUID()}${audioExtension(file.mimetype) ?? '.bin'}`,
+          );
         },
       }),
       fileFilter: (_req, file, callback) => {
-        if (!file.mimetype.match(/^audio\//)) {
+        if (!audioExtension(file.mimetype)) {
           return callback(
-            new BadRequestException('Only audio files are allowed'),
+            new BadRequestException('Unsupported audio format'),
             false,
           );
         }

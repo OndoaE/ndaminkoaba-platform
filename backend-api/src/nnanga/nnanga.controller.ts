@@ -8,6 +8,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { UserRole } from '@prisma/client';
+import { Throttle } from '@nestjs/throttler';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles/roles.guard';
@@ -24,6 +25,7 @@ import { QueryNnangaChatDto } from './dto/query-nnanga-chat.dto/query-nnanga-cha
 export class NnangaController {
   constructor(private readonly nnangaService: NnangaService) {}
 
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Post('chat')
   @UseGuards(RolesGuard)
   @Roles(UserRole.ADMIN, UserRole.TEACHER, UserRole.LEARNER)

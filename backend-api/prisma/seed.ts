@@ -11,7 +11,9 @@
  * each with a module, lesson, vocabulary and quiz, so the app isn't empty
  * on first run and the level filter has real data to show.
  *
- * Demo logins (all use the same password below):
+ * Demo logins (all use the same password, `Passw0rd!` by default for local
+ * development; set SEED_DEMO_PASSWORD to override — required for any
+ * non-local database):
  *   admin@ndaminkoaba.com    / Passw0rd!
  *   teacher@ndaminkoaba.com  / Passw0rd!
  *   learner@ndaminkoaba.com  / Passw0rd!
@@ -21,7 +23,19 @@ import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
-const DEMO_PASSWORD = 'Passw0rd!';
+const DEFAULT_DEMO_PASSWORD = 'Passw0rd!';
+const DEMO_PASSWORD = process.env.SEED_DEMO_PASSWORD ?? DEFAULT_DEMO_PASSWORD;
+
+// The default password is published in this file and the README, so it must
+// never end up on a database anyone else can reach. Seeding a non-local
+// database requires choosing a different password.
+const isLocalDatabase = /@(localhost|127\.0\.0\.1|\[::1\])[:/]/.test(process.env.DATABASE_URL ?? '');
+if (DEMO_PASSWORD === DEFAULT_DEMO_PASSWORD && (process.env.NODE_ENV === 'production' || !isLocalDatabase)) {
+  throw new Error(
+    'Refusing to seed demo accounts with the default, publicly documented password on a non-local database. ' +
+      'Set SEED_DEMO_PASSWORD to a strong password of your own.',
+  );
+}
 
 async function upsertUser(email: string, fullName: string, role: UserRole) {
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);

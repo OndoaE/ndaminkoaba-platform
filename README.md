@@ -37,7 +37,7 @@ npx prisma db seed          # creates demo accounts + one PUBLISHED course per l
 npm run start:dev           # http://localhost:3000/api, Swagger docs at /api/docs
 ```
 
-Demo accounts created by the seed script (all use password `Passw0rd!`):
+Demo accounts created by the seed script (all use password `Passw0rd!` **on a local database only** — this password is public, so the seed script refuses to use it on any non-local database; set `SEED_DEMO_PASSWORD` to seed a shared one):
 
 | Role    | Email                     | Notes |
 |---------|---------------------------|-------|

@@ -1,54 +1,46 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Throttle } from '@nestjs/throttler';
 
+import { CurrentUser } from '../common/decorators/current-user.decorator';
+import type { ICurrentUser } from '../common/interfaces/current-user.interface';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { RegisterDto } from './dto/register.dto';
 import { GoogleLoginDto } from './dto/google-login.dto';
 import { JwtAuthGuard } from './guards/jwt-auth/jwt-auth.guard';
-import { UserRole } from '@prisma/client';
-import { Roles } from './decorators/roles/roles.decorator';
-import { RolesGuard } from './guards/roles/roles.guard';
+
+// Credential endpoints get a much tighter per-IP budget than the global
+// default, to make password guessing and mass sign-ups impractical.
+const AUTH_LIMIT = { default: { limit: 10, ttl: 60_000 } };
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Get('test')
-  test() {
-    return {
-      message: 'NdaMinkoaba Auth API is running',
-    };
-  }
-
   @Post('register')
+  @Throttle(AUTH_LIMIT)
   register(@Body() dto: RegisterDto) {
     return this.authService.register(dto);
   }
 
   @Post('login')
+  @Throttle(AUTH_LIMIT)
   login(@Body() dto: LoginDto) {
     return this.authService.login(dto);
   }
 
   @Post('google')
+  @Throttle({ default: { limit: 20, ttl: 60_000 } })
   loginWithGoogle(@Body() dto: GoogleLoginDto) {
     return this.authService.loginWithGoogle(dto);
   }
 
   @Get('profile')
   @UseGuards(JwtAuthGuard)
-  profile(@Req() req) {
+  profile(@CurrentUser() user: ICurrentUser) {
     return {
       message: 'Authenticated user profile',
-      user: req.user,
+      user,
     };
   }
-  @Get('admin-test')
-@UseGuards(JwtAuthGuard, RolesGuard)
-@Roles(UserRole.ADMIN)
-adminTest() {
-  return {
-    message: 'Admin access granted',
-  };
-}
 }

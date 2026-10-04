@@ -34,6 +34,25 @@ function isForeignKeyViolation(exception: unknown): boolean {
   );
 }
 
+// Errors thrown by Express middleware that runs before Nest's routing — most
+// notably body-parser's "payload too large" and "malformed JSON" — are
+// `http-errors` objects, not Nest HttpExceptions. They already carry the right
+// 4xx status and a message that is safe to show, so they are reported as the
+// client errors they are rather than as a 500.
+function isExposedClientError(
+  exception: unknown,
+): exception is { status: number; message: string } {
+  if (typeof exception !== 'object' || exception === null) return false;
+  const e = exception as { status?: unknown; expose?: unknown };
+  return (
+    e.expose === true &&
+    typeof e.status === 'number' &&
+    Number.isInteger(e.status) &&
+    e.status >= 400 &&
+    e.status < 500
+  );
+}
+
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: unknown, host: ArgumentsHost) {
@@ -62,6 +81,16 @@ export class HttpExceptionFilter implements ExceptionFilter {
   private resolve(exception: unknown): { status: number; errorResponse: unknown } {
     if (exception instanceof HttpException) {
       return { status: exception.getStatus(), errorResponse: exception.getResponse() };
+    }
+
+    if (isExposedClientError(exception)) {
+      return {
+        status: exception.status,
+        errorResponse: {
+          statusCode: exception.status,
+          message: exception.message,
+        },
+      };
     }
 
     // Prisma throws its own error classes for DB-level failures (FK

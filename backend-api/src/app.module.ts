@@ -1,5 +1,7 @@
 import { Module } from '@nestjs/common';
+import { APP_GUARD } from '@nestjs/core';
 import { ServeStaticModule } from '@nestjs/serve-static';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { join } from 'path';
 
 import { AppController } from './app.controller';
@@ -54,6 +56,7 @@ import { ContentWorkflowModule } from './content-workflow/content-workflow.modul
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot([{ ttl: 60_000, limit: 600 }]),
     ServeStaticModule.forRoot({
       rootPath: join(process.cwd(), 'uploads'),
       serveRoot: '/uploads',
@@ -107,6 +110,11 @@ import { ContentWorkflowModule } from './content-workflow/content-workflow.modul
     ContentWorkflowModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    // Every route gets a per-IP request budget; credential and paid-AI
+    // endpoints override it with a tighter one via @Throttle().
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+  ],
 })
 export class AppModule {}

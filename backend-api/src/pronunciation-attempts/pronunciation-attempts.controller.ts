@@ -1,5 +1,6 @@
 import { Body, Controller, Get, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Throttle } from '@nestjs/throttler';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth/jwt-auth.guard';
 import { CurrentUser } from '../common/decorators/current-user.decorator';
@@ -15,6 +16,7 @@ import { CreatePronunciationAttemptDto } from './dto/create-pronunciation-attemp
 export class PronunciationAttemptsController {
   constructor(private readonly pronunciationAttemptsService: PronunciationAttemptsService) {}
 
+  @Throttle({ default: { limit: 30, ttl: 60000 } })
   @Post()
   create(
     @CurrentUser() currentUser: ICurrentUser,
