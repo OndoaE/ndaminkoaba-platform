@@ -644,6 +644,16 @@ class AppLocalizationsFr extends AppLocalizations {
   String get adminBibleChapterBulkBack => 'Retour';
 
   @override
+  String adminBibleChapterSimilarBookWarning(Object book) {
+    return 'Ceci ressemble à un livre déjà existant, «$book» — est-ce celui-là que vous vouliez ? L\'orthographier différemment à chaque fois crée un livre distinct et déconnecté.';
+  }
+
+  @override
+  String adminBibleChapterUseSuggestedBook(Object book) {
+    return 'Utiliser «$book»';
+  }
+
+  @override
   String get adminBibleChapterOverwriteTitle =>
       'Écraser les chapitres existants ?';
 

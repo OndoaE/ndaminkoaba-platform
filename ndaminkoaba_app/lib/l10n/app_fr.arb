@@ -203,6 +203,14 @@
   "adminBibleChapterBulkClose": "Fermer",
   "adminBibleChapterBulkCancel": "Annuler",
   "adminBibleChapterBulkBack": "Retour",
+  "adminBibleChapterSimilarBookWarning": "Ceci ressemble à un livre déjà existant, «{book}» — est-ce celui-là que vous vouliez ? L'orthographier différemment à chaque fois crée un livre distinct et déconnecté.",
+  "@adminBibleChapterSimilarBookWarning": {
+    "placeholders": { "book": {} }
+  },
+  "adminBibleChapterUseSuggestedBook": "Utiliser «{book}»",
+  "@adminBibleChapterUseSuggestedBook": {
+    "placeholders": { "book": {} }
+  },
   "adminBibleChapterOverwriteTitle": "Écraser les chapitres existants ?",
   "adminBibleChapterOverwriteConfirm": "{count} de ces chapitres sont déjà enregistrés pour « {book} ». Enregistrer maintenant remplacera leurs versets existants par ceux que vous importez.",
   "@adminBibleChapterOverwriteConfirm": {

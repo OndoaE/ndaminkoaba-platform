@@ -1122,6 +1122,18 @@ abstract class AppLocalizations {
   /// **'Back'**
   String get adminBibleChapterBulkBack;
 
+  /// No description provided for @adminBibleChapterSimilarBookWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'This looks similar to an existing book, \"{book}\" — did you mean that one? Typing it differently each time creates a separate, disconnected book.'**
+  String adminBibleChapterSimilarBookWarning(Object book);
+
+  /// No description provided for @adminBibleChapterUseSuggestedBook.
+  ///
+  /// In en, this message translates to:
+  /// **'Use \"{book}\"'**
+  String adminBibleChapterUseSuggestedBook(Object book);
+
   /// No description provided for @adminBibleChapterOverwriteTitle.
   ///
   /// In en, this message translates to:

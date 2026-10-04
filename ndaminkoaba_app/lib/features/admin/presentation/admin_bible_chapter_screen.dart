@@ -28,6 +28,63 @@ import '../../bible/domain/models/bible_verse.dart' show matchGospelBook;
 /// line position (robust to either side having a missing/extra verse).
 final _versePattern = RegExp(r'^\s*(\d+)[\.\:]?\s+(.*)$');
 
+/// Standard Levenshtein edit distance (case-sensitive; callers normalize
+/// first). Used to catch a near-miss retype of an existing book name (e.g.
+/// "Mathew" vs the already-saved "Mateus") before it silently becomes a
+/// second, disconnected book -- this app has no alias list for anything
+/// outside the four Gospels, so exact spelling is the only thing that
+/// otherwise ties chapters of the same book together.
+int _levenshtein(String a, String b) {
+  if (a == b) return 0;
+  if (a.isEmpty) return b.length;
+  if (b.isEmpty) return a.length;
+
+  var previousRow = List<int>.generate(b.length + 1, (j) => j);
+  for (var i = 0; i < a.length; i++) {
+    final currentRow = List<int>.filled(b.length + 1, 0);
+    currentRow[0] = i + 1;
+    for (var j = 0; j < b.length; j++) {
+      final cost = a[i] == b[j] ? 0 : 1;
+      currentRow[j + 1] = [
+        currentRow[j] + 1,
+        previousRow[j + 1] + 1,
+        previousRow[j] + cost,
+      ].reduce((v, e) => v < e ? v : e);
+    }
+    previousRow = currentRow;
+  }
+  return previousRow[b.length];
+}
+
+String _normalizeBookName(String s) => s.trim().toLowerCase();
+
+/// Returns the closest existing book name to [typed] if it looks like a
+/// near-miss retype rather than a deliberately different book -- null if
+/// [typed] is empty, already matches an existing book exactly, or isn't
+/// close enough to any of them to be worth flagging.
+String? _findSimilarBook(String typed, Iterable<String> existingBooks) {
+  final normalizedTyped = _normalizeBookName(typed);
+  if (normalizedTyped.isEmpty) return null;
+
+  String? bestMatch;
+  var bestDistance = 1 << 30;
+  for (final existing in existingBooks.toSet()) {
+    final normalizedExisting = _normalizeBookName(existing);
+    if (normalizedExisting == normalizedTyped) return null; // exact match
+    final minLen = normalizedTyped.length < normalizedExisting.length
+        ? normalizedTyped.length
+        : normalizedExisting.length;
+    if (minLen < 3) continue; // too short to compare meaningfully
+    final distance = _levenshtein(normalizedTyped, normalizedExisting);
+    final threshold = ((minLen * 0.4).ceil()).clamp(1, 4);
+    if (distance <= threshold && distance < bestDistance) {
+      bestDistance = distance;
+      bestMatch = existing;
+    }
+  }
+  return bestMatch;
+}
+
 class _VersePreview {
   const _VersePreview({
     required this.chapter,
@@ -776,6 +833,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
     String label,
     TextEditingController controller, {
     TextInputType? keyboardType,
+    void Function(String)? onChanged,
   }) {
     return Expanded(
       child: Column(
@@ -789,6 +847,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
           TextField(
             controller: controller,
             keyboardType: keyboardType,
+            onChanged: onChanged,
             decoration: InputDecoration(
               isDense: true,
               filled: true,
@@ -804,6 +863,53 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  /// Warns when [typed] is a near-miss of an already-saved book name (see
+  /// `_findSimilarBook`) rather than silently letting a retype like
+  /// "Mathew" vs. an existing "Mateus" create a second, disconnected book.
+  /// Renders nothing when there's no close match, so it never crowds the
+  /// form for a genuinely new or exactly-matching book name.
+  Widget _similarBookWarning(
+    String typed, {
+    required void Function(String suggestion) onUseSuggestion,
+  }) {
+    final suggestion = _findSimilarBook(
+      typed,
+      savedChapters.map((s) => s.book),
+    );
+    if (suggestion == null) return const SizedBox.shrink();
+
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: Container(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: BoxDecoration(
+          color: AppColors.error.withValues(alpha: 0.08),
+          borderRadius: AppRadius.small,
+          border: Border.all(color: AppColors.error.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Icon(Icons.warning_amber_rounded, color: AppColors.error, size: 18),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: Text(
+                l10n.adminBibleChapterSimilarBookWarning(suggestion),
+                style: AppTypography.caption,
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            TextButton(
+              onPressed: () => onUseSuggestion(suggestion),
+              child: Text(l10n.adminBibleChapterUseSuggestedBook(suggestion)),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -1010,6 +1116,7 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                   child: TextField(
                     controller: draft.bookController,
                     style: AppTypography.title,
+                    onChanged: (_) => setState(() {}),
                     decoration: const InputDecoration(
                       isDense: true,
                       border: InputBorder.none,
@@ -1017,6 +1124,14 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                   ),
                 ),
               ],
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 48),
+              child: _similarBookWarning(
+                draft.bookController.text,
+                onUseSuggestion: (suggestion) =>
+                    setState(() => draft.bookController.text = suggestion),
+              ),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 48),
@@ -1146,7 +1261,11 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                     // name inline in its review card below, so the single
                     // shared Book field here only applies to manual mode.
                     if (!isUsfmMode) ...[
-                      _field(l10n.adminBibleChapterBookLabel, bookController),
+                      _field(
+                        l10n.adminBibleChapterBookLabel,
+                        bookController,
+                        onChanged: (_) => setState(() {}),
+                      ),
                       const SizedBox(width: AppSpacing.md),
                       _field(
                         l10n.adminBibleChapterChapterLabel,
@@ -1158,6 +1277,11 @@ class _AdminBibleChapterScreenState extends State<AdminBibleChapterScreen> {
                     _field(l10n.adminBibleChapterVersionLabel, versionController),
                   ],
                 ),
+                if (!isUsfmMode)
+                  _similarBookWarning(
+                    bookController.text,
+                    onUseSuggestion: (suggestion) => setState(() => bookController.text = suggestion),
+                  ),
               ],
             ),
           ),

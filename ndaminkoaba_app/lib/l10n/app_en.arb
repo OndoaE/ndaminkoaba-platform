@@ -203,6 +203,14 @@
   "adminBibleChapterBulkClose": "Close",
   "adminBibleChapterBulkCancel": "Cancel",
   "adminBibleChapterBulkBack": "Back",
+  "adminBibleChapterSimilarBookWarning": "This looks similar to an existing book, \"{book}\" — did you mean that one? Typing it differently each time creates a separate, disconnected book.",
+  "@adminBibleChapterSimilarBookWarning": {
+    "placeholders": { "book": {} }
+  },
+  "adminBibleChapterUseSuggestedBook": "Use \"{book}\"",
+  "@adminBibleChapterUseSuggestedBook": {
+    "placeholders": { "book": {} }
+  },
   "adminBibleChapterOverwriteTitle": "Overwrite existing chapters?",
   "adminBibleChapterOverwriteConfirm": "{count} of these chapters are already saved for \"{book}\". Saving now will replace their existing verses with the ones you're uploading.",
   "@adminBibleChapterOverwriteConfirm": {

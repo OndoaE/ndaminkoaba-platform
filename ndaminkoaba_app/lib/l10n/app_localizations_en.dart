@@ -630,6 +630,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get adminBibleChapterBulkBack => 'Back';
 
   @override
+  String adminBibleChapterSimilarBookWarning(Object book) {
+    return 'This looks similar to an existing book, \"$book\" — did you mean that one? Typing it differently each time creates a separate, disconnected book.';
+  }
+
+  @override
+  String adminBibleChapterUseSuggestedBook(Object book) {
+    return 'Use \"$book\"';
+  }
+
+  @override
   String get adminBibleChapterOverwriteTitle => 'Overwrite existing chapters?';
 
   @override
