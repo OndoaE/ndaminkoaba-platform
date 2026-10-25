@@ -2995,6 +2995,10 @@ class AppLocalizationsFr extends AppLocalizations {
   String get bibleAudioPause => 'Pause';
 
   @override
+  String get bibleAudioError =>
+      'Impossible de charger l\'audio. Touchez pour réessayer.';
+
+  @override
   String get bibleChapterNotFoundTitle => 'Chapitre introuvable';
 
   @override

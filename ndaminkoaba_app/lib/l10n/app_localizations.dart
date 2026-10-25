@@ -5210,6 +5210,12 @@ abstract class AppLocalizations {
   /// **'Pause'**
   String get bibleAudioPause;
 
+  /// No description provided for @bibleAudioError.
+  ///
+  /// In en, this message translates to:
+  /// **'Audio could not be loaded. Tap to try again.'**
+  String get bibleAudioError;
+
   /// No description provided for @bibleChapterNotFoundTitle.
   ///
   /// In en, this message translates to:

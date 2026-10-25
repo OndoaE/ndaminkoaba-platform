@@ -1045,6 +1045,7 @@
   "bibleAudioLabel": "Listen in Ewondo",
   "bibleAudioPlay": "Play",
   "bibleAudioPause": "Pause",
+  "bibleAudioError": "Audio could not be loaded. Tap to try again.",
   "bibleChapterNotFoundTitle": "Chapter not found",
   "bibleChapterNotFoundMessage": "This chapter could not be loaded. Please go back and try again.",
 

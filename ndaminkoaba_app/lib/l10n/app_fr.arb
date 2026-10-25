@@ -996,6 +996,7 @@
   "bibleAudioLabel": "Écouter en Ewondo",
   "bibleAudioPlay": "Lire",
   "bibleAudioPause": "Pause",
+  "bibleAudioError": "Impossible de charger l'audio. Touchez pour réessayer.",
   "bibleChapterNotFoundTitle": "Chapitre introuvable",
   "bibleChapterNotFoundMessage": "Ce chapitre n'a pas pu être chargé. Veuillez revenir en arrière et réessayer.",
 

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ndaminkoaba_app/design_system/widgets/nda_scaffold.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -48,6 +50,12 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
   List<BibleVerse> verses = [];
   String? currentAudioUrl;
 
+  /// True when the chapter has narration but the file could not be loaded
+  /// (unreachable server, timeout). The bar then offers a retry instead of a
+  /// play button that silently does nothing.
+  bool audioFailed = false;
+  StreamSubscription<ProcessingState>? _completionSub;
+
   /// Every chapter belonging to this book's Gospel (or exact book match for
   /// non-Gospels), deduped across free-text book-name variants so Previous/
   /// Next always resolves the correct `book` string per chapter number.
@@ -56,6 +64,15 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
   @override
   void initState() {
     super.initState();
+    // just_audio leaves `playing == true` when a clip finishes, so the button
+    // would keep showing "pause" and could never replay. Reset to the start
+    // and stop, so the button flips back to "play".
+    _completionSub = audioPlayer.processingStateStream.listen((state) {
+      if (state == ProcessingState.completed) {
+        audioPlayer.pause();
+        audioPlayer.seek(Duration.zero);
+      }
+    });
     load();
   }
 
@@ -75,6 +92,7 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
     // Stop whichever chapter's audio was playing before — never let it keep
     // playing under the newly-loading chapter's content.
     await audioPlayer.stop();
+    if (mounted) setState(() => audioFailed = false);
     try {
       final languageId = ref.read(currentLearningLanguageProvider);
       final results = await Future.wait([
@@ -110,13 +128,7 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
         hasError = fetchedVerses.isEmpty;
       });
       if (matchingAudio != null) {
-        try {
-          await audioPlayer.setUrl(AppConfig.resolveUrl(matchingAudio.audioUrl));
-        } catch (_) {
-          // A broken/unreachable audio file is a content gap, not something
-          // the learner needs an error dialog for — the play button simply
-          // won't do anything if playback later fails.
-        }
+        await _loadAudio(matchingAudio.audioUrl);
       }
     } catch (_) {
       if (!mounted) return;
@@ -125,6 +137,31 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
         hasError = true;
       });
     }
+  }
+
+  /// Loads the narration into the player. Failure (unreachable or slow server)
+  /// is surfaced through [audioFailed] so the bar can offer a retry; it is
+  /// never an error dialog, because the text is still perfectly readable.
+  Future<void> _loadAudio(String relativeUrl) async {
+    try {
+      await audioPlayer
+          .setUrl(AppConfig.resolveUrl(relativeUrl))
+          .timeout(const Duration(seconds: 45));
+      if (mounted && currentAudioUrl == relativeUrl) {
+        setState(() => audioFailed = false);
+      }
+    } catch (_) {
+      if (mounted && currentAudioUrl == relativeUrl) {
+        setState(() => audioFailed = true);
+      }
+    }
+  }
+
+  Future<void> _retryAudio() async {
+    final url = currentAudioUrl;
+    if (url == null) return;
+    setState(() => audioFailed = false);
+    await _loadAudio(url);
   }
 
   void _goToChapter(BibleChapterInfo target) {
@@ -136,6 +173,7 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
 
   @override
   void dispose() {
+    _completionSub?.cancel();
     audioPlayer.dispose();
     super.dispose();
   }
@@ -194,7 +232,11 @@ class _BibleReaderScreenState extends ConsumerState<BibleReaderScreen> {
             : Column(
                 children: [
                   if (currentAudioUrl != null)
-                    _ChapterAudioBar(audioPlayer: audioPlayer),
+                    _ChapterAudioBar(
+                      audioPlayer: audioPlayer,
+                      failed: audioFailed,
+                      onRetry: _retryAudio,
+                    ),
                   Expanded(
                     child: PageWidth(
                       child: ListView.builder(
@@ -375,18 +417,32 @@ class _VerseTile extends StatelessWidget {
   }
 }
 
-/// Play/pause + elapsed-time bar for the chapter's Ewondo audio narration.
-/// The player itself is owned and pre-loaded by [_BibleReaderScreenState];
-/// this widget only reflects its state, so navigating chapters (which stops
-/// and reloads the player before this bar is even built again) never leaves
-/// a stale control on screen.
-class _ChapterAudioBar extends StatelessWidget {
-  const _ChapterAudioBar({required this.audioPlayer});
+/// Play/pause, seek bar and elapsed-time label for the chapter's Ewondo audio
+/// narration. The player itself is owned and pre-loaded by
+/// [_BibleReaderScreenState]; this widget reflects its state, so navigating
+/// chapters (which stops and reloads the player before this bar is built
+/// again) never leaves a stale control on screen.
+class _ChapterAudioBar extends StatefulWidget {
+  const _ChapterAudioBar({
+    required this.audioPlayer,
+    required this.failed,
+    required this.onRetry,
+  });
 
   final AudioPlayer audioPlayer;
+  final bool failed;
+  final VoidCallback onRetry;
+
+  @override
+  State<_ChapterAudioBar> createState() => _ChapterAudioBarState();
+}
+
+class _ChapterAudioBarState extends State<_ChapterAudioBar> {
+  /// Slider value (milliseconds) while the learner is dragging; null otherwise.
+  double? _dragMs;
 
   String _formatDuration(Duration d) {
-    final minutes = d.inMinutes.remainder(60).toString().padLeft(2, '0');
+    final minutes = d.inMinutes.toString().padLeft(2, '0');
     final seconds = d.inSeconds.remainder(60).toString().padLeft(2, '0');
     return '$minutes:$seconds';
   }
@@ -394,6 +450,7 @@ class _ChapterAudioBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final player = widget.audioPlayer;
     return Container(
       padding: const EdgeInsets.symmetric(
         horizontal: AppSpacing.xl,
@@ -403,64 +460,121 @@ class _ChapterAudioBar extends StatelessWidget {
         color: AppColors.surface,
         border: Border(bottom: BorderSide(color: AppColors.divider)),
       ),
+      child: widget.failed ? _buildFailed(l10n) : _buildPlayer(l10n, player),
+    );
+  }
+
+  Widget _buildFailed(AppLocalizations l10n) {
+    return InkWell(
+      onTap: widget.onRetry,
       child: Row(
         children: [
-          StreamBuilder<PlayerState>(
-            stream: audioPlayer.playerStateStream,
-            builder: (context, snapshot) {
-              final playing = snapshot.data?.playing ?? false;
-              return IconButton(
-                icon: Icon(
-                  playing ? Icons.pause_circle_filled : Icons.play_circle_fill,
-                  color: AppColors.scripture,
-                  size: 32,
-                ),
-                tooltip: playing ? l10n.bibleAudioPause : l10n.bibleAudioPlay,
-                onPressed: () => playing ? audioPlayer.pause() : audioPlayer.play(),
-              );
-            },
+          const Padding(
+            padding: EdgeInsets.all(8),
+            child: Icon(Icons.refresh, color: AppColors.scripture, size: 28),
           ),
           const SizedBox(width: AppSpacing.sm),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(l10n.bibleAudioLabel, style: AppTypography.caption),
-                const SizedBox(height: 4),
-                StreamBuilder<Duration>(
-                  stream: audioPlayer.positionStream,
-                  builder: (context, snapshot) {
-                    final position = snapshot.data ?? Duration.zero;
-                    final duration = audioPlayer.duration ?? Duration.zero;
-                    final progress = duration.inMilliseconds == 0
-                        ? 0.0
-                        : (position.inMilliseconds / duration.inMilliseconds).clamp(0.0, 1.0);
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(4),
-                          child: LinearProgressIndicator(
-                            value: progress,
-                            minHeight: 4,
-                            backgroundColor: AppColors.divider,
-                            color: AppColors.scripture,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          '${_formatDuration(position)} / ${_formatDuration(duration)}',
-                          style: AppTypography.caption,
-                        ),
-                      ],
-                    );
-                  },
-                ),
-              ],
-            ),
-          ),
+          Expanded(child: Text(l10n.bibleAudioError, style: AppTypography.caption)),
         ],
       ),
+    );
+  }
+
+  Widget _buildPlayer(AppLocalizations l10n, AudioPlayer player) {
+    return Row(
+      children: [
+        StreamBuilder<PlayerState>(
+          stream: player.playerStateStream,
+          builder: (context, snapshot) {
+            final state = snapshot.data;
+            final playing = state?.playing ?? false;
+            final loading = state?.processingState == ProcessingState.loading ||
+                state?.processingState == ProcessingState.buffering;
+            if (loading) {
+              // Shown while the file is being fetched or the stream has run
+              // dry, so a slow connection looks like loading, not a dead button.
+              return const SizedBox(
+                width: 48,
+                height: 48,
+                child: Padding(
+                  padding: EdgeInsets.all(13),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    color: AppColors.scripture,
+                  ),
+                ),
+              );
+            }
+            return IconButton(
+              icon: Icon(
+                playing ? Icons.pause_circle_filled : Icons.play_circle_fill,
+                color: AppColors.scripture,
+                size: 32,
+              ),
+              tooltip: playing ? l10n.bibleAudioPause : l10n.bibleAudioPlay,
+              onPressed: () => playing ? player.pause() : player.play(),
+            );
+          },
+        ),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.bibleAudioLabel, style: AppTypography.caption),
+              StreamBuilder<Duration?>(
+                stream: player.durationStream,
+                builder: (context, durationSnapshot) {
+                  final duration = durationSnapshot.data ?? player.duration ?? Duration.zero;
+                  return StreamBuilder<Duration>(
+                    stream: player.positionStream,
+                    builder: (context, positionSnapshot) {
+                      final position = positionSnapshot.data ?? Duration.zero;
+                      final maxMs = duration.inMilliseconds.toDouble();
+                      final currentMs = (_dragMs ?? position.inMilliseconds.toDouble())
+                          .clamp(0.0, maxMs > 0 ? maxMs : 1.0);
+                      final shown = Duration(milliseconds: currentMs.round());
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              trackHeight: 4,
+                              activeTrackColor: AppColors.scripture,
+                              inactiveTrackColor: AppColors.divider,
+                              thumbColor: AppColors.scripture,
+                              overlayShape: const RoundSliderOverlayShape(overlayRadius: 14),
+                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 7),
+                            ),
+                            child: Slider(
+                              value: currentMs,
+                              min: 0,
+                              max: maxMs > 0 ? maxMs : 1.0,
+                              // Seeking needs a known duration; until the file
+                              // has loaded the slider is shown but inert.
+                              onChanged: maxMs > 0 ? (v) => setState(() => _dragMs = v) : null,
+                              onChangeEnd: maxMs > 0
+                                  ? (v) async {
+                                      await player.seek(Duration(milliseconds: v.round()));
+                                      if (mounted) setState(() => _dragMs = null);
+                                    }
+                                  : null,
+                            ),
+                          ),
+                          Text(
+                            '${_formatDuration(shown)} / ${_formatDuration(duration)}',
+                            style: AppTypography.caption,
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

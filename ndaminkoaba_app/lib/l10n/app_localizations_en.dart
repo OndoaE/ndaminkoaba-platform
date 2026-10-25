@@ -2913,6 +2913,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get bibleAudioPause => 'Pause';
 
   @override
+  String get bibleAudioError => 'Audio could not be loaded. Tap to try again.';
+
+  @override
   String get bibleChapterNotFoundTitle => 'Chapter not found';
 
   @override
