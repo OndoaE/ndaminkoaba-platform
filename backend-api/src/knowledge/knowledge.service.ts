@@ -43,6 +43,10 @@ const TRANSLATION_INTENT_PATTERNS = [
   /\btraduis\b/i,
   /\btraduction\s+de\b/i,
   /quel\s+est\s+le\s+mot\s+pour\b/i,
+  // Asking for a run of target-language words (counting) is a translation in
+  // disguise: the invention check caught the tutor making up the numbers 1-10.
+  /\bcount(ing)?\b/i,
+  /\bcompter\b/i,
 ];
 
 @Injectable()
@@ -92,7 +96,13 @@ export class KnowledgeService {
       ? languageName.toLowerCase().split(/\s+/)
       : [];
 
-    return this.cleanPrompt(prompt)
+    // "count" never appears in a lesson titled "The Numbers from 1 to 9", so
+    // counting questions also search for the words the content actually uses.
+    const synonyms = /\b(count(ing)?|compter)\b/i.test(prompt)
+      ? ['number', 'numbers', 'nombre', 'nombres']
+      : [];
+
+    const base = this.cleanPrompt(prompt)
       .toLowerCase()
       .split(' ')
       .filter((word) => word.length > 2)
@@ -129,6 +139,8 @@ export class KnowledgeService {
             ...dynamicStopWords,
           ].includes(word),
       );
+
+    return [...new Set([...base, ...synonyms])];
   }
 
   /// Recognizes requests for a specific Bible passage — "Matthew 5",
