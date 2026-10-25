@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_web_plugins/url_strategy.dart';
 
 import 'core/language/learning_language_provider.dart';
 import 'core/locale/locale_provider.dart';
@@ -17,6 +18,11 @@ import 'routes/app_router.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Clean web addresses (app.ndaminkoaba.com/dashboard) instead of the default
+  // hash form (/#/dashboard). Hosting rewrites every path to index.html. No-op
+  // on mobile.
+  usePathUrlStrategy();
 
   // On web, the browser's own right-click/selection context menu is enabled
   // by default and takes priority over Flutter's — which silently swallows
