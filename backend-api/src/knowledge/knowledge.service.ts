@@ -1,6 +1,17 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  clip,
+  detectSyllabaryIntent,
+  extractLetterCandidates,
+  hasRealText,
+} from './knowledge-helpers';
+
+/// Upper bound on how many vocabulary rows are listed in full in every tutor
+/// request. The pilot holds 1,272 entries, so the earlier cap of 500 hid more
+/// than half of them from the "complete" list the model is told to trust.
+const FULL_VOCABULARY_LIMIT = 2500;
 
 interface WeightedField {
   value: string | null | undefined;
@@ -64,7 +75,7 @@ export class KnowledgeService {
 
   private cleanPrompt(prompt: string): string {
     return prompt
-      .replace(/[?.,!]/g, ' ')
+      .replace(/[?.,!"“”«»]/g, ' ')
       .replace(/\s+/g, ' ')
       .trim();
   }
@@ -94,12 +105,27 @@ export class KnowledgeService {
             'how', 'can', 'are', 'this', 'that', 'with', 'language',
             'languages', 'learn', 'learning', 'speak', 'translate',
             'translation', 'say', 'ndaminkoaba', 'nnanga', 'platform',
+            'lesson', 'lessons', 'book', 'books', 'have', 'called',
+            // Generic question/command words: they appear in thousands of verses and
+            // lesson texts, so as keywords they bury the one distinctive term (a name,
+            // a rare word) under irrelevant substring hits.
+            'which', 'verse', 'verses', 'mention', 'mentions', 'mentioned', 'show', 'give',
+            'list', 'example', 'examples', 'words', 'syllable', 'syllables', 'letter',
+            'letters', 'know', 'find', 'there', 'their', 'where', 'when', 'who', 'whom',
+            'your', 'from', 'was', 'were', 'will', 'would', 'could', 'should', 'into',
+            'than', 'then', 'them', 'they', 'these', 'those', 'also', 'some', 'any',
+            'each', 'most', 'more', 'many', 'much', 'very', 'just', 'only', 'over',
+            'such', 'here', 'contain', 'contains', 'does', 'having',
             // French
             'expliquer', 'professeur', 'comme', 'quoi', 'que', 'veut',
             'dire', 'signifie', 'sil', 'vous', 'plait', 'dis', 'moi',
             'sur', 'mot', 'les', 'des', 'une', 'pour', 'avec', 'comment',
             'peux', 'peut', 'langue', 'langues', 'apprendre', 'parler',
-            'traduire', 'traduction',
+            'traduire', 'traduction', 'leçon', 'leçons', 'livre', 'livres',
+            'quel', 'quelle', 'quels', 'quelles', 'dans', 'est', 'sont', 'mais', 'donc',
+            'cette', 'ces', 'celui', 'montre', 'donne', 'liste', 'exemple', 'exemples',
+            'mots', 'verset', 'versets', 'mentionne', 'lettre', 'lettres', 'syllabe',
+            'syllabes', 'qui', 'quand', 'parle', 'parle-moi', 'contient',
             ...dynamicStopWords,
           ].includes(word),
       );
@@ -202,17 +228,19 @@ export class KnowledgeService {
   /// keyword. A full-phrase hit, or an exact whole-word match on a primary
   /// field, is weighted especially heavily.
   private scoreMatch(fields: WeightedField[], cleanedPrompt: string, keywords: string[]): number {
-    const lowerPrompt = cleanedPrompt.toLowerCase();
+    const norm = (text: string) => text.normalize('NFC').toLowerCase();
+    const lowerPrompt = norm(cleanedPrompt);
+    const normKeywords = keywords.map(norm);
     let score = 0;
 
     for (const { value, weight } of fields) {
       if (!value) continue;
-      const lower = value.toLowerCase();
+      const lower = norm(value);
 
       if (lowerPrompt.length > 2 && lower.includes(lowerPrompt)) {
         score += 5 * weight;
       }
-      for (const keyword of keywords) {
+      for (const keyword of normKeywords) {
         if (lower === keyword) {
           score += 8 * weight;
         } else if (keyword.length >= 4 && lower.includes(keyword)) {
@@ -277,13 +305,23 @@ export class KnowledgeService {
     const insensitive = Prisma.QueryMode.insensitive;
     const terms = [cleanedPrompt, ...keywords].filter((t) => t.length > 2);
 
+    // The same accented letter can be stored as one code point (NFC, "ó") or as a
+    // base letter plus a combining accent (NFD, "o" + U+0301). Words pasted from
+    // different tools mix both, and a plain `contains` only matches the form it
+    // was given, so every database search tries both forms.
+    const withVariants = (list: string[]) => [
+      ...new Set(list.flatMap((t) => [t, t.normalize('NFC'), t.normalize('NFD')])),
+    ];
+    const termsAll = withVariants(terms);
+    const keywordsAll = withVariants(keywords);
+
     const biblePassage = await this.findBiblePassage(prompt, languageId);
 
     const vocabularyPool = terms.length
       ? await this.prisma.vocabulary.findMany({
           where: {
             languageId,
-            OR: terms.flatMap((term) => [
+            OR: termsAll.flatMap((term) => [
               { word: { contains: term, mode: insensitive } },
               { frenchMeaning: { contains: term, mode: insensitive } },
               { englishMeaning: { contains: term, mode: insensitive } },
@@ -314,7 +352,7 @@ export class KnowledgeService {
       ? await this.prisma.knowledgeText.findMany({
           where: {
             languageId,
-            OR: terms.flatMap((term) => [
+            OR: termsAll.flatMap((term) => [
               { text: { contains: term, mode: insensitive } },
               { translation: { contains: term, mode: insensitive } },
             ]),
@@ -337,7 +375,7 @@ export class KnowledgeService {
       ? await this.prisma.bibleVerse.findMany({
           where: {
             languageId,
-            OR: terms.flatMap((term) => [
+            OR: termsAll.flatMap((term) => [
               { text: { contains: term, mode: insensitive } },
               { englishText: { contains: term, mode: insensitive } },
               { frenchText: { contains: term, mode: insensitive } },
@@ -365,7 +403,7 @@ export class KnowledgeService {
       ? await this.prisma.lesson.findMany({
           where: {
             module: languageId ? { course: { languageId } } : undefined,
-            OR: keywords.flatMap((keyword) => [
+            OR: keywordsAll.flatMap((keyword) => [
               { title: { contains: keyword, mode: insensitive } },
               { summary: { contains: keyword, mode: insensitive } },
               { content: { contains: keyword, mode: insensitive } },
@@ -386,8 +424,27 @@ export class KnowledgeService {
         })
       : [];
 
+    // Draft lessons whose body is only a placeholder (a single run of letters
+    // typed while the draft was being created) must never be handed to the
+    // model as lesson content: it would describe the lesson anyway and invent
+    // words to fill the gap. They are listed separately as "no content yet".
+    const realLessonsPool = lessonsPool.filter((l) => hasRealText(l.content) || hasRealText(l.frenchContent));
+    const emptyLessonsPool = lessonsPool.filter((l) => !(hasRealText(l.content) || hasRealText(l.frenchContent)));
+    const { ranked: emptyLessons, topScore: emptyLessonsTopScore } = this.rankAndTake(
+      emptyLessonsPool,
+      (l) => this.scoreMatch(
+        [
+          { value: l.title, weight: 3 },
+          { value: l.frenchTitle, weight: 3 },
+        ],
+        cleanedPrompt,
+        keywords,
+      ),
+      3,
+    );
+
     const { ranked: lessons, topScore: lessonsTopScore } = this.rankAndTake(
-      lessonsPool,
+      realLessonsPool,
       (l) => this.scoreMatch(
         [
           { value: l.title, weight: 3 },
@@ -413,7 +470,7 @@ export class KnowledgeService {
             lesson: {
               module: languageId ? { course: { languageId } } : undefined,
             },
-            OR: keywords.flatMap((keyword) => [
+            OR: keywordsAll.flatMap((keyword) => [
               { title: { contains: keyword, mode: insensitive } },
               { description: { contains: keyword, mode: insensitive } },
               { frenchTitle: { contains: keyword, mode: insensitive } },
@@ -461,7 +518,7 @@ export class KnowledgeService {
       ? await this.prisma.course.findMany({
           where: {
             languageId,
-            OR: keywords.flatMap((keyword) => [
+            OR: keywordsAll.flatMap((keyword) => [
               { title: { contains: keyword, mode: insensitive } },
               { description: { contains: keyword, mode: insensitive } },
               { frenchTitle: { contains: keyword, mode: insensitive } },
@@ -493,12 +550,12 @@ export class KnowledgeService {
           where: {
             languageId,
             OR: [
-              ...terms.flatMap((term) => [
+              ...termsAll.flatMap((term) => [
                 { title: { contains: term, mode: insensitive } },
                 { author: { contains: term, mode: insensitive } },
                 { description: { contains: term, mode: insensitive } },
               ]),
-              ...keywords.map((keyword) => ({
+              ...keywordsAll.map((keyword) => ({
                 content: { contains: keyword, mode: insensitive },
               })),
             ],
@@ -527,8 +584,139 @@ export class KnowledgeService {
 
     const booksWithExcerpts = books.map((book) => ({
       ...book,
-      excerpts: book.content ? this.extractExcerpts(book.content, keywords) : [],
+      excerpts: book.content ? this.extractExcerpts(book.content, keywordsAll) : [],
     }));
+
+    // ---- Syllabary (literacy chart): consonant + vowel = syllable, with an
+    // example word and sentence. Asked about by letter ("the letter H"), by
+    // syllable ("ba") or via an example word/translation.
+    const syllabaryAsked = detectSyllabaryIntent(prompt);
+    let syllabaryLetters: string[] = [];
+    let syllabaryRequestedLetters: string[] = [];
+    if (languageId && (syllabaryAsked || terms.length > 0)) {
+      const letterRows = await this.prisma.syllabaryEntry.findMany({
+        where: { languageId },
+        distinct: ['consonant', 'vowel'],
+        select: { consonant: true, vowel: true },
+      });
+      const letterSet = new Set<string>();
+      for (const r of letterRows) letterSet.add(r.consonant ?? r.vowel);
+      syllabaryLetters = [...letterSet].sort((a, b) => a.localeCompare(b));
+      // A bare one-to-three character token only counts as a letter request
+      // when the question is clearly about the alphabet/syllabary.
+      if (syllabaryAsked) {
+        syllabaryRequestedLetters = extractLetterCandidates(prompt, syllabaryLetters);
+      }
+    }
+
+    const syllabaryPool = languageId && (syllabaryRequestedLetters.length > 0 || terms.length > 0)
+      ? await this.prisma.syllabaryEntry.findMany({
+          where: {
+            languageId,
+            OR: [
+              ...syllabaryRequestedLetters.flatMap((letter) => [
+                { consonant: { equals: letter, mode: insensitive } },
+                { consonant: null, vowel: { equals: letter, mode: insensitive } },
+              ]),
+              ...termsAll
+                .filter((term) => term.length > 2)
+                .flatMap((term) => [
+                  { syllable: { contains: term, mode: insensitive } },
+                  { exampleWord: { contains: term, mode: insensitive } },
+                  { englishTranslation: { contains: term, mode: insensitive } },
+                  { frenchTranslation: { contains: term, mode: insensitive } },
+                  { exampleSentence: { contains: term, mode: insensitive } },
+                ]),
+            ],
+          },
+          orderBy: [{ consonant: 'asc' }, { orderNumber: 'asc' }],
+          take: 80,
+        })
+      : [];
+
+    const requestedLower = new Set(syllabaryRequestedLetters.map((l) => l.toLowerCase()));
+    const { ranked: syllabary, topScore: syllabaryTopScoreRaw } = this.rankAndTake(
+      syllabaryPool,
+      (s) => {
+        const letterHit = requestedLower.has((s.consonant ?? s.vowel).toLowerCase()) ? 10 : 0;
+        return letterHit + this.scoreMatch(
+          [
+            { value: s.syllable, weight: 3 },
+            { value: s.exampleWord, weight: 3 },
+            { value: s.englishTranslation, weight: 2 },
+            { value: s.frenchTranslation, weight: 2 },
+            { value: s.exampleSentence, weight: 1 },
+          ],
+          cleanedPrompt,
+          keywords,
+        );
+      },
+      requestedLower.size > 0 ? 24 : 8,
+    );
+    // Keep a requested letter's rows in the chart's own vowel order.
+    if (requestedLower.size > 0) {
+      syllabary.sort((a, b) => {
+        const ka = (a.consonant ?? a.vowel).toLowerCase();
+        const kb = (b.consonant ?? b.vowel).toLowerCase();
+        return ka === kb ? a.orderNumber - b.orderNumber : ka.localeCompare(kb);
+      });
+    }
+
+    // ---- Authored (illustrated) book pages: the Ewondo/English/French text of
+    // each page is stored per page, not in Book.content.
+    const bookPagesPool = languageId && terms.length > 0
+      ? await this.prisma.bookPage.findMany({
+          where: {
+            book: { languageId },
+            OR: termsAll.flatMap((term) => [
+              { ewondoText: { contains: term, mode: insensitive } },
+              { englishText: { contains: term, mode: insensitive } },
+              { frenchText: { contains: term, mode: insensitive } },
+            ]),
+          },
+          take: 40,
+          include: { book: { select: { title: true } } },
+        })
+      : [];
+
+    const { ranked: bookPages, topScore: bookPagesTopScore } = this.rankAndTake(
+      bookPagesPool,
+      (p) => this.scoreMatch(
+        [
+          { value: p.ewondoText, weight: 2 },
+          { value: p.englishText, weight: 1 },
+          { value: p.frenchText, weight: 1 },
+        ],
+        cleanedPrompt,
+        keywords,
+      ),
+      4,
+    );
+
+    // ---- Lesson image gallery: each image carries the word it illustrates.
+    const lessonImagesPool = languageId && terms.length > 0
+      ? await this.prisma.lessonImage.findMany({
+          where: {
+            lesson: { module: { course: { languageId } } },
+            OR: termsAll.flatMap((term) => [
+              { word: { contains: term, mode: insensitive } },
+              { caption: { contains: term, mode: insensitive } },
+            ]),
+          },
+          take: 40,
+          include: { lesson: { select: { title: true } } },
+        })
+      : [];
+
+    const { ranked: lessonImages, topScore: lessonImagesTopScore } = this.rankAndTake(
+      lessonImagesPool,
+      (i) => this.scoreMatch(
+        [{ value: i.word, weight: 3 }, { value: i.caption, weight: 1 }],
+        cleanedPrompt,
+        keywords,
+      ),
+      6,
+    );
 
     // The whole real vocabulary is small enough to hand to the model in
     // full every time (a few hundred words at most, one line each) — this
@@ -541,7 +729,7 @@ export class KnowledgeService {
           where: { languageId },
           orderBy: { word: 'asc' },
           select: { word: true, englishMeaning: true, frenchMeaning: true },
-          take: 500,
+          take: FULL_VOCABULARY_LIMIT,
         })
       : [];
 
@@ -558,7 +746,13 @@ export class KnowledgeService {
       this.detectsTranslationIntent(prompt) &&
       !biblePassage &&
       vocabulary.length === 0 &&
-      texts.length === 0;
+      texts.length === 0 &&
+      // A syllabary example word, an illustrated word or an authored book page can
+      // ground a translation too, but only on a real match (an exact word, a requested
+      // letter, or the whole phrase) — a loose keyword hit must not switch the safeguard off.
+      syllabaryTopScoreRaw < 8 &&
+      lessonImagesTopScore < 8 &&
+      bookPagesTopScore < 5;
 
     // When we're about to tell the model "don't translate, suggest
     // alternatives instead", the alternatives themselves must be real —
@@ -590,10 +784,24 @@ export class KnowledgeService {
       texts,
       verses,
       lessons,
+      emptyLessons,
+      // Set when the question is about a lesson that exists but was never written,
+      // so the tutor is told to say so instead of describing it from its title.
+      emptyLessonAsked:
+        emptyLessons.length > 0 && emptyLessonsTopScore >= 3 && emptyLessonsTopScore >= lessonsTopScore
+          ? emptyLessons[0].title
+          : null,
       quizzes,
       courses,
       books: booksWithExcerpts,
+      bookPages,
+      lessonImages,
+      syllabary,
+      syllabaryLetters,
+      syllabaryAsked,
+      syllabaryRequestedLetters,
       fullVocabulary,
+      fullVocabularyTruncated: fullVocabulary.length >= FULL_VOCABULARY_LIMIT,
       isUngroundedTranslationRequest,
       suggestedVocabulary,
       hasResults:
@@ -602,9 +810,13 @@ export class KnowledgeService {
         texts.length > 0 ||
         verses.length > 0 ||
         lessons.length > 0 ||
+        emptyLessons.length > 0 ||
         quizzes.length > 0 ||
         courses.length > 0 ||
-        books.length > 0,
+        books.length > 0 ||
+        bookPages.length > 0 ||
+        lessonImages.length > 0 ||
+        syllabary.length > 0,
       // A "5" score means some row matched the full cleaned phrase, not just
       // a loose keyword — that's the bar for "confidently grounded".
       hasExactVocabularyMatch: vocabularyTopScore >= 5,
@@ -622,6 +834,9 @@ export class KnowledgeService {
         lessonsTopScore,
         quizzesTopScore,
         booksTopScore,
+        syllabaryTopScoreRaw,
+        bookPagesTopScore,
+        lessonImagesTopScore,
         biblePassage ? 100 : 0,
       ),
     };
@@ -672,7 +887,9 @@ v${verse.verse} — ${languageName}: ${verse.text}
     }
 
     if (results.fullVocabulary.length > 0) {
-      context += `FULL VOCABULARY LIST — every single ${languageName} word currently in NdaMinkoaba, complete and exhaustive (word = English / French):\n`;
+      context += results.fullVocabularyTruncated
+        ? `VOCABULARY LIST — the first ${results.fullVocabulary.length} ${languageName} words in NdaMinkoaba in alphabetical order (the list is long, so words further down may be missing here; rely on VOCABULARY FOUND for those) (word = English / French):\n`
+        : `FULL VOCABULARY LIST — every single ${languageName} word currently in NdaMinkoaba, complete and exhaustive (word = English / French):\n`;
       for (const word of results.fullVocabulary) {
         context += `${word.word} = ${word.englishMeaning ?? '?'} / ${word.frenchMeaning ?? '?'}\n`;
       }
@@ -687,6 +904,28 @@ v${verse.verse} — ${languageName}: ${verse.text}
 - ${languageName} text: ${item.text}
   Translation: ${item.translation ?? 'Not provided'}
 `;
+      }
+    }
+
+    if (results.syllabary.length > 0 || results.syllabaryAsked) {
+      context += `\nSYLLABARY (the literacy chart \u2014 consonant + vowel = syllable, each with an example word):\n`;
+      if (results.syllabaryLetters.length > 0) {
+        context += `Letters available in the ${languageName} syllabary: ${results.syllabaryLetters.join(', ')}\n`;
+      }
+      if (results.syllabaryAsked && results.syllabaryRequestedLetters.length === 0) {
+        context += `(The learner did not name a specific letter, or it is not in the chart: describe what the syllabary is and list the letters above; do not invent letters.)\n`;
+      }
+      for (const row of results.syllabary) {
+        const letter = row.consonant ?? row.vowel;
+        const extras = [
+          row.exampleWord ? `example word: ${row.exampleWord}` : null,
+          row.englishTranslation ? `English: ${row.englishTranslation}` : null,
+          row.frenchTranslation ? `French: ${row.frenchTranslation}` : null,
+          row.exampleSentence ? `example sentence: ${row.exampleSentence}` : null,
+        ]
+          .filter(Boolean)
+          .join('; ');
+        context += `- Letter ${letter}: syllable ${row.syllable}${extras ? ` \u2014 ${extras}` : ''}\n`;
       }
     }
 
@@ -716,6 +955,20 @@ v${verse.verse} — ${languageName}: ${verse.text}
           context += `\n  French summary: ${lesson.frenchSummary ?? 'Not provided'}\n  French content: ${lesson.frenchContent}`;
         }
         context += '\n';
+      }
+    }
+
+    if (results.emptyLessons.length > 0) {
+      context += `\nLESSONS THAT EXIST BUT HAVE NO CONTENT YET (the author has not written them; say so plainly and do NOT describe or guess what they teach):\n`;
+      for (const lesson of results.emptyLessons) {
+        context += `- ${lesson.title}${lesson.frenchTitle ? ` (French: ${lesson.frenchTitle})` : ''}\n`;
+      }
+    }
+
+    if (results.lessonImages.length > 0) {
+      context += `\nILLUSTRATED WORDS (from lesson image galleries):\n`;
+      for (const image of results.lessonImages) {
+        context += `- ${image.word}${image.caption ? ` \u2014 ${image.caption}` : ''} (lesson: ${image.lesson.title})\n`;
       }
     }
 
@@ -752,6 +1005,16 @@ v${verse.verse} — ${languageName}: ${verse.text}
       }
     }
 
+    if (results.bookPages.length > 0) {
+      context += `\nILLUSTRATED BOOK PAGES FOUND (text of authored book pages):\n`;
+      for (const page of results.bookPages) {
+        context += `- Book "${page.book.title}", page ${page.orderNumber}\n  ${languageName}: ${clip(page.ewondoText)}`;
+        if (page.englishText) context += `\n  English: ${clip(page.englishText)}`;
+        if (page.frenchText) context += `\n  French: ${clip(page.frenchText)}`;
+        context += '\n';
+      }
+    }
+
     if (results.courses.length > 0) {
       context += `\nRELATED COURSES:\n`;
 
@@ -771,7 +1034,7 @@ v${verse.verse} — ${languageName}: ${verse.text}
     context += `
 
 CRITICAL ACCURACY RULE (absolute, overrides everything else):
-- You may ONLY state a specific ${languageName} word, phrase, or sentence if it appears verbatim, exact spelling, somewhere above (FULL VOCABULARY LIST, VOCABULARY FOUND, TEXTS FOUND, a BIBLE VERSE/PASSAGE, or a book excerpt).
+- You may ONLY state a specific ${languageName} word, phrase, or sentence if it appears verbatim, exact spelling, somewhere above (FULL VOCABULARY LIST, VOCABULARY FOUND, TEXTS FOUND, a BIBLE VERSE/PASSAGE, a SYLLABARY row, an ILLUSTRATED WORD, an ILLUSTRATED BOOK PAGE, or a book excerpt).
 - If the learner asks you to translate something, or asks "how do you say X in ${languageName}", and that word/phrase does NOT appear above (check the FULL VOCABULARY LIST — it is exhaustive), say plainly that it is not yet in NdaMinkoaba's content. Do NOT guess, reconstruct, or invent a plausible-looking ${languageName} word — even one that "seems right" from patterns you know. A wrong invented word actively misteaches the learner, which is worse than admitting you don't have it yet.
 - You may still freely explain grammar patterns, pronunciation rules, culture, history, and general language-learning advice from your own knowledge — the restriction is only on stating specific ${languageName} vocabulary/phrases that aren't grounded in the context above.
 

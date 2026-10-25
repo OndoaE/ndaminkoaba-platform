@@ -74,7 +74,7 @@ GREETINGS — SECOND PRIORITY: if the learner's latest message is ONLY a greetin
 A greeting combined with a real question (e.g. "Hi, how do I say water in ${languageName}?") is NOT a bare greeting — answer the actual question normally, with a brief warm greeting folded in.
 
 You draw on two sources of knowledge:
-1. OFFICIAL NDAMINKOABA CONTENT — vocabulary, texts, Bible verses, lessons, quiz questions, courses and books retrieved from the platform's own database, given to you below as "LOCAL KNOWLEDGE CONTEXT". This is always authoritative for anything it covers: never contradict it or invent a different meaning for a word it defines. The FULL VOCABULARY LIST inside it is the complete, exhaustive word list — treat any word absent from it as genuinely absent, not as something to guess at. When a QUIZ QUESTIONS section is present, you only ever see question text, never which choice is correct — if a learner asks you to grade or reveal an answer, tell them to take the quiz in the app instead of guessing.
+1. OFFICIAL NDAMINKOABA CONTENT — vocabulary, texts, Bible verses, lessons, illustrated words, syllabary rows, authored book pages, quiz questions, courses and books retrieved from the platform's own database, given to you below as "LOCAL KNOWLEDGE CONTEXT". This is always authoritative for anything it covers: never contradict it or invent a different meaning for a word it defines. The FULL VOCABULARY LIST inside it is the complete, exhaustive word list — treat any word absent from it as genuinely absent, not as something to guess at (if its heading says it is only the first part of a longer list, rely on VOCABULARY FOUND for the rest). A lesson listed as having no content yet has not been written: say so, never describe it. When a QUIZ QUESTIONS section is present, you only ever see question text, never which choice is correct — if a learner asks you to grade or reveal an answer, tell them to take the quiz in the app instead of guessing.
 2. YOUR OWN GENERAL KNOWLEDGE of language learning, Bantu/Niger-Congo linguistics, Cameroonian culture, the Bible, and teaching method — for grammar patterns, pronunciation, culture, history, and study advice, freely used to give complete, useful answers even when the local context is thin. ${hasLocalKnowledge ? 'This question matches local content — blend it in naturally.' : 'This question has no strong platform match — lean on general knowledge for methodology/culture, but the CRITICAL ACCURACY RULE below still applies in full to any specific target-language word or phrase.'} Never refuse to answer just because local content is missing.
 
 IMPORTANT — you will receive a CRITICAL ACCURACY RULE inside the LOCAL KNOWLEDGE CONTEXT below, about never inventing ${languageName} words/phrases that aren't verbatim in that context. Follow it exactly; it is not optional and applies regardless of how confident you feel.
@@ -95,6 +95,18 @@ Conversation memory:
   // far more reliably followed than a static rule buried in the system
   // prompt — see language-detector.ts for why detection is code, not a
   // model judgment call.
+  // A lesson can exist in the catalogue with only placeholder text in its body.
+  // Left alone, a small model describes it from the title and invents words to
+  // fill the gap, so the caller names such a lesson and the model is told to
+  // say it has not been written yet.
+  private buildEmptyLessonNote(title: string | null, languageName: string): string {
+    if (!title) return '';
+    return `
+
+---
+[NO CONTENT: the lesson "${title}" exists in NdaMinkoaba but its author has not written its content yet. Tell the learner that plainly, do NOT describe what it teaches, and do NOT write any ${languageName} word to illustrate it. You may offer to help with related vocabulary that appears in the context above.]`;
+  }
+
   private buildLanguageDirective(prompt: string): string {
     const detected = detectReplyLanguage(prompt);
     if (!detected) return '';
@@ -111,6 +123,7 @@ Conversation memory:
     isFullPassageRequest = false,
     isUngroundedTranslationRequest = false,
     suggestedVocabulary: SuggestedVocabularyEntry[] = [],
+    emptyLessonTitle: string | null = null,
   ): Promise<string> {
     if (!process.env.OPENROUTER_API_KEY) {
       return 'Nnanga AI is not configured yet. Please add OPENROUTER_API_KEY to the .env file.';
@@ -133,7 +146,7 @@ Conversation memory:
     const userMessage = (isUngroundedTranslationRequest
       ? `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nIMPORTANT: NdaMinkoaba's content has been checked in code and does NOT contain a ${languageName} translation for this. Do NOT attempt a translation and do NOT write any ${languageName} word yourself. The ONLY ${languageName} words you are allowed to write, copied exactly as shown, are these pre-approved ones:\n${approvedWordsBlock || '(none available)'}\n\nYour task: (1) warmly tell the learner this specific word/phrase isn't in the platform's content yet, (2) if the list above is non-empty, weave 1-3 of those exact words into a helpful suggestion, using ONLY the spelling shown, (3) optionally add a short encouraging note. Reply in the language of the learner's question. Do not add, modify, or guess any other ${languageName} text.`
       : `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nBefore answering: if this question asks for a specific ${languageName} word, phrase, or translation, first check whether it is verbatim in the FULL VOCABULARY LIST or another section above. If it is not there, do not translate it — tell the learner honestly that this isn't in NdaMinkoaba's content yet, instead of guessing.`
-    ) + this.buildLanguageDirective(prompt);
+    ) + this.buildEmptyLessonNote(emptyLessonTitle, languageName) + this.buildLanguageDirective(prompt);
 
     try {
       const completion = await this.client.chat.completions.create({
@@ -195,6 +208,7 @@ Conversation memory:
     isFullPassageRequest = false,
     isUngroundedTranslationRequest = false,
     suggestedVocabulary: SuggestedVocabularyEntry[] = [],
+    emptyLessonTitle: string | null = null,
   ): Promise<StructuredTutorResponse> {
     if (!process.env.OPENROUTER_API_KEY) {
       return {
@@ -212,7 +226,7 @@ Conversation memory:
     const userMessage = (isUngroundedTranslationRequest
       ? `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nIMPORTANT: NdaMinkoaba's content has been checked in code and does NOT contain a ${languageName} translation for this. Do NOT attempt a translation and do NOT write any ${languageName} word yourself. The ONLY ${languageName} words you are allowed to write, copied exactly as shown, are these pre-approved ones:\n${approvedWordsBlock || '(none available)'}\n\nYour task: (1) warmly tell the learner this specific word/phrase isn't in the platform's content yet, (2) if the list above is non-empty, weave 1-3 of those exact words into a helpful suggestion, using ONLY the spelling shown, (3) optionally add a short encouraging note. Reply in the language of the learner's question. Do not add, modify, or guess any other ${languageName} text.`
       : `LOCAL KNOWLEDGE CONTEXT:\n${context}\n\nLearner question:\n${prompt}\n\n---\nBefore answering: if this question asks for a specific ${languageName} word, phrase, or translation, first check whether it is verbatim in the FULL VOCABULARY LIST or another section above. If it is not there, do not translate it — tell the learner honestly that this isn't in NdaMinkoaba's content yet, instead of guessing.`
-    ) + this.buildLanguageDirective(prompt);
+    ) + this.buildEmptyLessonNote(emptyLessonTitle, languageName) + this.buildLanguageDirective(prompt);
 
     const structuredInstruction = `\n\n---\nRespond with ONLY a JSON object (no markdown fences, no prose outside it) matching exactly this shape:\n{"response": string, "correction": string|null, "translation": string|null, "suggestedReplies": string[]}\n- "response": your normal reply, following all the style rules above.\n- "correction": a short, gentle note ONLY if the learner's message contained a language mistake worth flagging, else null.\n- "translation": filled ONLY if the learner explicitly asked for a translation, else null.\n- "suggestedReplies": 2-4 short, natural follow-up messages the learner might send next, in the same language as "response". Empty array if none fit.`;
 

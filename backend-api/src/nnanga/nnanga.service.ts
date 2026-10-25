@@ -128,6 +128,7 @@ export class NnangaService {
       results.biblePassage != null,
       results.isUngroundedTranslationRequest,
       results.suggestedVocabulary,
+      results.emptyLessonAsked,
     );
 
     const conversation = await this.prisma.aIConversation.create({
